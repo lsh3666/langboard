@@ -18,7 +18,7 @@ import { toCssWidth } from "@/components/plate-ui/utils";
 const SMALL_IMAGE_MAX_WIDTH = 400;
 
 export const ImageElement = withHOC(ResizableProvider, function ImageElement(props: PlateElementProps<TImageElement>) {
-    const { t } = useTranslation();
+    const [t] = useTranslation();
     const { align = "center", focused, readOnly, selected } = useMediaState();
     const width = useResizableValue("width");
     const editor = useEditorRef();
