@@ -12,9 +12,6 @@ class CardCommentReaction(BaseReactionModel, table=True):
     def get_target_column_name() -> str:
         return "comment_id"
 
-    def api_response(self) -> dict[str, Any]:
-        return {}
-
     def notification_data(self) -> dict[str, Any]:
         return {}
 

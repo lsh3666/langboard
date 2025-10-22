@@ -1,28 +1,13 @@
 from typing import Any
-from core.db import DateTimeField, SnowflakeIDField, SoftDeleteModel
+from core.db import ApiField, DateTimeField, Field, SnowflakeIDField, SoftDeleteModel
 from core.types import SafeDateTime, SnowflakeID
-from sqlmodel import Field
 from .User import User
 
 
 class UserEmail(SoftDeleteModel, table=True):
     user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
-    email: str = Field(nullable=False)
-    verified_at: SafeDateTime | None = DateTimeField(default=None, nullable=True)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "email": "string",
-            "verified_at": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "email": self.email,
-            "verified_at": self.verified_at,
-        }
+    email: str = Field(nullable=False, api_field=ApiField())
+    verified_at: SafeDateTime | None = DateTimeField(default=None, nullable=True, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

@@ -7,18 +7,6 @@ from ..BotSchedule import BotSchedule
 class BaseBotScheduleModel(BaseSqlModel):
     bot_schedule_id: SnowflakeID = SnowflakeIDField(foreign_key=BotSchedule, nullable=False, index=True)
 
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-        }
-
     def notification_data(self) -> dict[str, Any]:
         return {}
 

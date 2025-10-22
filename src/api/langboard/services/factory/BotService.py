@@ -34,7 +34,7 @@ class BotService(BaseService):
             return bots
         api_bots = []
         for bot in bots:
-            api_bot = bot.api_response(is_setting)
+            api_bot = bot.api_response(is_setting=is_setting)
             api_bots.append(api_bot)
         return api_bots
 

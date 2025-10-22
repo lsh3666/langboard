@@ -6,7 +6,7 @@ import { Utils } from "@langboard/core/utils";
 
 export interface IChangeProjectColumnNameForm {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
     name: string;
 }
 
@@ -16,7 +16,7 @@ const useChangeProjectColumnName = (options?: TMutationOptions<IChangeProjectCol
     const changeProjectColumnName = async (params: IChangeProjectColumnNameForm) => {
         const url = Utils.String.format(Routing.API.BOARD.COLUMN.CHANGE_NAME, {
             uid: params.project_uid,
-            column_uid: params.column_uid,
+            project_column_uid: params.project_column_uid,
         });
         const res = await api.put(
             url,

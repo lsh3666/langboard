@@ -376,7 +376,7 @@ class NotificationService(BaseService):
             dumped_models: list[tuple[str, dict]] = []
             for model in models:
                 dumped_models.append((type(model).__tablename__, model.model_dump()))
-            BotDefaultTask.bot_mentioned(target_bot, mentioned_in, dumped_models)
+            BotDefaultTask.bot_mentioned(notifier, target_bot, mentioned_in, dumped_models)
 
     async def __notify(
         self,

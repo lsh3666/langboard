@@ -1,24 +1,11 @@
 from typing import Any
-from core.db import SnowflakeIDField
+from core.db import ApiField, SnowflakeIDField
 from core.types import SnowflakeID
 from .bases import BaseBotScheduleModel
 from .{class_name} import {class_name}
 
 
 class {class_name}BotSchedule(BaseBotScheduleModel, table=True):
-    {column_name}_id: SnowflakeID = SnowflakeIDField(foreign_key={class_name}, nullable=False, index=True)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return BaseBotScheduleModel.api_schema(
-            {sb}
-                "{column_name}_uid": "string",
-                **(schema or {}),
-            {eb}
-        )
-
-    def api_response(self) -> dict[str, Any]:
-        return {sb}
-            "{column_name}_uid": self.{column_name}_id.to_short_code(),
-            **(super().api_response()),
-        {eb}
+    {column_name}_id: SnowflakeID = SnowflakeIDField(
+        foreign_key={class_name}, nullable=False, index=True, api_field=ApiField(name="{column_name}_uid")
+    )

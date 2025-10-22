@@ -2,7 +2,6 @@ from tempfile import TemporaryFile
 from typing import BinaryIO
 from boto3 import client
 from ..Env import Env
-from ..utils.String import get_random_filename
 from .BaseStorage import BaseStorage
 from .FileModel import FileModel
 from .StorageName import StorageName
@@ -27,7 +26,7 @@ class S3Storage(BaseStorage):
             return None
 
         try:
-            new_filename = get_random_filename(filename)
+            new_filename = self.get_random_filename(filename)
             s3_client = self._connect_client()
             s3_client.upload_fileobj(Fileobj=file, Bucket=Env.S3_BUCKET_NAME, Key=f"{storage_name}/{new_filename}")
             s3_client.close()

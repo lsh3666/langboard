@@ -1,7 +1,5 @@
-from os import urandom
 from random import randint, shuffle
 from string import ascii_lowercase, ascii_uppercase, digits
-from ..types import SafeDateTime
 
 
 BASE62_ALPHABET = f"{digits}{ascii_lowercase}{ascii_uppercase}"
@@ -67,9 +65,3 @@ def create_short_unique_id(length: int) -> str:
         unique_chars.append(chr(randint(ascii_range[0], ascii_range[1])))
 
     return concat(*unique_chars)
-
-
-def get_random_filename(file_name: str | None) -> str:
-    extension = file_name.split(".")[-1] if file_name else ""
-
-    return concat(str(int(SafeDateTime.now().timestamp())), urandom(10).hex(), ".", extension)

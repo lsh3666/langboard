@@ -1,36 +1,34 @@
 from typing import Any
-from core.db import EditorContentModel, ModelColumnType, SnowflakeIDField, SoftDeleteModel
+from core.db import ApiField, EditorContentModel, Field, ModelColumnType, SnowflakeIDField, SoftDeleteModel
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .Bot import Bot
 from .Card import Card
 from .User import User
 
 
 class CardComment(SoftDeleteModel, table=True):
-    card_id: SnowflakeID = SnowflakeIDField(foreign_key=Card, nullable=False, index=True)
+    card_id: SnowflakeID = SnowflakeIDField(
+        foreign_key=Card, nullable=False, index=True, api_field=ApiField(name="card_uid")
+    )
     user_id: SnowflakeID | None = SnowflakeIDField(foreign_key=User, nullable=True)
     bot_id: SnowflakeID | None = SnowflakeIDField(foreign_key=Bot, nullable=True)
-    content: EditorContentModel = Field(default=EditorContentModel(), sa_type=ModelColumnType(EditorContentModel))
+    content: EditorContentModel = Field(
+        default=EditorContentModel(), sa_type=ModelColumnType(EditorContentModel), api_field=ApiField()
+    )
 
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "card_uid": "string",
-            "content": EditorContentModel.api_schema(),
-            "is_edited": "bool",
-            "commented_at": "string",
-            **(schema or {}),
-        }
+    @classmethod
+    def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
+        return super().api_schema(
+            {
+                "is_edited": "bool",
+                **(schema or {}),
+            }
+        )
 
     def api_response(self) -> dict[str, Any]:
         return {
-            "uid": self.get_uid(),
-            "card_uid": self.card_id.to_short_code(),
-            "content": self.content.model_dump(),
+            **super().api_response(),
             "is_edited": self.created_at.timestamp() != self.updated_at.timestamp(),
-            "commented_at": self.updated_at,
         }
 
     def notification_data(self) -> dict[str, Any]:

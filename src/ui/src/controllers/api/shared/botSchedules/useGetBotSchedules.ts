@@ -25,7 +25,7 @@ const useGetBotSchedules = (botUID: string, params: TUseGetBotSchedulesForm, lim
             url = Utils.String.format(Routing.API.BOARD.BOT.SCHEDULE.GET_ALL_BY_COLUMN, {
                 uid: params.project_uid,
                 bot_uid: botUID,
-                column_uid: params.target_uid,
+                project_column_uid: params.target_uid,
             });
             break;
         case "card":

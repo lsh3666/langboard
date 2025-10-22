@@ -99,7 +99,7 @@ async def toggle_star_project(
         OpenApiSchema()
         .suc(
             {
-                "cards": [(Card, {"schema": {"column_name": "string"}})],
+                "cards": [(Card, {"schema": {"project_column_name": "string"}})],
                 "projects": [Project],
             }
         )

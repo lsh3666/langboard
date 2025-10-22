@@ -57,7 +57,7 @@ class CardService(BaseService):
             return None
 
         api_card = card.api_response()
-        api_card["column_name"] = column.name
+        api_card["project_column_name"] = column.name
 
         project_service = self._get_service(ProjectService)
         api_card["project_members"] = await project_service.get_assigned_users(card.project_id, as_api=True)
@@ -181,7 +181,7 @@ class CardService(BaseService):
         api_projects: dict[int, dict[str, Any]] = {}
         for card, project, column in records:
             api_card = card.api_response()
-            api_card["column_name"] = column.name
+            api_card["project_column_name"] = column.name
             if project.id not in api_projects:
                 api_projects[project.id] = project.api_response()
             api_cards.append(api_card)
@@ -214,7 +214,7 @@ class CardService(BaseService):
         cards = []
         for card, column in records:
             api_card = card.api_response()
-            api_card["column_name"] = column.name
+            api_card["project_column_name"] = column.name
             cards.append(api_card)
         return cards
 

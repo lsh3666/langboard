@@ -1,20 +1,12 @@
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .Checkitem import Checkitem, CheckitemStatus
 
 
 class CheckitemTimerRecord(BaseSqlModel, table=True):
     checkitem_id: SnowflakeID = SnowflakeIDField(foreign_key=Checkitem, nullable=False, index=True)
     status: CheckitemStatus = Field(nullable=False)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
 
     def notification_data(self) -> dict[str, Any]:
         return {}

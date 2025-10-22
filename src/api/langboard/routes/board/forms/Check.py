@@ -20,4 +20,4 @@ class CardChecklistNotifyForm(BaseFormModel):
 
 @form_model
 class CardifyCheckitemForm(BaseFormModel):
-    column_uid: str = Field(..., title="UID of the project column for the new card that will be created")
+    project_column_uid: str = Field(..., title="UID of the project column for the new card that will be created")

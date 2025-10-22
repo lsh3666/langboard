@@ -1,7 +1,6 @@
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .User import User
 
 
@@ -12,8 +11,8 @@ class UserProfile(BaseSqlModel, table=True):
     affiliation: str | None = Field(default=None, nullable=True)
     position: str | None = Field(default=None, nullable=True)
 
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
+    @classmethod
+    def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
         return {
             "industry": "string",
             "purpose": "string",

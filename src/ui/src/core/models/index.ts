@@ -22,10 +22,8 @@ export * as ProjectWiki from "@/core/models/ProjectWiki";
 export * as User from "@/core/models/User";
 export * as UserGroup from "@/core/models/UserGroup";
 export * as UserNotification from "@/core/models/UserNotification";
-
 export * as ProjectColumnBotScope from "@/core/models/botScopes/ProjectColumnBotScope";
 export * as ProjectCardBotScope from "@/core/models/botScopes/ProjectCardBotScope";
-
 export * as BaseBotScheduleModel from "@/core/models/botSchedules/BaseBotScheduleModel";
 export * as ProjectColumnBotSchedule from "@/core/models/botSchedules/ProjectColumnBotSchedule";
 export * as ProjectCardBotSchedule from "@/core/models/botSchedules/ProjectCardBotSchedule";

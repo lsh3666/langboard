@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from os import urandom
 from typing import BinaryIO
+from ..types import SafeDateTime
 from ..utils.Encryptor import Encryptor
+from ..utils.String import concat
 from .FileModel import FileModel
 from .StorageName import StorageName
 
@@ -39,3 +42,8 @@ class BaseStorage(ABC):
 
     def _encrypt_storage_type(self, storage_type: str) -> str:
         return Encryptor.encrypt(storage_type, "storage_type")
+
+    def get_random_filename(self, file_name: str | None) -> str:
+        extension = file_name.split(".")[-1] if file_name else ""
+
+        return concat(str(int(SafeDateTime.now().timestamp())), urandom(10).hex(), ".", extension)

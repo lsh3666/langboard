@@ -212,7 +212,7 @@ class FlowRunner:
         if not rest_data:
             return
 
-        column_uid = rest_data.get("column_uid")
+        column_uid = rest_data.get("project_column_uid")
         card_uid = rest_data.get("card_uid")
         if not column_uid and not card_uid:
             return

@@ -4,6 +4,7 @@ from core.Env import Env
 from models import Bot, Project
 from models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from .BaseBotRequest import BaseBotRequest
+from .DefaultRequest import DefaultRequest
 from .LangflowRequest import LangflowRequest
 
 
@@ -16,7 +17,7 @@ def create_request(
 ) -> BaseBotRequest | None:
     if bot.platform == BotPlatform.Default:
         if bot.platform_running_type == BotPlatformRunningType.Default:
-            return LangflowRequest(bot, Env.DEFAULT_FLOWS_URL, event, data, project, scope_model)
+            return DefaultRequest(bot, Env.DEFAULT_FLOWS_URL, event, data, project, scope_model)
         return None
 
     if bot.platform == BotPlatform.Langflow:

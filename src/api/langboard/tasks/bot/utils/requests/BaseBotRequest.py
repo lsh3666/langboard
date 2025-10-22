@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypedDict
 from core.db import BaseSqlModel, DbSession
 from helpers import BotHelper
 from models import Bot, BotLog, Project
@@ -11,6 +11,11 @@ from .....core.logger import Logger
 
 
 logger = Logger.use("BotTask")
+
+
+class RequestData(TypedDict, total=True):
+    url: str
+    data: dict[str, Any]
 
 
 class BaseBotRequest(ABC):
@@ -30,8 +35,29 @@ class BaseBotRequest(ABC):
         self._project = project
         self._scope_model = scope_model
 
+    async def execute(self) -> None:
+        bot_log = await self._create_log(BotLogType.Info, f"'{self._event}' task started")
+
+        request_data = self.create_request_data(bot_log)
+        if not request_data:
+            await self._update_log(bot_log, BotLogType.Error, "Invalid request data")
+            return
+
+        headers = self._get_bot_request_headers()
+
+        await self.request(request_data, headers, bot_log)
+
     @abstractmethod
-    async def request(self) -> None: ...
+    def create_request_data(self, bot_log: tuple[BotLog, BaseBotLogModel | None]) -> RequestData: ...
+
+    @abstractmethod
+    async def request(
+        self,
+        request_data: RequestData,
+        headers: dict[str, Any],
+        bot_log: tuple[BotLog, BaseBotLogModel | None],
+        retried: int = 0,
+    ) -> None: ...
 
     def _get_bot_request_headers(self) -> dict[str, Any]:
         headers = {

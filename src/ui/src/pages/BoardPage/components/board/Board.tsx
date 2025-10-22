@@ -124,13 +124,13 @@ function BoardDisplay({ scrollableRef }: { scrollableRef: React.RefObject<HTMLDi
         return columnRowDndHelpers.root({
             columns,
             rowsMap: cardsMap,
-            columnKeyInRow: "column_uid",
+            columnKeyInRow: "project_column_uid",
             symbolSet: BOARD_DND_SYMBOL_SET,
             scrollable,
             settings: BOARD_DND_SETTINGS,
             changeColumnOrder: ({ columnUID, order, undo }) => {
                 changeColumnOrderMutate(
-                    { project_uid: project.uid, column_uid: columnUID, order },
+                    { project_uid: project.uid, project_column_uid: columnUID, order },
                     {
                         onError: (error) => setupApiErrors(error, undo),
                         onSettled: forceUpdate,

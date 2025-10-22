@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import Any
-from core.db import BaseSqlModel, EnumLikeType, ModelColumnListType, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, EnumLikeType, Field, ModelColumnListType, SnowflakeIDField
 from core.types import SafeDateTime, SnowflakeID
 from pydantic import BaseModel
-from sqlmodel import Field
 from .Bot import Bot
 
 
@@ -24,27 +23,13 @@ class BotLogMessage(BaseModel):
 
 
 class BotLog(BaseSqlModel, table=True):
-    bot_id: SnowflakeID = SnowflakeIDField(foreign_key=Bot, index=True)
-    log_type: BotLogType = Field(default=BotLogType.Info, nullable=False, sa_type=EnumLikeType(BotLogType))
-    message_stack: list[BotLogMessage] = Field(default=[], nullable=False, sa_type=ModelColumnListType(BotLogMessage))
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "bot_uid": "string",
-            "log_type": "string",
-            "message_stack": f"List[{BotLogMessage.api_schema()}]",
-            "updated_at": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "bot_uid": self.bot_id.to_short_code(),
-            "log_type": self.log_type.value,
-            "message_stack": [stack.model_dump() for stack in self.message_stack],
-            "updated_at": self.updated_at,
-        }
+    bot_id: SnowflakeID = SnowflakeIDField(foreign_key=Bot, index=True, api_field=ApiField(name="bot_uid"))
+    log_type: BotLogType = Field(
+        default=BotLogType.Info, nullable=False, sa_type=EnumLikeType(BotLogType), api_field=ApiField()
+    )
+    message_stack: list[BotLogMessage] = Field(
+        default=[], nullable=False, sa_type=ModelColumnListType(BotLogMessage), api_field=ApiField()
+    )
 
     def notification_data(self) -> dict[str, Any]:
         return {}

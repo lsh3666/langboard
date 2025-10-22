@@ -7,11 +7,11 @@ from models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleS
 from publishers import ProjectBotPublisher
 from ...ai import BotDefaultTrigger, BotScheduleHelper
 from ...core.broker import Broker
-from .utils import BotTaskDataHelper, BotTaskHelper
+from .utils import BotTaskHelper, BotTaskSchemaHelper
 from .utils.BotTaskHelper import logger
 
 
-@BotTaskDataHelper.schema(
+@BotTaskSchemaHelper.schema(
     BotDefaultTrigger.BotCronScheduled,
     {
         "project_uid?": "string",

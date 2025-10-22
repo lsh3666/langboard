@@ -1,39 +1,37 @@
 from typing import Any, ClassVar
 from bcrypt import checkpw, gensalt, hashpw
+from core.db import ApiField, Field
 from core.db.ColumnTypes import DateTimeField, ModelColumnType, SecretStr, SecretStrType
 from core.db.Models import SoftDeleteModel
 from core.storage import FileModel
 from core.types import SafeDateTime, SnowflakeID
 from core.utils.String import generate_random_string
-from sqlmodel import Field
 
 
 class User(SoftDeleteModel, table=True):
     USER_TYPE: ClassVar[str] = "user"
     UNKNOWN_USER_TYPE: ClassVar[str] = "unknown"
     GROUP_EMAIL_TYPE: ClassVar[str] = "group_email"
-    firstname: str = Field(nullable=False)
-    lastname: str = Field(nullable=False)
-    email: str = Field(nullable=False)
-    username: str = Field(default_factory=lambda: f"user-{generate_random_string(8)}", unique=True, nullable=False)
+    firstname: str = Field(nullable=False, api_field=ApiField())
+    lastname: str = Field(nullable=False, api_field=ApiField())
+    email: str = Field(nullable=False, api_field=ApiField())
+    username: str = Field(
+        default_factory=lambda: f"user-{generate_random_string(8)}", unique=True, nullable=False, api_field=ApiField()
+    )
     password: SecretStr = Field(nullable=False, sa_type=SecretStrType)
     is_admin: bool = Field(default=False)
     avatar: FileModel | None = Field(default=None, sa_type=ModelColumnType(FileModel))
     preferred_lang: str = Field(default="en-US", nullable=False)
     activated_at: SafeDateTime | None = DateTimeField(default=None, nullable=True)
 
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "type": f"Literal[{User.USER_TYPE}, {User.UNKNOWN_USER_TYPE}, {User.GROUP_EMAIL_TYPE}]",
-            "uid": "string",
-            "firstname": "string",
-            "lastname": "string",
-            "email": "string",
-            "username": "string",
-            "avatar": "string?",
-            **(schema or {}),
-        }
+    @classmethod
+    def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
+        return super().api_schema(
+            {
+                "type": f"Literal[{User.USER_TYPE}, {User.UNKNOWN_USER_TYPE}, {User.GROUP_EMAIL_TYPE}]",
+                **(schema or {}),
+            }
+        )
 
     def check_password(self, password: str) -> bool:
         return checkpw(password.encode(), self.password.get_secret_value().encode())
@@ -49,13 +47,8 @@ class User(SoftDeleteModel, table=True):
             return User.create_unknown_user_api_response(self.get_uid())
 
         return {
+            **super().api_response(),
             "type": User.USER_TYPE,
-            "uid": self.get_uid(),
-            "firstname": self.firstname,
-            "lastname": self.lastname,
-            "email": self.email,
-            "username": self.username,
-            "avatar": self.avatar.path if self.avatar else None,
         }
 
     def notification_data(self) -> dict[str, Any]:

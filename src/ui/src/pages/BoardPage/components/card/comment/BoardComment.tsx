@@ -122,7 +122,7 @@ function BoardCommentHeader(): JSX.Element {
     const [t] = useTranslation();
     const { model: comment, params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { author } = params;
-    const rawCommentedAt = comment.useField("commented_at");
+    const rawCommentedAt = comment.useField("updated_at");
     const isEdited = comment.useField("is_edited");
     const commentedAt = useUpdateDateDistance(rawCommentedAt);
 

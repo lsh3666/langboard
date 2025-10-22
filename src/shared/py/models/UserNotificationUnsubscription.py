@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Any, ClassVar
-from core.db import BaseSqlModel, EnumLikeType, SnowflakeIDField
+from core.db import BaseSqlModel, EnumLikeType, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .User import User
 from .UserNotification import NotificationType
 
@@ -27,13 +26,6 @@ class UserNotificationUnsubscription(BaseSqlModel, table=True):
     scope_type: NotificationScope = Field(nullable=False, sa_type=EnumLikeType(NotificationScope))
     specific_table: str | None = Field(nullable=True)
     specific_id: SnowflakeID | None = SnowflakeIDField(nullable=True)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
 
     def notification_data(self) -> dict[str, Any]:
         return {}

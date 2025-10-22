@@ -172,7 +172,7 @@ const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) =>
         topicId: project.uid,
         rowFilter: (model) => {
             return (
-                model.column_uid === column.uid &&
+                model.project_column_uid === column.uid &&
                 filterCard(model) &&
                 filterCardMember(model) &&
                 filterCardLabels(model) &&

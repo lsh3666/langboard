@@ -50,7 +50,7 @@ from .forms import (
                     Card,
                     {
                         "schema": {
-                            "column_name": "string",
+                            "project_column_name": "string",
                             "project_members": [User],
                             "labels": [ProjectLabel],
                             "member_uids": "string[]",
@@ -217,7 +217,7 @@ async def create_card(
     result = await service.card.create(
         user_or_bot,
         project_uid,
-        form.column_uid,
+        form.project_column_uid,
         form.title,
         form.description,
         form.assign_users,

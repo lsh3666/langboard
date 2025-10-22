@@ -28,6 +28,8 @@ class ChatSession extends BaseModel {
             user_uid: this.user_id ? new SnowflakeID(this.user_id).toShortCode() : undefined,
             title: this.title,
             last_messaged_at: this.last_messaged_at,
+            created_at: this.created_at,
+            updated_at: this.updated_at,
         };
     }
 

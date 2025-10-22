@@ -29,7 +29,7 @@ class CardCommentPublisher(BaseSocketPublisher):
             "content": comment.content.model_dump() if comment.content else {"content": ""},
             "card_uid": card.get_uid(),
             "uid": comment.get_uid(),
-            "commented_at": comment.updated_at,
+            "updated_at": comment.updated_at,
         }
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,

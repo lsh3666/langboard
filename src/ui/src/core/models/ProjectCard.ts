@@ -25,12 +25,11 @@ import { Utils } from "@langboard/core/utils";
 
 export interface Interface extends IBaseModel {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
     title: string;
     description: IEditorContent;
     ai_description?: string;
     order: number;
-    created_at: Date;
     deadline_at?: Date;
     archived_at?: Date;
 }
@@ -38,7 +37,7 @@ export interface Interface extends IBaseModel {
 export interface IStore extends Interface {
     count_comment: number;
     member_uids: string[];
-    column_name: string;
+    project_column_name: string;
     current_auth_role_actions: Project.TRoleActions[];
     project_members: User.Interface[];
     labels: ProjectLabel.Interface[];
@@ -99,9 +98,6 @@ class ProjectCard extends BaseModel<IStore> {
     }
 
     public static convertModel(model: IStore): IStore {
-        if (Utils.Type.isString(model.created_at)) {
-            model.created_at = new Date(model.created_at);
-        }
         if (Utils.Type.isString(model.deadline_at)) {
             model.deadline_at = new Date(model.deadline_at);
         }
@@ -118,11 +114,11 @@ class ProjectCard extends BaseModel<IStore> {
         this.update({ project_uid: value });
     }
 
-    public get column_uid() {
-        return this.getValue("column_uid");
+    public get project_column_uid() {
+        return this.getValue("project_column_uid");
     }
-    public set column_uid(value) {
-        this.update({ column_uid: value });
+    public set project_column_uid(value) {
+        this.update({ project_column_uid: value });
     }
 
     public get title() {
@@ -144,13 +140,6 @@ class ProjectCard extends BaseModel<IStore> {
     }
     public set order(value) {
         this.update({ order: value });
-    }
-
-    public get created_at(): Date {
-        return this.getValue("created_at");
-    }
-    public set created_at(value: string | Date) {
-        this.update({ created_at: new Date(value) });
     }
 
     public get archived_at(): Date | undefined {
@@ -181,11 +170,11 @@ class ProjectCard extends BaseModel<IStore> {
         this.update({ deadline_at: Utils.Type.isString(value) ? new Date(value) : value });
     }
 
-    public get column_name() {
-        return this.getValue("column_name");
+    public get project_column_name() {
+        return this.getValue("project_column_name");
     }
-    public set column_name(value) {
-        this.update({ column_name: value });
+    public set project_column_name(value) {
+        this.update({ project_column_name: value });
     }
 
     public get current_auth_role_actions() {

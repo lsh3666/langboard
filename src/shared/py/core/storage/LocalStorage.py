@@ -1,7 +1,6 @@
 from os import path, unlink
 from pathlib import Path
 from typing import BinaryIO
-from ..utils.String import get_random_filename
 from .BaseStorage import BaseStorage
 from .FileModel import FileModel
 from .StorageName import StorageName
@@ -28,7 +27,7 @@ class LocalStorage(BaseStorage):
         storage_path = self._local_storage_dir / storage_name.value
         storage_path.mkdir(parents=True, exist_ok=True)
 
-        new_filename = get_random_filename(filename)
+        new_filename = self.get_random_filename(filename)
         with open(storage_path / new_filename, "wb") as f:
             f.write(file.read())
 

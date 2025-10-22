@@ -11,7 +11,7 @@ interface IProjectToggleSpecificScopedNotificationSettingsForm extends IBaseTogg
 
 interface IColumnToggleSpecificScopedNotificationSettingsForm extends IBaseToggleSpecificScopedNotificationSettingsForm {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
 }
 
 interface ICardToggleSpecificScopedNotificationSettingsForm extends IBaseToggleSpecificScopedNotificationSettingsForm {

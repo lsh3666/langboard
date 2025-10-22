@@ -5,10 +5,12 @@ from pydantic import BaseModel, SecretStr, model_serializer
 from sqlalchemy import MetaData
 from sqlalchemy.orm import declared_attr, registry
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlmodel import Field, SQLModel
+from sqlmodel import SQLModel
 from ..types import SafeDateTime, SnowflakeID
 from ..utils.StringCase import StringCase
+from .ApiField import ApiField
 from .ColumnTypes import DateTimeField, SnowflakeIDField
+from .Field import Field
 
 
 _TColumnType = TypeVar("_TColumnType")
@@ -31,9 +33,11 @@ class BaseSqlModel(ABC, SQLModel, registry=default_registry):
     __changes__: ClassVar[dict[str, dict[str, Any]]] = {}
     __pydantic_post_init__ = "model_post_init"
 
-    id: SnowflakeID = SnowflakeIDField(primary_key=True)
-    created_at: SafeDateTime = DateTimeField(default=SafeDateTime.now, nullable=False)
-    updated_at: SafeDateTime = DateTimeField(default=SafeDateTime.now, nullable=False, onupdate=True)
+    id: SnowflakeID = SnowflakeIDField(primary_key=True, api_field=ApiField(name="uid"))
+    created_at: SafeDateTime = DateTimeField(default=SafeDateTime.now, nullable=False, api_field=ApiField())
+    updated_at: SafeDateTime = DateTimeField(
+        default=SafeDateTime.now, nullable=False, onupdate=True, api_field=ApiField()
+    )
 
     @property
     def __change_key(self) -> str:
@@ -189,12 +193,15 @@ class BaseSqlModel(ABC, SQLModel, registry=default_registry):
             serialized[key] = value
         return serialized
 
-    @staticmethod
-    @abstractmethod
-    def api_schema(*args, **kwargs) -> dict[str, Any]: ...
+    @classmethod
+    def api_schema(cls, schema: dict | None = None, **kwargs) -> dict[str, Any]:
+        return {
+            **ApiField.create_schema(cls, **kwargs),
+            **(schema or {}),
+        }
 
-    @abstractmethod
-    def api_response(self) -> dict[str, Any]: ...
+    def api_response(self, **kwargs) -> dict[str, Any]:
+        return ApiField.convert(self, **kwargs)
 
     @abstractmethod
     def notification_data(self) -> dict[str, Any]: ...

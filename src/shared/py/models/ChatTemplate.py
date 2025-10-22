@@ -1,34 +1,14 @@
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
 from sqlalchemy import TEXT
-from sqlmodel import Field
 
 
 class ChatTemplate(BaseSqlModel, table=True):
-    filterable_table: str | None = Field(None, nullable=True)
-    filterable_id: SnowflakeID | None = SnowflakeIDField(nullable=True)
-    name: str = Field(nullable=False)
-    template: str = Field(default="", sa_type=TEXT)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "filterable_table": "string?",
-            "filterable_uid": "string?",
-            "name": "string",
-            "template": "string",
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "filterable_table": self.filterable_table,
-            "filterable_uid": self.filterable_id.to_short_code() if self.filterable_id else None,
-            "name": self.name,
-            "template": self.template,
-        }
+    filterable_table: str | None = Field(None, nullable=True, api_field=ApiField())
+    filterable_id: SnowflakeID | None = SnowflakeIDField(nullable=True, api_field=ApiField(name="filterable_uid"))
+    name: str = Field(nullable=False, api_field=ApiField())
+    template: str = Field(default="", sa_type=TEXT, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

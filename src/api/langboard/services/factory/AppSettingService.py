@@ -92,14 +92,12 @@ class AppSettingService(BaseService):
         if not setting:
             return None
 
-        model = {}
-
         if setting_name:
             setting.setting_name = setting_name
-            model["setting_name"] = setting_name
         if setting_value and not setting.is_immutable_type():
             setting.set_value(setting_value)
-            model["setting_value"] = setting.convert_to_secret()
+
+        model = setting.changes_dict
 
         if not setting.has_changes():
             return True

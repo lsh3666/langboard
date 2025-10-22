@@ -1,11 +1,10 @@
 from json import dumps as json_dumps
 from json import loads as json_loads
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import BaseSqlModel, Field, SnowflakeIDField
 from core.Env import Env
 from core.types import SnowflakeID
 from core.utils.Encryptor import Encryptor
-from sqlmodel import Field
 from .Project import Project
 
 
@@ -25,13 +24,6 @@ class ProjectInvitation(BaseSqlModel, table=True):
         except Exception:
             return None
         return invitation_token, invitation_id
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
 
     def notification_data(self) -> dict[str, Any]:
         return {

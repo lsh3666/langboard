@@ -114,7 +114,9 @@ async def cardify_checkitem(
     if checkitem.user_id and checkitem.user_id != user_or_bot.id:
         return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
 
-    cardified_card = await service.checkitem.cardify(user_or_bot, project_uid, card_uid, checkitem, form.column_uid)
+    cardified_card = await service.checkitem.cardify(
+        user_or_bot, project_uid, card_uid, checkitem, form.project_column_uid
+    )
     if not cardified_card:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 

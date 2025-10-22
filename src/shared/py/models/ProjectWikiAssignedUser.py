@@ -11,13 +11,6 @@ class ProjectWikiAssignedUser(BaseSqlModel, table=True):
     project_wiki_id: SnowflakeID = SnowflakeIDField(foreign_key=ProjectWiki, nullable=False, index=True)
     user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
 
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
-
     def notification_data(self) -> dict[str, Any]:
         return {}
 

@@ -6,7 +6,8 @@ from models import Bot, Project
 from models.bases import BotTriggerCondition
 from ....ai import BotDefaultTrigger
 from ....core.logger import Logger
-from ...WebhookTask import run_webhook
+from ...models import WebhookModel
+from ...WebhookTask import webhook_task
 from .requests.Utils import create_request
 
 
@@ -74,7 +75,7 @@ class BotTaskHelper:
         if not isinstance(bots, list):
             bots = [bots]
 
-        await run_webhook(event.value, data)
+        webhook_task(WebhookModel(event=event.value, data=data))
 
         for bot in bots:
             if isinstance(bot, tuple):
@@ -82,4 +83,4 @@ class BotTaskHelper:
             request = create_request(bot, event.value, data, project, scope_model)
             if not request:
                 continue
-            await request.request()
+            await request.execute()

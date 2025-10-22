@@ -21,7 +21,6 @@ export interface Interface extends IBaseModel {
     message_stack: ILogMessageStack[];
     filterable_table?: TBotRelatedTargetTable;
     filterable_uid?: string;
-    updated_at: Date;
 }
 
 class BotLogModel extends BaseModel<Interface> {
@@ -42,10 +41,6 @@ class BotLogModel extends BaseModel<Interface> {
                 }
                 return stack;
             });
-        }
-
-        if (Utils.Type.isString(model.updated_at)) {
-            model.updated_at = new Date(model.updated_at);
         }
 
         return model;
@@ -84,13 +79,6 @@ class BotLogModel extends BaseModel<Interface> {
     }
     public set filterable_uid(value) {
         this.update({ filterable_uid: value });
-    }
-
-    public get updated_at(): Date {
-        return this.getValue("updated_at");
-    }
-    public set updated_at(value: string | Date) {
-        this.update({ updated_at: new Date(value) });
     }
 
     public getBadgeVariant(logType?: EBotLogType) {

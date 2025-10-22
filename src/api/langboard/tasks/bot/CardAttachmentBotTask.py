@@ -2,7 +2,7 @@ from typing import Any
 from models import Bot, Card, CardAttachment, Project, User
 from models.bases import BotTriggerCondition
 from ...core.broker import Broker
-from .utils import BotTaskDataHelper, BotTaskHelper
+from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 
 def _create_schema(other_schema: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -12,7 +12,7 @@ def _create_schema(other_schema: dict[str, Any] | None = None) -> dict[str, Any]
     }
 
 
-@BotTaskDataHelper.card_schema(BotTriggerCondition.CardAttachmentUploaded, _create_schema())
+@BotTaskSchemaHelper.card_schema(BotTriggerCondition.CardAttachmentUploaded, _create_schema())
 @Broker.wrap_async_task_decorator
 async def card_attachment_uploaded(user_or_bot: User | Bot, project: Project, card: Card, attachment: CardAttachment):
     bots = BotTaskHelper.get_scoped_bots(
@@ -26,7 +26,7 @@ async def card_attachment_uploaded(user_or_bot: User | Bot, project: Project, ca
     )
 
 
-@BotTaskDataHelper.card_schema(BotTriggerCondition.CardAttachmentNameChanged, _create_schema())
+@BotTaskSchemaHelper.card_schema(BotTriggerCondition.CardAttachmentNameChanged, _create_schema())
 @Broker.wrap_async_task_decorator
 async def card_attachment_name_changed(
     user_or_bot: User | Bot, project: Project, card: Card, attachment: CardAttachment
@@ -42,7 +42,7 @@ async def card_attachment_name_changed(
     )
 
 
-@BotTaskDataHelper.card_schema(BotTriggerCondition.CardAttachmentDeleted, _create_schema())
+@BotTaskSchemaHelper.card_schema(BotTriggerCondition.CardAttachmentDeleted, _create_schema())
 @Broker.wrap_async_task_decorator
 async def card_attachment_deleted(user_or_bot: User | Bot, project: Project, card: Card, attachment: CardAttachment):
     bots = BotTaskHelper.get_scoped_bots(

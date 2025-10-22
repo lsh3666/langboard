@@ -1,12 +1,13 @@
-from typing import Any
-from core.db import SnowflakeIDField
+from core.db import ApiField, SnowflakeIDField
 from core.types import SnowflakeID
 from .bases import BaseBotScopeModel, BotTriggerCondition
 from .Card import Card
 
 
 class CardBotScope(BaseBotScopeModel, table=True):
-    card_id: SnowflakeID = SnowflakeIDField(foreign_key=Card, nullable=False, index=True)
+    card_id: SnowflakeID = SnowflakeIDField(
+        foreign_key=Card, nullable=False, index=True, api_field=ApiField(name="card_uid")
+    )
 
     @staticmethod
     def get_available_conditions() -> set[BotTriggerCondition]:
@@ -43,18 +44,3 @@ class CardBotScope(BaseBotScopeModel, table=True):
     @staticmethod
     def get_scope_column_name() -> str:
         return "card_id"
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return BaseBotScopeModel.api_schema(
-            {
-                "card_uid": "string",
-                **(schema or {}),
-            }
-        )
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "card_uid": self.card_id.to_short_code(),
-            **(super().api_response()),
-        }

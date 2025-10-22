@@ -1,22 +1,14 @@
 from typing import Any
-from core.db import SnowflakeIDField
+from core.db import ApiField, SnowflakeIDField
 from core.types import SnowflakeID
 from .bases import BaseMetadataModel
 from .Card import Card
 
 
 class CardMetadata(BaseMetadataModel, table=True):
-    card_id: SnowflakeID = SnowflakeIDField(foreign_key=Card, nullable=False, index=True)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return BaseMetadataModel.api_schema({"card_uid": "string"})
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "card_uid": self.card_id.to_short_code(),
-            **(super().api_response()),
-        }
+    card_id: SnowflakeID = SnowflakeIDField(
+        foreign_key=Card, nullable=False, index=True, api_field=ApiField(name="card_uid")
+    )
 
     def notification_data(self) -> dict[str, Any]:
         return {}

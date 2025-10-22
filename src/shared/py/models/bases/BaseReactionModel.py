@@ -1,8 +1,7 @@
 from abc import abstractmethod
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from ..Bot import Bot
 from ..User import User
 
@@ -28,13 +27,6 @@ class BaseReactionModel(BaseSqlModel):
     @staticmethod
     @abstractmethod
     def get_target_column_name() -> str: ...
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
 
     def notification_data(self) -> dict[str, Any]:
         return {}

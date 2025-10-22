@@ -17,12 +17,12 @@ function BoardCardCheckitemMoreMenuCardify(): JSX.Element {
     const { mutateAsync: cardifyCheckitemMutateAsync } = useCardifyCardCheckitem({ interceptToast: true });
     const allColumns = ProjectColumn.Model.useModels((model) => model.project_uid === projectUID && !model.is_archive);
     const [selectedColumnUID, setSelectedColumnUID] = useState<string | undefined>(
-        allColumns.some((column) => column.uid === card.column_uid) ? card.column_uid : allColumns[0]?.uid
+        allColumns.some((column) => column.uid === card.project_column_uid) ? card.project_column_uid : allColumns[0]?.uid
     );
 
     const onOpenChange = (opened: bool) => {
         if (!opened) {
-            setSelectedColumnUID(!card.archived_at ? card.column_uid : allColumns[0]?.uid);
+            setSelectedColumnUID(!card.archived_at ? card.project_column_uid : allColumns[0]?.uid);
         }
     };
 
@@ -31,7 +31,7 @@ function BoardCardCheckitemMoreMenuCardify(): JSX.Element {
             project_uid: projectUID,
             card_uid: card.uid,
             checkitem_uid: checkitem.uid,
-            column_uid: selectedColumnUID,
+            project_column_uid: selectedColumnUID,
         });
 
         Toast.Add.promise(promise, {

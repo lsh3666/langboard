@@ -1,19 +1,19 @@
 from typing import Literal
 from core.db import BaseSqlModel
 from helpers import BotHelper, ModelHelper
-from models import Bot, Project
+from models import Bot, Project, User
 from ...ai import BotDefaultTrigger
 from ...core.broker import Broker
-from .utils import BotTaskDataHelper, BotTaskHelper
+from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 
-@BotTaskDataHelper.schema(BotDefaultTrigger.BotCreated)
+@BotTaskSchemaHelper.executor_schema(BotDefaultTrigger.BotCreated)
 @Broker.wrap_async_task_decorator
 async def bot_created(bot: Bot):
-    await BotTaskHelper.run(bot, BotDefaultTrigger.BotCreated, {})
+    await BotTaskHelper.run(bot, BotDefaultTrigger.BotCreated, BotTaskDataHelper.create_executor(bot))
 
 
-@BotTaskDataHelper.schema(
+@BotTaskSchemaHelper.executor_schema(
     BotDefaultTrigger.BotMentioned,
     {
         "mentioned_in": "Literal[card, comment, project_wiki]",
@@ -26,7 +26,8 @@ async def bot_created(bot: Bot):
 )
 @Broker.wrap_async_task_decorator
 async def bot_mentioned(
-    bot: Bot,
+    user_or_bot: User | Bot,
+    target_bot: Bot,
     mentioned_in: Literal["card", "comment", "project_wiki"],
     dumped_models: list[tuple[str, dict]],
 ):
@@ -42,7 +43,7 @@ async def bot_mentioned(
         except Exception:
             continue
 
-    data = {}
+    data = {"mentioned_in": mentioned_in, **BotTaskDataHelper.create_executor(user_or_bot)}
     project = None
     scope_model: BaseSqlModel | None = None
     for model in models:
@@ -55,10 +56,4 @@ async def bot_mentioned(
     if not project:
         return
 
-    await BotTaskHelper.run(
-        bot,
-        BotDefaultTrigger.BotMentioned,
-        {"mentioned_in": mentioned_in, **data},
-        project,
-        scope_model,
-    )
+    await BotTaskHelper.run(target_bot, BotDefaultTrigger.BotMentioned, data, project, scope_model)

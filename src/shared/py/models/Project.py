@@ -1,37 +1,18 @@
 from typing import Any
-from core.db import SnowflakeIDField, SoftDeleteModel
+from core.db import ApiField, Field, SnowflakeIDField, SoftDeleteModel
 from core.types import SnowflakeID
 from sqlalchemy import TEXT
-from sqlmodel import Field
 from .User import User
 
 
 class Project(SoftDeleteModel, table=True):
-    owner_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
-    title: str = Field(nullable=False)
-    description: str | None = Field(default=None, sa_type=TEXT)
-    ai_description: str | None = Field(default=None, sa_type=TEXT)
-    project_type: str = Field(default="Other", nullable=False)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "owner_uid": "string",
-            "title": "string",
-            "project_type": "string",
-            "updated_at": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "owner_uid": self.owner_id.to_short_code(),
-            "title": self.title,
-            "project_type": self.project_type,
-            "updated_at": self.updated_at,
-        }
+    owner_id: SnowflakeID = SnowflakeIDField(
+        foreign_key=User, nullable=False, index=True, api_field=ApiField(name="owner_uid")
+    )
+    title: str = Field(nullable=False, api_field=ApiField())
+    description: str | None = Field(default=None, sa_type=TEXT, api_field=ApiField())
+    ai_description: str | None = Field(default=None, sa_type=TEXT, api_field=ApiField())
+    project_type: str = Field(default="Other", nullable=False, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {

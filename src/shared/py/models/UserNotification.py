@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import Any
-from core.db import BaseSqlModel, DateTimeField, EnumLikeType, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, DateTimeField, EnumLikeType, Field, SnowflakeIDField
 from core.types import SafeDateTime, SnowflakeID
 from sqlalchemy import JSON
-from sqlmodel import Field
 from .User import User
 
 
@@ -21,30 +20,12 @@ class UserNotification(BaseSqlModel, table=True):
     notifier_type: str = Field(nullable=False)
     notifier_id: SnowflakeID = SnowflakeIDField(nullable=False, index=True)
     receiver_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
-    notification_type: NotificationType = Field(nullable=False, sa_type=EnumLikeType(NotificationType))
-    message_vars: dict[str, Any] = Field(default={}, sa_type=JSON)
+    notification_type: NotificationType = Field(
+        nullable=False, sa_type=EnumLikeType(NotificationType), api_field=ApiField(name="type")
+    )
+    message_vars: dict[str, Any] = Field(default={}, sa_type=JSON, api_field=ApiField())
     record_list: list[tuple[str, SnowflakeID]] = Field(default=[], sa_type=JSON)
-    read_at: SafeDateTime | None = DateTimeField(default=None, nullable=True)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "type": f"Literal[{','.join([t.value for t in NotificationType])}]",
-            "message_vars": "object",
-            "read_at": "string",
-            "created_at": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "type": self.notification_type.value,
-            "message_vars": self.message_vars,
-            "read_at": self.read_at,
-            "created_at": self.created_at,
-        }
+    read_at: SafeDateTime | None = DateTimeField(default=None, nullable=True, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

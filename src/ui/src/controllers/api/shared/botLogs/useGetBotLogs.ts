@@ -25,7 +25,7 @@ const useGetBotLogs = (botUID: string, params: TUseGetBotLogsForm, limit: number
             url = Utils.String.format(Routing.API.BOARD.BOT.LOG.GET_ALL_BY_COLUMN, {
                 uid: params.project_uid,
                 bot_uid: botUID,
-                column_uid: params.target_uid,
+                project_column_uid: params.target_uid,
             });
             break;
         case "card":

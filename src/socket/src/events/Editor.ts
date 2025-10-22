@@ -60,8 +60,8 @@ const registerEditorEvents = ({ eventPrefix, chatType, copilotType, getInternalB
         let newContent = "";
         let lastContent: string | undefined = undefined;
 
-        await response({
-            onMessage: (chunk) => {
+        await response
+            .onMessage((chunk) => {
                 const oldContent = newContent;
                 let updatedContent = "";
                 if (chunk) {
@@ -78,14 +78,14 @@ const registerEditorEvents = ({ eventPrefix, chatType, copilotType, getInternalB
                     stream.buffer({ message: updatedContent });
                     lastContent = newContent;
                 }
-            },
-            onError: (error) => {
+            })
+            .onError((error) => {
                 stream.end({ status: "failed", message: error.message });
-            },
-            onEnd: () => {
+            })
+            .onEnd(() => {
                 stream.end({ message });
-            },
-        });
+            })
+            .stream();
     });
 
     EventManager.on(ESocketTopic.None, `${eventPrefix}:editor:chat:abort`, async (context) => {
@@ -149,23 +149,23 @@ const registerEditorEvents = ({ eventPrefix, chatType, copilotType, getInternalB
         }
 
         let message = "";
-        await response({
-            onMessage: (data) => {
+        await response
+            .onMessage((data) => {
                 message = `${message}${data}`;
-            },
-            onError: () => {
+            })
+            .onError(() => {
                 context.client.send({
                     ...sharedData,
                     data: { text: "0" },
                 });
-            },
-            onEnd: () => {
+            })
+            .onEnd(() => {
                 context.client.send({
                     ...sharedData,
                     data: { text: message },
                 });
-            },
-        });
+            })
+            .stream();
     });
 
     EventManager.on(ESocketTopic.None, `${eventPrefix}:editor:copilot:abort`, async (context) => {

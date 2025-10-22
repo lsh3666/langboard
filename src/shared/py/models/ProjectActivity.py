@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Any
-from core.db import EnumLikeType, SnowflakeIDField
+from core.db import ApiField, EnumLikeType, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .bases import BaseActivityModel
 from .Card import Card
 from .Project import Project
@@ -73,27 +72,18 @@ class ProjectActivity(BaseActivityModel, table=True):
     project_id: SnowflakeID = SnowflakeIDField(foreign_key=Project, index=True)
     project_column_id: SnowflakeID | None = Field(default=ProjectColumn, nullable=True)
     card_id: SnowflakeID | None = SnowflakeIDField(foreign_key=Card, nullable=True)
-    activity_type: ProjectActivityType = Field(nullable=False, sa_type=EnumLikeType(ProjectActivityType))
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return BaseActivityModel.api_schema(
-            {
-                "activity_type": f"Literal[{', '.join([activity_type.value for activity_type in ProjectActivityType])}]",
-                "filterable_map": "object",
-                **(schema or {}),
-            }
-        )
+    activity_type: ProjectActivityType = Field(
+        nullable=False, sa_type=EnumLikeType(ProjectActivityType), api_field=ApiField()
+    )
 
     def api_response(self) -> dict[str, Any]:
-        base_api_response = super().api_response()
-        base_api_response["activity_type"] = self.activity_type.value
-        base_api_response["filterable_map"] = {
+        response = super().api_response()
+        response["filterable_map"] = {
             Project.__tablename__: self.project_id.to_short_code(),
         }
 
         if self.project_column_id:
-            base_api_response["filterable_map"][ProjectColumn.__tablename__] = self.project_column_id.to_short_code()
+            response["filterable_map"][ProjectColumn.__tablename__] = self.project_column_id.to_short_code()
         if self.card_id:
-            base_api_response["filterable_map"][Card.__tablename__] = self.card_id.to_short_code()
-        return base_api_response
+            response["filterable_map"][Card.__tablename__] = self.card_id.to_short_code()
+        return response

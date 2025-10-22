@@ -1,37 +1,15 @@
 from typing import Any
-from core.db import BaseSqlModel, DateTimeField, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, DateTimeField, Field, SnowflakeIDField
 from core.types import SafeDateTime, SnowflakeID
-from sqlmodel import Field
 from .User import User
 
 
 class ChatSession(BaseSqlModel, table=True):
-    filterable_table: str = Field(...)
-    filterable_id: SnowflakeID = SnowflakeIDField()
-    user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, index=True)
-    title: str = Field(default="", nullable=False)
-    last_messaged_at: SafeDateTime | None = DateTimeField(default=None, nullable=True)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "filterable_table": "string",
-            "filterable_uid": "string",
-            "user_uid": "string",
-            "title": "string",
-            "last_messaged_at": "string?",
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "filterable_table": self.filterable_table,
-            "filterable_uid": self.filterable_id.to_short_code(),
-            "user_uid": self.user_id.to_short_code(),
-            "title": self.title,
-            "last_messaged_at": self.last_messaged_at,
-        }
+    filterable_table: str = Field(..., api_field=ApiField())
+    filterable_id: SnowflakeID = SnowflakeIDField(api_field=ApiField(name="filterable_uid"))
+    user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, index=True, api_field=ApiField(name="user_uid"))
+    title: str = Field(default="", nullable=False, api_field=ApiField())
+    last_messaged_at: SafeDateTime | None = DateTimeField(default=None, nullable=True, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

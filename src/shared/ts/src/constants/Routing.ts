@@ -42,7 +42,7 @@ const API = {
             ALL_PROJECT: "/notification/settings/project",
             PROJECT: "/notification/settings/project/{uid}",
             ALL_COLUMN: "/notification/settings/column",
-            COLUMN: "/notification/settings/project/{uid}/column/{column_uid}",
+            COLUMN: "/notification/settings/project/{uid}/column/{project_column_uid}",
             ALL_CARD: "/notification/settings/card",
             CARD: "/notification/settings/project/{uid}/card/{card_uid}",
             ALL_WIKI: "/notification/settings/wiki",
@@ -52,7 +52,7 @@ const API = {
     ACTIVITIY: {
         USER: "/activity/user",
         PROJECT: "/activity/project/{uid}",
-        PROJECT_COLUMN: "/activity/project/{uid}/column/{column_uid}",
+        PROJECT_COLUMN: "/activity/project/{uid}/column/{project_column_uid}",
         CARD: "/activity/project/{uid}/card/{card_uid}",
         PROJECT_WIKI: "/activity/project/{uid}/wiki/{wiki_uid}",
     },
@@ -90,9 +90,9 @@ const API = {
         },
         COLUMN: {
             CREATE: "/board/{uid}/column",
-            CHANGE_NAME: "/board/{uid}/column/{column_uid}/name",
-            CHANGE_ORDER: "/board/{uid}/column/{column_uid}/order",
-            DELETE: "/board/{uid}/column/{column_uid}",
+            CHANGE_NAME: "/board/{uid}/column/{project_column_uid}/name",
+            CHANGE_ORDER: "/board/{uid}/column/{project_column_uid}/order",
+            DELETE: "/board/{uid}/column/{project_column_uid}",
         },
         CARD: {
             CREATE: "/board/{uid}/card",
@@ -158,14 +158,14 @@ const API = {
             },
             SCHEDULE: {
                 GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/schedules",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{column_uid}/schedules",
+                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{project_column_uid}/schedules",
                 SCHEDULE: "/board/{uid}/bot/{bot_uid}/schedule",
                 RESCHEDULE: "/board/{uid}/bot/{bot_uid}/reschedule/{schedule_uid}",
                 UNSCHEDULE: "/board/{uid}/bot/{bot_uid}/unschedule/{schedule_uid}",
             },
             LOG: {
                 GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/logs",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{column_uid}/logs",
+                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{project_column_uid}/logs",
             },
         },
         SETTINGS: {

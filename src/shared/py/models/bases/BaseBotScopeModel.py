@@ -1,9 +1,8 @@
 from abc import abstractmethod
 from enum import Enum
 from typing import Any
-from core.db import BaseSqlModel, CSVType, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, CSVType, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from ..Bot import Bot
 
 
@@ -52,8 +51,8 @@ class BotTriggerCondition(Enum):
 
 
 class BaseBotScopeModel(BaseSqlModel):
-    bot_id: SnowflakeID = SnowflakeIDField(foreign_key=Bot, index=True)
-    conditions: list[str] = Field(nullable=False, sa_type=CSVType)
+    bot_id: SnowflakeID = SnowflakeIDField(foreign_key=Bot, index=True, api_field=ApiField(name="bot_uid"))
+    conditions: list[str] = Field(nullable=False, sa_type=CSVType, api_field=ApiField())
 
     @staticmethod
     @abstractmethod
@@ -62,22 +61,6 @@ class BaseBotScopeModel(BaseSqlModel):
     @staticmethod
     @abstractmethod
     def get_scope_column_name() -> str: ...
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "bot_uid": "string",
-            "conditions": f"Literal[{', '.join([condition.value for condition in BotTriggerCondition])}]",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "bot_uid": self.bot_id.to_short_code(),
-            "conditions": self.conditions,
-        }
 
     def notification_data(self) -> dict[str, Any]:
         return {}

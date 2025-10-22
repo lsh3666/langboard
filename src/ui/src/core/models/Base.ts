@@ -27,6 +27,8 @@ export interface IChatContent {
 
 export interface IBaseModel {
     uid: string;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export type TStateStore<T = any, V = undefined> = V extends undefined
@@ -106,6 +108,13 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         const targetModelMap = BaseModel.#MODELS[modelName];
 
         model = { ...model };
+
+        if (Utils.Type.isString(model.created_at)) {
+            model.created_at = new Date(model.created_at);
+        }
+        if (Utils.Type.isString(model.updated_at)) {
+            model.updated_at = new Date(model.updated_at);
+        }
 
         if (!targetModelMap[model.uid]) {
             model = this.convertModel(model);
@@ -413,6 +422,20 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         this.update({ uid: value });
     }
 
+    public get created_at(): Date {
+        return this.getValue("created_at");
+    }
+    public set created_at(value: string | Date) {
+        this.update({ created_at: new Date(value) });
+    }
+
+    public get updated_at(): Date {
+        return this.getValue("updated_at");
+    }
+    public set updated_at(value: string | Date) {
+        this.update({ updated_at: new Date(value) });
+    }
+
     public get MODEL_NAME(): keyof IModelMap {
         return this.constructor.name as any;
     }
@@ -616,7 +639,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
 
             const foreigns = model[key] as (BaseModel<any> | IBaseModel)[];
             const rawModels = foreigns.filter((subModel) => !(subModel instanceof BaseModel));
-            const models = ModelRegistry[modelName].Model.fromArray(rawModels);
+            const models = ModelRegistry[modelName].Model.fromArray(rawModels as any);
 
             const allModels = [...(foreigns.filter((m) => m instanceof BaseModel) as TPickedModel<keyof IModelMap>[]), ...models];
             ModelEdgeStore.addEdge(this as any, allModels);

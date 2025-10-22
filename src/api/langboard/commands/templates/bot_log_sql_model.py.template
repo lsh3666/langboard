@@ -1,15 +1,11 @@
 from typing import Any
-from core.db import SnowflakeIDField
+from core.db import ApiField, SnowflakeIDField
 from core.types import SnowflakeID
 from .bases import BaseBotLogModel
 from .{class_name} import {class_name}
 
 
 class {class_name}BotLog(BaseBotLogModel, table=True):
-    {column_name}_id: SnowflakeID = SnowflakeIDField(foreign_key={class_name}, nullable=False, index=True)
-
-    def api_response(self) -> dict[str, Any]:
-        return {sb}
-            "filterable_table": "{column_name}",
-            "filterable_uid": self.{column_name}_id.to_short_code(),
-        {eb}
+    {column_name}_id: SnowflakeID = SnowflakeIDField(
+        foreign_key={class_name}, nullable=False, index=True, api_field=ApiField(name="filterable_uid")
+    )

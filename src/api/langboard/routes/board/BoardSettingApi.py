@@ -58,7 +58,7 @@ from .forms import (
                 ),
                 "internal_bots": [InternalBot],
                 "project_columns": [(ProjectColumn, {"schema": {"count": "integer"}})],
-                "cards": [(Card, {"schema": {"column_name": "string"}})],
+                "cards": [(Card, {"schema": {"project_column_name": "string"}})],
             }
         )
         .auth()
@@ -76,8 +76,6 @@ async def get_project_details(
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
     project, response = result
-    response["description"] = project.description
-    response["ai_description"] = project.ai_description
     assigned_internal_bots = await service.project.get_assigned_internal_bots(project, as_api=False)
     response["internal_bots"] = [internal_bot.api_response() for internal_bot, _ in assigned_internal_bots]
     response["internal_bot_settings"] = {

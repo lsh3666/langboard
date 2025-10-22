@@ -1,7 +1,6 @@
 from typing import Any, ClassVar
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import ApiField, BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .Project import Project
 
 
@@ -19,33 +18,13 @@ class ProjectLabel(BaseSqlModel, table=True):
         {"name": "Fixing", "color": "#388E3C", "description": "Tasks that are being fixed."},
         {"name": "Fetch", "color": "#1DE9B6", "description": "Tasks that are fetching data."},
     ]
-    project_id: SnowflakeID = SnowflakeIDField(foreign_key=Project, nullable=False, index=True)
-    name: str = Field(nullable=False)
-    color: str = Field(nullable=False)
-    description: str = Field(nullable=False)
-    order: int = Field(default=0, nullable=False)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "project_uid": "string",
-            "name": "string",
-            "description": "string",
-            "order": "integer",
-            "color": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "uid": self.get_uid(),
-            "project_uid": self.project_id.to_short_code(),
-            "name": self.name,
-            "description": self.description,
-            "order": self.order,
-            "color": self.color,
-        }
+    project_id: SnowflakeID = SnowflakeIDField(
+        foreign_key=Project, nullable=False, index=True, api_field=ApiField(name="project_uid")
+    )
+    name: str = Field(nullable=False, api_field=ApiField())
+    color: str = Field(nullable=False, api_field=ApiField())
+    description: str = Field(nullable=False, api_field=ApiField())
+    order: int = Field(default=0, nullable=False, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

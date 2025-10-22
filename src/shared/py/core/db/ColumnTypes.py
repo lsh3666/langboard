@@ -6,9 +6,11 @@ from pydantic import BaseModel, SecretStr
 from pydantic_core import PydanticUndefined as Undefined
 from sqlalchemy import JSON, DateTime, func
 from sqlalchemy.types import TEXT, VARCHAR, BigInteger, TypeDecorator
-from sqlmodel import Field, SQLModel
+from sqlmodel import SQLModel
 from ..types import SafeDateTime, SnowflakeID
 from ..utils.Converter import json_default
+from .ApiField import ApiField
+from .Field import Field
 
 
 TModelColumn = TypeVar("TModelColumn", bound=BaseModel)
@@ -38,6 +40,7 @@ def SnowflakeIDField(
     unique: bool | None = None,
     nullable: bool | None = None,
     index: bool | None = None,
+    api_field: ApiField | None = None,
 ) -> Any:
     default_value = None if nullable and not primary_key else SnowflakeID(0)
     ondelete = Undefined
@@ -50,6 +53,7 @@ def SnowflakeIDField(
 
     return Field(
         default=default_value,
+        api_field=api_field,
         primary_key=primary_key if primary_key is not None else False,
         foreign_key=cast(Any, foreign_key),
         sa_type=SnowflakeIDType,
@@ -128,7 +132,12 @@ class SecretStrType(TypeDecorator):
         return SecretStr(value)
 
 
-def DateTimeField(default: Callable | None, nullable: bool, onupdate: bool = False):
+def DateTimeField(
+    default: Callable | None,
+    nullable: bool,
+    onupdate: bool = False,
+    api_field: ApiField | None = None,
+) -> Any:
     kwargs = {
         "nullable": nullable,
         "sa_type": DateTime(timezone=True),
@@ -137,6 +146,9 @@ def DateTimeField(default: Callable | None, nullable: bool, onupdate: bool = Fal
     if onupdate:
         kwargs["sa_column_kwargs"]["onupdate"] = SafeDateTime.now
         kwargs["sa_column_kwargs"]["server_onupdate"] = func.now()
+
+    if api_field:
+        kwargs["api_field"] = api_field
 
     if default is None:
         return Field(default=None, **kwargs)

@@ -1,31 +1,13 @@
-import { IStreamResponse } from "@/core/ai/requests/types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import BaseStreamResponse from "@/core/ai/requests/responses/BaseStreamResponse";
 import { api } from "@/core/helpers/Api";
 import Logger from "@/core/utils/Logger";
 import { Utils } from "@langboard/core/utils";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const getLangflowOutputMessage = (response: Record<string, any>): string | undefined => {
-    try {
-        let responseOutputs = response.outputs[0];
-        while (!responseOutputs.messages) {
-            responseOutputs = responseOutputs.outputs[0];
-        }
-        return responseOutputs.messages[0].message;
-    } catch {
-        return undefined;
-    }
-};
-
-interface ILangflowStreamResponseParams {
-    url: string;
-    headers?: Record<string, any>;
-    body: Record<string, any>;
-    signal?: AbortSignal;
-    onEnd?: () => void;
-}
-
-const langflowStreamResponse = ({ url, headers, body, signal, onEnd: onEndCallback }: ILangflowStreamResponseParams): IStreamResponse => {
-    return async ({ onMessage, onEnd, onError }) => {
+export class LangflowStreamResponse extends BaseStreamResponse {
+    public async stream(): Promise<void> {
+        const { url, headers, body, signal, onEnd } = this.params;
+        const { onMessage, onEnd: onStreamEnd, onError } = this.registeredCallbacks;
         if (signal?.aborted) {
             return;
         }
@@ -54,7 +36,7 @@ const langflowStreamResponse = ({ url, headers, body, signal, onEnd: onEndCallba
 
                     const parsedMessage = parseLangflowResponse(jsonChunk);
                     if (Utils.Type.isString(parsedMessage)) {
-                        await onMessage(parsedMessage);
+                        await onMessage?.(parsedMessage);
                     }
                 }
 
@@ -65,9 +47,9 @@ const langflowStreamResponse = ({ url, headers, body, signal, onEnd: onEndCallba
                         await onError?.(error);
                     }
                 } else {
-                    await onEnd();
+                    await onStreamEnd?.();
                 }
-                onEndCallback?.();
+                onEnd?.();
 
                 result.data.removeAllListeners("data");
                 result.data.removeAllListeners("end");
@@ -114,7 +96,7 @@ const langflowStreamResponse = ({ url, headers, body, signal, onEnd: onEndCallba
                         }
 
                         if (Utils.Type.isString(parsedMessage)) {
-                            await onMessage(parsedMessage);
+                            await onMessage?.(parsedMessage);
                             continue;
                         }
 
@@ -146,12 +128,12 @@ const langflowStreamResponse = ({ url, headers, body, signal, onEnd: onEndCallba
             await onError?.(
                 Utils.Type.isError(error) ? error : new Error("An unknown error occurred while processing the Langflow stream response.")
             );
-            onEndCallback?.();
+            onEnd?.();
         }
-    };
-};
+    }
+}
 
-const parseLangflowResponse = (response: Record<string, any>): string | true | { error: any } | undefined => {
+export const parseLangflowResponse = (response: Record<string, any>): string | true | { error: any } | undefined => {
     if (!response.event || !response.data) {
         return undefined;
     }
@@ -178,5 +160,3 @@ const parseLangflowResponse = (response: Record<string, any>): string | true | {
 
     return undefined;
 };
-
-export default langflowStreamResponse;

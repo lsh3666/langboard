@@ -1,26 +1,11 @@
 from typing import Any
-from core.db import BaseSqlModel
+from core.db import ApiField, BaseSqlModel, Field
 from sqlalchemy import TEXT
-from sqlmodel import Field
 
 
 class BaseMetadataModel(BaseSqlModel):
-    key: str = Field(nullable=False, index=True)
-    value: str = Field(default="", nullable=False, sa_type=TEXT)
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "key": "string",
-            "value": "string",
-            **(schema or {}),
-        }
-
-    def api_response(self) -> dict[str, Any]:
-        return {
-            "key": self.key,
-            "value": self.value,
-        }
+    key: str = Field(nullable=False, index=True, api_field=ApiField())
+    value: str = Field(default="", nullable=False, sa_type=TEXT, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {}

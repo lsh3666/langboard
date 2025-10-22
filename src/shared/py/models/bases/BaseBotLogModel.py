@@ -7,18 +7,18 @@ from ..BotLog import BotLog
 class BaseBotLogModel(BaseSqlModel):
     bot_log_id: SnowflakeID = SnowflakeIDField(foreign_key=BotLog, index=True)
 
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return {
-            "uid": "string",
-            "filterable_table?": "string",
-            "filterable_uid?": "string",
-            **(schema or {}),
-        }
+    @classmethod
+    def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
+        return super().api_schema(
+            {
+                "filterable_table": "string",
+            }
+        )
 
     def api_response(self) -> dict[str, Any]:
         return {
-            "uid": self.get_uid(),
+            "filterable_table": self.__tablename__,
+            **super().api_response(),
         }
 
     def notification_data(self) -> dict[str, Any]:

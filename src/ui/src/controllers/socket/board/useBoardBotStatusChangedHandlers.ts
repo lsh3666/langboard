@@ -5,7 +5,7 @@ import { ESocketTopic } from "@langboard/core/enums";
 
 export interface IBoardBotStatusChangedRawResponse {
     bot_uid: string;
-    column_uid?: string;
+    project_column_uid?: string;
     card_uid?: string;
     status: "running" | "stopped";
 }
@@ -27,7 +27,7 @@ const useBoardBotStatusChangedHandlers = ({ callback, projectUID }: IUseBoardBot
                 getBotStatusStore().updateBotStatus({
                     type: data.card_uid ? "card" : "project_column",
                     botUID: data.bot_uid,
-                    targetUID: data.card_uid || data.column_uid!,
+                    targetUID: data.card_uid || data.project_column_uid!,
                     status: data.status,
                 });
 

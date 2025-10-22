@@ -40,6 +40,8 @@ class InternalBot extends BaseModel {
             bot_type: this.bot_type,
             display_name: this.display_name,
             avatar: this.avatar?.path ?? null,
+            created_at: this.created_at,
+            updated_at: this.updated_at,
         };
     }
 

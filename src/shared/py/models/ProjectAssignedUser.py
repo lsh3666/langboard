@@ -1,7 +1,6 @@
 from typing import Any
-from core.db import BaseSqlModel, DateTimeField, SnowflakeIDField
+from core.db import BaseSqlModel, DateTimeField, Field, SnowflakeIDField
 from core.types import SafeDateTime, SnowflakeID
-from sqlmodel import Field
 from .Project import Project
 from .User import User
 
@@ -11,13 +10,6 @@ class ProjectAssignedUser(BaseSqlModel, table=True):
     user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
     starred: bool = Field(default=False, nullable=False)
     last_viewed_at: SafeDateTime = DateTimeField(default=SafeDateTime.now, nullable=False, onupdate=True)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {}
-
-    def api_response(self) -> dict[str, Any]:
-        return {}
 
     def notification_data(self) -> dict[str, Any]:
         return {}

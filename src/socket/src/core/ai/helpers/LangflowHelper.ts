@@ -20,7 +20,6 @@ export class LangboardCalledVariablesComponent extends BaseLangflowComponent {
         current_runner_type: "bot" | "user",
         current_runner_data?: Record<string, any>,
         project_uid?: string,
-        bot_labels_for_project: Array<Record<string, any>> = [],
         rest_data?: Record<string, any>,
         custom_markdown_formats: Record<string, string> = DATA_TEXT_FORMAT_DESCRIPTIONS
     ) {
@@ -32,7 +31,6 @@ export class LangboardCalledVariablesComponent extends BaseLangflowComponent {
             current_runner_type,
             current_runner_data,
             project_uid,
-            bot_labels_for_project,
             rest_data,
             custom_markdown_formats,
         };

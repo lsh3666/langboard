@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Any
-from sqlmodel import Field
-from core.db import EnumLikeType, SnowflakeIDField
-from core.types import SafeDateTime, SnowflakeID
+from core.db import ApiField, EnumLikeType, Field, SnowflakeIDField
+from core.types import SnowflakeID
 from .bases import BaseActivityModel
 
 
@@ -11,10 +10,9 @@ class {class_name}ActivityType(Enum):
 
 
 class {class_name}Activity(BaseActivityModel, table=True):
-    activity_type: {class_name}ActivityType = Field(nullable=False)
+    activity_type: {class_name}ActivityType = Field(nullable=False, api_field=ApiField())
 
     def api_response(self) -> dict[str, Any]:
-        base_api_response = super().api_response()
-        base_api_response["activity_type"] = self.activity_type.value
-        base_api_response["filterable_map"] = {empty_dict}
-        return base_api_response
+        response = super().api_response()
+        response["filterable_map"] = {empty_dict}
+        return response

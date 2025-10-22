@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Any, ClassVar
-from core.db import EnumLikeType, SoftDeleteModel
-from sqlmodel import Field
+from core.db import ApiField, EnumLikeType, Field, SoftDeleteModel
 
 
 class BotPlatform(Enum):
@@ -24,8 +23,16 @@ class BaseBotModel(SoftDeleteModel):
         BotPlatform.Default: [BotPlatformRunningType.Default],
         BotPlatform.Langflow: [BotPlatformRunningType.FlowJson],
     }
-    platform: BotPlatform = Field(nullable=False, sa_type=EnumLikeType(BotPlatform))
-    platform_running_type: BotPlatformRunningType = Field(nullable=False, sa_type=EnumLikeType(BotPlatformRunningType))
+    platform: BotPlatform = Field(
+        nullable=False,
+        sa_type=EnumLikeType(BotPlatform),
+        api_field=ApiField(by_conditions={"is_setting": ("both", True)}),
+    )
+    platform_running_type: BotPlatformRunningType = Field(
+        nullable=False,
+        sa_type=EnumLikeType(BotPlatformRunningType),
+        api_field=ApiField(by_conditions={"is_setting": ("both", True)}),
+    )
 
     def notification_data(self) -> dict[str, Any]:
         return self.api_response()

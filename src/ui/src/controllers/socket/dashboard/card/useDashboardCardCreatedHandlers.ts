@@ -4,7 +4,7 @@ import { Project, ProjectColumn } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
 
 export interface IDashboardCardCreatedRawResponse {
-    column_uid: string;
+    project_column_uid: string;
 }
 
 export interface IUseDashboardCardCreatedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -21,7 +21,7 @@ const useDashboardCardCreatedHandlers = ({ callback, project }: IUseDashboardCar
             params: { uid: project.uid },
             callback,
             responseConverter: (data) => {
-                const column = ProjectColumn.Model.getModel((model) => model.uid === data.column_uid);
+                const column = ProjectColumn.Model.getModel((model) => model.uid === data.project_column_uid);
                 if (!column) {
                     return {};
                 }

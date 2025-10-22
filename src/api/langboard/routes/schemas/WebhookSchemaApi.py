@@ -3,28 +3,27 @@ from core.Env import Env
 from core.routing import AppRouter, JsonResponse
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse
-from models import Bot, ProjectLabel
+from models import Bot, User
 from models.bases import BotTriggerCondition
 from ...core.broker import Broker
 
 
-@AppRouter.api.get("/schema/bot", tags=["Schema"], response_class=HTMLResponse)
-async def bot_docs():
-    return get_swagger_ui_html(openapi_url="/schema/bot.json", title=Env.PROJECT_NAME.capitalize())
+@AppRouter.api.get("/schema/webhook", tags=["Schema"], response_class=HTMLResponse)
+async def webhook_docs():
+    return get_swagger_ui_html(openapi_url="/schema/webhook.json", title=Env.PROJECT_NAME.capitalize())
 
 
-@AppRouter.api.get("/schema/bot.json", include_in_schema=False)
-async def bot_openapi():
-    schemas = Broker.get_schema("bot")
+@AppRouter.api.get("/schema/webhook.json", include_in_schema=False)
+async def webhook_openapi():
+    schemas = Broker.get_schema("webhook")
     bot_schema = {
         **Bot.api_schema(),
         "app_api_token": "string",
         "prompt": "string",
     }
     bot_schema = _make_object_property("bot", bot_schema)
-
-    label_schema = ProjectLabel.api_schema()
-    label_schema = _make_object_property("label", label_schema)
+    user_schema = User.api_schema()
+    user_schema = _make_object_property("user", user_schema)
 
     for schema_name in schemas:
         schema = schemas[schema_name]
@@ -34,12 +33,6 @@ async def bot_openapi():
             "properties": {
                 "event": {"type": "string", "title": "Event", "enum": [schema_name]},
                 "data": _make_object_property("data", schema),
-                "current_running_bot": {"$ref": "#/shared/Bot"},
-                "bot_labels_for_project": {
-                    "type": "array",
-                    "title": "Labels for Project",
-                    "items": {"$ref": "#/shared/ProjectLabel"},
-                },
             },
         }
 
@@ -53,7 +46,7 @@ async def bot_openapi():
             "components": {"schemas": schemas},
             "shared": {
                 "Bot": bot_schema,
-                "ProjectLabel": label_schema,
+                "User": user_schema,
             },
         }
     )

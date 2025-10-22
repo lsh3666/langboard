@@ -1,8 +1,7 @@
 from typing import Any
-from core.db import BaseSqlModel, SnowflakeIDField
+from core.db import BaseSqlModel, Field, SnowflakeIDField
 from core.types import SnowflakeID
 from sqlalchemy import Text
-from sqlmodel import Field
 from .InternalBot import InternalBot
 from .Project import Project
 
@@ -13,8 +12,8 @@ class ProjectAssignedInternalBot(BaseSqlModel, table=True):
     prompt: str = Field(default="", nullable=False, sa_type=Text)
     use_default_prompt: bool = Field(default=True, nullable=False)
 
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
+    @classmethod
+    def api_schema(cls) -> dict[str, Any]:
         return {
             "prompt": "string",
             "use_default_prompt": "bool",

@@ -1,9 +1,8 @@
 from typing import Any, ClassVar
-from core.db import CSVType, ModelColumnType
+from core.db import ApiField, CSVType, Field, ModelColumnType
 from core.storage import FileModel
 from sqlalchemy import TEXT
-from sqlmodel import Field
-from .BaseBotModel import BaseBotModel, BotPlatform, BotPlatformRunningType
+from .BaseBotModel import BaseBotModel
 
 
 ALLOWED_ALL_IPS = "*"
@@ -12,63 +11,27 @@ ALLOWED_ALL_IPS = "*"
 class Bot(BaseBotModel, table=True):
     BOT_TYPE: ClassVar[str] = "bot"
     BOT_UNAME_PREFIX: ClassVar[str] = "bot-"
-    name: str = Field(nullable=False)
-    bot_uname: str = Field(nullable=False)
-    avatar: FileModel | None = Field(default=None, sa_type=ModelColumnType(FileModel))
-    api_url: str = Field(default="", nullable=False)
-    api_key: str = Field(default="", nullable=False)
-    app_api_token: str = Field(nullable=False)
-    ip_whitelist: list[str] = Field(default=[], sa_type=CSVType)
-    value: str = Field(default="", sa_type=TEXT)
-
-    @staticmethod
-    def api_schema(is_setting: bool = False, other_schema: dict | None = None) -> dict[str, Any]:
-        schema = {
-            "uid": "string",
-            "name": "string",
-            "bot_uname": "string",
-            "avatar": "string?",
-            **(other_schema or {}),
-        }
-        if is_setting:
-            schema.update(
-                {
-                    "platform": f"Literal[{', '.join([platform.value for platform in BotPlatform])}]",
-                    "platform_running_type": f"Literal[{', '.join([running_type.value for running_type in BotPlatformRunningType])}]",
-                    "api_url": "string",
-                    "api_key": "string",
-                    "app_api_token": "string",
-                    "ip_whitelist": "List[string]",
-                    "value": "string",
-                }
-            )
-
-        return schema
+    name: str = Field(nullable=False, api_field=ApiField())
+    bot_uname: str = Field(nullable=False, api_field=ApiField())
+    avatar: FileModel | None = Field(
+        default=None, sa_type=ModelColumnType(FileModel), api_field=ApiField(field_base_model="path")
+    )
+    api_url: str = Field(default="", nullable=False, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
+    api_key: str = Field(default="", nullable=False, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
+    app_api_token: str = Field(
+        nullable=False, api_field=ApiField(converter="hide_app_api_token", by_conditions={"is_setting": ("both", True)})
+    )
+    ip_whitelist: list[str] = Field(
+        default=[], sa_type=CSVType, api_field=ApiField(by_conditions={"is_setting": ("both", True)})
+    )
+    value: str = Field(default="", sa_type=TEXT, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
 
     def get_fullname(self) -> str:
         return f"{self.name}"
 
-    def api_response(self, is_setting: bool = False) -> dict[str, Any]:
-        if self.deleted_at is not None:
-            return self.create_unknown_bot_api_response()
-
-        response = {
-            "uid": self.get_uid(),
-            "name": self.name,
-            "bot_uname": self.bot_uname,
-            "avatar": self.avatar.path if self.avatar else None,
-        }
-        if is_setting:
-            response["platform"] = self.platform.value
-            response["platform_running_type"] = self.platform_running_type.value
-            response["api_url"] = self.api_url
-            response["api_key"] = self.api_key
-            hide_rest_value = "*" * (len(self.app_api_token) - 8)
-            response["app_api_token"] = f"{self.app_api_token[:8]}{hide_rest_value}"
-            response["ip_whitelist"] = self.ip_whitelist
-            response["value"] = self.value
-
-        return response
+    def hide_app_api_token(self, **kwargs) -> str:
+        hide_rest_value = "*" * (len(self.app_api_token) - 8)
+        return f"{self.app_api_token[:8]}{hide_rest_value}"
 
     def create_unknown_bot_api_response(self) -> dict[str, Any]:
         return {

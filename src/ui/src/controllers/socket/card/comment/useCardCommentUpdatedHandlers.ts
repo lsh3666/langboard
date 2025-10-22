@@ -7,7 +7,7 @@ import { ESocketTopic } from "@langboard/core/enums";
 export interface ICardCommentUpdatedRawResponse {
     comment_uid: string;
     content: IEditorContent;
-    commented_at: Date;
+    updated_at: Date;
 }
 
 export interface IUseCardCommentUpdatedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -28,7 +28,7 @@ const useCardCommentUpdatedHandlers = ({ callback, projectUID, cardUID }: IUseCa
                 const comment = ProjectCardComment.Model.getModel(data.comment_uid);
                 if (comment) {
                     comment.content = data.content;
-                    comment.commented_at = data.commented_at;
+                    comment.updated_at = data.updated_at;
                     comment.is_edited = true;
                 }
                 return {};

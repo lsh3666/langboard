@@ -43,7 +43,7 @@ worker.safe_say = lambda _, __: None
 
 @class_instance()
 class Broker:
-    _schemas = {}
+    _schemas: dict[str, dict[str, Any]] = {}
 
     def __init__(self):
         if Env.CACHE_TYPE == "in-memory":
@@ -154,7 +154,7 @@ class Broker:
 
         return decorator
 
-    def get_schema(self, group: str):
+    def get_schema(self, group: str) -> dict[str, Any]:
         schema_file = SCHEMA_DIR / f"{group}.json"
         if schema_file.exists():
             return json_loads(schema_file.read_text())

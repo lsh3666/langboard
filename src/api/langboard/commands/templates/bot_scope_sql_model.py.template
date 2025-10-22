@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Any
-from core.db import SnowflakeIDField
+from core.db import ApiField, Field, SnowflakeIDField
 from core.types import SnowflakeID
-from sqlmodel import Field
 from .bases import BaseBotScopeModel, BotTriggerCondition
 
 
@@ -16,14 +15,3 @@ class {class_name}BotScope(BaseBotScopeModel, table=True):
     @staticmethod
     def get_scope_column_name() -> str:
         return ""
-
-    @staticmethod
-    def api_schema(schema: dict | None = None) -> dict[str, Any]:
-        return BaseBotScopeModel.api_schema({sb}
-            **(schema or {empty_dict}),
-        {eb})
-
-    def api_response(self) -> dict[str, Any]:
-        return {sb}
-            **(super().api_response()),
-        {eb}

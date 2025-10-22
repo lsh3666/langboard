@@ -53,7 +53,6 @@ export interface Interface extends IBaseModel {
     owner_uid: string;
     title: string;
     project_type: string;
-    updated_at: Date;
 }
 
 export interface IStore extends Interface {
@@ -139,9 +138,6 @@ class Project extends BaseModel<IStore> {
     }
 
     public static convertModel(model: IStore): Interface {
-        if (Utils.Type.isString(model.updated_at)) {
-            model.updated_at = new Date(model.updated_at);
-        }
         if (Utils.Type.isString(model.last_viewed_at)) {
             model.last_viewed_at = new Date(model.last_viewed_at);
         }
@@ -239,13 +235,6 @@ class Project extends BaseModel<IStore> {
     }
     public set labels(value: (ProjectLabel.TModel | ProjectLabel.Interface)[]) {
         this.update({ labels: value });
-    }
-
-    public get updated_at(): Date {
-        return this.getValue("updated_at");
-    }
-    public set updated_at(value: string | Date) {
-        this.update({ updated_at: new Date(value) });
     }
 
     public get last_viewed_at(): Date {

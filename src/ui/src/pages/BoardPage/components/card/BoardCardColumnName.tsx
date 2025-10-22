@@ -7,7 +7,7 @@ export function SkeletonBoardCardColumnName() {
 
 function BoardCardColumnName(): JSX.Element {
     const { card } = useBoardCard();
-    const columnName = card.useField("column_name");
+    const columnName = card.useField("project_column_name");
 
     return <>{columnName}</>;
 }

@@ -14,7 +14,6 @@ export interface Interface extends IBaseModel {
     setting_type: ESettingType;
     setting_name: string;
     setting_value: any;
-    created_at: Date;
     last_used_at: Date;
     total_used_count: number;
 }
@@ -37,9 +36,6 @@ class AppSettingModel extends BaseModel<Interface> {
             if (Utils.Type.isString(model.setting_type)) {
                 model.setting_type = Utils.String.convertSafeEnum(ESettingType, model.setting_type);
             }
-        }
-        if (Utils.Type.isString(model.created_at)) {
-            model.created_at = new Date(model.created_at);
         }
         if (Utils.Type.isString(model.last_used_at)) {
             model.last_used_at = new Date(model.last_used_at);
@@ -66,13 +62,6 @@ class AppSettingModel extends BaseModel<Interface> {
     }
     public set setting_value(value) {
         this.update({ setting_value: value });
-    }
-
-    public get created_at(): Date {
-        return this.getValue("created_at");
-    }
-    public set created_at(value: string | Date) {
-        this.update({ created_at: new Date(value) });
     }
 
     public get last_used_at(): Date {

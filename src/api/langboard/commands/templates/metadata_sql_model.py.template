@@ -1,22 +1,14 @@
 from typing import Any
-from core.db import SnowflakeIDField
-from core.types import SafeDateTime, SnowflakeID
+from core.db import ApiField, SnowflakeIDField
+from core.types import SnowflakeID
 from .bases import BaseMetadataModel
 from .{class_name} import {class_name}
 
 
 class {class_name}Metadata(BaseMetadataModel, table=True):
-    {snake_name}_id: SnowflakeID = SnowflakeIDField(foreign_key={class_name}.expr("id"), index=True)
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return BaseMetadataModel.api_schema({sb}"{snake_name}_uid": "string"{eb})
-
-    def api_response(self) -> dict[str, Any]:
-        return {sb}
-            "{snake_name}_uid": self.{snake_name}_id.to_short_code(),
-            **(super().api_response()),
-        {eb}
+    {snake_name}_id: SnowflakeID = SnowflakeIDField(
+        foreign_key={class_name}.expr("id"), index=True, api_field=ApiField(name="{snake_name}_uid")
+    )
 
     def _get_repr_keys(self) -> list[str | tuple[str, str]]:
         return ["{snake_name}_id", "key"]

@@ -126,7 +126,7 @@ class ProjectColumnPublisher(BaseSocketPublisher):
     ):
         data = {
             "bot_uid": bot_uid,
-            "column_uid": column_uid,
+            "project_column_uid": column_uid,
             "status": status,
         }
 

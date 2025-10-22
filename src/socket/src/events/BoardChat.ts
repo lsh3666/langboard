@@ -198,8 +198,8 @@ EventManager.on(ESocketTopic.Board, SocketEvents.CLIENT.BOARD.CHAT.SEND, async (
         await session.updateLastMessagedAt(aiMessage.updated_at);
     };
 
-    await response({
-        onMessage: async (chunk) => {
+    await response
+        .onMessage(async (chunk) => {
             isReceived = true;
             const oldContent = newContent.content;
             let updatedContent = "";
@@ -217,12 +217,12 @@ EventManager.on(ESocketTopic.Board, SocketEvents.CLIENT.BOARD.CHAT.SEND, async (
                 stream.buffer({ uid: aiMessageUID, chunk: updatedContent });
                 lastContent = newContent.content;
             }
-        },
-        onError: async (error) => {
+        })
+        .onError(async (error) => {
             stream.end({ uid: aiMessageUID, status: "failed", error: error.message });
             await aiMessage.remove();
-        },
-        onEnd: async () => {
+        })
+        .onEnd(async () => {
             if (!isReceived) {
                 if (!isAborted()) {
                     stream.end({ uid: aiMessageUID, status: "failed" });
@@ -234,8 +234,8 @@ EventManager.on(ESocketTopic.Board, SocketEvents.CLIENT.BOARD.CHAT.SEND, async (
 
             stream.end({ uid: aiMessageUID, status: isAborted() ? "aborted" : "success" });
             await saveMessage();
-        },
-    });
+        })
+        .stream();
 });
 
 EventManager.on(ESocketTopic.Board, SocketEvents.CLIENT.BOARD.CHAT.CANCEL, async ({ client, data }) => {

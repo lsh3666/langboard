@@ -21,7 +21,7 @@ class CardPublisher(BaseSocketPublisher):
                 topic=SocketTopic.Dashboard,
                 topic_id=topic_id,
                 event=f"dashboard:card:created:{topic_id}",
-                custom_data={"column_uid": column.get_uid()},
+                custom_data={"project_column_uid": column.get_uid()},
             ),
         ]
 
@@ -91,7 +91,7 @@ class CardPublisher(BaseSocketPublisher):
         if new_column:
             new_column_uid = new_column.get_uid()
             model["to_column_uid"] = new_column_uid
-            model["column_name"] = new_column.name
+            model["project_column_name"] = new_column.name
 
         publish_models: list[SocketPublishModel] = []
         topic_id = project.get_uid()
@@ -122,13 +122,13 @@ class CardPublisher(BaseSocketPublisher):
                         topic=SocketTopic.BoardCard,
                         topic_id=card_uid,
                         event=f"board:card:order:changed:{card_uid}",
-                        data_keys=["to_column_uid", "column_name", "archived_at"],
+                        data_keys=["to_column_uid", "project_column_name", "archived_at"],
                     ),
                     SocketPublishModel(
                         topic=SocketTopic.Dashboard,
                         topic_id=topic_id,
                         event=f"dashboard:card:order:changed:{topic_id}",
-                        data_keys=["to_column_uid", "column_name", "archived_at"],
+                        data_keys=["to_column_uid", "project_column_name", "archived_at"],
                         custom_data={
                             "uid": card_uid,
                             "from_column_uid": old_column_uid,
@@ -193,7 +193,7 @@ class CardPublisher(BaseSocketPublisher):
                 event=f"dashboard:card:deleted:{topic_id}",
                 custom_data={
                     "uid": card_uid,
-                    "column_uid": column_uid,
+                    "project_column_uid": column_uid,
                 },
             ),
         ]

@@ -6,7 +6,7 @@ import { Utils } from "@langboard/core/utils";
 
 export interface IChangeProjectColumnOrderForm {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
     order: number;
 }
 
@@ -14,7 +14,7 @@ const useChangeProjectColumnOrder = (options?: TMutationOptions<IChangeProjectCo
     const { mutate } = useQueryMutation();
 
     const changeProjectColumnOrder = async (params: IChangeProjectColumnOrderForm) => {
-        const url = Utils.String.format(Routing.API.BOARD.COLUMN.CHANGE_ORDER, { uid: params.project_uid, column_uid: params.column_uid });
+        const url = Utils.String.format(Routing.API.BOARD.COLUMN.CHANGE_ORDER, { uid: params.project_uid, column_uid: params.project_column_uid });
         const res = await api.put(
             url,
             {
