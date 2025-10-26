@@ -113,8 +113,6 @@ services:
       context: ../src/flows
     env_file:
       - ./envs/.flows.env
-    environment:
-      UV_HTTP_TIMEOUT: "60"
     working_dir: /app/src/flows
     command: uv run flows run --workers ${FLOWS_WORKERS_COUNT:-1}
     volumes:

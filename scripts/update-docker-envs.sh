@@ -21,6 +21,7 @@ declare -A service_envs=(
   [ui]="server-common"
   [socket]="server-common server"
   [flows]="server-common server"
+  [db_backup]="db-backup"
 )
 
 echo ${service_envs[@]}

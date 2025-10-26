@@ -1,4 +1,4 @@
-.PHONY: help init format lint start_docker_dev stop_docker_dev start_docker_prod stop_docker_prod
+.PHONY: help init format lint start_docker_dev stop_docker_dev start_docker_prod stop_docker_prod rebuild_image_dev rebuild_image_prod
 
 COMPOSE_PREFIX := ./docker/docker-compose
 COMPOSE_ARGS := -f $(COMPOSE_PREFIX).kafka.yaml -f $(COMPOSE_PREFIX).pg.yaml -f $(COMPOSE_PREFIX).redis.yaml -f $(COMPOSE_PREFIX).server.yaml --env-file ./.env
@@ -132,6 +132,17 @@ start_docker_dev: ## run Docker in the development environment
 	mkdir -p ./docker/volumes
 	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --build
 
+rebuild_image_dev: ## run Docker in the development environment (e.g. make rebuild_image_dev IMAGE=image_name)
+	if [ "$(IMAGE)" = "" ]; then \
+		echo "$(RED)Please specify the IMAGE variable to rebuild (e.g. make rebuild_image_dev IMAGE=image_name).$(NC)"; \
+		exit 1; \
+	fi
+
+	make init_env
+	make update_docker_env
+	mkdir -p ./docker/volumes
+	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --build ${IMAGE}
+
 update_docker_dev: ## update Docker in the development environment
 	make init_env
 	make update_docker_env
@@ -145,6 +156,17 @@ start_docker_prod: ## run Docker in the production environment
 	make update_docker_env
 	mkdir -p ./docker/volumes
 	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --build
+
+rebuild_image_prod: ## run Docker in the production environment (e.g. make rebuild_image_dev IMAGE=image_name)
+	if [ "$(IMAGE)" = "" ]; then \
+		echo "$(RED)Please specify the IMAGE variable to rebuild (e.g., make rebuild_image_prod IMAGE=image_name).$(NC)"; \
+		exit 1; \
+	fi
+
+	make init_env
+	make update_docker_env
+	mkdir -p ./docker/volumes
+	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --build ${IMAGE}
 
 update_docker_prod: ## update Docker in the production environment
 	make init_env

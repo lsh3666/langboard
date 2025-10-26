@@ -15,9 +15,8 @@ services:
     ports:
       - 6432:6432
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRESQL_HOST=db
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRESQL_DATABASE=${POSTGRES_DB}
       - PGBOUNCER_POOL_MODE=transaction
@@ -42,7 +41,7 @@ services:
 
   db:
     init: true
-    image: bitnamilegacy/postgresql:latest
+    image: bitnami/postgresql:latest
     container_name: ${PROJECT_NAME}_db
     ports:
       - ${MASTER_POSTGRES_PORT}:5432
@@ -59,7 +58,7 @@ services:
 
   db-replica:
     init: true
-    image: bitnamilegacy/postgresql:latest
+    image: bitnami/postgresql:latest
     container_name: ${PROJECT_NAME}_db_replica
     ports:
       - ${REPLICA_POSTGRES_PORT}:5432
@@ -79,17 +78,14 @@ services:
     build:
       context: ./db_backup
     container_name: ${PROJECT_NAME}_db_backup
-    environment:
-      - PG_MASTER_HOST=${PROJECT_NAME}_db_replica
-      - PG_MASTER_PORT=5432
-      - PG_USER=${POSTGRES_USER}
-      - PG_PASS=${POSTGRES_PASSWORD}
-      - PG_DB=${POSTGRES_DB}
+    env_file:
+      - ./envs/.db_backup.env
     volumes:
       - ./volumes/db_backup:/backup
       - ./db_backup/backup.sh:/scripts/backup.sh
-      - ./db_backup/cron.tab:/var/spool/cron/crontabs/root
-      - ./volumes/logs/db_backup:/logs
+      - ./envs/.db_backup.env:/scripts/.env
+      - ./db_backup/cron.tab:/etc/cron.d/cron.tab
+      - ./volumes/logs/db_backup:/logs:rw
     networks:
       - net
     depends_on:
