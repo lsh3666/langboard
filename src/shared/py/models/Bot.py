@@ -29,7 +29,7 @@ class Bot(BaseBotModel, table=True):
     def get_fullname(self) -> str:
         return f"{self.name}"
 
-    def hide_app_api_token(self, **kwargs) -> str:
+    def hide_app_api_token(self) -> str:
         hide_rest_value = "*" * (len(self.app_api_token) - 8)
         return f"{self.app_api_token[:8]}{hide_rest_value}"
 

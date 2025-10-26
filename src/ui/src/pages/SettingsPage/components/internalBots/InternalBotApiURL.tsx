@@ -30,7 +30,7 @@ const InternalBotApiURL = memo(() => {
         }
 
         const promise = mutateAsync({
-            url: value,
+            api_url: value,
         });
 
         Toast.Add.promise(promise, {

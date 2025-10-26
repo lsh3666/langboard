@@ -17,9 +17,10 @@ class ProjectChatBot extends BaseBot {
                 userId: data.user_id,
                 inputType: "chat",
                 outputType: "chat",
-                tweaks: data.file_path ? { LangboardFile: { path: data.file_path } } : {},
+                tweaks: {},
                 restData: data.rest_data,
                 sessionId: `${new SnowflakeID(data.user_id).toShortCode()}-${data.project_uid}`,
+                filePath: data.file_path,
             },
             useStream: true,
         });
@@ -34,9 +35,10 @@ class ProjectChatBot extends BaseBot {
                 userId: data.user_id,
                 inputType: "chat",
                 outputType: "chat",
-                tweaks: data.file_path ? { LangboardFile: { path: data.file_path } } : {},
+                tweaks: {},
                 restData: data.rest_data,
                 sessionId: `${new SnowflakeID(data.user_id).toShortCode()}-${data.project_uid}`,
+                filePath: data.file_path,
             },
             useStream: true,
         });

@@ -6,20 +6,15 @@ import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation
 import { EBotTriggerCondition } from "@/core/models/botScopes/EBotTriggerCondition";
 import { Utils } from "@langboard/core/utils";
 
-export type TUseCreateBotScopeParams = TBotScopeRelatedParams & {
-    bot_uid: string;
-};
-
 export interface ICreateBotScopeForm {
     conditions: EBotTriggerCondition[];
 }
 
-const useCreateBotScope = (params: TUseCreateBotScopeParams, options?: TMutationOptions<ICreateBotScopeForm>) => {
+const useCreateBotScope = (params: TBotScopeRelatedParams, options?: TMutationOptions<ICreateBotScopeForm>) => {
     const { mutate } = useQueryMutation();
 
     const createBotScope = async (form: ICreateBotScopeForm) => {
-        const url = Utils.String.format(Routing.API.BOARD.BOT.SCOPE.CREATE, {
-            uid: params.project_uid,
+        const url = Utils.String.format(Routing.API.BOT.SCOPE.CREATE, {
             bot_uid: params.bot_uid,
         });
         const res = await api.post(

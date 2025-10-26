@@ -3,7 +3,7 @@ import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import { EBotPlatform } from "@/core/models/bot.related.type";
+import { EBotPlatform } from "@langboard/core/ai";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";

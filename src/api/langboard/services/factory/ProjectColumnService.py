@@ -16,7 +16,7 @@ from publishers import ProjectColumnPublisher
 from sqlalchemy import func
 from langboard.ai import BotScheduleHelper
 from ...tasks.activities import ProjectColumnActivityTask
-from ...tasks.bot import ProjectColumnBotTask
+from ...tasks.bots import ProjectColumnBotTask
 from .BotScopeService import BotScopeService
 from .Types import TColumnParam, TProjectParam, TUserOrBot
 

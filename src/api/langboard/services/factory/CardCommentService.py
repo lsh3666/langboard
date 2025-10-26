@@ -5,7 +5,7 @@ from helpers import ServiceHelper
 from models import Bot, Card, CardComment, CardCommentReaction, Project, User
 from publishers import CardCommentPublisher
 from ...tasks.activities import CardCommentActivityTask
-from ...tasks.bot import CardCommentBotTask
+from ...tasks.bots import CardCommentBotTask
 from .NotificationService import NotificationService
 from .ReactionService import ReactionService
 from .Types import TCardParam, TCommentParam, TProjectParam, TUserOrBot

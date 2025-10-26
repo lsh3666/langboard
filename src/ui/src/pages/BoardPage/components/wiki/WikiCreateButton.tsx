@@ -6,13 +6,13 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
 const WikiCreateButton = memo(() => {
-    const { projectUID, wikiTabListId, changeTab } = useBoardWiki();
+    const { project, wikiTabListId, changeTab } = useBoardWiki();
     const [t] = useTranslation();
     const { mutateAsync: createWikiMutateAsync } = useCreateWiki({ interceptToast: true });
 
     const createWiki = () => {
         const promise = createWikiMutateAsync({
-            project_uid: projectUID,
+            project_uid: project.uid,
             title: "New page",
         });
 

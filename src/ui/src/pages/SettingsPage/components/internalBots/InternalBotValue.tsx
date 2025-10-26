@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 import { getValueType } from "@/components/bots/BotValueInput/utils";
-import { EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatformRunningType } from "@langboard/core/ai";
 import BotValueInput from "@/components/bots/BotValueInput";
 import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/types";
 
@@ -80,6 +80,8 @@ const InternalBotValue = memo(() => {
                 </Alert>
             )}
             <BotValueInput
+                platform={platform}
+                platformRunningType={platformRunningType}
                 value={value}
                 label={t(`bot.platformRunningTypes.${platformRunningType}`)}
                 valueType={valueType}

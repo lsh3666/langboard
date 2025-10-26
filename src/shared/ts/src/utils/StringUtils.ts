@@ -137,9 +137,13 @@ const getInitials = (firstname?: string, lastname?: string): string => {
     return `${firstname?.charAt(0) ?? ""}${lastname?.charAt(0) ?? ""}`.toUpperCase();
 };
 
-const format = (str: string, map: Record<string, string>): string => {
+type TExtractPlaceholders<TString extends string> = TString extends `${infer _TStart}{${infer TParam}}${infer TRest}`
+    ? { [K in TParam]: string } & TExtractPlaceholders<TRest>
+    : {};
+
+const format = <TString extends string, TMap extends TExtractPlaceholders<TString>>(str: TString, map: TMap): string => {
     return str.replace(/{(\w+)}/g, (match, key) => {
-        return map[key] || match;
+        return (map[key as keyof TMap] || match) as string;
     });
 };
 

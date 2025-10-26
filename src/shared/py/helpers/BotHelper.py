@@ -1,6 +1,6 @@
 from typing import Any, ClassVar, Literal, cast, overload
 from core.utils.decorators import staticclass
-from models import Card, ProjectColumn
+from models import Card, Project, ProjectColumn
 from models.bases import (
     BaseBotLogModel,
     BaseBotScheduleModel,
@@ -11,8 +11,8 @@ from .ModelHelper import ModelHelper
 from .ServiceHelper import ServiceHelper
 
 
-_TAvailableTargets = ProjectColumn | Card
-_TAvailableTargetClass = type[ProjectColumn] | type[Card]
+_TAvailableTargets = Project | ProjectColumn | Card
+_TAvailableTargetClass = type[Project] | type[ProjectColumn] | type[Card]
 _TBotTypeName = Literal["schedule", "scope", "log"]
 _TBaseBotType = BaseBotScheduleModel | BaseBotScopeModel | BaseBotLogModel
 _TBaseBotTypeClass = type[BaseBotScheduleModel] | type[BaseBotScopeModel] | type[BaseBotLogModel]
@@ -21,6 +21,7 @@ _TBaseBotTypeClass = type[BaseBotScheduleModel] | type[BaseBotScopeModel] | type
 @staticclass
 class BotHelper:
     AVAILABLE_TARGET_TABLES: ClassVar[dict[str, _TAvailableTargetClass]] = {
+        Project.__tablename__: Project,
         ProjectColumn.__tablename__: ProjectColumn,
         Card.__tablename__: Card,
     }

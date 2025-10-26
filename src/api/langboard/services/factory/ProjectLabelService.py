@@ -3,9 +3,10 @@ from core.db import DbSession, SqlBuilder
 from core.service import BaseService
 from core.utils.Converter import convert_python_data
 from helpers import ServiceHelper
-from models import Bot, Card, CardAssignedProjectLabel, Project, ProjectLabel
+from models import Card, CardAssignedProjectLabel, Project, ProjectLabel
 from publishers import ProjectLabelPublisher
 from ...tasks.activities import ProjectLabelActivityTask
+from ...tasks.bots import ProjectLabelBotTask
 from .Types import TCardParam, TProjectLabelParam, TProjectParam, TUserOrBot
 
 
@@ -127,11 +128,7 @@ class ProjectLabelService(BaseService):
         if not project:
             return None
 
-        is_bot = isinstance(user_or_bot, Bot)
-        if is_bot:
-            max_order = -1  # -1 is for the bot label
-        else:
-            max_order = ServiceHelper.get_max_order(ProjectLabel, "project_id", project.id)
+        max_order = ServiceHelper.get_max_order(ProjectLabel, "project_id", project.id)
 
         label = ProjectLabel(
             project_id=project.id,
@@ -143,9 +140,9 @@ class ProjectLabelService(BaseService):
         with DbSession.use(readonly=False) as db:
             db.insert(label)
 
-        if not is_bot:
-            await ProjectLabelPublisher.created(project, label)
-            ProjectLabelActivityTask.project_label_created(user_or_bot, project, label)
+        await ProjectLabelPublisher.created(project, label)
+        ProjectLabelActivityTask.project_label_created(user_or_bot, project, label)
+        ProjectLabelBotTask.project_label_created(user_or_bot, project, label)
 
         return label, label.api_response()
 
@@ -188,6 +185,7 @@ class ProjectLabelService(BaseService):
 
         await ProjectLabelPublisher.updated(project, label, model)
         ProjectLabelActivityTask.project_label_updated(user_or_bot, project, old_label_record, label)
+        ProjectLabelBotTask.project_label_updated(user_or_bot, project, label)
 
         return model
 
@@ -227,5 +225,6 @@ class ProjectLabelService(BaseService):
 
         await ProjectLabelPublisher.deleted(project, label)
         ProjectLabelActivityTask.project_label_deleted(user_or_bot, project, label)
+        ProjectLabelBotTask.project_label_deleted(user_or_bot, project, label)
 
         return True

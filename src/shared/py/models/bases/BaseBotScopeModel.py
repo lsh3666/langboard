@@ -7,6 +7,21 @@ from ..Bot import Bot
 
 
 class BotTriggerCondition(Enum):
+    # Project
+    ProjectUpdated = "project_updated"
+    ProjectDeleted = "project_deleted"
+
+    # Project Label
+    ProjectLabelCreated = "project_label_created"
+    ProjectLabelUpdated = "project_label_updated"
+    ProjectLabelDeleted = "project_label_deleted"
+
+    # Project Wiki
+    ProjectWikiCreated = "project_wiki_created"
+    ProjectWikiUpdated = "project_wiki_updated"
+    ProjectWikiPublicityChanged = "project_wiki_publicity_changed"
+    ProjectWikiDeleted = "project_wiki_deleted"
+
     # Project Column
     ProjectColumnNameChanged = "project_column_name_changed"
     ProjectColumnDeleted = "project_column_deleted"

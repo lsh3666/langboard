@@ -3,7 +3,7 @@ from core.routing import ApiErrorCode, AppRouter, JsonResponse
 from core.schema import OpenApiSchema
 from core.storage import StorageName
 from fastapi import File, UploadFile, status
-from models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from ...ai import validate_bot_form
 from ...core.storage import Storage
 from ...services import Service
 from .Form import CreateInternalBotForm, UpdateInternalBotForm
@@ -20,17 +20,7 @@ async def create_internal_bot(
     avatar: UploadFile | None = File(None),
     service: Service = Service.scope(),
 ) -> JsonResponse:
-    is_invalid = True
-    if form.platform == BotPlatform.Default:
-        if form.platform_running_type == BotPlatformRunningType.Default:
-            is_invalid = not form.value
-    elif form.platform == BotPlatform.Langflow:
-        if form.platform_running_type == BotPlatformRunningType.Endpoint:
-            is_invalid = not form.url or not form.api_key or not form.value
-        elif form.platform_running_type == BotPlatformRunningType.FlowJson:
-            is_invalid = not form.value
-
-    if is_invalid:
+    if not validate_bot_form(form):
         return JsonResponse(content=ApiErrorCode.VA0000, status_code=status.HTTP_400_BAD_REQUEST)
 
     file_model = Storage.upload(avatar, StorageName.InternalBot) if avatar else None
@@ -39,7 +29,7 @@ async def create_internal_bot(
         form.display_name,
         form.platform,
         form.platform_running_type,
-        form.url,
+        form.api_url,
         form.value,
         form.api_key,
         file_model,

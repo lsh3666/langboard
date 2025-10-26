@@ -18,6 +18,7 @@ const BoardSettingsList = memo(() => {
     const ownerUID = project.useField("owner_uid");
     const allMembers = project.useForeignField("all_members");
     const invitedMemberUIDs = project.useField("invited_member_uids");
+    const isAdmin = currentUser.useField("is_admin");
     const numMembers = useMemo(
         () =>
             allMembers.filter((m) => m.isValidUser() && m.uid !== ownerUID && m.uid !== currentUser.uid && !invitedMemberUIDs.includes(m.uid)).length,
@@ -43,7 +44,7 @@ const BoardSettingsList = memo(() => {
             <BoardSettingsSection title="project.settings.Chat templates">
                 <BoardSettingsChatTemplateList key={`board-settings-chat-templates-${project.uid}`} />
             </BoardSettingsSection>
-            {currentUser.is_admin || project.owner_uid === currentUser.uid ? (
+            {isAdmin || project.owner_uid === currentUser.uid ? (
                 <BoardSettingsSection title="common.Other">
                     <BoardSettingsOther />
                 </BoardSettingsSection>

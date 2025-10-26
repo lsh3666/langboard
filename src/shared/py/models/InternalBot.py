@@ -14,7 +14,7 @@ class InternalBotType(Enum):
 class InternalBot(BaseBotModel, table=True):
     bot_type: InternalBotType = Field(nullable=False, sa_type=EnumLikeType(InternalBotType), api_field=ApiField())
     display_name: str = Field(nullable=False, api_field=ApiField())
-    url: str = Field(default="", nullable=False, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
+    api_url: str = Field(default="", nullable=False, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
     api_key: str = Field(default="", nullable=False, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
     value: str = Field(
         default="", nullable=False, sa_type=Text, api_field=ApiField(by_conditions={"is_setting": ("both", True)})

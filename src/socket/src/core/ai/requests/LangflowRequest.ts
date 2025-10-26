@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createOneTimeToken } from "@/core/ai/BotOneTimeToken";
 import BaseRequest, { IRequestData, IRequestExecuteParams, IRequestParams } from "@/core/ai/requests/BaseRequest";
-import { LangboardCalledVariablesComponent } from "@/core/ai/helpers/LangflowHelper";
+import { LangboardCalledVariablesComponent, LangboardFile } from "@/core/ai/helpers/TweaksComponent";
 import SnowflakeID from "@/core/db/SnowflakeID";
 import { api } from "@/core/helpers/Api";
 import Logger from "@/core/utils/Logger";
@@ -9,11 +9,12 @@ import { EHttpStatus } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
 import formidable from "formidable";
 import fs from "fs";
-import { EBotPlatform, EBotPlatformRunningType } from "@/models/bot.related.types";
-import { LangflowStreamResponse } from "@/core/ai/requests/responses/LangflowResponse";
+import { LangflowStreamResponse } from "@/core/ai/responses/LangflowResponse";
+import BaseStreamResponse from "@/core/ai/responses/BaseStreamResponse";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 
 class LangflowRequest extends BaseRequest {
-    protected createRequestData({ requestModel, useStream }: IRequestExecuteParams): IRequestData {
+    protected createRequestData({ requestModel, useStream }: IRequestExecuteParams): IRequestData | null {
         const sessionId = requestModel.sessionId ?? Utils.String.Token.generate(32);
         const oneTimeToken = createOneTimeToken(new SnowflakeID(requestModel.userId));
 
@@ -34,6 +35,13 @@ class LangflowRequest extends BaseRequest {
         url = `${url}?${queryParams.toString()}`;
 
         requestModel.tweaks = requestModel.tweaks ?? {};
+
+        if (requestModel.filePath) {
+            requestModel.tweaks = {
+                ...requestModel.tweaks,
+                ...new LangboardFile(requestModel.filePath).toTweaks(),
+            };
+        }
 
         const component = new LangboardCalledVariablesComponent(
             "chat",
@@ -67,37 +75,28 @@ class LangflowRequest extends BaseRequest {
         };
     }
 
-    protected async request({ requestModel, headers, task, useStream }: IRequestParams) {
+    protected createStreamResponse({ requestModel, headers, task }: Omit<IRequestParams, "useStream">): BaseStreamResponse {
         const [abortController, finish] = task ?? [undefined, undefined];
-        if (useStream) {
-            return new LangflowStreamResponse({
-                url: requestModel.url,
-                headers: headers,
-                body: requestModel.reqData,
-                signal: abortController?.signal,
-                onEnd: finish,
-            });
-        }
 
-        let result;
+        return new LangflowStreamResponse({
+            url: requestModel.url,
+            headers: headers,
+            body: requestModel.reqData,
+            signal: abortController?.signal,
+            onEnd: finish,
+        });
+    }
+
+    protected convertResponse(data: { session_id: string; outputs: Record<string, any>[] }): string {
         try {
-            const response = await api.post(requestModel.url, requestModel.reqData, {
-                headers,
-                timeout: 5 * 60 * 1000, // 5 minutes,
-                signal: abortController?.signal,
-            });
-
-            if (response.status !== 200) {
-                throw new Error("Langflow request failed");
+            let responseOutputs = data.outputs[0];
+            while (!responseOutputs.messages) {
+                responseOutputs = responseOutputs.outputs[0];
             }
-
-            result = this.#parseLangflowResponse(response.data);
+            return responseOutputs.messages[0].message;
         } catch {
-            result = null;
-        } finally {
-            finish?.();
+            return "";
         }
-        return result;
     }
 
     public async upload(file: formidable.File): Promise<string | null> {
@@ -149,18 +148,6 @@ class LangflowRequest extends BaseRequest {
             return healthCheck.status === EHttpStatus.HTTP_200_OK;
         } catch {
             return false;
-        }
-    }
-
-    #parseLangflowResponse(response: { session_id: string; outputs: Record<string, any>[] }): string {
-        try {
-            let responseOutputs = response.outputs[0];
-            while (!responseOutputs.messages) {
-                responseOutputs = responseOutputs.outputs[0];
-            }
-            return responseOutputs.messages[0].message;
-        } catch {
-            return "";
         }
     }
 }

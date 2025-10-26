@@ -1,4 +1,3 @@
-from typing import Any
 from core.db import ApiField, SnowflakeIDField
 from core.types import SnowflakeID
 from .bases import BaseBotLogModel

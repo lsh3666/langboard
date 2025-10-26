@@ -24,7 +24,7 @@ from models import (
     UserNotification,
 )
 from models.UserNotification import NotificationType
-from ...tasks.bot import BotDefaultTask
+from ...tasks.bots import BotDefaultTask
 from .Types import TNotificationParam, TUserOrBot, TUserParam
 
 

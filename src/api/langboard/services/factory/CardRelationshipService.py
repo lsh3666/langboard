@@ -6,7 +6,7 @@ from helpers import ServiceHelper
 from models import Card, CardRelationship, GlobalCardRelationshipType, Project
 from publishers import CardRelationshipPublisher
 from ...tasks.activities import CardRelationshipActivityTask
-from ...tasks.bot import CardBotTask
+from ...tasks.bots import CardBotTask
 from .Types import TCardParam, TProjectParam, TUserOrBot
 
 

@@ -4,9 +4,9 @@ import BaseRequest from "@/core/ai/requests/BaseRequest";
 import DefaultRequest from "@/core/ai/requests/DefaultRequest";
 import LangflowRequest from "@/core/ai/requests/LangflowRequest";
 import { api } from "@/core/helpers/Api";
-import { EBotPlatform, EBotPlatformRunningType } from "@/models/bot.related.types";
 import InternalBot from "@/models/InternalBot";
 import { IProjectAssignedInternalBotSettings } from "@/models/ProjectAssignedInternalBot";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { EHttpStatus } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
 
@@ -20,7 +20,7 @@ export const createRequest = (internalBot: InternalBot, internalBotSettings?: IP
         case EBotPlatform.Langflow:
             switch (internalBot.platform_running_type) {
                 case EBotPlatformRunningType.Endpoint:
-                    return new LangflowRequest(internalBot, internalBot.url, internalBotSettings);
+                    return new LangflowRequest(internalBot, internalBot.api_url, internalBotSettings);
                 case EBotPlatformRunningType.FlowJson:
                     return new LangflowRequest(internalBot, DEFAULT_FLOWS_URL, internalBotSettings);
                 default:

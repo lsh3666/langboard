@@ -65,7 +65,7 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         params={{
                             target_table: "project_column",
                             target_uid: column.uid,
-                            project_uid: project.uid,
+                            bot_uid: bot.uid,
                         }}
                         botUID={bot.uid}
                         botScope={botScope}
@@ -76,7 +76,7 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         bot={bot}
                         params={{
                             target_table: "project_column",
-                            project_uid: project.uid,
+                            bot_uid: bot.uid,
                         }}
                         target={column}
                     />
@@ -86,7 +86,6 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         bot={bot}
                         params={{
                             target_table: "project_column",
-                            project_uid: project.uid,
                         }}
                         target={column}
                     />

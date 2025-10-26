@@ -6,7 +6,7 @@ from helpers import ServiceHelper
 from models import Card, CardAttachment, Project, User
 from publishers import CardAttachmentPublisher
 from ...tasks.activities import CardAttachmentActivityTask
-from ...tasks.bot import CardAttachmentBotTask
+from ...tasks.bots import CardAttachmentBotTask
 from .Types import TAttachmentParam, TCardParam, TProjectParam
 
 

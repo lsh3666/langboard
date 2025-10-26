@@ -5,6 +5,7 @@ from core.types import SafeDateTime, SnowflakeID
 from core.utils.Converter import convert_python_data
 from helpers import ServiceHelper
 from models import (
+    BotSchedule,
     Card,
     Checkitem,
     Checklist,
@@ -12,6 +13,8 @@ from models import (
     Project,
     ProjectAssignedInternalBot,
     ProjectAssignedUser,
+    ProjectBotSchedule,
+    ProjectBotScope,
     ProjectRole,
     User,
 )
@@ -22,7 +25,10 @@ from models.ProjectRole import ProjectRoleAction
 from publishers import ProjectPublisher
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from ...ai import BotScheduleHelper
 from ...tasks.activities import ProjectActivityTask
+from ...tasks.bots import ProjectBotTask
+from .BotScopeService import BotScopeService
 from .InternalBotService import InternalBotService
 from .ProjectColumnService import ProjectColumnService
 from .ProjectInvitationService import ProjectInvitationService
@@ -130,6 +136,46 @@ class ProjectService(BaseService):
 
         internal_bots = [internal_bot.api_response() for internal_bot, _ in raw_internal_bots]
         return internal_bots
+
+    @overload
+    async def get_bot_scopes(self, project: TProjectParam, as_api: Literal[False]) -> list[ProjectBotScope]: ...
+    @overload
+    async def get_bot_scopes(self, project: TProjectParam, as_api: Literal[True]) -> list[dict[str, Any]]: ...
+    async def get_bot_scopes(
+        self, project: TProjectParam, as_api: bool
+    ) -> list[ProjectBotScope] | list[dict[str, Any]]:
+        project = ServiceHelper.get_by_param(Project, project)
+        if not project:
+            return []
+
+        bot_scope_service = self._get_service(BotScopeService)
+        scopes = await bot_scope_service.get_list(ProjectBotScope, project_id=project.id)
+        if not as_api:
+            return scopes
+
+        return [scope.api_response() for scope in scopes]
+
+    @overload
+    async def get_bot_schedules(
+        self, project: TProjectParam, as_api: Literal[False]
+    ) -> list[tuple[ProjectBotSchedule, BotSchedule]]: ...
+    @overload
+    async def get_bot_schedules(self, project: TProjectParam, as_api: Literal[True]) -> list[dict[str, Any]]: ...
+    async def get_bot_schedules(
+        self, project: TProjectParam, as_api: bool
+    ) -> list[tuple[ProjectBotSchedule, BotSchedule]] | list[dict[str, Any]]:
+        project = ServiceHelper.get_by_param(Project, project)
+        if not project:
+            return []
+
+        schedules = await BotScheduleHelper.get_all_by_scope(
+            ProjectBotSchedule,
+            None,
+            project,
+            as_api=as_api,
+        )
+
+        return schedules
 
     async def get_dashboard_list(self, user: User) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         sql_query = (
@@ -406,6 +452,7 @@ class ProjectService(BaseService):
 
         await ProjectPublisher.updated(project, model)
         ProjectActivityTask.project_updated(user_or_bot, old_project_record, project)
+        ProjectBotTask.project_updated(user_or_bot, project)
 
         return model
 
@@ -637,5 +684,6 @@ class ProjectService(BaseService):
 
         await ProjectPublisher.deleted(project)
         ProjectActivityTask.project_deleted(user, project)
+        ProjectBotTask.project_deleted(user, project)
 
         return True

@@ -150,24 +150,6 @@ const API = {
             UPDATE_ASSIGNEES: "/board/{uid}/wiki/{wiki_uid}/assignees",
             DELETE: "/board/{uid}/wiki/{wiki_uid}",
         },
-        BOT: {
-            SCOPE: {
-                CREATE: "/board/{uid}/bot/{bot_uid}/scope",
-                TOGGLE_TRIGGER_CONDITION: "/board/{uid}/scope/{scope_uid}/trigger-condition",
-                DELETE: "/board/{uid}/scope/{scope_uid}",
-            },
-            SCHEDULE: {
-                GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/schedules",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{project_column_uid}/schedules",
-                SCHEDULE: "/board/{uid}/bot/{bot_uid}/schedule",
-                RESCHEDULE: "/board/{uid}/bot/{bot_uid}/reschedule/{schedule_uid}",
-                UNSCHEDULE: "/board/{uid}/bot/{bot_uid}/unschedule/{schedule_uid}",
-            },
-            LOG: {
-                GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/logs",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{project_column_uid}/logs",
-            },
-        },
         SETTINGS: {
             UPDATE_DETAILS: "/board/{uid}/settings/details",
             UPDATE_USER_ROLES: "/board/{uid}/settings/roles/user/{user_uid}",
@@ -182,6 +164,26 @@ const API = {
                 CHANGE_BOT: "/board/{uid}/settings/internal-bot",
                 CHANGE_SETTINGS: "/board/{uid}/settings/internal-bot/settings",
             },
+        },
+    },
+    BOT: {
+        SCOPE: {
+            CREATE: "/bot/{bot_uid}/scope",
+            TOGGLE_TRIGGER_CONDITION: "/bot/{bot_uid}/scope/{scope_uid}/trigger-condition",
+            DELETE: "/bot/{bot_uid}/scope/{scope_uid}",
+        },
+        SCHEDULE: {
+            GET_ALL_BY_PROJECT: "/bot/{bot_uid}/project/{project_uid}/schedules",
+            GET_ALL_BY_CARD: "/bot/{bot_uid}/card/{card_uid}/schedules",
+            GET_ALL_BY_COLUMN: "/bot/{bot_uid}/column/{project_column_uid}/schedules",
+            SCHEDULE: "/bot/{bot_uid}/schedule",
+            RESCHEDULE: "/bot/{bot_uid}/reschedule/{schedule_uid}",
+            UNSCHEDULE: "/bot/{bot_uid}/unschedule/{schedule_uid}",
+        },
+        LOG: {
+            GET_ALL_BY_PROJECT: "/bot/{bot_uid}/project/{project_uid}/logs",
+            GET_ALL_BY_CARD: "/bot/{bot_uid}/card/{card_uid}/logs",
+            GET_ALL_BY_COLUMN: "/bot/{bot_uid}/column/{project_column_uid}/logs",
         },
     },
     METADATA: {

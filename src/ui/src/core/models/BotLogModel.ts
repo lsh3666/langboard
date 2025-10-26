@@ -1,7 +1,7 @@
 import { BaseModel, IBaseModel } from "@/core/models/Base";
+import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 
 export enum EBotLogType {
     Info = "info",

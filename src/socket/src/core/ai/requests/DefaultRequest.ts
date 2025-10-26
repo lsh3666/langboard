@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IRequestData, IRequestExecuteParams } from "@/core/ai/requests/BaseRequest";
-import { LangboardCalledVariablesComponent } from "@/core/ai/helpers/LangflowHelper";
+import { LangboardCalledVariablesComponent } from "@/core/ai/helpers/TweaksComponent";
 import { IBotRequestModel } from "@/core/ai/types";
 import { Utils } from "@langboard/core/utils";
-import { EBotPlatformRunningType } from "@/models/bot.related.types";
 import { OLLAMA_API_URL } from "@/Constants";
 import LangflowRequest from "@/core/ai/requests/LangflowRequest";
-import formidable from "formidable";
+import { EBotPlatformRunningType } from "@langboard/core/ai";
 
 class DefaultRequest extends LangflowRequest {
-    protected createRequestData(params: IRequestExecuteParams): IRequestData {
+    protected createRequestData(params: IRequestExecuteParams): IRequestData | null {
         const apiRequestModel = super.createRequestData(params);
+        if (!apiRequestModel) {
+            return null;
+        }
+
+        apiRequestModel.reqData = apiRequestModel.reqData as Record<string, any>;
 
         apiRequestModel.url = `${this.baseURL}/api/v1/run/${this.internalBot.id}`;
 
@@ -23,18 +27,13 @@ class DefaultRequest extends LangflowRequest {
         apiRequestModel.reqData.tweaks = apiRequestModel.reqData.tweaks ?? {};
 
         if (this.internalBot.platform_running_type === EBotPlatformRunningType.Default) {
-            apiRequestModel.reqData.tweaks = this.#setDefaultTweaks(params.requestModel, apiRequestModel.reqData.tweaks);
+            apiRequestModel.reqData.tweaks = this.#setTweaks(params.requestModel, apiRequestModel.reqData.tweaks);
         }
 
         return apiRequestModel;
     }
 
-    public async upload(_: formidable.File): Promise<string | null> {
-        // Not implemented for Default platform
-        return null;
-    }
-
-    #setDefaultTweaks(requestModel: IBotRequestModel, tweaks: Record<string, any>) {
+    #setTweaks(requestModel: IBotRequestModel, tweaks: Record<string, any>) {
         try {
             const botValue: Record<string, any> = Utils.Json.Parse(this.internalBot.value ?? "{}");
             if (!botValue.agent_llm) {

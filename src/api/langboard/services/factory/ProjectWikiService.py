@@ -16,6 +16,7 @@ from models import (
 )
 from publishers import ProjectWikiPublisher
 from ...tasks.activities import ProjectWikiActivityTask
+from ...tasks.bots import ProjectWikiBotTask
 from .NotificationService import NotificationService
 from .ProjectService import ProjectService
 from .Types import TProjectParam, TUserOrBot, TWikiParam
@@ -160,6 +161,7 @@ class ProjectWikiService(BaseService):
         api_wiki["assigned_members"] = []
         await ProjectWikiPublisher.created(project, wiki)
         ProjectWikiActivityTask.project_wiki_created(user_or_bot, project, wiki)
+        ProjectWikiBotTask.project_wiki_created(user_or_bot, project, wiki)
 
         return wiki, api_wiki
 
@@ -207,6 +209,7 @@ class ProjectWikiService(BaseService):
             await notification_service.notify_mentioned_in_wiki(user_or_bot, project, wiki)
 
         ProjectWikiActivityTask.project_wiki_updated(user_or_bot, project, old_wiki_record, wiki)
+        ProjectWikiBotTask.project_wiki_updated(user_or_bot, project, wiki)
 
         return model
 
@@ -259,6 +262,7 @@ class ProjectWikiService(BaseService):
 
         await ProjectWikiPublisher.publicity_changed(user_or_bot, project, wiki)
         ProjectWikiActivityTask.project_wiki_publicity_changed(user_or_bot, project, was_public, wiki)
+        ProjectWikiBotTask.project_wiki_publicity_changed(user_or_bot, project, wiki)
 
         return wiki, project
 
@@ -380,5 +384,6 @@ class ProjectWikiService(BaseService):
 
         await ProjectWikiPublisher.deleted(project, wiki)
         ProjectWikiActivityTask.project_wiki_deleted(user_or_bot, project, wiki)
+        ProjectWikiBotTask.project_wiki_deleted(user_or_bot, project, wiki)
 
         return True

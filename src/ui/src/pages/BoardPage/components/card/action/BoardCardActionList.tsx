@@ -30,6 +30,7 @@ export function SkeletonBoardCardActionList() {
 
 const BoardCardActionList = memo(() => {
     const { card, currentUser, hasRoleAction } = useBoardCard();
+    const isAdmin = currentUser.useField("is_admin");
     const archivedAt = card.useField("archived_at");
 
     return (
@@ -42,10 +43,10 @@ const BoardCardActionList = memo(() => {
             <BoardCardActionMetadata buttonClassName={sharedButtonClassName} />
             <BoardCardActionActivity buttonClassName={sharedButtonClassName} />
             <BoardCardActionShare buttonClassName={sharedButtonClassName} />
-            {!archivedAt && (hasRoleAction(Project.ERoleAction.CardUpdate) || currentUser.is_admin) ? (
+            {!archivedAt && (hasRoleAction(Project.ERoleAction.CardUpdate) || isAdmin) ? (
                 <BoardCardActionArchive buttonClassName={sharedButtonClassName} />
             ) : null}
-            {!!archivedAt && (hasRoleAction(Project.ERoleAction.CardDelete) || currentUser.is_admin) ? (
+            {!!archivedAt && (hasRoleAction(Project.ERoleAction.CardDelete) || isAdmin) ? (
                 <BoardCardActionDelete buttonClassName={sharedButtonClassName} />
             ) : null}
         </>

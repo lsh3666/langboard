@@ -11,7 +11,7 @@ from models import AppSetting, Bot
 from models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from models.Bot import ALLOWED_ALL_IPS
 from publishers import BotPublisher
-from ...tasks.bot import BotDefaultTask
+from ...tasks.bots import BotDefaultTask
 from .Types import TBotParam
 
 

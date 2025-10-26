@@ -6,10 +6,6 @@ import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation
 import { BaseBotScheduleModel, ProjectCard, ProjectColumn } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
-export type TScheduleBotCronParams = TBotScheduleRelatedParams & {
-    bot_uid: string;
-};
-
 export interface IScheduleBotCronForm {
     scope: ProjectColumn.TModel | ProjectCard.TModel;
     interval: string;
@@ -18,15 +14,14 @@ export interface IScheduleBotCronForm {
     end_at?: Date;
 }
 
-const useScheduleBotCron = (params: TScheduleBotCronParams, options?: TMutationOptions<IScheduleBotCronForm>) => {
+const useScheduleBotCron = (params: TBotScheduleRelatedParams, options?: TMutationOptions<IScheduleBotCronForm>) => {
     const { mutate } = useQueryMutation();
 
     let url;
     switch (params.target_table) {
         case "project_column":
         case "card":
-            url = Utils.String.format(Routing.API.BOARD.BOT.SCHEDULE.SCHEDULE, {
-                uid: params.project_uid,
+            url = Utils.String.format(Routing.API.BOT.SCHEDULE.SCHEDULE, {
                 bot_uid: params.bot_uid,
             });
             break;

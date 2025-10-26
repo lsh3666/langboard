@@ -36,6 +36,8 @@ export const IS_EXECUTABLE = getEnv<string>({ key: "IS_EXECUTABLE", defaultValue
 export const PROJECT_NAME = getEnv({ key: "PROJECT_NAME" });
 export const PROJECT_SHORT_NAME = getEnv({ key: "PROJECT_SHORT_NAME", defaultValue: PROJECT_NAME });
 export const MAX_FILE_SIZE_MB = parseInt(getEnv<string>({ key: "MAX_FILE_SIZE_MB", defaultValue: "50" }));
+export const AI_REQUEST_TIMEOUT = parseInt(getEnv<string>({ key: "AI_REQUEST_TIMEOUT", defaultValue: "120" }));
+export const AI_REQUEST_TRIALS = parseInt(getEnv<string>({ key: "AI_REQUEST_TRIALS", defaultValue: "5" }));
 
 export const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT_DIR = path.join(BASE_DIR, "..", "..", "..");

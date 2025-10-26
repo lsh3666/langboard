@@ -6,6 +6,7 @@ from core.db import ApiField, EnumLikeType, Field, SoftDeleteModel
 class BotPlatform(Enum):
     Default = "default"
     Langflow = "langflow"
+    N8N = "n8n"
 
 
 class BotPlatformRunningType(Enum):
@@ -18,10 +19,12 @@ class BaseBotModel(SoftDeleteModel):
     AVAILABLE_RUNNING_TYPES_BY_PLATFORM: ClassVar[dict[BotPlatform, list[BotPlatformRunningType]]] = {
         BotPlatform.Default: [BotPlatformRunningType.Default],
         BotPlatform.Langflow: [BotPlatformRunningType.Endpoint, BotPlatformRunningType.FlowJson],
+        BotPlatform.N8N: [BotPlatformRunningType.Default],
     }
     ALLOWED_ALL_IPS_BY_PLATFORMS: ClassVar[dict[BotPlatform, list[BotPlatformRunningType]]] = {
         BotPlatform.Default: [BotPlatformRunningType.Default],
         BotPlatform.Langflow: [BotPlatformRunningType.FlowJson],
+        BotPlatform.N8N: [BotPlatformRunningType.Default],
     }
     platform: BotPlatform = Field(
         nullable=False,

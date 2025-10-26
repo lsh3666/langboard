@@ -2,7 +2,7 @@ from asyncio import run as run_async
 from json import dumps as json_dumps
 from json import loads as json_loads
 from threading import Thread
-from typing import Any, Callable, Concatenate, Coroutine, Generic, ParamSpec, Protocol, TypeVar, cast
+from typing import Any, Callable, Concatenate, Coroutine, Generic, ParamSpec, Protocol, TypeVar, cast, overload
 from celery import Celery
 from celery.app.task import Task
 from celery.apps import worker
@@ -67,9 +67,20 @@ class Broker:
     def is_in_memory(self) -> bool:
         return Env.CACHE_TYPE == "in-memory"
 
+    @overload
     def wrap_async_task_decorator(
-        self, func: Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]]
-    ) -> _Task[_TParams, Any]:
+        self, param: Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]]
+    ) -> _Task[_TParams, Any]: ...
+    @overload
+    def wrap_async_task_decorator(
+        self, param: dict
+    ) -> Callable[[Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]]], _Task[_TParams, Any]]: ...
+    def wrap_async_task_decorator(
+        self, param: Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]] | dict
+    ) -> (
+        _Task[_TParams, Any]
+        | Callable[[Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]]], _Task[_TParams, Any]]
+    ):
         """Wrap async celery task decorator.
 
         You don't need to use `@Broker.celery.task` decorator.
@@ -77,23 +88,41 @@ class Broker:
         DO NOT use *args or **kwargs in async task.
         """
 
-        if Env.ENVIRONMENT == "local":
+        kwargs = {}
+        if isinstance(param, dict):
+            kwargs = param
 
-            def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
-                return Thread(target=run_async, args=(func(*args, **kwargs),)).start()
+        def wrapped_task(func: Callable[Concatenate[_TParams], Coroutine[Any, Any, Any]]):
+            if Env.CACHE_TYPE == "in-memory":
 
-            return local_task
+                def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
+                    return Thread(target=run_async, args=(func(*args, **kwargs),)).start()
 
-        def task(*args: _TParams.args, **kwargs: _TParams.kwargs) -> Any:
-            new_args, new_kwargs = self.__unpack_task_parameters(func, *args, **kwargs)
-            return run_async(func(*new_args, **new_kwargs))
+                return local_task
 
-        task.__module__ = func.__module__
-        task.__name__ = func.__name__
+            def task(*args: _TParams.args, **kwargs: _TParams.kwargs) -> Any:
+                new_args, new_kwargs = self.__unpack_task_parameters(func, *args, **kwargs)
+                return run_async(func(*new_args, **new_kwargs))
 
-        return self.__create_async_task(cast(Any, self.celery.task(task)))
+            task.__module__ = func.__module__
+            task.__name__ = func.__name__
 
-    def wrap_sync_task_decorator(self, func: Callable[Concatenate[_TParams], Any]) -> _Task[_TParams, Any]:
+            return self.__create_async_task(cast(Any, self.celery.task(**kwargs)(task)), **kwargs)
+
+        if isinstance(param, dict):
+            return wrapped_task
+        else:
+            return wrapped_task(param)
+
+    @overload
+    def wrap_sync_task_decorator(self, param: Callable[Concatenate[_TParams], Any]) -> _Task[_TParams, Any]: ...
+    @overload
+    def wrap_sync_task_decorator(
+        self, param: dict
+    ) -> Callable[[Callable[Concatenate[_TParams], Any]], _Task[_TParams, Any]]: ...
+    def wrap_sync_task_decorator(
+        self, param: Callable[Concatenate[_TParams], Any] | dict
+    ) -> _Task[_TParams, Any] | Callable[[Callable[Concatenate[_TParams], Any]], _Task[_TParams, Any]]:
         """Wrap sync celery task decorator.
 
         You don't need to use `@Broker.celery.task` decorator.
@@ -101,21 +130,31 @@ class Broker:
         DO NOT use *args or **kwargs in sync task.
         """
 
-        if Env.ENVIRONMENT == "local":
+        kwargs = {}
+        if isinstance(param, dict):
+            kwargs = param
 
-            def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
-                return func(*args, **kwargs)
+        def wrapped_task(func: Callable[Concatenate[_TParams], Any]):
+            if Env.ENVIRONMENT == "local":
 
-            return local_task
+                def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
+                    return func(*args, **kwargs)
 
-        def task(*args: _TParams.args, **kwargs: _TParams.kwargs) -> Any:
-            new_args, new_kwargs = self.__unpack_task_parameters(func, *args, **kwargs)
-            return func(*new_args, **new_kwargs)
+                return local_task
 
-        task.__module__ = func.__module__
-        task.__name__ = func.__name__
+            def task(*args: _TParams.args, **kwargs: _TParams.kwargs) -> Any:
+                new_args, new_kwargs = self.__unpack_task_parameters(func, *args, **kwargs)
+                return func(*new_args, **new_kwargs)
 
-        return self.__create_sync_task(cast(Any, self.celery.task(task)))
+            task.__module__ = func.__module__
+            task.__name__ = func.__name__
+
+            return self.__create_sync_task(cast(Any, self.celery.task(**kwargs)(task)))
+
+        if isinstance(param, dict):
+            return wrapped_task
+        else:
+            return wrapped_task(param)
 
     def start(self, argv: list[str] | None = None):
         if argv is None:

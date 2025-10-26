@@ -25,6 +25,9 @@ from .Project import Project
 from .ProjectActivity import ProjectActivity
 from .ProjectAssignedInternalBot import ProjectAssignedInternalBot
 from .ProjectAssignedUser import ProjectAssignedUser
+from .ProjectBotLog import ProjectBotLog
+from .ProjectBotSchedule import ProjectBotSchedule
+from .ProjectBotScope import ProjectBotScope
 from .ProjectColumn import ProjectColumn
 from .ProjectColumnBotLog import ProjectColumnBotLog
 from .ProjectColumnBotSchedule import ProjectColumnBotSchedule
@@ -75,6 +78,9 @@ __all__ = [
     "ProjectActivity",
     "ProjectAssignedInternalBot",
     "ProjectAssignedUser",
+    "ProjectBotLog",
+    "ProjectBotSchedule",
+    "ProjectBotScope",
     "ProjectColumn",
     "ProjectColumnBotLog",
     "ProjectColumnBotSchedule",

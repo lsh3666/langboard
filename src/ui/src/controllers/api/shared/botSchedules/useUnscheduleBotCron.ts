@@ -7,7 +7,6 @@ import { ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models"
 import { Utils } from "@langboard/core/utils";
 
 export type TUnscheduleBotCronParams = TBotScheduleRelatedParams & {
-    bot_uid: string;
     schedule_uid: string;
 };
 
@@ -19,8 +18,7 @@ const useUnscheduleBotCron = (params: TUnscheduleBotCronParams, options?: TMutat
         switch (params.target_table) {
             case "project_column":
             case "card":
-                url = Utils.String.format(Routing.API.BOARD.BOT.SCHEDULE.UNSCHEDULE, {
-                    uid: params.project_uid,
+                url = Utils.String.format(Routing.API.BOT.SCHEDULE.UNSCHEDULE, {
                     bot_uid: params.bot_uid,
                     schedule_uid: params.schedule_uid,
                 });

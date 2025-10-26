@@ -5,7 +5,7 @@ import InternalBot, { EInternalBotType } from "@/models/InternalBot";
 import formidable from "formidable";
 import { createRequest } from "@/core/ai/requests/utils";
 import { IProjectAssignedInternalBotSettings } from "@/models/ProjectAssignedInternalBot";
-import BaseStreamResponse from "@/core/ai/requests/responses/BaseStreamResponse";
+import BaseStreamResponse from "@/core/ai/responses/BaseStreamResponse";
 
 interface IBaseBotOptions {
     internalBot: InternalBot;

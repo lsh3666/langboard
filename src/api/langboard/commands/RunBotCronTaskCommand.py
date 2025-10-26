@@ -1,6 +1,6 @@
 from asyncio import run
 from core.bootstrap import BaseCommand, BaseCommandOptions
-from ..tasks.bot import BotScheduleTask
+from ..tasks.bots import BotScheduleTask
 
 
 class RunBotCronTaskCommandOptions(BaseCommandOptions):

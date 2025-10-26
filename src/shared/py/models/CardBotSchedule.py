@@ -8,3 +8,7 @@ class CardBotSchedule(BaseBotScheduleModel, table=True):
     card_id: SnowflakeID = SnowflakeIDField(
         foreign_key=Card, nullable=False, index=True, api_field=ApiField(name="card_uid")
     )
+
+    @staticmethod
+    def get_scope_column_name() -> str:
+        return "card_id"

@@ -7,6 +7,7 @@ from models.AppSetting import AppSettingType
 from models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from models.InternalBot import InternalBotType
 from pydantic import BaseModel, field_validator
+from ...ai import BaseSharedBotForm
 from ...Constants import EMAIL_REGEX
 
 
@@ -83,15 +84,10 @@ class DeleteSelectedUsersForm(BaseFormModel):
 
 
 @form_model
-class CreateBotForm(BaseFormModel):
+class CreateBotForm(BaseSharedBotForm):
     bot_name: str
     bot_uname: str
-    platform: BotPlatform
-    platform_running_type: BotPlatformRunningType
-    api_url: str = ""
-    api_key: str = ""
     ip_whitelist: str | None = None
-    value: str | None = None
 
 
 @form_model
@@ -127,14 +123,9 @@ class DeleteSelectedGlobalRelationshipTypesForm(BaseFormModel):
 
 
 @form_model
-class CreateInternalBotForm(BaseFormModel):
+class CreateInternalBotForm(BaseSharedBotForm):
     bot_type: InternalBotType
     display_name: str
-    platform: BotPlatform
-    platform_running_type: BotPlatformRunningType
-    url: str = ""
-    api_key: str = ""
-    value: str = ""
 
 
 @form_model
@@ -142,7 +133,7 @@ class UpdateInternalBotForm(BaseFormModel):
     display_name: str | None = None
     platform: BotPlatform | None = None
     platform_running_type: BotPlatformRunningType | None = None
-    url: str | None = None
+    api_url: str | None = None
     api_key: str | None = None
     value: str | None = None
     delete_avatar: bool = False

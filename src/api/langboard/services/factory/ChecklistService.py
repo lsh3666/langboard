@@ -7,7 +7,7 @@ from models import Card, Checkitem, Checklist, Project, User
 from models.Checkitem import CheckitemStatus
 from publishers import ChecklistPublisher
 from ...tasks.activities import CardChecklistActivityTask
-from ...tasks.bot import CardChecklistBotTask
+from ...tasks.bots import CardChecklistBotTask
 from .CheckitemService import CheckitemService
 from .NotificationService import NotificationService
 from .ProjectService import ProjectService

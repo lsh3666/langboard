@@ -75,7 +75,7 @@ interface IWikiTabDisplayProps {
 
 const WikiTabDisplay = memo(({ wiki, draggableRef }: IWikiTabDisplayProps) => {
     const [t] = useTranslation();
-    const { projectUID, modeType, changeTab } = useBoardWiki();
+    const { project, modeType, changeTab } = useBoardWiki();
     const forbidden = wiki.useField("forbidden");
     const title = wiki.useField("title");
     const { mutateAsync: deleteWikiMutateAsync } = useDeleteWiki({ interceptToast: true });
@@ -93,7 +93,7 @@ const WikiTabDisplay = memo(({ wiki, draggableRef }: IWikiTabDisplayProps) => {
         e.stopPropagation();
 
         const promise = deleteWikiMutateAsync({
-            project_uid: projectUID,
+            project_uid: project.uid,
             wiki_uid: wiki.uid,
         });
 

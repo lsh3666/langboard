@@ -16,7 +16,7 @@ from models import (
 from models.Checkitem import CheckitemStatus
 from publishers import CheckitemPublisher
 from ...tasks.activities import CardCheckitemActivityTask
-from ...tasks.bot import CardBotTask, CardCheckitemBotTask
+from ...tasks.bots import CardBotTask, CardCheckitemBotTask
 from .Types import (
     TCardParam,
     TCheckitemParam,

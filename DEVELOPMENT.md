@@ -221,6 +221,8 @@ make stop_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 | FLOWS_PORT                     | **int**               | Default: `5019`                                                                                                                 |
 | FLOWS_WORKERS_COUNT            | **int**               | Default: `1`<br>Used to run docker to build `flows`                                                                             |
 | MAX_FILE_SIZE_MB               | **int**               | Default: `50`                                                                                                                   |
+| AI_REQUEST_TIMEOUT             | **int**               | Default: `120`<br>Value must be set in seconds                                                                                  |
+| AI_REQUEST_TRIALS              | **int**               | Default: `5`                                                                                                                    |
 | TERMINAL_LOGGING_LEVEL         | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | FILE_LOGGING_LEVEL             | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | LOGGING_DIR                    | **string (Optional)** | Logging directory path for `api`                                                                                                |

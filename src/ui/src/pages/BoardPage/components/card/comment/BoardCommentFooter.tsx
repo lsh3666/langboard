@@ -102,8 +102,9 @@ function BoardCommentFooterActions() {
     const { author, deletedComment, editorName, editorRef } = params;
     const projectMembers = card.useForeignField("project_members");
     const bots = BotModel.Model.useModels(() => true);
+    const isAdmin = currentUser.useField("is_admin");
     const [isValidating, setIsValidating] = useState(false);
-    const canEdit = currentUser.uid === author.uid || currentUser.is_admin;
+    const canEdit = currentUser.uid === author.uid || isAdmin;
     const { mutateAsync: deleteCommentMutateAsync } = useDeleteCardComment({ interceptToast: true });
 
     const deleteComment = () => {

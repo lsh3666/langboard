@@ -5,6 +5,7 @@ from core.storage import StorageName
 from fastapi import File, UploadFile, status
 from models import Bot
 from models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from ...ai import validate_bot_form
 from ...core.storage import Storage
 from ...services import Service
 from .Form import CreateBotForm, UpdateBotForm
@@ -28,6 +29,9 @@ async def create_bot(
     avatar: UploadFile | None = File(None),
     service: Service = Service.scope(),
 ) -> JsonResponse:
+    if not validate_bot_form(form):
+        return JsonResponse(content=ApiErrorCode.VA0000, status_code=status.HTTP_400_BAD_REQUEST)
+
     uploaded_avatar = None
     file_model = Storage.upload(avatar, StorageName.BotAvatar) if avatar else None
     if file_model:

@@ -40,7 +40,7 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         params={{
                             target_table: "card",
                             target_uid: card.uid,
-                            project_uid: projectUID,
+                            bot_uid: bot.uid,
                         }}
                         botUID={bot.uid}
                         botScope={botScope}
@@ -51,7 +51,7 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         bot={bot}
                         params={{
                             target_table: "card",
-                            project_uid: projectUID,
+                            bot_uid: bot.uid,
                         }}
                         target={card}
                     />
@@ -61,7 +61,6 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         bot={bot}
                         params={{
                             target_table: "card",
-                            project_uid: projectUID,
                         }}
                         target={card}
                     />

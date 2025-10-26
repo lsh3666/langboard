@@ -13,10 +13,10 @@ export function SkeletonBoardWikiPage(): JSX.Element {
     return <SkeletonWikiList />;
 }
 
-const BoardWikiPage = memo(({ projectUID, currentUser }: IBoardRelatedPageProps) => {
+const BoardWikiPage = memo(({ project, currentUser }: IBoardRelatedPageProps) => {
     const socket = useSocket();
     const navigate = usePageNavigateRef();
-    const { data, isFetching, error } = useGetWikis({ project_uid: projectUID });
+    const { data, isFetching, error } = useGetWikis({ project_uid: project.uid });
 
     useEffect(() => {
         if (!error) {
@@ -40,14 +40,14 @@ const BoardWikiPage = memo(({ projectUID, currentUser }: IBoardRelatedPageProps)
             return;
         }
 
-        socket.subscribe(ESocketTopic.BoardWiki, [projectUID]);
+        socket.subscribe(ESocketTopic.BoardWiki, [project.uid]);
         socket.subscribe(
             ESocketTopic.BoardWikiPrivate,
             data.wikis.map((wiki) => wiki.uid)
         );
 
         return () => {
-            socket.unsubscribe(ESocketTopic.BoardWiki, [projectUID]);
+            socket.unsubscribe(ESocketTopic.BoardWiki, [project.uid]);
             socket.unsubscribe(
                 ESocketTopic.BoardWikiPrivate,
                 data.wikis.map((wiki) => wiki.uid)
@@ -60,7 +60,7 @@ const BoardWikiPage = memo(({ projectUID, currentUser }: IBoardRelatedPageProps)
             {!data || isFetching ? (
                 <SkeletonWikiList />
             ) : (
-                <BoardWikiProvider projectUID={projectUID} projectMembers={data.project_members} currentUser={currentUser}>
+                <BoardWikiProvider project={project} projectMembers={data.project_members} currentUser={currentUser}>
                     <WikiList />
                 </BoardWikiProvider>
             )}

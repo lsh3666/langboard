@@ -20,7 +20,7 @@ export function SkeletonWikiTabList() {
 }
 
 const WikiTabList = memo(() => {
-    const { projectUID, wikis: flatWikis, socket, modeType } = useBoardWiki();
+    const { project, wikis: flatWikis, socket, modeType } = useBoardWiki();
     const wikisMap = useMemo<Record<string, ProjectWiki.TModel>>(() => {
         const map: Record<string, ProjectWiki.TModel> = {};
         flatWikis.forEach((wiki) => {
@@ -32,8 +32,8 @@ const WikiTabList = memo(() => {
     const { mutate: changeWikiOrderMutate } = useChangeWikiOrder();
     const { columns: wikis } = useColumnReordered({
         type: "ProjectWiki",
-        topicId: projectUID,
-        eventNameParams: { uid: projectUID },
+        topicId: project.uid,
+        eventNameParams: { uid: project.uid },
         columns: flatWikis,
         socket,
         updater,
@@ -63,7 +63,7 @@ const WikiTabList = memo(() => {
             isHorizontal: true,
             changeOrder: ({ rowUID, order, undo }) => {
                 changeWikiOrderMutate(
-                    { project_uid: projectUID, wiki_uid: rowUID, order },
+                    { project_uid: project.uid, wiki_uid: rowUID, order },
                     {
                         onError: (error) => setupApiErrors(error, undo),
                     }

@@ -1,5 +1,5 @@
 import { Floating, Select } from "@/components/base";
-import { AVAILABLE_RUNNING_TYPES_BY_PLATFORM, EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { AVAILABLE_RUNNING_TYPES_BY_PLATFORM, EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { useTranslation } from "react-i18next";
 
 export interface IBotPlatformRunningTypeSelectProps {

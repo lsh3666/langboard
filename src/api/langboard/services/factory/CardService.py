@@ -27,7 +27,7 @@ from publishers import CardPublisher
 from sqlalchemy import func
 from langboard.ai import BotScheduleHelper
 from ...tasks.activities import CardActivityTask
-from ...tasks.bot import CardBotTask
+from ...tasks.bots import CardBotTask
 from .BotScopeService import BotScopeService
 from .CardRelationshipService import CardRelationshipService
 from .CheckitemService import CheckitemService

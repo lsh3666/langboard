@@ -3,7 +3,7 @@ import useBoardWikiCreatedHandlers from "@/controllers/socket/wiki/useBoardWikiC
 import useBoardWikiProjectUsersUpdatedHandlers from "@/controllers/socket/wiki/useBoardWikiProjectUsersUpdatedHandlers";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
-import { AuthUser, ProjectWiki, User } from "@/core/models";
+import { AuthUser, Project, ProjectWiki, User } from "@/core/models";
 import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { getEditorStore } from "@/core/stores/EditorStore";
@@ -14,7 +14,7 @@ import { useParams } from "react-router";
 export type TBoardWikiMode = "reorder" | "delete" | "view";
 
 export interface IBoardWikiContext {
-    projectUID: string;
+    project: Project.TModel;
     socket: ISocketContext;
     wikis: ProjectWiki.TModel[];
     projectMembers: User.TModel[];
@@ -27,14 +27,14 @@ export interface IBoardWikiContext {
 }
 
 interface IBoardWikiProviderProps {
-    projectUID: string;
+    project: Project.TModel;
     projectMembers: User.TModel[];
     currentUser: AuthUser.TModel;
     children: React.ReactNode;
 }
 
 const initialContext = {
-    projectUID: "",
+    project: {} as Project.TModel,
     socket: {} as ISocketContext,
     wikis: [],
     projectMembers: [],
@@ -49,26 +49,26 @@ const initialContext = {
 const BoardWikiContext = createContext<IBoardWikiContext>(initialContext);
 
 export const BoardWikiProvider = ({
-    projectUID,
+    project,
     projectMembers: flatProjectMembers,
     currentUser,
     children,
 }: IBoardWikiProviderProps): React.ReactNode => {
     const socket = useSocket();
     const navigate = usePageNavigateRef();
-    const wikis = ProjectWiki.Model.useModels((model) => model.project_uid === projectUID, [projectUID]);
+    const wikis = ProjectWiki.Model.useModels((model) => model.project_uid === project.uid, [project]);
     const { wikiUID } = useParams();
     const [projectMembers, setProjectMembers] = useState(flatProjectMembers);
     const [t] = useTranslation();
     const [modeType, setModeType] = useState<TBoardWikiMode>("view");
-    const wikiTabListId = `board-wiki-tab-list-${projectUID}`;
+    const wikiTabListId = `board-wiki-tab-list-${project.uid}`;
     const boardWikiCreatedHandlers = useBoardWikiCreatedHandlers({
-        projectUID,
+        projectUID: project.uid,
     });
     const projectUsersUpdatedHandlers = useMemo(
         () =>
             useBoardWikiProjectUsersUpdatedHandlers({
-                projectUID,
+                projectUID: project.uid,
                 callback: (data) => {
                     setProjectMembers(() => data.assigned_members);
                 },
@@ -101,11 +101,11 @@ export const BoardWikiProvider = ({
         }
 
         const wiki = ProjectWiki.Model.getModel(uid);
-        if (!wiki || wiki.project_uid !== projectUID || wiki.forbidden) {
+        if (!wiki || wiki.project_uid !== project.uid || wiki.forbidden) {
             if (shouldNavigate) {
                 Toast.Add.error(t("errors.requests.PE2005"));
                 getEditorStore().setCurrentEditor(null);
-                navigate(ROUTES.BOARD.WIKI(projectUID));
+                navigate(ROUTES.BOARD.WIKI(project.uid));
             }
             return false;
         }
@@ -121,23 +121,23 @@ export const BoardWikiProvider = ({
 
             if (canAccessWiki(true, uid)) {
                 if (!uid) {
-                    navigate(ROUTES.BOARD.WIKI(projectUID));
+                    navigate(ROUTES.BOARD.WIKI(project.uid));
                 } else {
-                    navigate(ROUTES.BOARD.WIKI_PAGE(projectUID, uid));
+                    navigate(ROUTES.BOARD.WIKI_PAGE(project.uid, uid));
                 }
                 getEditorStore().setCurrentEditor(null);
             } else {
-                navigate(ROUTES.BOARD.WIKI(projectUID));
+                navigate(ROUTES.BOARD.WIKI(project.uid));
                 getEditorStore().setCurrentEditor(null);
             }
         },
-        [projectUID, wikiUID, navigate, canAccessWiki]
+        [project, wikiUID, navigate, canAccessWiki]
     );
 
     return (
         <BoardWikiContext.Provider
             value={{
-                projectUID,
+                project,
                 socket,
                 wikis,
                 projectMembers,

@@ -36,6 +36,10 @@ class Env:
         return self.__get_from_cache("PROJECT_SHORT_NAME", self.PROJECT_NAME)
 
     @property
+    def PROJECT_VERSION(self) -> str:
+        return version(self.PROJECT_NAME)
+
+    @property
     def ADMIN_EMAIL(self) -> str:
         return self.__get_from_cache("ADMIN_EMAIL")
 
@@ -72,8 +76,12 @@ class Env:
         return self.__get_from_cache("OLLAMA_API_URL", None)
 
     @property
-    def PROJECT_VERSION(self) -> str:
-        return version(self.PROJECT_NAME)
+    def AI_REQUEST_TIMEOUT(self) -> int:
+        return int(self.__get_from_cache("AI_REQUEST_TIMEOUT", "120"))
+
+    @property
+    def AI_REQUEST_TRIALS(self) -> int:
+        return int(self.__get_from_cache("AI_REQUEST_TRIALS", "5"))
 
     @property
     def MAIN_DATABASE_URL(self) -> str:

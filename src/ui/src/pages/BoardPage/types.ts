@@ -1,6 +1,6 @@
-import { AuthUser } from "@/core/models";
+import { AuthUser, Project } from "@/core/models";
 
 export interface IBoardRelatedPageProps {
-    projectUID: string;
+    project: Project.TModel;
     currentUser: AuthUser.TModel;
 }

@@ -1,8 +1,9 @@
 import useInternalBotSettingDefaultChangedHandlers from "@/controllers/socket/settings/internalBots/useInternalBotSettingDefaultChangedHandlers";
 import { BaseModel } from "@/core/models/Base";
-import { EBotPlatform, EBotPlatformRunningType, IBaseBotModel } from "@/core/models/bot.related.type";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
+import { IBaseBotModel } from "@/core/models/bot.related.type";
 
 export enum EInternalBotType {
     ProjectChat = "project_chat",
