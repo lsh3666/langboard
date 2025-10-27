@@ -24,8 +24,8 @@ class Env:
         return self.__get_from_cache("IS_EXECUTABLE", "false") == "true"
 
     @property
-    def ENVIRONMENT(self) -> Literal["local", "development", "production"]:
-        return cast(Any, self.__get_from_cache("ENVIRONMENT", "local"))
+    def ENVIRONMENT(self) -> Literal["development", "production"]:
+        return cast(Any, self.__get_from_cache("ENVIRONMENT", "development"))
 
     @property
     def PROJECT_NAME(self) -> str:
@@ -63,7 +63,7 @@ class Env:
     def PUBLIC_UI_URL(self) -> str:
         return (
             self.__get_from_cache("PUBLIC_UI_URL", f"http://localhost:{self.UI_PORT}")
-            if self.ENVIRONMENT != "local"
+            if self.ENVIRONMENT != "development"
             else f"http://localhost:{self.UI_PORT}"
         )
 

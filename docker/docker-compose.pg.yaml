@@ -41,7 +41,7 @@ services:
 
   db:
     init: true
-    image: bitnami/postgresql:latest
+    image: bitnamilegacy/postgresql:latest
     container_name: ${PROJECT_NAME}_db
     ports:
       - ${MASTER_POSTGRES_PORT}:5432
@@ -58,7 +58,7 @@ services:
 
   db-replica:
     init: true
-    image: bitnami/postgresql:latest
+    image: bitnamilegacy/postgresql:latest
     container_name: ${PROJECT_NAME}_db_replica
     ports:
       - ${REPLICA_POSTGRES_PORT}:5432

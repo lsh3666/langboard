@@ -203,6 +203,8 @@ local
 docker/volumes
 *.db*
 uploads
+docker-compose.server.yaml
+conf.template
 
 **/tests/**
 !**/tests/**/.gitkeep

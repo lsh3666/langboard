@@ -135,7 +135,7 @@ class Broker:
             kwargs = param
 
         def wrapped_task(func: Callable[Concatenate[_TParams], Any]):
-            if Env.ENVIRONMENT == "local":
+            if Env.CACHE_TYPE == "in-memory":
 
                 def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
                     return func(*args, **kwargs)

@@ -1,4 +1,4 @@
-.PHONY: help init format lint start_docker_dev stop_docker_dev start_docker_prod stop_docker_prod rebuild_image_dev rebuild_image_prod
+.PHONY: help init format lint start_docker stop_docker rebuild_docker update_docker
 
 COMPOSE_PREFIX := ./docker/docker-compose
 COMPOSE_ARGS := -f $(COMPOSE_PREFIX).kafka.yaml -f $(COMPOSE_PREFIX).pg.yaml -f $(COMPOSE_PREFIX).redis.yaml -f $(COMPOSE_PREFIX).server.yaml --env-file ./.env
@@ -108,73 +108,48 @@ install_socket: ## install socket dependencies
 	cd $(SOCKET_DIR) && yarn run format
 	cd $(SOCKET_DIR) && yarn install
 
-dev_api: ## run the API in development mode
+dev_api: ## run the API in development environment
 	langboard run -w
 
-dev_ts_core_build: ## build the shared core in development mode
+dev_ts_core_build: ## build the shared core in development environment
 	cd $(TS_CORE_DIR) && yarn run build -w
 
-dev_ui: ## run the UI in development mode
+dev_ui: ## run the UI in development environment
 	cd $(UI_DIR) && yarn run dev
 
-dev_flows: ## run the Flows in development mode
+dev_flows: ## run the Flows in development environment
 	cd $(FLOWS_DIR) && uv run flows run -w
 
-dev_socket: ## run the Socket in development mode
+dev_socket: ## run the Socket in development environment
 	cd $(SOCKET_DIR) && nodemon dist/index.js
 
-dev_socket_build: ## build the Socket in development mode
+dev_socket_build: ## build the Socket in development environment
 	cd $(SOCKET_DIR) && yarn run build -w
 
-start_docker_dev: ## run Docker in the development environment
+start_docker: ## run Docker in the production environment
 	make init_env
-	make update_docker_env
+	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --build
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans
 
-rebuild_image_dev: ## run Docker in the development environment (e.g. make rebuild_image_dev IMAGE=image_name)
-	if [ "$(IMAGE)" = "" ]; then \
-		echo "$(RED)Please specify the IMAGE variable to rebuild (e.g. make rebuild_image_dev IMAGE=image_name).$(NC)"; \
+rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_docker IMAGES=image_name or IMAGES="image_name1 image_name2")
+	if [ "$(IMAGES)" = "" ]; then \
+		echo "$(RED)Please specify the IMAGES variable to rebuild (e.g. make rebuild_docker IMAGES=image_name or IMAGES=\"image_name1 image_name2\")$(NC)"; \
 		exit 1; \
 	fi
 
 	make init_env
-	make update_docker_env
+	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --build ${IMAGE}
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans
 
-update_docker_dev: ## update Docker in the development environment
+update_docker: ## update Docker in the production environment
 	make init_env
-	make update_docker_env
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate
+	make update_docker_settings
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans
 
-stop_docker_dev: ## stop Docker in the development environment
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) down --rmi all --volumes
-
-start_docker_prod: ## run Docker in the production environment
-	make init_env
-	make update_docker_env
-	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --build
-
-rebuild_image_prod: ## run Docker in the production environment (e.g. make rebuild_image_dev IMAGE=image_name)
-	if [ "$(IMAGE)" = "" ]; then \
-		echo "$(RED)Please specify the IMAGE variable to rebuild (e.g., make rebuild_image_prod IMAGE=image_name).$(NC)"; \
-		exit 1; \
-	fi
-
-	make init_env
-	make update_docker_env
-	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --build ${IMAGE}
-
-update_docker_prod: ## update Docker in the production environment
-	make init_env
-	make update_docker_env
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate
-
-stop_docker_prod: ## stop Docker in the production environment
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) down --rmi all --volumes
+stop_docker: ## stop Docker in the production environment
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans
 
 unit_tests: ## run unit tests
 	poetry run pytest $(API_DIR)/tests/units
@@ -188,8 +163,9 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 		cp .env.example .env; \
 	fi
 
-update_docker_env: ## update the environment variables in Docker
-	bash ./scripts/update-docker-envs.sh
+update_docker_settings: ## update Docker settings
+	bash ./scripts/dockerutils/scale-docker-api.sh
+	bash ./scripts/dockerutils/update-docker-envs.sh
 
 clean_python_cache: ## clean Python cache
 	@echo "Cleaning Python cache..."

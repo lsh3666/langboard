@@ -1,0 +1,8 @@
+name: ${PROJECT_NAME}
+
+networks:
+  net:
+    name: ${PROJECT_NAME}_network
+    driver: bridge
+    ipam:
+      driver: default

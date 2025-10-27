@@ -31,7 +31,7 @@ const removeUseClient = () => {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-    const isLocal = mode !== "production" && process.env.ENVIRONMENT !== "development";
+    const isLocal = mode !== "production";
     for (let i = 0; i < EXPECTED_ENV_PATHS.length; ++i) {
         const envPath = path.join(EXPECTED_ENV_PATHS[i], ".env");
         if (fs.existsSync(envPath)) {

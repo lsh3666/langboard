@@ -115,45 +115,55 @@ make dev_ts_core_build
 make dev_ui
 ```
 
-## Start docker development
+## Start docker
 
 You must set required [environment variables](#environmnet-variables)
 
 ```bash
-make start_docker_dev
+make start_docker
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev
+make update_docker
 
 # If you want to stop
-make stop_docker_dev
+make stop_docker
 ```
 
 - If you want to use `docs`
 
 ```bash
-make start_docker_dev WITH_DOCS=true
+make start_docker WITH_DOCS=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_DOCS=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_DOCS=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_DOCS=true
+make update_docker WITH_DOCS=true
 
 # If you want to stop
-make stop_docker_dev WITH_DOCS=true
+make stop_docker WITH_DOCS=true
 ```
 
 - If you want to use `ui watcher`
 
 ```bash
-make start_docker_dev WITH_UI_WATCHER=true
+make start_docker WITH_UI_WATCHER=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_UI_WATCHER=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_UI_WATCHER=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_UI_WATCHER=true
+make update_docker WITH_UI_WATCHER=true
 
 # If you want to stop
-make stop_docker_dev WITH_UI_WATCHER=true
+make stop_docker WITH_UI_WATCHER=true
 ```
 
 - If you want to use `ollama`
@@ -161,40 +171,55 @@ make stop_docker_dev WITH_UI_WATCHER=true
   - `CPU`
 
   ```bash
-  make start_docker_dev WITH_OLLAMA_CPU=true
+  make start_docker WITH_OLLAMA_CPU=true
+
+  # If you want to rebuild specific image(s)
+  # You can use below
+  make rebuild_docker IMAGES=single_image WITH_OLLAMA_CPU=true
+  make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_OLLAMA_CPU=true
 
   # If you want to recreate containers without building images
   # Usually, it is used when the environment variables are updated
-  make update_docker_dev WITH_OLLAMA_CPU=true
+  make update_docker WITH_OLLAMA_CPU=true
 
   # If you want to stop
-  make stop_docker_dev WITH_OLLAMA_CPU=true
+  make stop_docker WITH_OLLAMA_CPU=true
   ```
 
   - `GPU`
 
   ```bash
-  make start_docker_dev WITH_OLLAMA_GPU=true
+  make start_docker WITH_OLLAMA_GPU=true
+
+  # If you want to rebuild specific image(s)
+  # You can use below
+  make rebuild_docker IMAGES=single_image WITH_OLLAMA_GPU=true
+  make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_OLLAMA_GPU=true
 
   # If you want to recreate containers without building images
   # Usually, it is used when the environment variables are updated
-  make update_docker_dev WITH_OLLAMA_GPU=true
+  make update_docker WITH_OLLAMA_GPU=true
 
   # If you want to stop
-  make stop_docker_dev WITH_OLLAMA_GPU=true
+  make stop_docker WITH_OLLAMA_GPU=true
   ```
 
 You can combine those options, for example:
 
 ```bash
-make start_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make start_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make update_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 
 # If you want to stop
-make stop_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make stop_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 ```
 
 ## Environmnet Variables

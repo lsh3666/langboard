@@ -109,7 +109,7 @@ class BotScheduleHelper:
 
     @staticmethod
     def reload_cron():
-        if Env.ENVIRONMENT == "local":
+        if Env.ENVIRONMENT == "development":
             return
         try:
             for process in process_iter(["pid", "name"]):
@@ -470,12 +470,12 @@ class BotScheduleHelper:
             CRON_TAB_FILE.parent.mkdir(parents=True, exist_ok=True)
             CRON_TAB_FILE.touch()
         cron = CronTab(user=False, tabfile=str(CRON_TAB_FILE))
-        if Env.ENVIRONMENT != "local":
+        if Env.ENVIRONMENT != "development":
             if cron.env is None:
                 cron.env = OrderedVariableList()
             cron.env.update(environ)
 
-        if Env.ENVIRONMENT == "local":
+        if Env.ENVIRONMENT == "development":
             cron.env = OrderedVariableList()
 
         return cron
@@ -511,7 +511,7 @@ class BotScheduleHelper:
 
     @staticmethod
     def __save_cron(cron: CronTab):
-        if Env.ENVIRONMENT == "local":
+        if Env.ENVIRONMENT == "development":
             return
         cron.write()
         BotScheduleHelper.reload_cron()

@@ -1,0 +1,10 @@
+
+  api-{{index}}:
+    <<: *api
+    init: true
+    container_name: ${PROJECT_NAME}_api_{{index}}
+    build:
+      context: ../
+      target: base
+    environment:
+      API_HOST: ${PROJECT_NAME}_api_{{index}}

@@ -209,7 +209,7 @@ class Auth:
         if not api_token:
             return status.HTTP_401_UNAUTHORIZED
 
-        if Env.ENVIRONMENT != "local":
+        if Env.ENVIRONMENT != "development":
             if not ip:
                 return status.HTTP_401_UNAUTHORIZED
 
@@ -223,7 +223,7 @@ class Auth:
         if not bot:
             return status.HTTP_401_UNAUTHORIZED
 
-        if Env.ENVIRONMENT == "local":
+        if Env.ENVIRONMENT == "development":
             return bot
 
         allowed_all_ips = BaseBotModel.ALLOWED_ALL_IPS_BY_PLATFORMS.get(BotPlatform(bot.platform), [])
