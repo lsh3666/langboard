@@ -7,10 +7,11 @@ from celery import Celery
 from celery.app.task import Task
 from celery.apps import worker
 from celery.apps.worker import Worker
-from celery.signals import celeryd_after_setup, setup_logging
+from celery.signals import celeryd_after_setup, setup_logging, worker_process_init
 from core.Env import Env
 from core.utils.decorators import class_instance
 from ...Constants import SCHEMA_DIR
+from ...Loader import ModuleLoader
 from ..logger import Logger
 from .TaskParameters import TaskParameters
 
@@ -36,6 +37,11 @@ def _(*args, **kwargs):
 @celeryd_after_setup.connect
 def _(sender: str, instance: Worker, **kwargs) -> None:
     instance.emit_banner = lambda: None
+
+
+@worker_process_init.connect
+def _(*args, **kwargs):
+    ModuleLoader.load("tasks", "Task")
 
 
 worker.safe_say = lambda _, __: None

@@ -10,7 +10,7 @@ from .LogFileHandler import LogFileHandler
 
 class _LoggerWrapper(LoggingLogger):
     def __init__(self, name, level=NOTSET):
-        if not name.startswith(Env.PROJECT_NAME):
+        if not name.startswith(Env.PROJECT_NAME) and not name.startswith("sqlalchemy"):
             level = ERROR
         super().__init__(name, level)
 

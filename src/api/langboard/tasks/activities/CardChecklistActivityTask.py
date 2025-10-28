@@ -72,7 +72,7 @@ async def card_checklist_deleted(user_or_bot: User | Bot, project: Project, card
 
 def _get_default_history(helper: ActivityTaskHelper, project: Project, card: Card, checklist: Checklist):
     return {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "checklist": ActivityHistoryHelper.create_checklist_or_checkitem_history(checklist),
     }
 

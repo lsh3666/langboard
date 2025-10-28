@@ -30,7 +30,7 @@ async def run_scheduled_bots_cron(interval_str: str):
         await _check_bot_schedule_runnable(interval_str.removeprefix("scheduled "))
         return
 
-    interval_str = BotScheduleHelper.convert_valid_interval_str(interval_str)
+    interval_str = BotScheduleHelper.utils.convert_valid_interval_str(interval_str)
     if not interval_str:
         logger.error(f"Invalid interval string: {interval_str}")
         return

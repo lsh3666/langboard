@@ -48,7 +48,7 @@ async def card_attachment_deleted(user_or_bot: User | Bot, project: Project, car
 
 def _get_default_history(helper: ActivityTaskHelper, project: Project, card: Card, attachment: CardAttachment):
     return {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "attachment": ActivityHistoryHelper.create_card_attachment_history(attachment),
     }
 

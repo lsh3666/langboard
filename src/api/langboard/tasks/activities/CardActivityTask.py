@@ -9,7 +9,7 @@ from .utils import ActivityHistoryHelper, ActivityTaskHelper
 @Broker.wrap_async_task_decorator
 async def card_created(user_or_bot: User | Bot, project: Project, card: Card):
     helper = ActivityTaskHelper(ProjectActivity)
-    activity_history = helper.create_project_default_history(project, card)
+    activity_history = helper.create_project_default_history(project, card=card)
     activity = helper.record(
         user_or_bot, activity_history, **_get_activity_params(ProjectActivityType.CardCreated, project, card)
     )
@@ -20,7 +20,7 @@ async def card_created(user_or_bot: User | Bot, project: Project, card: Card):
 async def card_updated(user_or_bot: User | Bot, project: Project, old_dict: dict[str, Any], card: Card):
     helper = ActivityTaskHelper(ProjectActivity)
     activity_history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         **ActivityHistoryHelper.create_changes(old_dict, card),
     }
     activity = helper.record(
@@ -38,7 +38,7 @@ async def card_moved(
 ):
     helper = ActivityTaskHelper(ProjectActivity)
     activity_history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "from_column": ActivityHistoryHelper.create_project_column_history(from_column),
     }
     activity = helper.record(
@@ -57,7 +57,7 @@ async def card_assigned_users_updated(
         return
 
     activity_history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "removed_users": removed_users,
         "added_users": added_users,
     }
@@ -79,7 +79,7 @@ async def card_labels_updated(
         return
 
     activity_history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "removed_labels": removed_labels,
         "added_labels": added_labels,
     }
@@ -92,7 +92,7 @@ async def card_labels_updated(
 @Broker.wrap_async_task_decorator
 async def card_deleted(user_or_bot: User | Bot, project: Project, card: Card):
     helper = ActivityTaskHelper(ProjectActivity)
-    activity_history = helper.create_project_default_history(project, card)
+    activity_history = helper.create_project_default_history(project, card=card)
     activity = helper.record(
         user_or_bot, activity_history, **_get_activity_params(ProjectActivityType.CardDeleted, project, card)
     )

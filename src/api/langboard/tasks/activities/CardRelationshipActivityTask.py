@@ -22,7 +22,7 @@ async def card_relationship_updated(
         return
 
     activity_history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "removed_relationships": removed_relationships,
         "added_relationships": added_relationships,
     }

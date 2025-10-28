@@ -38,7 +38,7 @@ class App:
 
     def create(self):
         AppRouter.set_app(self.api)
-        BotScheduleHelper.reload_cron()
+        BotScheduleHelper.utils.reload_cron()
         self.app_config.set_restarting(True)
         return self.api
 

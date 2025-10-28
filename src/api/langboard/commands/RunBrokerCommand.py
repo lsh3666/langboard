@@ -1,10 +1,11 @@
 from core.bootstrap import BaseCommand, BaseCommandOptions
+from pydantic import Field
 from ..core.broker import Broker
 from ..Loader import ModuleLoader
 
 
 class RunBrokerCommandOptions(BaseCommandOptions):
-    pass
+    concurrency: int = Field(default=1, description="Number of workers to run")
 
 
 class RunBrokerCommand(BaseCommand):
@@ -36,7 +37,6 @@ class RunBrokerCommand(BaseCommand):
     def store_type(self) -> type[bool] | type[str]:
         return bool
 
-    def execute(self, _: RunBrokerCommandOptions) -> None:
+    def execute(self, options: RunBrokerCommandOptions) -> None:
         ModuleLoader.load("tasks", "Task")
-
-        Broker.start()
+        Broker.start(argv=["worker", "--loglevel=info", f"--concurrency={options.concurrency}"])

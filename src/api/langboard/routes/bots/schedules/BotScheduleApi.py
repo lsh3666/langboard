@@ -29,7 +29,7 @@ async def schedule_bot_crons(
     form: CreateBotCronTimeForm,
     service: Service = Service.scope(),
 ) -> JsonResponse:
-    form.interval_str = BotScheduleHelper.convert_valid_interval_str(form.interval_str)
+    form.interval_str = BotScheduleHelper.utils.convert_valid_interval_str(form.interval_str)
     if not form.interval_str:
         return JsonResponse(content=ApiErrorCode.VA3001, status_code=status.HTTP_400_BAD_REQUEST)
 

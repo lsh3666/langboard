@@ -29,7 +29,7 @@ CONTAINER_NAMES=""
 NGINX_UPSTREAMS=""
 
 for index in $(seq 0 $API_WORKERS_COUNT); do
-    container_name="api_${index}"
+    container_name="api-${index}"
     converted_template=$(sed \
         -e "s%{{index}}%${index}%g" \
         "$API_TEMPLATE_FILE_PATH"
@@ -52,6 +52,9 @@ if [[ -n "$CONTAINER_NAMES" ]]; then
     CONTAINERS=$(echo -e "$CONTAINERS" | awk '{printf "%s\\n", $0}')
     CONTAINER_NAMES=$(echo -e "$CONTAINER_NAMES" | awk '{printf "%s\\n", $0}')
     NGINX_UPSTREAMS=$(echo -e "$NGINX_UPSTREAMS" | awk '{printf "%s\\n", $0}')
+    if [[ "${CONTAINERS: -2}" == "\\n" ]]; then
+        CONTAINERS="${CONTAINERS::-2}"
+    fi
     if [[ "${CONTAINER_NAMES: -2}" == "\\n" ]]; then
         CONTAINER_NAMES="${CONTAINER_NAMES::-2}"
     fi

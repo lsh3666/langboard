@@ -2,7 +2,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "always"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "python.analysis.importFormat": "relative",
   "ruff.codeAction.disableRuleComment": {
     "enable": false

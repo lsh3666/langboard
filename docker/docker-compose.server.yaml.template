@@ -81,7 +81,7 @@ services:
     build:
       context: ../
       target: base
-    command: langboard run:broker
+    command: langboard run:broker --concurrency ${BROKER_CONCURRENCY}
 
   socket:
     init: true

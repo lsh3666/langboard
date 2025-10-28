@@ -97,7 +97,7 @@ def _get_default_history(helper: ActivityTaskHelper, project: Project, card: Car
         raise ValueError(f"User or Bot with ID {target_id} not found.")
 
     history = {
-        **helper.create_project_default_history(project, card),
+        **helper.create_project_default_history(project, card=card),
         "comment": ActivityHistoryHelper.create_card_comment_history(comment, user_or_bot),
     }
 

@@ -35,7 +35,7 @@ $CONTAINER_NAMES = ''
 $NGINX_UPSTREAMS = ''
 
 for ($i = 0; $i -le $API_WORKERS_COUNT; $i++) {
-    $containerName = "api_$i"
+    $containerName = "api-$i"
     $CONTAINERS += $API_TEMPLATE_CONTENT -replace '{{index}}', $i
     $CONTAINERS += "`n"
 
