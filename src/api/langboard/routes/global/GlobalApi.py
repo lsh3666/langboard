@@ -7,9 +7,9 @@ from ...security import Auth
 from ...services import Service
 
 
-@AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 204).get())
+@AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 200).get())
 async def health_check() -> JsonResponse:
-    return JsonResponse(content={}, status_code=status.HTTP_204_NO_CONTENT)
+    return JsonResponse(content={"status": "ok"}, status_code=status.HTTP_200_OK)
 
 
 @AppRouter.api.get(

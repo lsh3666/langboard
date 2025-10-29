@@ -67,7 +67,6 @@ def subprocess_started(
     * stdin_fileno - The file number of sys.stdin, so that it can be reattached
                      to the child process.
     """
-    from ...broadcast import DispatcherQueue
 
     # Re-open stdin.
     if stdin_fileno is not None:
@@ -75,8 +74,6 @@ def subprocess_started(
 
     # Logging needs to be setup again for each child.
     config.configure_logging()
-
-    DispatcherQueue.start()
 
     try:
         # Now we can call into `Server.run(sockets=sockets)`

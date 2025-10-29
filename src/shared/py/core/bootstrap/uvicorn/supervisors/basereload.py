@@ -11,7 +11,6 @@ from types import FrameType
 from typing import Callable
 import click
 from uvicorn.config import Config
-from ....broadcast import DispatcherQueue
 from .._subprocess import get_subprocess
 
 
@@ -37,8 +36,6 @@ class BaseReload:
         self.pid = os.getpid()
         self.is_restarting = False
         self.reloader_name: str | None = None
-
-        DispatcherQueue.start()
 
     def signal_handler(self, sig: int, frame: FrameType | None) -> None:  # pragma: full coverage
         """
@@ -79,11 +76,7 @@ class BaseReload:
         for sig in HANDLED_SIGNALS:
             signal.signal(sig, self.signal_handler)
 
-        self.process = get_subprocess(
-            config=self.config,
-            target=self.target,
-            sockets=self.sockets,
-        )
+        self.process = get_subprocess(config=self.config, target=self.target, sockets=self.sockets)
         self.process.start()
 
     def restart(self) -> None:
@@ -99,11 +92,7 @@ class BaseReload:
             self.process.terminate()
         self.process.join()
 
-        self.process = get_subprocess(
-            config=self.config,
-            target=self.target,
-            sockets=self.sockets,
-        )
+        self.process = get_subprocess(config=self.config, target=self.target, sockets=self.sockets)
         self.process.start()
 
     def shutdown(self) -> None:

@@ -12,17 +12,10 @@ from .DispatcherModel import DispatcherModel
 
 class BaseDispatcherQueue(ABC):
     def __init__(self):
-        self.is_closed = True
         self.__broadcast_dir: Path = cast(Path, None)
 
     @abstractmethod
     async def put(self, event: str | BaseModel, data: dict[str, Any] | None = None): ...
-
-    @abstractmethod
-    def start(self): ...
-
-    @abstractmethod
-    def close(self): ...
 
     def set_broadcast_dir(self, broadcast_dir: Path):
         self.__broadcast_dir = broadcast_dir

@@ -6,7 +6,7 @@ import socket
 import ssl
 import sys
 from configparser import RawConfigParser
-from typing import IO, Any, Callable
+from typing import IO, Any, Awaitable, Callable
 import click
 from uvicorn._types import ASGIApplication
 from uvicorn.config import (
@@ -16,7 +16,7 @@ from uvicorn.config import (
     HTTPProtocolType,
     InterfaceType,
     LifespanType,
-    LoopSetupType,
+    LoopFactoryType,
     WSProtocolType,
 )
 from .server import Server
@@ -35,45 +35,48 @@ def create_config(
     port: int = 8000,
     uds: str | None = None,
     fd: int | None = None,
-    loop: LoopSetupType = "auto",
-    http: type[asyncio.Protocol] | HTTPProtocolType = "auto",
-    ws: type[asyncio.Protocol] | WSProtocolType = "auto",
-    ws_max_size: int = 16777216,
+    loop: LoopFactoryType | str = "auto",
+    http: type[asyncio.Protocol] | HTTPProtocolType | str = "auto",
+    ws: type[asyncio.Protocol] | WSProtocolType | str = "auto",
+    ws_max_size: int = 16 * 1024 * 1024,
     ws_max_queue: int = 32,
     ws_ping_interval: float | None = 20.0,
     ws_ping_timeout: float | None = 20.0,
     ws_per_message_deflate: bool = True,
     lifespan: LifespanType = "auto",
-    interface: InterfaceType = "auto",
-    reload: bool = False,
-    reload_dirs: list[str] | str | None = None,
-    reload_includes: list[str] | str | None = None,
-    reload_excludes: list[str] | str | None = None,
-    reload_delay: float = 0.25,
-    workers: int | None = None,
     env_file: str | os.PathLike[str] | None = None,
     log_config: dict[str, Any] | str | RawConfigParser | IO[Any] | None = LOGGING_CONFIG,
     log_level: str | int | None = None,
     access_log: bool = True,
+    use_colors: bool | None = None,
+    interface: InterfaceType = "auto",
+    reload: bool = False,
+    reload_dirs: list[str] | str | None = None,
+    reload_delay: float = 0.25,
+    reload_includes: list[str] | str | None = None,
+    reload_excludes: list[str] | str | None = None,
+    workers: int | None = None,
     proxy_headers: bool = True,
     server_header: bool = True,
     date_header: bool = True,
     forwarded_allow_ips: list[str] | str | None = None,
     root_path: str = "",
     limit_concurrency: int | None = None,
-    backlog: int = 2048,
     limit_max_requests: int | None = None,
-    timeout_keep_alive: int = 5,
+    backlog: int = 2048,
+    timeout_keep_alive: int = 30,
+    timeout_notify: int = 30,
     timeout_graceful_shutdown: int | None = None,
+    timeout_worker_healthcheck: int = 30,
+    callback_notify: Callable[..., Awaitable[None]] | None = None,
     ssl_keyfile: str | os.PathLike[str] | None = None,
     ssl_certfile: str | os.PathLike[str] | None = None,
     ssl_keyfile_password: str | None = None,
     ssl_version: int = SSL_PROTOCOL_VERSION,
     ssl_cert_reqs: int = ssl.CERT_NONE,
-    ssl_ca_certs: str | None = None,
+    ssl_ca_certs: str | os.PathLike[str] | None = None,
     ssl_ciphers: str = "TLSv1",
     headers: list[tuple[str, str]] | None = None,
-    use_colors: bool | None = None,
     app_dir: str | None = None,
     factory: bool = False,
     h11_max_incomplete_event_size: int | None = None,
@@ -146,27 +149,31 @@ def create_config(
         ws_ping_timeout=ws_ping_timeout,
         ws_per_message_deflate=ws_per_message_deflate,
         lifespan=lifespan,
-        interface=interface,
-        reload=reload,
-        reload_dirs=reload_dirs,
-        reload_includes=reload_includes,
-        reload_excludes=reload_excludes,
-        reload_delay=reload_delay,
-        workers=workers,
         env_file=env_file,
         log_config=log_config,
         log_level=log_level,
         access_log=access_log,
+        use_colors=use_colors,
+        interface=interface,
+        reload=reload,
+        reload_dirs=reload_dirs,
+        reload_delay=reload_delay,
+        reload_includes=reload_includes,
+        reload_excludes=reload_excludes,
+        workers=workers,
         proxy_headers=proxy_headers,
         server_header=server_header,
         date_header=date_header,
         forwarded_allow_ips=forwarded_allow_ips,
         root_path=root_path,
         limit_concurrency=limit_concurrency,
-        backlog=backlog,
         limit_max_requests=limit_max_requests,
+        backlog=backlog,
         timeout_keep_alive=timeout_keep_alive,
+        timeout_notify=timeout_notify,
         timeout_graceful_shutdown=timeout_graceful_shutdown,
+        timeout_worker_healthcheck=timeout_worker_healthcheck,
+        callback_notify=callback_notify,
         ssl_keyfile=ssl_keyfile,
         ssl_certfile=ssl_certfile,
         ssl_keyfile_password=ssl_keyfile_password,
@@ -175,7 +182,6 @@ def create_config(
         ssl_ca_certs=ssl_ca_certs,
         ssl_ciphers=ssl_ciphers,
         headers=headers,
-        use_colors=use_colors,
         factory=factory,
         h11_max_incomplete_event_size=h11_max_incomplete_event_size,
     )
@@ -190,9 +196,11 @@ def run(config: Config) -> None:
         if config.should_reload:
             sock = config.bind_socket()
             ChangeReload(config, target=server.run, sockets=[sock]).run()
-        else:
+        elif config.workers > 1:
             sock = config.bind_socket()
             Multiprocess(config, target=server.run, sockets=[sock]).run()
+        else:
+            server.run()
     except KeyboardInterrupt:
         pass  # pragma: full coverage
     except Exception as exc:

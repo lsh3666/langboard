@@ -18,13 +18,3 @@ class KafkaDispatcherQueue(BaseDispatcherQueue):
         cache_key = await self._record_model(event, data)
         self.producer.send(event if isinstance(event, str) else event.event, {"cache_key": cache_key})
         self.producer.flush()
-
-    def start(self):
-        self.is_closed = False
-
-    def close(self):
-        self.is_closed = True
-        if not self.producer:
-            return
-        self.producer.close()
-        self.producer = None

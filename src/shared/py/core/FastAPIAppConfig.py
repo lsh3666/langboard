@@ -11,8 +11,10 @@ class FastAPIAppConfigModel(BaseModel):
     lifespan: LifespanType
     ssl_options: dict[str, Any] = {}
     workers: int
-    is_restarting: bool = False
+    timeout_keep_alive: int = 30
+    healthcheck_interval: int = 30
     watch: bool = False
+    is_restarting: bool = False
 
 
 class FastAPIAppConfig:
@@ -27,6 +29,8 @@ class FastAPIAppConfig:
         lifespan: LifespanType = "auto",
         ssl_options: Any = None,
         workers: int = 1,
+        timeout_keep_alive: int = 30,
+        healthcheck_interval: int = 30,
         watch: bool = False,
     ):
         self.__config_file.parent.mkdir(parents=True, exist_ok=True)
@@ -40,8 +44,10 @@ class FastAPIAppConfig:
                 "lifespan": lifespan,
                 "ssl_options": ssl_options or {},
                 "workers": workers,
-                "is_restarting": False,
+                "timeout_keep_alive": timeout_keep_alive,
+                "healthcheck_interval": healthcheck_interval,
                 "watch": watch,
+                "is_restarting": False,
             }
         )
 

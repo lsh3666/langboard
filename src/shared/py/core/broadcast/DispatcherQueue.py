@@ -9,12 +9,6 @@ from .BaseDispatcherQueue import BaseDispatcherQueue
 @class_instance()
 @thread_safe_singleton
 class DispatcherQueue(BaseDispatcherQueue):
-    @property
-    def is_closed(self) -> bool:
-        if not self.__instance:
-            return True
-        return self.__instance.is_closed
-
     def __init__(self):
         if Env.BROADCAST_TYPE == "in-memory":
             from .memory import MemoryDispatcherQueue
@@ -40,13 +34,3 @@ class DispatcherQueue(BaseDispatcherQueue):
         if not self.__instance:
             return
         await self.__instance.put(event, data)
-
-    def start(self):
-        if not self.__instance:
-            return
-        self.__instance.start()
-
-    def close(self):
-        if not self.__instance:
-            return
-        self.__instance.close()

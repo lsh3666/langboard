@@ -8,3 +8,4 @@
       target: base
     environment:
       API_HOST: ${PROJECT_NAME}_api_{{index}}
+    command: ${PROJECT_NAME} run --worker

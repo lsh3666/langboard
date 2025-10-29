@@ -53,7 +53,7 @@ services:
     env_file:
       - ./envs/.api.env
     working_dir: /app
-    command: ${PROJECT_NAME} run --workers ${API_WORKERS_COUNT:-1}
+    command: ${PROJECT_NAME} run
     volumes:
       - ../src/api/${PROJECT_NAME}:/app/src/api/${PROJECT_NAME}
       - ../src/shared/py:/app/src/shared/py

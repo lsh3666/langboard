@@ -1,7 +1,7 @@
 from fastapi import Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Pagination(BaseModel):
-    page: int = Field(Query(default=1, ge=1))
-    limit: int = Field(Query(default=1, ge=1))
+    page: int = Query(default=1, ge=1)
+    limit: int = Query(default=1, ge=1)

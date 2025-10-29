@@ -8,7 +8,6 @@ from socket import socket
 from typing import Any, Callable
 import click
 from uvicorn.config import Config
-from ....broadcast import DispatcherQueue
 from .._subprocess import get_subprocess
 
 
@@ -118,10 +117,8 @@ class Multiprocess:
         for sig in SIGNALS:
             signal.signal(sig, lambda sig, frame: self.signal_queue.append(sig))
 
-        DispatcherQueue.start()
-
     def init_processes(self) -> None:
-        for idx in range(self.processes_num):
+        for _ in range(self.processes_num):
             process = Process(self.config, self.target, self.sockets)
             process.start()
             self.processes.append(process)
@@ -165,7 +162,7 @@ class Multiprocess:
             return  # parent process is exiting, no need to keep subprocess alive
 
         for idx, process in enumerate(self.processes):
-            if process.is_alive():
+            if process.is_alive(timeout=self.config.timeout_worker_healthcheck):
                 continue
 
             process.kill()  # process is hung, kill it

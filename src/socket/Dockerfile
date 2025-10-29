@@ -8,6 +8,8 @@ COPY ./shared/ts /shared/ts
 
 RUN cd /shared/ts && yarn install && yarn run build && yarn link
 
+RUN yarn config set registry "http://registry.npmjs.org"
+
 RUN cd /app && yarn install
 RUN yarn build
 RUN yarn global add pm2

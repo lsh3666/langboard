@@ -1,15 +1,17 @@
 from json import dumps as json_dumps
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, cast
 from fastapi import APIRouter, FastAPI
 from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel
 from ..Env import Env
 from ..utils.decorators import class_instance, thread_safe_singleton
 from .ApiErrorCode import ApiErrorCode
+from .ApiSchemaHelper import ApiSchemaHelper, ApiSchemaMap
 from .AppExceptionHandlingRoute import AppExceptionHandlingRoute
 
 
+TApiRouteMap = dict[str, ApiSchemaMap]
 _TRoute = TypeVar("_TRoute", bound=Callable[..., Any])
 
 
@@ -23,6 +25,9 @@ class AppRouter:
         `socket` (`SocketManager`): The socket router.
     """
 
+    open_api_schema_file: str = "openapi.json"
+    api_routes_file: str = "api_routes.json"
+    api_routes: TApiRouteMap = {}
     api: APIRouter
     __app: FastAPI
 
@@ -115,13 +120,31 @@ class AppRouter:
 
         app.openapi_schema = openapi_schema
 
-    def create_schema_file(self, app: FastAPI, schema_file: str | Path):
-        with Path(schema_file).open("w", encoding="utf-8") as f:
-            f.write(json_dumps(app.openapi_schema))
-        app.openapi_schema = None
-
     def set_app(self, app: FastAPI):
         self.__app = app
+
+    def create_schema_files(self, schema_dir: str | Path):
+        schema_dir = Path(schema_dir)
+        if not self.__app:
+            raise ValueError("AppRouter has not been initialized with a FastAPI instance.")
+
+        open_api_file = schema_dir / self.open_api_schema_file
+        api_routes_file = schema_dir / self.api_routes_file
+
+        with Path(open_api_file).open("w", encoding="utf-8") as f:
+            f.write(json_dumps(self.__app.openapi_schema))
+        self.__app.openapi_schema = None
+
+        for route in self.api.routes:
+            route = cast(AppExceptionHandlingRoute, route)
+            name = route.name
+            if not hasattr(route.endpoint, "_schema"):
+                continue
+
+            self.api_routes[name] = ApiSchemaHelper.create_schema(route)
+
+        with Path(api_routes_file).open("w", encoding="utf-8") as f:
+            f.write(json_dumps(self.api_routes))
 
     def get_app(self) -> FastAPI:
         if not self.__app:
