@@ -899,11 +899,13 @@ def upgrade() -> None:
         sa.Column("bot_id", SnowflakeIDType, nullable=True),
         sa.Column("activity_history", sa.JSON(), nullable=False),
         sa.Column("project_id", SnowflakeIDType, nullable=True),
+        sa.Column("project_column_id", SnowflakeIDType, nullable=True),
         sa.Column("card_id", SnowflakeIDType, nullable=True),
         sa.Column("activity_type", EnumLikeType(ProjectActivityType), nullable=False),
         sa.ForeignKeyConstraint(["bot_id"], ["bot.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["card_id"], ["card.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["project_id"], ["project.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["project_column_id"], ["project_column.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )

@@ -6,11 +6,12 @@ requires-python = ">=3.10,<3.13"
 dependencies = [
     "langflow>=1.5.0,<2.0.0",
     "fastapi>=0.115.13,<0.120.0",
-    "uvicorn>=0.34.3,<0.40.0",
-    "psycopg[binary]>=3.2.9",
+    "uvicorn>0.37.0",
+    "psycopg[binary]>=3.2.12",
     "cryptocode>=0.1",
     "kafka-python>=2.2.15",
     "celery>=5.5.3",
+    "inflect>=7.5.0",
 ]
 
 
