@@ -90,7 +90,7 @@ const setupApiErrorHandler = (configs: IApiErrorHandlerMap, messageRef?: { messa
             return convertHandler(error, "nonApi");
         }
 
-        const status = error.response!.status as EHttpStatus;
+        const status = error.response?.status as EHttpStatus;
         const errorCode = error.response?.data?.code;
         const config = configs[status];
         if (errorCode) {

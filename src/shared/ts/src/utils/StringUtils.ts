@@ -189,7 +189,16 @@ const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T
     if (value.includes(".")) {
         value = value.split(".").pop() || value;
     }
-    return EnumType[new Case(value).toPascal() as keyof typeof EnumType];
+    const valueCase = new Case(value);
+    let enumValue;
+    if (EnumType[valueCase.toUpper()]) {
+        enumValue = EnumType[valueCase.toUpper()];
+    } else if (EnumType[valueCase.toPascal()]) {
+        enumValue = EnumType[valueCase.toPascal()];
+    } else {
+        enumValue = value;
+    }
+    return enumValue;
 };
 
 class Crontab {

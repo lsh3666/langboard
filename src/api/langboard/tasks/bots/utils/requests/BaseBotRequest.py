@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypedDict
 from core.db import BaseSqlModel, DbSession
 from core.Env import Env
+from core.utils.Converter import convert_python_data
 from helpers import BotHelper
 from httpx import TimeoutException, post
 from models import Bot, BotLog, Project
@@ -60,6 +61,8 @@ class BaseBotRequest(ABC):
         retried: int = 0,
     ) -> None:
         res = None
+        request_data["data"] = convert_python_data(request_data["data"], recursive=True)
+
         try:
             res = post(
                 url=request_data["url"],
@@ -103,7 +106,7 @@ class BaseBotRequest(ABC):
         elif self._bot.platform == BotPlatform.Langflow:
             headers["X-API-KEY"] = self._bot.api_key
         elif self._bot.platform == BotPlatform.N8N:
-            headers["X-N8N-API-KEY"] = self._bot.api_key
+            headers["Authorization"] = self._bot.api_key
 
         return headers
 

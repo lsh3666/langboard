@@ -103,7 +103,10 @@ abstract class BaseRequest {
             case EBotPlatform.Default:
                 break;
             case EBotPlatform.Langflow:
-                headers["x-api-key"] = this.internalBot.api_key;
+                headers["X-API-KEY"] = this.internalBot.api_key;
+                break;
+            case EBotPlatform.N8N:
+                headers["Authorization"] = this.internalBot.api_key;
                 break;
             default:
                 throw new Error(`Unsupported platform: ${this.internalBot.platform}`);
