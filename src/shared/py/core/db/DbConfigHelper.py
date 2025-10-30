@@ -22,7 +22,7 @@ class DbConfigHelper:
         if driver_type == "postgresql":
             return {
                 "connect_args": {
-                    "conninfo": f"application_name={Env.PROJECT_NAME}&timeout={Env.DB_TIMEOUT}&statement_cache_size=0&tcp_user_timeout={Env.DB_TCP_USER_TIMEOUT}",
+                    "conninfo": f"application_name={Env.PROJECT_NAME}_{Env.WORKER}&timeout={Env.DB_TIMEOUT}&statement_cache_size=0&tcp_user_timeout={Env.DB_TCP_USER_TIMEOUT}",
                 },
                 "poolclass": NullPool,
                 "pool_pre_ping": True,

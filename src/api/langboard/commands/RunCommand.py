@@ -20,7 +20,6 @@ class RunCommandOptions(BaseCommandOptions):
     )  # type: ignore
     timeout_keep_alive: int = Field(default=30, description="Keep-alive timeout in seconds", short="tka")  # type: ignore
     healthcheck_interval: int = Field(default=30, description="Healthcheck interval in seconds", short="hci")  # type: ignore
-    worker: bool = Field(default=False, description="Run as a worker")
     if not Env.IS_EXECUTABLE:
         watch: bool = Field(default=False, description="Watch for changes", short="w")  # type: ignore
 

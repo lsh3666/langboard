@@ -52,6 +52,8 @@ services:
       target: with-cron
     env_file:
       - ./envs/.api.env
+    environment:
+      WORKER: main
     working_dir: /app
     command: ${PROJECT_NAME} run
     volumes:

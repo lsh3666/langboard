@@ -32,7 +32,7 @@ def execute():
 def _run_app(options: RunCommandOptions):
     ssl_options = options.create_ssl_options() if options.ssl_keyfile else None
 
-    if not options.worker:
+    if Env.WORKER == "main":
         DbUpgradeCommand().execute(DbUpgradeCommandOptions())
         _init_internal_bots()
         _init_admin()

@@ -216,6 +216,10 @@ class Env:
     def DEFAULT_FLOWS_URL(self) -> str:
         return self.__get_from_cache("DEFAULT_FLOWS_URL", "http://127.0.0.1:5019")
 
+    @property
+    def WORKER(self) -> str:
+        return self.__get_from_cache("WORKER", "main")
+
     def __init__(self):
         self.__envs = {}
 
