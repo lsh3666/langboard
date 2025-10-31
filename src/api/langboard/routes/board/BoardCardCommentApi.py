@@ -34,6 +34,40 @@ async def add_card_comment(
     return JsonResponse(status_code=status.HTTP_201_CREATED)
 
 
+@AppRouter.api.get(
+    "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}",
+    tags=["Board.Card.Comment"],
+    description="Get a comment.",
+    responses=OpenApiSchema(200)
+    .suc(
+        {
+            "comment": (
+                CardComment,
+                {
+                    "schema": {
+                        "user?": User,
+                        "bot?": Bot,
+                        "reactions": {"<reaction type>": ["<user or bot uid>"]},
+                    }
+                },
+            ),
+        }
+    )
+    .auth()
+    .forbidden()
+    .err(404, ApiErrorCode.NF2003)
+    .get(),
+)
+@RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
+@AuthFilter.add()
+async def get_comment(card_uid: str, comment_uid: str, service: Service = Service.scope()) -> JsonResponse:
+    result = await service.card_comment.get_board_comment(card_uid, comment_uid)
+    if not result:
+        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+
+    return JsonResponse(content={"comment": result}, status_code=status.HTTP_200_OK)
+
+
 @AppRouter.schema(form=EditorContentModel)
 @AppRouter.api.put(
     "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}",

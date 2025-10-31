@@ -26,40 +26,70 @@ class CardCommentService(BaseService):
             return []
         raw_comments = []
         with DbSession.use(readonly=True) as db:
-            result = db.exec(
-                SqlBuilder.select.tables(CardComment, User, Bot, with_deleted=True)
-                .outerjoin(User, CardComment.column("user_id") == User.column("id"))
-                .outerjoin(Bot, CardComment.column("bot_id") == Bot.column("id"))
-                .where(CardComment.column("card_id") == card.id)
-                .order_by(
-                    CardComment.column("created_at").desc(),
-                    CardComment.column("id").desc(),
-                )
-                .group_by(
-                    CardComment.column("id"),
-                    CardComment.column("created_at"),
-                    User.column("id"),
-                    Bot.column("id"),
-                )
-            )
+            result = db.exec(self.get_board_comment_api_query(card.id))
             raw_comments = result.all()
 
         reaction_service = self._get_service(ReactionService)
         reactions = await reaction_service.get_all(CardCommentReaction, [comment.id for comment, _, _ in raw_comments])
 
         comments = []
-        for comment, user, bot in raw_comments:
-            if comment.deleted_at is not None:
-                continue
-            api_comment = comment.api_response()
-            if user:
-                api_comment["user"] = user.api_response()
-            else:
-                api_comment["bot"] = bot.api_response()
-            api_comment["reactions"] = reactions.get(comment.id, {})
-            comments.append(api_comment)
+        for raw_comment in raw_comments:
+            api_comment = self.convert_to_api_response(raw_comment, reactions.get(raw_comment[0].id))
+            if api_comment:
+                comments.append(api_comment)
 
         return comments
+
+    async def get_board_comment(self, card: TCardParam, comment: TCommentParam) -> dict[str, Any] | None:
+        if not comment:
+            return None
+        card = ServiceHelper.get_by_param(Card, card)
+        if not card:
+            return None
+        comment_id = ServiceHelper.convert_id(comment)
+        raw_comment = None
+        with DbSession.use(readonly=True) as db:
+            result = db.exec(self.get_board_comment_api_query(card.id).where(CardComment.column("id") == comment_id))
+            raw_comment = result.first()
+        if not raw_comment:
+            return None
+
+        reaction_service = self._get_service(ReactionService)
+        reactions = await reaction_service.get_all(CardCommentReaction, [comment_id])
+
+        return self.convert_to_api_response(raw_comment, reactions.get(raw_comment[0].id))
+
+    def get_board_comment_api_query(self, card_id: int):
+        return (
+            SqlBuilder.select.tables(CardComment, User, Bot, with_deleted=True)
+            .outerjoin(User, CardComment.column("user_id") == User.column("id"))
+            .outerjoin(Bot, CardComment.column("bot_id") == Bot.column("id"))
+            .where(CardComment.column("card_id") == card_id)
+            .order_by(
+                CardComment.column("created_at").desc(),
+                CardComment.column("id").desc(),
+            )
+            .group_by(
+                CardComment.column("id"),
+                CardComment.column("created_at"),
+                User.column("id"),
+                Bot.column("id"),
+            )
+        )
+
+    def convert_to_api_response(
+        self, result: tuple[CardComment, User, Bot], reaction: dict[str, list[str]] | None = None
+    ) -> dict[str, Any] | None:
+        comment, user, bot = result
+        if comment.deleted_at is not None:
+            return None
+        api_comment = comment.api_response()
+        if user:
+            api_comment["user"] = user.api_response()
+        else:
+            api_comment["bot"] = bot.api_response()
+        api_comment["reactions"] = reaction or {}
+        return api_comment
 
     async def create(
         self,
