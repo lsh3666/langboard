@@ -1,4 +1,4 @@
-from models import Bot, Card, Project, User
+from models import Bot, Card, Project, ProjectColumn, User
 from models.bases import BotTriggerCondition
 from ...core.broker import Broker
 from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
@@ -34,12 +34,15 @@ async def card_updated(user_or_bot: User | Bot, project: Project, card: Card):
 
 @BotTaskSchemaHelper.card_schema(BotTriggerCondition.CardMoved)
 @Broker.wrap_async_task_decorator
-async def card_moved(user_or_bot: User | Bot, project: Project, card: Card):
+async def card_moved(user_or_bot: User | Bot, project: Project, card: Card, old_column: ProjectColumn):
     bots = BotTaskHelper.get_scoped_bots(
         BotTriggerCondition.CardMoved, project_id=project.id, project_column_id=card.project_column_id, card_id=card.id
     )
     await BotTaskHelper.run(
-        bots, BotTriggerCondition.CardMoved, BotTaskDataHelper.create_card(user_or_bot, project, card), project
+        bots,
+        BotTriggerCondition.CardMoved,
+        {**BotTaskDataHelper.create_card(user_or_bot, project, card), "old_project_column_uid": old_column.get_uid()},
+        project,
     )
 
 

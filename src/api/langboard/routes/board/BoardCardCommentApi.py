@@ -37,7 +37,7 @@ async def add_card_comment(
 @AppRouter.api.get(
     "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}",
     tags=["Board.Card.Comment"],
-    description="Get a comment.",
+    description="Get a card comment.",
     responses=OpenApiSchema(200)
     .suc(
         {
@@ -60,7 +60,7 @@ async def add_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_comment(card_uid: str, comment_uid: str, service: Service = Service.scope()) -> JsonResponse:
+async def get_card_comment(card_uid: str, comment_uid: str, service: Service = Service.scope()) -> JsonResponse:
     result = await service.card_comment.get_board_comment(card_uid, comment_uid)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)

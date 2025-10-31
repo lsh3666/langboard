@@ -526,7 +526,7 @@ class CardService(BaseService):
 
         if new_column:
             CardActivityTask.card_moved(user_or_bot, project, card, original_column)
-            CardBotTask.card_moved(user_or_bot, project, card)
+            CardBotTask.card_moved(user_or_bot, project, card, original_column)
 
         return True
 
