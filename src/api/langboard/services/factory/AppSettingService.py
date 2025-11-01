@@ -143,10 +143,30 @@ class AppSettingService(BaseService):
         with DbSession.use(readonly=False) as db:
             db.insert(global_relationship)
 
-        model = {"global_relationship": global_relationship.api_response()}
+        model = {"global_relationships": [global_relationship.api_response()]}
         await AppSettingPublisher.global_relationship_created(model)
 
         return global_relationship
+
+    async def import_global_relationship(
+        self, relationships: list[tuple[str, str, str | None]]
+    ) -> list[GlobalCardRelationshipType]:
+        global_relationships: list[GlobalCardRelationshipType] = []
+        for parent_name, child_name, description in relationships:
+            global_relationship = GlobalCardRelationshipType(
+                parent_name=parent_name,
+                child_name=child_name,
+                description=description or "",
+            )
+            global_relationships.append(global_relationship)
+
+        with DbSession.use(readonly=False) as db:
+            db.insert_all(global_relationships)
+
+        model = {"global_relationships": [gr.api_response() for gr in global_relationships]}
+        await AppSettingPublisher.global_relationship_created(model)
+
+        return global_relationships
 
     async def update_global_relationship(
         self, global_relationship: TGlobalCardRelationshipTypeParam, form: dict

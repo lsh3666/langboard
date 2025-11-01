@@ -111,6 +111,11 @@ class CreateGlobalRelationshipTypeForm(BaseFormModel):
 
 
 @form_model
+class ImportGlobalRelationshipTypesForm(BaseFormModel):
+    relationships: list[CreateGlobalRelationshipTypeForm]
+
+
+@form_model
 class UpdateGlobalRelationshipTypeForm(BaseFormModel):
     parent_name: str | None = None
     child_name: str | None = None

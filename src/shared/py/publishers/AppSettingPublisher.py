@@ -70,6 +70,7 @@ class AppSettingPublisher(BaseSocketPublisher):
             topic=SocketTopic.Global,
             topic_id=GLOBAL_TOPIC_ID,
             event="global-relationship:created",
+            data_keys=list(model.keys()),
         )
 
         await AppSettingPublisher.put_dispather(model, publish_model)

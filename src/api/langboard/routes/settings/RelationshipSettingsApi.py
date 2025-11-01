@@ -7,6 +7,7 @@ from ...services import Service
 from .Form import (
     CreateGlobalRelationshipTypeForm,
     DeleteSelectedGlobalRelationshipTypesForm,
+    ImportGlobalRelationshipTypesForm,
     UpdateGlobalRelationshipTypeForm,
 )
 
@@ -26,6 +27,27 @@ async def create_global_relationship(
 
     return JsonResponse(
         content={"global_relationship": global_relationship.api_response()}, status_code=status.HTTP_201_CREATED
+    )
+
+
+@AppRouter.api.post(
+    "/settings/import-global-relationships",
+    tags=["AppSettings"],
+    responses=(
+        OpenApiSchema().suc({"global_relationships": [GlobalCardRelationshipType]}, 201).auth().forbidden().get()
+    ),
+)
+@AuthFilter.add("admin")
+async def import_global_relationships(
+    form: ImportGlobalRelationshipTypesForm, service: Service = Service.scope()
+) -> JsonResponse:
+    global_relationships = await service.app_setting.import_global_relationship(
+        [(rel.parent_name, rel.child_name, rel.description) for rel in form.relationships]
+    )
+
+    return JsonResponse(
+        content={"global_relationships": [gr.api_response() for gr in global_relationships]},
+        status_code=status.HTTP_201_CREATED,
     )
 
 

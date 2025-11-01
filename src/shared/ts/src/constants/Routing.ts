@@ -213,6 +213,7 @@ const API = {
         },
         GLOBAL_RELATIONSHIPS: {
             CREATE: "/settings/global-relationship",
+            IMPORT: "/settings/import-global-relationships",
             UPDATE: "/settings/global-relationship/{uid}",
             DELETE: "/settings/global-relationship/{uid}",
             DELETE_SELECTED: "/settings/global-relationship",
