@@ -20,7 +20,7 @@ if (Test-Path $envFile) {
 }
 
 $API_WORKERS_COUNT = if ($env.ContainsKey('API_WORKERS_COUNT') -and [int]::TryParse($env['API_WORKERS_COUNT'], [ref]$null)) { [int]$env['API_WORKERS_COUNT'] } else { 1 }
-$API_WORKERS_COUNT = [math]::Max(1, $API_WORKERS_COUNT) - 1
+$API_WORKERS_COUNT = [math]::Max(0, $API_WORKERS_COUNT) - 1
 
 $TEMPLATE_FILE_PATH = 'docker\docker-compose.server.yaml.template'
 $API_TEMPLATE_FILE_PATH = 'docker\docker-compose.server.api.yaml.template'
@@ -34,24 +34,28 @@ $CONTAINERS = ''
 $CONTAINER_NAMES = ''
 $NGINX_UPSTREAMS = ''
 
-for ($i = 0; $i -le $API_WORKERS_COUNT; $i++) {
-    $containerName = "api-$i"
-    $CONTAINERS += $API_TEMPLATE_CONTENT -replace '{{index}}', $i
-    $CONTAINERS += "`n"
+if ($API_WORKERS_COUNT -lt 0) {
+    $API_WORKERS_COUNT = 0
+} else {
+    for ($i = 0; $i -le $API_WORKERS_COUNT; $i++) {
+        $containerName = "api-$i"
+        $CONTAINERS += $API_TEMPLATE_CONTENT -replace '{{index}}', $i
+        $CONTAINERS += "`n"
 
-    if ($i -ne 0) {
-        $CONTAINER_NAMES += "`n"
-    }
-    $CONTAINER_NAMES += "      - $containerName"
+        if ($i -ne 0) {
+            $CONTAINER_NAMES += "`n"
+        }
+        $CONTAINER_NAMES += "      - $containerName"
 
-    if ($i -ne 0) {
-        $NGINX_UPSTREAMS += "`n"
+        if ($i -ne 0) {
+            $NGINX_UPSTREAMS += "`n"
+        }
+        $NGINX_UPSTREAMS += "    server "
+        $NGINX_UPSTREAMS += "$"
+        $NGINX_UPSTREAMS += "{API_HOST}_${i}:"
+        $NGINX_UPSTREAMS += "$"
+        $NGINX_UPSTREAMS += "{API_PORT};"
     }
-    $NGINX_UPSTREAMS += "    server "
-    $NGINX_UPSTREAMS += "$"
-    $NGINX_UPSTREAMS += "{API_HOST}_${i}:"
-    $NGINX_UPSTREAMS += "$"
-    $NGINX_UPSTREAMS += "{API_PORT};"
 }
 
 $TEMPLATE_CONTENT = Get-Content $TEMPLATE_FILE_PATH -Raw
