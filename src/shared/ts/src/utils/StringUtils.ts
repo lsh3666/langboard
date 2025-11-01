@@ -185,7 +185,7 @@ const isJsonString = (str: string): bool => {
     return false;
 };
 
-const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T[keyof T] | string) => {
+const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T[keyof T] | string): T[keyof T] => {
     if (value.includes(".")) {
         value = value.split(".").pop() || value;
     }
@@ -198,7 +198,7 @@ const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T
     } else {
         enumValue = value;
     }
-    return enumValue;
+    return enumValue as T[keyof T];
 };
 
 class Crontab {

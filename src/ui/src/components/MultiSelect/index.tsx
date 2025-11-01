@@ -159,15 +159,15 @@ const MultiSelect = React.memo(
                     return;
                 }
 
-                const splittedValues = value.split(multipleSplitter);
-                if (splittedValues.length === 1) {
+                const splitValues = value.split(multipleSplitter);
+                if (splitValues.length === 1) {
                     setInputValue(value);
                     return;
                 }
 
                 const valuesCanBeAdded: string[] = [];
-                for (let i = 0; i < splittedValues.length; ++i) {
-                    const trimmedValue = splittedValues[i].trim();
+                for (let i = 0; i < splitValues.length; ++i) {
+                    const trimmedValue = splitValues[i].trim();
                     if (!trimmedValue || !validateCreatedNewValue?.(trimmedValue) || selected.includes(trimmedValue)) {
                         continue;
                     }

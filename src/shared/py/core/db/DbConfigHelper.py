@@ -32,18 +32,18 @@ class DbConfigHelper:
 
     @staticmethod
     def get_sanitized_driver(url: str) -> str:
-        splitted = url.split("://", maxsplit=1)
+        split_url = url.split("://", maxsplit=1)
         driver_type = DbConfigHelper.get_driver_type(url)
         if driver_type == "sqlite":
-            return f"sqlite://{splitted[1]}"
+            return f"sqlite://{split_url[1]}"
         if driver_type == "postgresql":
-            return f"postgresql+psycopg://{splitted[1]}"
+            return f"postgresql+psycopg://{split_url[1]}"
         return url
 
     @staticmethod
     def get_driver_type(url: str) -> Literal["sqlite", "postgresql"] | str:
-        splitted = url.split("://", maxsplit=1)
-        driver = splitted[0]
+        split_url = url.split("://", maxsplit=1)
+        driver = split_url[0]
         if driver == "sqlite":
             return "sqlite"
         if driver in ("postgresql", "postgres"):

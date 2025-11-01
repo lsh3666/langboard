@@ -33,7 +33,7 @@ const BoardColumnCardRelationshipButton = memo(({ type, attributes }: IBoardColu
     const { setFilters } = params;
     const isParent = type === "parents";
     const { filterRelationships } = useBoardController();
-    const flatRelationships = card.useForeignField("relationships");
+    const flatRelationships = card.useForeignFieldArray("relationships");
     const relationships = filterRelationships(card.uid, flatRelationships, isParent);
 
     if (!relationships.length) {

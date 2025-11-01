@@ -45,7 +45,7 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
     const { mutateAsync: changeWikiDetailsMutateAsync } = useChangeWikiDetails("content", { interceptToast: true });
     const editorName = `${wiki.uid}-wiki-description`;
     const isPublic = wiki.useField("is_public");
-    const assignedMembers = wiki.useForeignField("assigned_members");
+    const assignedMembers = wiki.useForeignFieldArray("assigned_members");
     const bots = BotModel.Model.useModels(() => true);
     const wikis = useMemo(() => flatWikis.filter((w) => w.uid !== wiki.uid), [flatWikis, wiki]);
     const mentionables = useMemo(

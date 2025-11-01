@@ -40,8 +40,10 @@ interface IBoardColumnMoreMenuBotScopeItemProps {
 
 const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreMenuBotScopeItemProps) => {
     const { project } = useBoard();
-    const botScopes = ProjectColumnBotScope.Model.useModels((model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid);
-    const botScope = botScopes[0];
+    const botScope = ProjectColumnBotScope.Model.useModel(
+        (model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid,
+        [bot, column]
+    );
 
     return (
         <Flex items="center" justify="between" gap="3">

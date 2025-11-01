@@ -62,8 +62,7 @@ interface IBoardBotScopeItemProps {
 }
 
 const BoardBotScopeItem = memo(({ bot, project }: IBoardBotScopeItemProps) => {
-    const botScopes = ProjectBotScope.Model.useModels((model) => model.bot_uid === bot.uid && model.project_uid === project.uid);
-    const botScope = botScopes[0];
+    const botScope = ProjectBotScope.Model.useModel((model) => model.bot_uid === bot.uid && model.project_uid === project.uid, [bot, project]);
 
     return (
         <Flex items="center" justify="between" gap="3">

@@ -40,14 +40,14 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): JSX
     const { projectUID, card, currentUser } = useBoardCard();
     const editorName = `${card.uid}-comment-${comment.uid}`;
     const isCurrentEditor = useIsCurrentEditor(editorName);
-    const projectMembers = card.useForeignField("project_members");
+    const projectMembers = card.useForeignFieldArray("project_members");
     const editorRef = useRef<TEditor>(null);
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
     const content = comment.useField("content");
-    const commentUsers = comment.useForeignField("user");
-    const commentBots = comment.useForeignField("bot");
-    const commentAuthor = commentUsers[0] || commentBots[0];
+    const commentUser = comment.useForeignFieldOne("user");
+    const commentBot = comment.useForeignFieldOne("bot");
+    const commentAuthor = commentUser || commentBot;
     const valueRef = useRef<IEditorContent>(content);
     const setValue = (value: IEditorContent) => {
         valueRef.current = value;

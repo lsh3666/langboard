@@ -6,7 +6,7 @@ export interface IBoardCardActionRelationshipProps extends ISharedBoardCardActio
 
 function BoardCardActionRelationship({ buttonClassName }: IBoardCardActionRelationshipProps) {
     const { card } = useBoardCard();
-    const relationships = card.useForeignField("relationships");
+    const relationships = card.useForeignFieldArray("relationships");
 
     return (
         <>

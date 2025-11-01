@@ -36,7 +36,7 @@ const mention = getMentionOnSelectItem();
 const BoardCommentForm = memo((): JSX.Element => {
     const { projectUID, card, currentUser, replyRef } = useBoardCard();
     const [t] = useTranslation();
-    const projectMembers = card.useForeignField("project_members");
+    const projectMembers = card.useForeignFieldArray("project_members");
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
     const cards = ProjectCard.Model.useModels((model) => model.uid !== card.uid && model.project_uid === projectUID, [projectUID, card]);

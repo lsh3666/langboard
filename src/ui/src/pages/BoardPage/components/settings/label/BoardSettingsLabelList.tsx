@@ -14,7 +14,7 @@ const BoardSettingsLabelList = memo(() => {
     const { project, socket } = useBoardSettings();
     const { mutate: changeProjectLabelOrderMutate } = useChangeProjectLabelOrder();
     const updater = useReducer((x) => x + 1, 0);
-    const flatLabels = project.useForeignField("labels");
+    const flatLabels = project.useForeignFieldArray("labels");
     const labelsMap = useMemo<Record<string, ProjectLabel.TModel>>(() => {
         const map: Record<string, ProjectLabel.TModel> = {};
         flatLabels.forEach((label) => {

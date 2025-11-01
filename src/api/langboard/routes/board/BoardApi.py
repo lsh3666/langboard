@@ -9,6 +9,8 @@ from models import (
     Checklist,
     GlobalCardRelationshipType,
     Project,
+    ProjectBotSchedule,
+    ProjectBotScope,
     ProjectColumn,
     ProjectColumnBotSchedule,
     ProjectColumnBotScope,
@@ -59,7 +61,9 @@ async def is_project_available(project_uid: str, service: Service = Service.scop
                             "labels": [ProjectLabel],
                         }
                     },
-                )
+                ),
+                "project_bot_scopes": [ProjectBotScope],
+                "project_bot_schedules": [ProjectBotSchedule],
             }
         )
         .auth()
@@ -77,9 +81,17 @@ async def get_project(
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
     project, response = result
+    project_bot_scopes = await service.project.get_bot_scopes(project, as_api=True)
+    project_bot_schedules = await service.project.get_bot_schedules(project, as_api=True)
     if isinstance(user_or_bot, User):
         await service.project.set_last_view(user_or_bot, project)
-    return JsonResponse(content={"project": response})
+    return JsonResponse(
+        content={
+            "project": response,
+            "project_bot_scopes": project_bot_scopes,
+            "project_bot_schedules": project_bot_schedules,
+        }
+    )
 
 
 @AppRouter.schema()

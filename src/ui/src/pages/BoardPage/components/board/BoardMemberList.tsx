@@ -20,9 +20,9 @@ const BoardMemberList = memo(({ isSelectCardView }: IBoardMemberListProps) => {
     const { project, currentUser, hasRoleAction } = useBoard();
     const canEdit = hasRoleAction(Project.ERoleAction.Update);
     const ownerUID = project.useField("owner_uid");
-    const allMemebers = project.useForeignField("all_members");
+    const allMemebers = project.useForeignFieldArray("all_members");
     const invitedMemberUIDs = project.useField("invited_member_uids");
-    const groups = currentUser.useForeignField("user_groups");
+    const groups = currentUser.useForeignFieldArray("user_groups");
     const allSelectables = useMemo(
         () => allMemebers.filter((model) => model.uid !== ownerUID && model.uid !== currentUser.uid),
         [allMemebers, invitedMemberUIDs]

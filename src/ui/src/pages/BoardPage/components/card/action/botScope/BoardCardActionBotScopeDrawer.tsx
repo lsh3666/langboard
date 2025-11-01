@@ -15,8 +15,7 @@ interface IBoardColumnMoreMenuBotScopeItemProps {
 
 const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScopeItemProps) => {
     const { projectUID, card } = useBoardCard();
-    const botScopes = ProjectCardBotScope.Model.useModels((model) => model.bot_uid === bot.uid && model.card_uid === card.uid);
-    const botScope = botScopes[0];
+    const botScope = ProjectCardBotScope.Model.useModel((model) => model.bot_uid === bot.uid && model.card_uid === card.uid, [bot, card]);
 
     return (
         <Flex items="center" justify="between" gap="3">

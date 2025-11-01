@@ -14,7 +14,7 @@ export function SkeletonAccountUserGroupList(): JSX.Element {
 
 function AccountUserGroupList(): JSX.Element {
     const { currentUser } = useAccountSetting();
-    const groups = currentUser.useForeignField("user_groups");
+    const groups = currentUser.useForeignFieldArray("user_groups");
 
     return (
         <Flex direction="col" gap="5">

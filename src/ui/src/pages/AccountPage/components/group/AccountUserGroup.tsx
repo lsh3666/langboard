@@ -38,9 +38,9 @@ const AccountUserGroup = memo(({ group }: IAccountUserGroupProps): JSX.Element =
     const [isValidating, setIsValidating] = useState(false);
     const [readOnly, setReadOnly] = useState(true);
     const { currentUser } = useAccountSetting();
-    const groups = currentUser.useForeignField("user_groups");
+    const groups = currentUser.useForeignFieldArray("user_groups");
     const { mutate } = useUpdateUserGroupAssignedEmails(group);
-    const users = group.useForeignField("users");
+    const users = group.useForeignFieldArray("users");
 
     const onSave = (values: (string | User.TModel)[]) => {
         if (isValidating) {

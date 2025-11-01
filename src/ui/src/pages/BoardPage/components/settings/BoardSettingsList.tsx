@@ -16,7 +16,7 @@ export function SkeletonSettingsList() {
 const BoardSettingsList = memo(() => {
     const { project, currentUser } = useBoardSettings();
     const ownerUID = project.useField("owner_uid");
-    const allMembers = project.useForeignField("all_members");
+    const allMembers = project.useForeignFieldArray("all_members");
     const invitedMemberUIDs = project.useField("invited_member_uids");
     const isAdmin = currentUser.useField("is_admin");
     const numMembers = useMemo(

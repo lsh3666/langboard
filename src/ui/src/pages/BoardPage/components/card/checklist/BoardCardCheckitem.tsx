@@ -89,10 +89,8 @@ const BoardCardCheckitemDisplay = memo(({ checkitem, canReorder, draggableRef }:
     const [isTitleOpened, setIsTitleOpened] = useState(false);
     const title = checkitem.useField("title");
     const isChecked = checkitem.useField("is_checked");
-    const cardifiedCards = checkitem.useForeignField("cardified_card");
-    const cardifiedCard = cardifiedCards[0];
-    const assignedUsers = checkitem.useForeignField("user");
-    const assignedUser = assignedUsers[0];
+    const cardifiedCard = checkitem.useForeignFieldOne("cardified_card");
+    const assignedUser = checkitem.useForeignFieldOne("user");
     const canEditCheckitem = (!assignedUser && hasRoleAction(Project.ERoleAction.CardUpdate)) || assignedUser.uid === currentUser.uid;
 
     const toCardifiedCard = () => {

@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 
 function BoardCardCheckitemMoreMenu(): JSX.Element {
     const { model: checkitem } = ModelRegistry.ProjectCheckitem.useContext();
-    const cardifieidCards = checkitem.useForeignField("cardified_card");
+    const cardifieidCards = checkitem.useForeignFieldArray("cardified_card");
 
     return (
         <MoreMenu.Root modal={false} triggerProps={{ className: "h-8 w-5 sm:size-8" }}>

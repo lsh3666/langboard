@@ -16,7 +16,7 @@ export function SkeletonBoardFilter() {
 function BoardFilter() {
     const { project, cards, filters, filterCard, filterMember, filterLabel, navigateWithFilters } = useBoard();
     const [t] = useTranslation();
-    const labels = project.useForeignField("labels");
+    const labels = project.useForeignFieldArray("labels");
 
     const setFilterKeyword = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (!filters.keyword) {

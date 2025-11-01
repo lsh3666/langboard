@@ -74,7 +74,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
     const socket = useSocket();
     const { selectCardViewType } = useBoardController();
     const [t] = useTranslation();
-    const members = project.useForeignField("all_members");
+    const members = project.useForeignFieldArray("all_members");
     const {
         filters,
         toString: filtersToString,

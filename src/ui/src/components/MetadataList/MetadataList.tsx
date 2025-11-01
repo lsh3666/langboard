@@ -5,7 +5,7 @@ import useGetMetadata from "@/controllers/api/metadata/useGetMetadata";
 import setupApiErrorHandler, { IApiErrorHandlerMap } from "@/core/helpers/setupApiErrorHandler";
 import { MetadataModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export interface IMetadataListProps {
     form: TMetadataForm;
@@ -15,8 +15,7 @@ export interface IMetadataListProps {
 
 function MetadataList({ form, errorsMap, canEdit }: IMetadataListProps) {
     const { data, error, isFetching } = useGetMetadata(form);
-    const metadataList = MetadataModel.Model.useModels((model) => model.type === form.type && model.uid === form.uid);
-    const [metadata, setMetadata] = useState(metadataList[0]);
+    const metadata = MetadataModel.Model.useModel((model) => model.type === form.type && model.uid === form.uid, [data, isFetching]);
 
     useEffect(() => {
         if (!error) {
@@ -29,10 +28,6 @@ function MetadataList({ form, errorsMap, canEdit }: IMetadataListProps) {
         handle(error);
         Toast.Add.error(messageRef.message);
     }, [error]);
-
-    useEffect(() => {
-        setMetadata(metadataList[0]);
-    }, [metadataList, setMetadata]);
 
     return (
         <>
