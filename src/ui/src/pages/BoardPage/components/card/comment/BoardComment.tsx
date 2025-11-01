@@ -5,7 +5,7 @@ import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
 import UserLikeComponent from "@/components/UserLikeComponent";
 import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
-import { BotModel, ProjectCardComment, User } from "@/core/models";
+import { BotModel, ProjectCard, ProjectCardComment, User } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
@@ -44,6 +44,7 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): JSX
     const editorRef = useRef<TEditor>(null);
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
+    const cards = ProjectCard.Model.useModels((model) => model.uid !== card.uid && model.project_uid === projectUID, [projectUID, card]);
     const content = comment.useField("content");
     const commentUser = comment.useForeignFieldOne("user");
     const commentBot = comment.useForeignFieldOne("bot");
@@ -82,6 +83,7 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): JSX
                             value={comment.content}
                             currentUser={currentUser}
                             mentionables={mentionables}
+                            linkables={cards}
                             className={isCurrentEditor ? "h-full max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] overflow-y-auto px-6 py-3" : ""}
                             readOnly={!isCurrentEditor}
                             editorType="card-comment"
