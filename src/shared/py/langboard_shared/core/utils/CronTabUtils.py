@@ -10,8 +10,8 @@ from ..types import SafeDateTime
 
 
 class CronTabUtils:
-    def __init__(self, file_path: str | Path):
-        self.file_path = Path(file_path)
+    def __init__(self, file_path: str | Path | None = None):
+        self.file_path = Path(file_path) if file_path else Env.CRON_TAB_FILE
 
     def reload_cron(self):
         if Env.ENVIRONMENT == "development":

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any
-from langboard_shared.core.db import ApiField, Field, SnowflakeIDField
-from langboard_shared.core.types import SnowflakeID
+from ..core.db import ApiField, Field, SnowflakeIDField
+from ..core.types import SnowflakeID
 from .bases import BaseBotScopeModel, BotTriggerCondition
 
 

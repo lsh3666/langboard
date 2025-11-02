@@ -27,7 +27,7 @@ def _get_py_config(config_type: _TPyConfigType):
             should_update_init=True,
         ),
         "task": _TPyConfig(
-            dirpath=BASE_DIR / "tasks",
+            dirpath=BASE_DIR / ".." / ".." / "shared" / "py" / "tasks",
             filename="{name}Task.py",
             should_update_init=False,
         ),

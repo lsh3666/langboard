@@ -1,6 +1,6 @@
 from typing import Any
-from langboard_shared.core.db import ApiField, SnowflakeIDField
-from langboard_shared.core.types import SnowflakeID
+from ..core.db import ApiField, SnowflakeIDField
+from ..core.types import SnowflakeID
 from .bases import BaseMetadataModel
 from .{class_name} import {class_name}
 

@@ -27,6 +27,8 @@
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true
   },
+  "pythonEnvy.showNotifications": false,
+  "pythonEnvy.venvName": ".venv",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.extraPaths": [
     "./src/langboard",

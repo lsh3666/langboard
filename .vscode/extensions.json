@@ -1,0 +1,29 @@
+{
+  "recommendations": [
+    "formulahendry.auto-rename-tag",
+    "njpwerner.autodocstring",
+    "rogalmic.bash-debug",
+    "ms-python.debugpy",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.vscode-python-envs",
+    "donjayamanne.python-extension-pack",
+    "KevinRose.vsc-python-indent",
+    "teticio.python-envy",
+    "charliermarsh.ruff",
+    "Boto3typed.boto3-ide",
+    "EditorConfig.EditorConfig",
+    "dbaeumer.vscode-eslint",
+    "xabikos.JavaScriptSnippets",
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode.js-debug-nightly",
+    "leizongmin.node-module-intellisense",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "sibiraj-s.vscode-scss-formatter",
+    "mrmlnc.vscode-scss",
+    "jasonnutter.search-node-modules",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

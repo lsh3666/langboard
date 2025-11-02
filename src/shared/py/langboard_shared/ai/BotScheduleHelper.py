@@ -6,7 +6,6 @@ from ..core.schema import Pagination
 from ..core.types import SafeDateTime, SnowflakeID
 from ..core.utils.CronTabUtils import CronTabUtils
 from ..core.utils.decorators import staticclass
-from ..Env import Env
 from ..helpers import ServiceHelper
 from ..models import Bot, BotSchedule
 from ..models.bases import BaseBotScheduleModel
@@ -19,7 +18,7 @@ _TBaseParam = int | str | None
 
 @staticclass
 class BotScheduleHelper:
-    utils = CronTabUtils(Env.CRON_TAB_FILE)
+    utils = CronTabUtils()
 
     @overload
     @staticmethod
