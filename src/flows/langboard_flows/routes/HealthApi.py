@@ -1,6 +1,6 @@
-from core.caching import Cache
-from core.routing import AppRouter
 from fastapi.responses import JSONResponse
+from langboard_shared.core.caching import Cache
+from langboard_shared.core.routing import AppRouter
 
 
 @AppRouter.api.get("/health")

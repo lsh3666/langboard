@@ -1,13 +1,13 @@
 from re import match
 from typing import Any
-from core.routing import BaseFormModel, form_model
-from core.routing.Exception import InvalidError, InvalidException, MissingException
-from core.types import SafeDateTime
-from models.AppSetting import AppSettingType
-from models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from models.InternalBot import InternalBotType
+from langboard_shared.ai import BaseSharedBotForm
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.core.routing.Exception import InvalidError, InvalidException, MissingException
+from langboard_shared.core.types import SafeDateTime
+from langboard_shared.models.AppSetting import AppSettingType
+from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.models.InternalBot import InternalBotType
 from pydantic import BaseModel, field_validator
-from ...ai import BaseSharedBotForm
 from ...Constants import EMAIL_REGEX
 
 

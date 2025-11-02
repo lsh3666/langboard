@@ -11,7 +11,7 @@ import sqlalchemy as sa
 import sqlmodel
 import sqlmodel.sql.sqltypes
 from alembic import op
-from core.db.ColumnTypes import SnowflakeIDType
+from langboard_shared.core.db.ColumnTypes import SnowflakeIDType
 
 
 # revision identifiers, used by Alembic.

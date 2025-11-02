@@ -1,5 +1,5 @@
-from core.routing import BaseFormModel, form_model
-from models.Checkitem import CheckitemStatus
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.models.Checkitem import CheckitemStatus
 from pydantic import Field
 
 

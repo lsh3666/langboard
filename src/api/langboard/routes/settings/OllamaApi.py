@@ -1,10 +1,10 @@
 import requests
-from core.caching import Cache
-from core.Env import Env
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
+from langboard_shared.core.caching import Cache
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.Env import Env
 from .Form import OllamaModelForm
 
 

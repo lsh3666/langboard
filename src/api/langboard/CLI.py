@@ -1,18 +1,14 @@
 from time import sleep
 from typing import cast
-from core.bootstrap import BaseCommand, Commander
-from core.Env import Env
-from core.FastAPIAppConfig import FastAPIAppConfig
+from langboard_shared.core.bootstrap import BaseCommand, Commander
+from langboard_shared.Env import Env
+from langboard_shared.FastAPIAppConfig import FastAPIAppConfig
 from pydantic import SecretStr
 from .commands.DbUpgradeCommand import DbUpgradeCommand, DbUpgradeCommandOptions
 from .commands.RunCommand import RunCommandOptions
 from .Constants import APP_CONFIG_FILE, HOST
-from .core.broadcast import ensure_initialized
 from .Loader import ModuleLoader
 from .ServerRunner import run as run_server
-
-
-ensure_initialized()
 
 
 def execute():
@@ -57,10 +53,10 @@ def _run_app(options: RunCommandOptions):
 
 
 def _init_internal_bots():
-    from core.db import DbSession, SqlBuilder
-    from models import InternalBot
-    from models.BaseBotModel import BotPlatform, BotPlatformRunningType
-    from models.InternalBot import InternalBotType
+    from langboard_shared.core.db import DbSession, SqlBuilder
+    from langboard_shared.models import InternalBot
+    from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+    from langboard_shared.models.InternalBot import InternalBotType
 
     settings = []
     with DbSession.use(readonly=True) as db:
@@ -94,9 +90,9 @@ def _init_internal_bots():
 
 
 def _init_admin():
-    from core.db import DbSession, SqlBuilder
-    from core.types import SafeDateTime
-    from models import User, UserProfile
+    from langboard_shared.core.db import DbSession, SqlBuilder
+    from langboard_shared.core.types import SafeDateTime
+    from langboard_shared.models import User, UserProfile
 
     user_count = 0
     with DbSession.use(readonly=True) as db:

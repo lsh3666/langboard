@@ -1,6 +1,6 @@
-from core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.broker import Broker
 from pydantic import Field
-from ..core.broker import Broker
 from ..Loader import ModuleLoader
 
 

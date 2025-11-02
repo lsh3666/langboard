@@ -1,11 +1,11 @@
 from typing import Literal, cast
-from core.filter import AuthFilter
-from core.routing import AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import Depends
-from models import User, UserNotification
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.models import User, UserNotification
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .NotificationForm import NotificationForm
 
 

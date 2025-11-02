@@ -1,12 +1,12 @@
 from typing import cast
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema, PaginatedList
-from core.types import SafeDateTime
 from fastapi import Depends, status
-from models import User, UserProfile
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema, PaginatedList
+from langboard_shared.core.types import SafeDateTime
+from langboard_shared.models import User, UserProfile
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, UsersPagination
 
 

@@ -1,5 +1,5 @@
 from typing import Literal
-from core.schema import OpenApiSchema
+from langboard_shared.core.schema import OpenApiSchema
 
 
 def create_metadata_api_schema(get_type: Literal["list", "key"] | None = None) -> OpenApiSchema:

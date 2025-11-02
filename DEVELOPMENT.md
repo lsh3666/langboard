@@ -251,7 +251,6 @@ make stop_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 | TERMINAL_LOGGING_LEVEL         | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | FILE_LOGGING_LEVEL             | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | LOGGING_DIR                    | **string (Optional)** | Logging directory path for `api`                                                                                                |
-| FLOWS_LOGGING_DIR              | **string (Optional)** | Logging directory path for `flows`                                                                                              |
 | SOCKET_LOGGING_DIR             | **string (Optional)** | Logging directory path for `socket`                                                                                             |
 | SENTRY_DSN                     | **string (Optional)** | Sentry dsn url if you want to trace errors                                                                                      |
 | LOCAL_STORAGE_DIR              | **string (Optional)** | Uploading direcotory path                                                                                                       |

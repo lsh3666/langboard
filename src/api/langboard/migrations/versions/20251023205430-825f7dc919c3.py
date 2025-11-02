@@ -9,7 +9,7 @@ Create Date: 2025-10-23 20:54:30.603466
 from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
-from core.db.ColumnTypes import CSVType, SnowflakeIDType
+from langboard_shared.core.db.ColumnTypes import CSVType, SnowflakeIDType
 
 
 # revision identifiers, used by Alembic.

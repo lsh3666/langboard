@@ -1,5 +1,5 @@
-from core.utils.Extractor import extract_func_param
-from models import {class_name}Role
+from langboard_shared.core.utils.Extractor import extract_func_param
+from langboard_shared.models import {class_name}Role
 from .BaseRoleService import BaseRoleService
 
 

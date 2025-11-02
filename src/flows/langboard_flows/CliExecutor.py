@@ -1,7 +1,7 @@
 from asyncio import run as run_async
-from core.bootstrap import BaseCommand, Commander
-from core.Env import Env
-from core.FastAPIAppConfig import FastAPIAppConfig
+from langboard_shared.core.bootstrap import BaseCommand, Commander
+from langboard_shared.Env import Env
+from langboard_shared.FastAPIAppConfig import FastAPIAppConfig
 from langflow.services.database.utils import initialize_database
 from .commands.RunCommand import RunCommandOptions
 from .Constants import APP_CONFIG_FILE, HOST, PORT

@@ -1,17 +1,17 @@
-from core.Env import Env
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
-from core.security import AuthSecurity
-from core.utils.Encryptor import Encryptor
 from fastapi import Request, status
 from jwt import ExpiredSignatureError
-from models import Bot, User, UserEmail, UserGroup, UserProfile
-from models.UserNotification import NotificationType
-from models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.security import AuthSecurity
+from langboard_shared.core.utils.Encryptor import Encryptor
+from langboard_shared.Env import Env
+from langboard_shared.models import Bot, User, UserEmail, UserGroup, UserProfile
+from langboard_shared.models.UserNotification import NotificationType
+from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from ...Constants import DOMAIN
-from ...security import Auth
-from ...services import Service
 from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
 
 

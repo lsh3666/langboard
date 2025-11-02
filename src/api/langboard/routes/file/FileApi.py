@@ -1,7 +1,7 @@
 from mimetypes import guess_type
-from core.routing import AppRouter, JsonResponse
 from fastapi import Path, Response, status
-from ...core.storage import Storage
+from langboard_shared.core.routing import AppRouter, JsonResponse
+from langboard_shared.core.storage import Storage
 
 
 @AppRouter.api.get("/file/{storage_type}/{storage_name}/{filename}", tags=["General"])

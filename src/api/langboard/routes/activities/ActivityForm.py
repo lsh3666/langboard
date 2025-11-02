@@ -1,5 +1,5 @@
-from core.schema import Pagination
-from core.types import SafeDateTime
+from langboard_shared.core.schema import Pagination
+from langboard_shared.core.types import SafeDateTime
 
 
 class ActivityPagination(Pagination):

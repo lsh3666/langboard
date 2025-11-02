@@ -1,11 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
-from core.storage import StorageName
 from fastapi import File, UploadFile, status
-from ...ai import validate_bot_form
-from ...core.storage import Storage
-from ...services import Service
+from langboard_shared.ai import validate_bot_form
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.services import Service
 from .Form import CreateInternalBotForm, UpdateInternalBotForm
 
 

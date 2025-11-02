@@ -1,15 +1,15 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from helpers import BotHelper, ServiceHelper
-from models import Bot, Card, Project, ProjectColumn, ProjectRole
-from models.bases import BaseBotScopeModel
-from models.ProjectRole import ProjectRoleAction
-from publishers import ProjectBotPublisher
-from ....filter import RoleFilter
-from ....security import RoleFinder
-from ....services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.helpers import BotHelper, ServiceHelper
+from langboard_shared.models import Bot, Card, Project, ProjectColumn, ProjectRole
+from langboard_shared.models.bases import BaseBotScopeModel
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.publishers import ProjectBotPublisher
+from langboard_shared.security import RoleFinder
+from langboard_shared.services import Service
 from ..forms import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerConditionForm
 
 

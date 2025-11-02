@@ -1,5 +1,5 @@
-from core.routing import BaseMiddleware
 from fastapi.datastructures import QueryParams
+from langboard_shared.core.routing import BaseMiddleware
 
 
 class QueryStringMiddleware(BaseMiddleware):

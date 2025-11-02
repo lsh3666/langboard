@@ -1,6 +1,6 @@
-from core.routing import AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import Query, status
+from langboard_shared.core.routing import AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
 
 
 @AppRouter.api.get(

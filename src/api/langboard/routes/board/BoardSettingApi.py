@@ -1,9 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
-from core.utils.Converter import convert_python_data
 from fastapi import status
-from models import (
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.utils.Converter import convert_python_data
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import (
     Bot,
     Card,
     ChatTemplate,
@@ -15,12 +16,11 @@ from models import (
     ProjectRole,
     User,
 )
-from models.bases import ALL_GRANTED
-from models.InternalBot import InternalBotType
-from models.ProjectRole import ProjectRoleAction
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder
-from ...services import Service
+from langboard_shared.models.bases import ALL_GRANTED
+from langboard_shared.models.InternalBot import InternalBotType
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder
+from langboard_shared.services import Service
 from .forms import (
     ChangeInternalBotForm,
     ChangeInternalBotSettingsForm,

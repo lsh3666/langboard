@@ -2,7 +2,7 @@
 name = "langboard-flows"
 version = "0.1.0"
 description = ""
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "langflow>=1.5.0,<2.0.0",
     "fastapi>=0.115.13,<0.120.0",
@@ -26,10 +26,7 @@ link-mode = "copy"
 
 
 [tool.uv.sources]
-core = { path = "../shared/py/core" }
-models = { path = "../shared/py/models" }
-helpers = { path = "../shared/py/helpers" }
-publishers = { path = "../shared/py/publishers" }
+langboard-shared = { path = "../shared/py/langboard_shared" }
 langboard-flows = { workspace = true }
 
 

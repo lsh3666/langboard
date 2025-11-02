@@ -1,11 +1,11 @@
-from core.filter import FilterMiddleware
-from core.routing import ApiErrorCode, JsonResponse
 from fastapi import status
-from models import Bot, User
+from langboard_shared.core.filter import FilterMiddleware
+from langboard_shared.core.routing import ApiErrorCode, JsonResponse
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import Bot, User
+from langboard_shared.security import RoleSecurity
 from starlette.routing import BaseRoute
 from starlette.types import ASGIApp
-from ..filter import RoleFilter
-from ..security import RoleSecurity
 
 
 class RoleMiddleware(FilterMiddleware):

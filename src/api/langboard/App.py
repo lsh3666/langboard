@@ -1,13 +1,13 @@
 from json import loads as json_loads
-from core.Env import Env
-from core.FastAPIAppConfig import FastAPIAppConfig
-from core.routing import AppExceptionHandlingRoute, AppRouter, BaseMiddleware
-from core.security import AuthSecurity
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from .ai import BotScheduleHelper
-from .Constants import APP_CONFIG_FILE, SCHEMA_DIR
+from langboard_shared.ai import BotScheduleHelper
+from langboard_shared.core.routing import AppExceptionHandlingRoute, AppRouter, BaseMiddleware
+from langboard_shared.core.security import AuthSecurity
+from langboard_shared.Env import Env
+from langboard_shared.FastAPIAppConfig import FastAPIAppConfig
+from .Constants import APP_CONFIG_FILE
 from .Loader import ModuleLoader
 from .middlewares import AuthMiddleware, RoleMiddleware
 
@@ -25,7 +25,7 @@ class App:
         AppRouter.set_openapi_schema(self.api)
         AuthSecurity.set_openapi_schema(self.api)
         AppRouter.set_app(self.api)
-        AppRouter.create_schema_files(SCHEMA_DIR)
+        AppRouter.create_schema_files(Env.SCHEMA_DIR)
 
         self.api.openapi = self._openapi_json
 
@@ -77,6 +77,6 @@ class App:
         self.api.include_router(AppRouter.api)
 
     def _openapi_json(self):
-        with open(SCHEMA_DIR / AppRouter.api_routes_file, "r") as f:
+        with open(Env.SCHEMA_DIR / AppRouter.open_api_schema_file, "r") as f:
             content = f.read()
         return json_loads(content)

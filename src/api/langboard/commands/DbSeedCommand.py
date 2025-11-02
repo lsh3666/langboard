@@ -1,8 +1,8 @@
 from asyncio import run as run_async
 from typing import cast
-from core.bootstrap import BaseCommand, BaseCommandOptions
-from core.db import BaseSeed
-from core.utils.StringCase import StringCase
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.db import BaseSeed
+from langboard_shared.core.utils.StringCase import StringCase
 from ..migrations import seeds
 from .CommandUtils import logger, make_name
 

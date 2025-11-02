@@ -11,7 +11,7 @@ import sqlalchemy as sa
 import sqlmodel
 import sqlmodel.sql.sqltypes
 from alembic import op
-from core.db.ColumnTypes import (
+from langboard_shared.core.db.ColumnTypes import (
     CSVType,
     EnumLikeType,
     ModelColumnListType,
@@ -19,18 +19,18 @@ from core.db.ColumnTypes import (
     SecretStrType,
     SnowflakeIDType,
 )
-from core.db.Models import ChatContentModel, EditorContentModel
-from core.storage.FileModel import FileModel
-from models.AppSetting import AppSettingType
-from models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from models.BotLog import BotLogMessage, BotLogType
-from models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
-from models.InternalBot import InternalBotType
-from models.ProjectActivity import ProjectActivityType
-from models.ProjectWikiActivity import ProjectWikiActivityType
-from models.UserActivity import UserActivityType
-from models.UserNotification import NotificationType
-from models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.core.db.Models import ChatContentModel, EditorContentModel
+from langboard_shared.core.storage.FileModel import FileModel
+from langboard_shared.models.AppSetting import AppSettingType
+from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.models.BotLog import BotLogMessage, BotLogType
+from langboard_shared.models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
+from langboard_shared.models.InternalBot import InternalBotType
+from langboard_shared.models.ProjectActivity import ProjectActivityType
+from langboard_shared.models.ProjectWikiActivity import ProjectWikiActivityType
+from langboard_shared.models.UserActivity import UserActivityType
+from langboard_shared.models.UserNotification import NotificationType
+from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 
 
 # revision identifiers, used by Alembic.

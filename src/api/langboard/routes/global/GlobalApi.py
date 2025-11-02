@@ -1,10 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import Bot, InternalBot, User
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.models import Bot, InternalBot, User
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 
 
 @AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 200).get())

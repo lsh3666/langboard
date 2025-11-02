@@ -1,13 +1,13 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse, SocketTopic
 from fastapi import Depends, status
-from helpers import ServiceHelper
-from models import Card, CardMetadata, Project, ProjectRole
-from models.ProjectRole import ProjectRoleAction
-from publishers import MetadataPublisher
-from ...filter import RoleFilter
-from ...security import RoleFinder
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse, SocketTopic
+from langboard_shared.filter import RoleFilter
+from langboard_shared.helpers import ServiceHelper
+from langboard_shared.models import Card, CardMetadata, Project, ProjectRole
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.publishers import MetadataPublisher
+from langboard_shared.security import RoleFinder
+from langboard_shared.services import Service
 from .MetadataForm import MetadataDeleteForm, MetadataForm, MetadataGetModel
 from .MetadataHelper import create_metadata_api_schema
 

@@ -2,10 +2,10 @@ from logging.config import fileConfig
 from typing import Any
 from alembic import context
 from alembic.autogenerate.api import AutogenContext
-from core.db import BaseSqlModel
-from core.db.DbConfigHelper import DbConfigHelper  # type: ignore
-from core.Env import Env  # type: ignore
-from helpers import ensure_models_imported
+from langboard_shared.core.db import BaseSqlModel
+from langboard_shared.core.db.DbConfigHelper import DbConfigHelper  # type: ignore
+from langboard_shared.Env import Env  # type: ignore
+from langboard_shared.helpers import ensure_models_imported
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection, engine_from_config
 

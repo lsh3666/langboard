@@ -7,17 +7,11 @@ readme = "README.md"
 license = "LICENSE"
 packages = [
     {include = "langboard", from = "src/api"},
-    {include = "core", from = "src/shared/py"},
-    {include = "models", from = "src/shared/py"},
-    {include = "helpers", from = "src/shared/py"},
-    {include = "publishers", from = "src/shared/py"}
+    {include = "langboard_shared", from = "src/shared/py"}
 ]
 include = [
     "src/api/langboard/*", "src/api/langboard/**/*",
-    "src/shared/py/core/*", "src/shared/py/core/**/*",
-    "src/shared/py/models/*", "src/shared/py/models/**/*",
-    "src/shared/py/helpers/*", "src/shared/py/helpers/**/*",
-    "src/shared/py/publishers/*", "src/shared/py/publishers/**/*"
+    "src/shared/py/langboard_shared/*", "src/shared/py/langboard_shared/**/*",
 ]
 
 
@@ -26,7 +20,7 @@ langboard = "langboard.CLI:execute"
 
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.11,<3.13"
 fastapi = "^0.119.1"
 pydantic = "^2.11.7"
 python-multipart = "^0.0.20"

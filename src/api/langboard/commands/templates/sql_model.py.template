@@ -1,6 +1,6 @@
 from typing import Any
-from core.db import ApiField, DateTimeField, EnumLikeType, Field, ModelColumnType, SecretStr, SecretStrType, SnowflakeIDField, {base_class}
-from core.types import SafeDateTime, SnowflakeID
+from langboard_shared.core.db import ApiField, DateTimeField, EnumLikeType, Field, ModelColumnType, SecretStr, SecretStrType, SnowflakeIDField, {base_class}
+from langboard_shared.core.types import SafeDateTime, SnowflakeID
 
 
 class {class_name}({base_class}, table=True):

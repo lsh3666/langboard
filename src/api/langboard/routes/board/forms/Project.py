@@ -1,8 +1,8 @@
-from core.routing import BaseFormModel, form_model
-from core.schema import Pagination
-from core.types import SafeDateTime
-from models.InternalBot import InternalBotType
-from models.ProjectRole import ProjectRoleAction
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.core.schema import Pagination
+from langboard_shared.core.types import SafeDateTime
+from langboard_shared.models.InternalBot import InternalBotType
+from langboard_shared.models.ProjectRole import ProjectRoleAction
 from pydantic import Field
 
 

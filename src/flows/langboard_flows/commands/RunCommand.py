@@ -1,7 +1,7 @@
 from ssl import CERT_NONE
 from typing import cast
-from core.bootstrap import BaseCommand, BaseCommandOptions
-from core.Env import Env
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.Env import Env
 from pydantic import Field
 from uvicorn.config import SSL_PROTOCOL_VERSION, LifespanType
 

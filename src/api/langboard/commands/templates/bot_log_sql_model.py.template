@@ -1,5 +1,5 @@
-from core.db import ApiField, SnowflakeIDField
-from core.types import SnowflakeID
+from langboard_shared.core.db import ApiField, SnowflakeIDField
+from langboard_shared.core.types import SnowflakeID
 from .bases import BaseBotLogModel
 from .{class_name} import {class_name}
 

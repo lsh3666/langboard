@@ -1,12 +1,12 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import Depends, status
-from models import BotLog, Card, CardBotLog, ProjectRole
-from models.ProjectRole import ProjectRoleAction
-from ....filter import RoleFilter
-from ....security import RoleFinder
-from ....services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import BotLog, Card, CardBotLog, ProjectRole
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import RoleFinder
+from langboard_shared.services import Service
 from ..forms import BotLogPagination
 
 
