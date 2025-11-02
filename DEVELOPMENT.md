@@ -42,7 +42,6 @@ git remote set-url --push upstream no_push
     ```bash
     scoop install make
     ```
-- `poetry`: The project uses `poetry` to coordinate `api` packaging, a Python package and project manager. Install instructions at [Poetry](https://python-poetry.org/docs/#installation).
 - `uv`: The project uses `uv` to coordinate `flows` packaging, a Python package and project manager from Astral. Install instructions at [uv](https://docs.astral.sh/uv/getting-started/installation/).
 - `Yarn`: The `ui`, the `socket`, and the `ts/core` are built with Node.js (`v22 LTS`) and `yarn` (`v1.22`). Install instructions at [Node.js](https://nodejs.org/en/download), and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
 - `Docker` and `Docker Compose`: The project uses Docker to containerize and manage services, ensuring consistency across development and production environments.

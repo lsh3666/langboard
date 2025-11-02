@@ -40,7 +40,6 @@ endif
 
 
 check_tools:
-	@command -v poetry >/dev/null 2>&1 || { echo >&2 "$(RED)Poetry is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v yarn >/dev/null 2>&1 || { echo >&2 "$(RED)Yarn is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v docker >/dev/null 2>&1 || { echo >&2 "$(RED)Docker is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v docker compose >/dev/null 2>&1 || { echo >&2 "$(RED)Docker Compose is not installed. Aborting.$(NC)"; exit 1; }
@@ -60,8 +59,8 @@ help: ## show this help message
 	@printf 'Command: $(CYAN)$(BOLD)make <target> [options]$(NC)\n'
 
 format: ## run code formatters
-	poetry run ruff check . --fix
-	poetry run ruff format .
+	uv run ruff check . --fix
+	uv run ruff format .
 	cd $(FLOWS_DIR) && uv run ruff check . --fix
 	cd $(FLOWS_DIR) && uv run ruff format .
 	cd $(TS_CORE_DIR) && yarn run format
@@ -69,7 +68,7 @@ format: ## run code formatters
 	cd $(SOCKET_DIR) && yarn run format
 
 lint: ## run linters
-	poetry run ruff check .
+	uv run ruff check .
 	cd $(FLOWS_DIR) && uv run ruff check .
 	cd $(TS_CORE_DIR) && yarn run lint
 	cd $(UI_DIR) && yarn run lint
@@ -86,7 +85,7 @@ init: check_tools clean_python_cache clean_ts_core_cache clean_ui_cache clean_so
 
 install_api: ## install the api dependencies
 	@echo 'Installing api dependencies'
-	@poetry install
+	@uv install
 
 install_ts_core: ## install the ts core dependencies
 	@echo 'Installing ts core dependencies'
@@ -152,10 +151,10 @@ stop_docker: ## stop Docker in the production environment
 	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans
 
 unit_tests: ## run unit tests
-	poetry run pytest $(API_DIR)/tests/units
+	uv run pytest $(API_DIR)/tests/units
 
 cov_unit_tests: ## run unit tests with coverage
-	poetry run pytest -vv --cov=$(API_DIR)/langboard $(API_DIR)/tests/units --cov-report=html:./$(API_DIR)/coverage
+	uv run pytest -vv --cov=$(API_DIR)/langboard $(API_DIR)/tests/units --cov-report=html:./$(API_DIR)/coverage
 	@printf "$(GREEN)Coverage report generated in $(API_DIR)/coverage directory.$(NC)"
 
 init_env: ## initialize the .env file from .env.example if it does not exist

@@ -61,7 +61,7 @@ services:
       - ../src/shared/py:/app/src/shared/py
       - ../src/resources:/app/src/resources
       - ../pyproject.toml:/app/pyproject.toml
-      - ../poetry.lock:/app/poetry.lock
+      - ../uv.lock:/app/uv.lock
       - ../README.md:/app/README.md
       - ../LICENSE:/app/LICENSE
       - ../alembic.ini:/app/alembic.ini

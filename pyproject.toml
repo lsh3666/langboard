@@ -54,16 +54,19 @@ link-mode = "copy"
 
 
 [tool.uv.sources]
-langboard-shared = { path = "./src/shared/py/langboard_shared" }
+langboard-shared = { workspace = true }
 langboard = { workspace = true }
 
 
 [tool.uv.workspace]
-members = ["."]
+members = [
+    ".",
+    "src/shared/py",
+]
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["langboard"]
+packages = ["./src/api/langboard", "./src/shared/py/langboard_shared"]
 
 
 [project.scripts]
