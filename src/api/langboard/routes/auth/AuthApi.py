@@ -11,7 +11,6 @@ from langboard_shared.models.UserNotification import NotificationType
 from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 from langboard_shared.security import Auth
 from langboard_shared.services import Service
-from ...Constants import DOMAIN
 from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
 
 
@@ -71,7 +70,7 @@ async def sign_in(form: SignInForm, service: Service = Service.scope()) -> JsonR
         Env.REFRESH_TOKEN_NAME,
         refresh_token,
         max_age=Env.JWT_RT_EXPIRATION * 60 * 60 * 24,
-        domain=DOMAIN if DOMAIN else None,
+        domain=Env.DOMAIN if Env.DOMAIN else None,
         httponly=True,
         secure=Env.PUBLIC_UI_URL.startswith("https://"),
     )
@@ -102,7 +101,7 @@ async def refresh(request: Request) -> JsonResponse:
         if not user:
             raise Exception()
     except ExpiredSignatureError:
-        return JsonResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return JsonResponse(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT)
     except Exception:
         return JsonResponse(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -149,7 +148,7 @@ async def refresh(request: Request) -> JsonResponse:
     ),
 )
 @AuthFilter.add("user")
-async def about_me(user: User = Auth.scope("api_user"), service: Service = Service.scope()) -> JsonResponse:
+async def about_me(user: User = Auth.scope("user"), service: Service = Service.scope()) -> JsonResponse:
     profile = await service.user.get_profile(user)
     response = {
         **user.api_response(),

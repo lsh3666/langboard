@@ -56,7 +56,7 @@ class OpenApiSchema:
     def auth(self, only_bot: bool = False) -> Self:
         self.__errors.append((status.HTTP_401_UNAUTHORIZED, "Authentication token is invalid."))
         if not only_bot:
-            self.__errors.append((status.HTTP_422_UNPROCESSABLE_ENTITY, "Authentication token is expired."))
+            self.__errors.append((status.HTTP_422_UNPROCESSABLE_CONTENT, "Authentication token is expired."))
         return self
 
     def forbidden(self) -> Self:

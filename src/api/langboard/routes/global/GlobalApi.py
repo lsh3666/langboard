@@ -19,7 +19,7 @@ async def health_check() -> JsonResponse:
 )
 @AuthFilter.add("user")
 async def get_internal_bot(
-    bot_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    bot_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     internal_bot = await service.internal_bot.get_by_uid(bot_uid)
     if not internal_bot:

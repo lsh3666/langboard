@@ -16,7 +16,7 @@ from .NotificationForm import NotificationForm
 )
 @AuthFilter.add("user")
 async def toggle_all_notification_subscription(
-    form: NotificationForm = Depends(), user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationForm = Depends(), user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     if form.time_range not in ["3d", "7d", "1m", "all"]:
         form.time_range = "3d"

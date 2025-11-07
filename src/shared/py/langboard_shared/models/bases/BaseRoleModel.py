@@ -10,7 +10,7 @@ ALL_GRANTED = "*"
 
 
 class BaseRoleModel(BaseSqlModel):
-    actions: list[str] = Field(default=[ALL_GRANTED], sa_type=CSVType)
+    actions: list[str] = Field(default=[ALL_GRANTED], sa_type=CSVType(str))
     user_id: SnowflakeID | None = SnowflakeIDField(foreign_key=User, nullable=True)
 
     @staticmethod

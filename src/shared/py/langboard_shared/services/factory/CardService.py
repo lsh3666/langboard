@@ -219,6 +219,28 @@ class CardService(BaseService):
         return cards
 
     @overload
+    async def get_all_by_column(self, column: TColumnParam, as_api: Literal[False]) -> list[Card]: ...
+    @overload
+    async def get_all_by_column(self, column: TColumnParam, as_api: Literal[True]) -> list[dict[str, Any]]: ...
+    async def get_all_by_column(self, column: TColumnParam, as_api: bool) -> list[Card] | list[dict[str, Any]]:
+        column = ServiceHelper.get_by_param(ProjectColumn, column)
+        if not column:
+            return []
+
+        records = []
+        with DbSession.use(readonly=True) as db:
+            result = db.exec(
+                SqlBuilder.select.table(Card)
+                .where(Card.column("project_column_id") == column.id)
+                .order_by(Card.column("order").asc())
+            )
+            records = result.all()
+        if not as_api:
+            return records
+
+        return [card.api_response() for card in records]
+
+    @overload
     async def get_assigned_users(
         self, card: TCardParam, as_api: Literal[False]
     ) -> list[tuple[User, CardAssignedUser]]: ...

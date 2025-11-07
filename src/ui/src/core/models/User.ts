@@ -217,7 +217,7 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
         return this.getValue("activated_at");
     }
     public set activated_at(value: string | Date | undefined) {
-        this.update({ activated_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ activated_at: value as unknown as Date });
     }
 
     public isPresentableUnknownUser(type?: User["type"]) {

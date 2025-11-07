@@ -24,7 +24,7 @@ async def add_card_comment(
     project_uid: str,
     card_uid: str,
     comment: EditorContentModel,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
@@ -82,7 +82,7 @@ async def update_card_comment(
     card_uid: str,
     comment_uid: str,
     comment: EditorContentModel,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)
@@ -110,7 +110,7 @@ async def delete_card_comment(
     project_uid: str,
     card_uid: str,
     comment_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)
@@ -139,7 +139,7 @@ async def toggle_reaction_card_comment(
     card_uid: str,
     comment_uid: str,
     form: ToggleCardCommentReactionForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)

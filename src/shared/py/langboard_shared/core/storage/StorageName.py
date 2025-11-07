@@ -7,3 +7,4 @@ class StorageName(Enum):
     Wiki = "wiki"
     BotAvatar = "bot_avatar"
     InternalBot = "internal_bot"
+    Graph = "graph"

@@ -69,6 +69,10 @@ class Env:
         )
 
     @property
+    def DOMAIN(self) -> str | None:
+        return self.__get_from_cache("DOMAIN", None)
+
+    @property
     def UI_REDIRECT_URL(self) -> str:
         return f"{self.PUBLIC_UI_URL}/redirect"
 

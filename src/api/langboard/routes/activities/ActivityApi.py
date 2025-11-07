@@ -44,7 +44,7 @@ def _create_project_activity_schema(
 )
 @AuthFilter.add("user")
 async def get_current_user_activities(
-    pagination: ActivityPagination = Depends(), user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    pagination: ActivityPagination = Depends(), user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     if pagination.only_count:
         result = await service.activity.get_list_by_user(user, pagination, pagination.refer_time, only_count=True)
@@ -67,7 +67,7 @@ async def get_current_user_activities(
 async def get_project_activities(
     project_uid: str,
     pagination: ActivityPagination = Depends(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     assignee = service.activity.get_user_or_bot(pagination.assignee_uid) if pagination.assignee_uid else None
@@ -111,7 +111,7 @@ async def get_project_column_activities(
     project_uid: str,
     column_uid: str,
     pagination: ActivityPagination = Depends(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     assignee = service.activity.get_user_or_bot(pagination.assignee_uid) if pagination.assignee_uid else None
@@ -162,7 +162,7 @@ async def get_card_activities(
     project_uid: str,
     card_uid: str,
     pagination: ActivityPagination = Depends(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     assignee = service.activity.get_user_or_bot(pagination.assignee_uid) if pagination.assignee_uid else None
@@ -213,7 +213,7 @@ async def get_wiki_activities(
     project_uid: str,
     wiki_uid: str,
     pagination: ActivityPagination = Depends(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     assignee = service.activity.get_user_or_bot(pagination.assignee_uid) if pagination.assignee_uid else None

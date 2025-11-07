@@ -24,7 +24,7 @@ async def change_checkitem_title(
     card_uid: str,
     checkitem_uid: str,
     form: CardCheckRelatedForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_title(user_or_bot, project_uid, card_uid, checkitem_uid, form.title)
@@ -48,7 +48,7 @@ async def change_checkitem_order_or_move_checklist(
     card_uid: str,
     checkitem_uid: str,
     form: ChangeChildOrderForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_order(
@@ -73,7 +73,7 @@ async def change_checkitem_status(
     card_uid: str,
     checkitem_uid: str,
     form: ChangeCardCheckitemStatusForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -104,7 +104,7 @@ async def cardify_checkitem(
     card_uid: str,
     checkitem_uid: str,
     form: CardifyCheckitemForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -136,7 +136,7 @@ async def toggle_checkitem_checked(
     project_uid: str,
     card_uid: str,
     checkitem_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -166,7 +166,7 @@ async def delete_checkitem(
     project_uid: str,
     card_uid: str,
     checkitem_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)

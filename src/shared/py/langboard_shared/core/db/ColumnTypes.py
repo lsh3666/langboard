@@ -15,6 +15,7 @@ from .Field import Field
 
 TModelColumn = TypeVar("TModelColumn", bound=BaseModel)
 TEnum = TypeVar("TEnum", bound=Enum)
+TCSVType = TypeVar("TCSVType", bound=str | Enum)
 
 
 class SnowflakeIDType(TypeDecorator):
@@ -156,20 +157,36 @@ def DateTimeField(
         return Field(default_factory=default, **kwargs)
 
 
-class CSVType(TypeDecorator):
-    impl = TEXT
-    cache_ok = True
+def CSVType(item_type: type[TCSVType] = str):
+    class _CSVType(TypeDecorator[list[item_type]]):
+        impl = TEXT
+        cache_ok = True
+        _item_type_class = item_type
 
-    def process_bind_param(self, value: list[str] | None, dialect) -> str | None:
-        if value is None:
-            return None
-        return ",".join([chunk for chunk in value if chunk])
+        def process_bind_param(self, value: list[TCSVType] | None, dialect) -> str | None:
+            if value is None:
+                return None
+            if issubclass(item_type, Enum):
+                return ",".join([cast(Enum, item).value for item in value])
+            return ",".join(cast(str, item) for item in value)
 
-    def process_result_value(self, value: str, dialect) -> list[str] | None:
-        if value is None:
-            return None
-        chunks = value.split(",")
-        return [chunk for chunk in chunks if chunk]
+        def process_result_value(self, value: str, dialect) -> list[TCSVType] | None:
+            if value is None:
+                return None
+            chunks = value.split(",")
+            items = [self._convert_item(chunk) for chunk in chunks if chunk]
+            return [item for item in items if item is not None]
+
+        def _convert_item(self, value: str) -> TCSVType | None:
+            if issubclass(item_type, Enum):
+                if value in item_type.__members__:
+                    return item_type[value]
+                elif value in item_type._value2member_map_:
+                    return item_type(value)
+                return None
+            return cast(TCSVType, value)
+
+    return _CSVType
 
 
 def EnumLikeType(enum_type: type[TEnum]):
@@ -184,8 +201,10 @@ def EnumLikeType(enum_type: type[TEnum]):
             return value.value
 
         def process_result_value(self, value: str | None, dialect) -> TEnum | None:
+            if value is None:
+                return None
             if value in enum_type.__members__:
-                return enum_type[cast(str, value)]
+                return enum_type[value]
             elif value in enum_type._value2member_map_:
                 return enum_type(value)
             return None

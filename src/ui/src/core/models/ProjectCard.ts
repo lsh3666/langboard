@@ -146,7 +146,7 @@ class ProjectCard extends BaseModel<IStore> {
         return this.getValue("archived_at");
     }
     public set archived_at(value: string | Date | undefined) {
-        this.update({ archived_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ archived_at: value as unknown as Date });
     }
 
     public get count_comment() {
@@ -167,7 +167,7 @@ class ProjectCard extends BaseModel<IStore> {
         return this.getValue("deadline_at");
     }
     public set deadline_at(value: string | Date | undefined) {
-        this.update({ deadline_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ deadline_at: value as unknown as Date });
     }
 
     public get project_column_name() {

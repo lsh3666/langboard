@@ -9,7 +9,6 @@ from starlette.datastructures import Headers
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.routing import BaseRoute
 from starlette.types import ASGIApp
-from ..Constants import DOMAIN
 
 
 class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
@@ -37,9 +36,12 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
             validation_result = await self._validate(headers)
             if isinstance(validation_result, int):
                 response = JsonResponse(status_code=validation_result)
-                if validation_result != status.HTTP_422_UNPROCESSABLE_ENTITY:
+                if validation_result != status.HTTP_422_UNPROCESSABLE_CONTENT:
                     response.delete_cookie(
-                        Env.REFRESH_TOKEN_NAME, domain=DOMAIN if DOMAIN else None, httponly=True, secure=is_secure
+                        Env.REFRESH_TOKEN_NAME,
+                        domain=Env.DOMAIN if Env.DOMAIN else None,
+                        httponly=True,
+                        secure=is_secure,
                     )
                 await response(scope, receive, send)
                 return
@@ -55,7 +57,7 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
             ):
                 response = JsonResponse(content=ApiErrorCode.AU1001, status_code=status.HTTP_403_FORBIDDEN)
                 response.delete_cookie(
-                    Env.REFRESH_TOKEN_NAME, domain=DOMAIN if DOMAIN else None, httponly=True, secure=is_secure
+                    Env.REFRESH_TOKEN_NAME, domain=Env.DOMAIN if Env.DOMAIN else None, httponly=True, secure=is_secure
                 )
                 await response(scope, receive, send)
                 return

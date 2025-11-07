@@ -67,7 +67,9 @@ class BotTriggerCondition(Enum):
 
 class BaseBotScopeModel(BaseSqlModel):
     bot_id: SnowflakeID = SnowflakeIDField(foreign_key=Bot, index=True, api_field=ApiField(name="bot_uid"))
-    conditions: list[str] = Field(nullable=False, sa_type=CSVType, api_field=ApiField())
+    conditions: list[BotTriggerCondition] = Field(
+        nullable=False, sa_type=CSVType(BotTriggerCondition), api_field=ApiField()
+    )
 
     @staticmethod
     @abstractmethod

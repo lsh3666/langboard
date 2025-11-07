@@ -54,9 +54,12 @@ def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
         elif obj.__class__.__name__ == "SnowflakeIDType":
             autogen_context.imports.add(f"from {obj.__class__.__module__} import SnowflakeIDType")
             return "SnowflakeIDType"
-        elif obj.__class__.__name__ == "CSVType":
+        elif obj.__class__.__name__ == "_CSVType":
+            item_type_class: type = obj._item_type_class  # type: ignore
             autogen_context.imports.add(f"from {obj.__class__.__module__} import CSVType")
-            return "CSVType"
+            if item_type_class is not str:
+                autogen_context.imports.add(f"from {item_type_class.__module__} import {item_type_class.__name__}")
+            return f"CSVType({item_type_class.__name__})"
         elif obj.__class__.__name__ == "_EnumLikeType":
             enum_type_class: type = obj._enum_type_class  # type: ignore
             autogen_context.imports.add(f"from {obj.__class__.__module__} import EnumLikeType")

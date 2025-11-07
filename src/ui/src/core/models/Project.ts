@@ -202,10 +202,10 @@ class Project extends BaseModel<IStore> {
         this.update({ all_members: value });
     }
 
-    public get invited_member_uids(): string[] {
+    public get invited_member_uids() {
         return this.getValue("invited_member_uids");
     }
-    public set invited_member_uids(value: string[]) {
+    public set invited_member_uids(value) {
         this.update({ invited_member_uids: value });
     }
 
@@ -241,7 +241,7 @@ class Project extends BaseModel<IStore> {
         return this.getValue("last_viewed_at");
     }
     public set last_viewed_at(value: string | Date) {
-        this.update({ last_viewed_at: new Date(value) });
+        this.update({ last_viewed_at: value as unknown as Date });
     }
 
     public get member_roles() {

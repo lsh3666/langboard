@@ -68,7 +68,7 @@ async def create_checklist(
     project_uid: str,
     card_uid: str,
     form: CardCheckRelatedForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.create(user_or_bot, project_uid, card_uid, form.title)
@@ -100,7 +100,7 @@ async def create_checkitem(
     card_uid: str,
     checklist_uid: str,
     form: CardCheckRelatedForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.create(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
@@ -124,7 +124,7 @@ async def notify_checklist(
     card_uid: str,
     checklist_uid: str,
     form: CardChecklistNotifyForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.notify(user_or_bot, project_uid, card_uid, checklist_uid, form.user_uids)
@@ -148,7 +148,7 @@ async def change_checklist_title(
     card_uid: str,
     checklist_uid: str,
     form: CardCheckRelatedForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.change_title(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
@@ -172,7 +172,7 @@ async def change_checklist_order(
     card_uid: str,
     checklist_uid: str,
     form: ChangeRootOrderForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.change_order(user_or_bot, project_uid, card_uid, checklist_uid, form.order)
@@ -195,7 +195,7 @@ async def toggle_checklist_checked(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.toggle_checked(user_or_bot, project_uid, card_uid, checklist_uid)
@@ -218,7 +218,7 @@ async def delete_checklist(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checklist.delete(user_or_bot, project_uid, card_uid, checklist_uid)

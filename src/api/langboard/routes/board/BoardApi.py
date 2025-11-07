@@ -75,7 +75,7 @@ async def is_project_available(project_uid: str, service: Service = Service.scop
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
 async def get_project(
-    project_uid: str, user_or_bot: User | Bot = Auth.scope("api"), service: Service = Service.scope()
+    project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project.get_details(user_or_bot, project_uid, is_setting=False)
     if not result:
@@ -230,7 +230,7 @@ async def get_project_cards(project_uid: str, service: Service = Service.scope()
 async def update_project_member(
     project_uid: str,
     form: InviteProjectMemberForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project.update_assigned_users(user, project_uid, form.emails)
@@ -248,7 +248,7 @@ async def update_project_member(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def unassign_project_assignee(
-    project_uid: str, assignee_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    project_uid: str, assignee_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project.unassign_assignee(user, project_uid, assignee_uid)
     if not result:
@@ -291,7 +291,7 @@ async def is_project_assignee(project_uid: str, assignee_uid: str, service: Serv
 )
 @AuthFilter.add("user")
 async def get_invited_project_title(
-    token: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    token: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     project = await service.project_invitation.get_project_by_token(user, token)
     if not project:
@@ -307,7 +307,7 @@ async def get_invited_project_title(
 )
 @AuthFilter.add("user")
 async def accept_project_invitation(
-    form: ProjectInvitationForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: ProjectInvitationForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project_invitation.accept(user, form.invitation_token)
     if not result:
@@ -323,7 +323,7 @@ async def accept_project_invitation(
 )
 @AuthFilter.add("user")
 async def decline_project_invitation(
-    form: ProjectInvitationForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: ProjectInvitationForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project_invitation.decline(user, form.invitation_token)
     if not result:

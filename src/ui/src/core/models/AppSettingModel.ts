@@ -68,7 +68,7 @@ class AppSettingModel extends BaseModel<Interface> {
         return this.getValue("last_used_at");
     }
     public set last_used_at(value: string | Date) {
-        this.update({ last_used_at: new Date(value) });
+        this.update({ last_used_at: value as unknown as Date });
     }
 
     public get total_used_count() {

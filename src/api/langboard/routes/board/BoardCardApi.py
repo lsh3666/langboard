@@ -102,7 +102,7 @@ from .forms import (
 async def get_card_details(
     project_uid: str,
     card_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
@@ -211,7 +211,7 @@ async def get_card_comments(card_uid: str, service: Service = Service.scope()) -
 async def create_card(
     project_uid: str,
     form: CreateCardForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card.create(
@@ -255,7 +255,7 @@ async def change_card_details(
     project_uid: str,
     card_uid: str,
     form: ChangeCardDetailsForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     form_dict = {}
@@ -303,7 +303,7 @@ async def update_card_assigned_users(
     project_uid: str,
     card_uid: str,
     form: AssignUsersForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card.update_assigned_users(user_or_bot, project_uid, card_uid, form.assigned_users)
@@ -326,7 +326,7 @@ async def change_card_order_or_move_column(
     project_uid: str,
     card_uid: str,
     form: ChangeChildOrderForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card.change_order(user_or_bot, project_uid, card_uid, form.order, form.parent_uid)
@@ -349,7 +349,7 @@ async def update_card_labels(
     project_uid: str,
     card_uid: str,
     form: UpdateCardLabelsForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card.update_labels(user_or_bot, project_uid, card_uid, form.labels)
@@ -372,7 +372,7 @@ async def update_card_relationships(
     project_uid: str,
     card_uid: str,
     form: UpdateCardRelationshipsForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card_relationship.update(
@@ -396,7 +396,7 @@ async def update_card_relationships(
 async def archive_card(
     project_uid: str,
     card_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     project = await service.project.get_by_uid(project_uid)
@@ -424,7 +424,7 @@ async def archive_card(
 async def delete_card(
     project_uid: str,
     card_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card.delete(user_or_bot, project_uid, card_uid)

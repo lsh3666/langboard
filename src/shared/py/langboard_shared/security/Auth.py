@@ -18,23 +18,23 @@ from ..models.Bot import ALLOWED_ALL_IPS
 class Auth:
     @overload
     @staticmethod
-    def scope(where: Literal["api"]) -> User | Bot: ...
+    def scope(where: Literal["all"]) -> User | Bot: ...
     @overload
     @staticmethod
-    def scope(where: Literal["api_user"]) -> User: ...
+    def scope(where: Literal["user"]) -> User: ...
     @overload
     @staticmethod
-    def scope(where: Literal["api_bot"]) -> Bot: ...
+    def scope(where: Literal["bot"]) -> Bot: ...
     @staticmethod
-    def scope(where: Literal["api", "api_user", "api_bot"]) -> User | Bot:
+    def scope(where: Literal["all", "user", "bot"]) -> User | Bot:
         """Creates a scope for the user to be used in :class:`fastapi.FastAPI` endpoints."""
-        if where in {"api", "api_user", "api_bot"}:
+        if where in {"all", "user", "bot"}:
 
             def get_user_or_bot(req: Request) -> User | Bot | None:  # type: ignore
                 return req.auth
 
         else:
-            raise ValueError("Auth.scope must be called with either 'api' or 'socket'")
+            raise ValueError("Auth.scope must be called with either 'all', 'user', or 'bot'")
 
         return Depends(get_user_or_bot)
 
@@ -157,7 +157,7 @@ class Auth:
 
         :return User: The user if the token is valid.
         :return 401: If the token is invalid. :class:`fastapi.status.HTTP_401_UNAUTHORIZED`
-        :return 422: If the signature has expired. :class:`fastapi.status.HTTP_422_UNPROCESSABLE_ENTITY`
+        :return 422: If the signature has expired. :class:`fastapi.status.HTTP_422_UNPROCESSABLE_CONTENT`
         """
         authorization = queries_headers.get(
             AuthSecurity.AUTHORIZATION_HEADER, queries_headers.get(AuthSecurity.AUTHORIZATION_HEADER.lower(), None)
@@ -177,7 +177,7 @@ class Auth:
             refresh_token = cookie.get(Env.REFRESH_TOKEN_NAME)
             compared_result = AuthSecurity.compare_tokens(access_token, refresh_token)
             if compared_result == "expired_access":
-                return status.HTTP_422_UNPROCESSABLE_ENTITY
+                return status.HTTP_422_UNPROCESSABLE_CONTENT
             if not compared_result:
                 return status.HTTP_401_UNAUTHORIZED
         else:
@@ -198,7 +198,7 @@ class Auth:
         if isinstance(user, User):
             return user
         elif isinstance(user, ExpiredSignatureError):
-            return status.HTTP_422_UNPROCESSABLE_ENTITY
+            return status.HTTP_422_UNPROCESSABLE_CONTENT
         else:
             return status.HTTP_401_UNAUTHORIZED
 

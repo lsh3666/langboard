@@ -24,7 +24,7 @@ from .MetadataHelper import create_metadata_api_schema
 async def get_wiki_metadata(
     project_uid: str,
     wiki_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
@@ -52,7 +52,7 @@ async def get_wiki_metadata_by_key(
     project_uid: str,
     wiki_uid: str,
     get_query: MetadataGetModel = Depends(),
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
@@ -82,7 +82,7 @@ async def save_wiki_metadata(
     project_uid: str,
     wiki_uid: str,
     form: MetadataForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
@@ -114,7 +114,7 @@ async def delete_wiki_metadata(
     form: MetadataDeleteForm,
     project_uid: str,
     wiki_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))

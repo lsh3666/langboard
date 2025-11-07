@@ -20,7 +20,7 @@ from .forms import ChatHistoryPagination, CreateChatTemplate, UpdateChatTemplate
 @AuthFilter.add("user")
 async def get_project_chat_sessions(
     project_uid: str,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     sessions = await service.chat.get_session_list(user, Project.__tablename__, project_uid)
@@ -39,7 +39,7 @@ async def get_project_chat_histories(
     project_uid: str,
     session_uid: str,
     query: ChatHistoryPagination = Depends(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     session = await service.chat.get_session_by_uid(session_uid)
@@ -62,7 +62,7 @@ async def update_project_chat_session(
     project_uid: str,
     session_uid: str,
     form: UpdateProjectChatSessionForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     session = await service.chat.get_session_by_uid(session_uid)
@@ -84,7 +84,7 @@ async def update_project_chat_session(
 async def delete_project_chat_session(
     project_uid: str,
     session_uid: str,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     session = await service.chat.get_session_by_uid(session_uid)

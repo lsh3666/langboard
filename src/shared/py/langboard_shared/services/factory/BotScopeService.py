@@ -52,7 +52,7 @@ class BotScopeService(BaseService):
 
         model_params = {
             "bot_id": bot.id,
-            "conditions": [condition.value for condition in conditions],
+            "conditions": conditions,
             **kwargs,
         }
 
@@ -79,11 +79,11 @@ class BotScopeService(BaseService):
             return True
 
         new_conditions = [*model.conditions]
-        should_enable = condition.value not in new_conditions
+        should_enable = condition not in new_conditions
         if should_enable:
-            new_conditions.append(condition.value)
+            new_conditions.append(condition)
         else:
-            new_conditions.remove(condition.value)
+            new_conditions.remove(condition)
         model.conditions = new_conditions
 
         with DbSession.use(readonly=False) as db:

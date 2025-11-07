@@ -34,7 +34,7 @@ async def upload_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment: UploadFile = File(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     if not attachment:
@@ -83,7 +83,7 @@ async def change_card_attachment_name(
     card_uid: str,
     attachment_uid: str,
     form: ChangeAttachmentNameForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_uid(attachment_uid)
@@ -117,7 +117,7 @@ async def delete_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment_uid: str,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_uid(attachment_uid)

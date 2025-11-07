@@ -21,8 +21,10 @@ class AppRouter:
     """Manages the application's all routers.
 
     Attributes:
+        `open_api_schema_file` (`str`): The OpenAPI schema file name.
+        `api_routes_file` (`str`): The API routes file name.
+        `api_routes` (`dict[str, ApiSchemaMap]`): The API route schema map.
         `api` (`APIRouter`): The API router.
-        `socket` (`SocketManager`): The socket router.
     """
 
     open_api_schema_file: str = "openapi.json"

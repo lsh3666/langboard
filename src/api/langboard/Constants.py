@@ -9,7 +9,6 @@ BASE_DIR = Path(dirname(__file__ if not Env.IS_EXECUTABLE else executable))
 
 # URL
 HOST = Env.get_from_env("API_HOST", "localhost")
-DOMAIN = Env.get_from_env("DOMAIN")
 
 # App Config
 APP_CONFIG_FILE = Env.DATA_DIR / "api_config.json"

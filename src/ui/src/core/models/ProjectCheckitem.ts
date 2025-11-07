@@ -139,14 +139,14 @@ class ProjectCheckitem extends BaseModel<Interface> {
         return this.getValue("initial_timer_started_at");
     }
     public set initial_timer_started_at(value: string | Date | undefined) {
-        this.update({ initial_timer_started_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ initial_timer_started_at: value as unknown as Date });
     }
 
     public get timer_started_at(): Date | undefined {
         return this.getValue("timer_started_at");
     }
     public set timer_started_at(value: string | Date | undefined) {
-        this.update({ timer_started_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ timer_started_at: value as unknown as Date });
     }
 }
 

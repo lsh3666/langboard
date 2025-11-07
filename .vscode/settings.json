@@ -31,7 +31,7 @@
   "pythonEnvy.venvName": ".venv",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.extraPaths": [
-    "./src/langboard",
+    "./src/api/langboard",
     "./src/flows",
     "./src/graph",
     "./src/shared/py"

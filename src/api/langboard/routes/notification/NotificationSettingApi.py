@@ -17,7 +17,7 @@ from .NotificationSettingForm import NotificationSettingForm, NotificationSettin
 )
 @AuthFilter.add("user")
 async def toggle_all_notification_subscription(
-    form: NotificationSettingForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_all(user, form.channel, form.is_unsubscribed)
     return JsonResponse(
@@ -32,7 +32,7 @@ async def toggle_all_notification_subscription(
 )
 @AuthFilter.add("user")
 async def toggle_all_type_notification_subscription(
-    form: NotificationSettingTypeForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingTypeForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     if form.notification_type not in NotificationType and form.notification_type not in NotificationType._member_names_:
         return JsonResponse(content={"notification_types": []})
@@ -52,7 +52,7 @@ async def toggle_all_type_notification_subscription(
 )
 @AuthFilter.add("user")
 async def toggle_all_project_notification_subscription(
-    form: NotificationSettingForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_project(
         user, form.channel, form.is_unsubscribed
@@ -69,7 +69,7 @@ async def toggle_all_project_notification_subscription(
 )
 @AuthFilter.add("user")
 async def toggle_all_column_notification_subscription(
-    form: NotificationSettingForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_column(user, form.channel, form.is_unsubscribed)
     return JsonResponse(
@@ -84,7 +84,7 @@ async def toggle_all_column_notification_subscription(
 )
 @AuthFilter.add("user")
 async def toggle_all_card_notification_subscription(
-    form: NotificationSettingForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_card(user, form.channel, form.is_unsubscribed)
     return JsonResponse(
@@ -99,7 +99,7 @@ async def toggle_all_card_notification_subscription(
 )
 @AuthFilter.add("user")
 async def toggle_all_wiki_notification_subscription(
-    form: NotificationSettingForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: NotificationSettingForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_wiki(user, form.channel, form.is_unsubscribed)
     return JsonResponse(
@@ -117,7 +117,7 @@ async def toggle_all_wiki_notification_subscription(
 async def toggle_project_notification_subscription(
     project_uid: str,
     form: NotificationSettingForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_project(
@@ -139,7 +139,7 @@ async def toggle_column_notification_subscription(
     project_uid: str,
     column_uid: str,
     form: NotificationSettingForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_column(
@@ -161,7 +161,7 @@ async def toggle_card_notification_subscription(
     project_uid: str,
     card_uid: str,
     form: NotificationSettingForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_card(
@@ -183,7 +183,7 @@ async def toggle_wiki_notification_subscription(
     project_uid: str,
     wiki_uid: str,
     form: NotificationSettingForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     notification_types = await service.user_notification_setting.toggle_wiki(

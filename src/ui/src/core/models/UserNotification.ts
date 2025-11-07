@@ -83,7 +83,7 @@ class UserNotification extends BaseModel<Interface> {
         return this.getValue("read_at");
     }
     public set read_at(value: string | Date | undefined) {
-        this.update({ read_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ read_at: value as unknown as Date });
     }
 
     public get records() {

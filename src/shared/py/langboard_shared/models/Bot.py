@@ -22,7 +22,7 @@ class Bot(BaseBotModel, table=True):
         nullable=False, api_field=ApiField(converter="hide_app_api_token", by_conditions={"is_setting": ("both", True)})
     )
     ip_whitelist: list[str] = Field(
-        default=[], sa_type=CSVType, api_field=ApiField(by_conditions={"is_setting": ("both", True)})
+        default=[], sa_type=CSVType(str), api_field=ApiField(by_conditions={"is_setting": ("both", True)})
     )
     value: str = Field(default="", sa_type=TEXT, api_field=ApiField(by_conditions={"is_setting": ("both", True)}))
 
