@@ -1,4 +1,19 @@
 export enum EBotTriggerCondition {
+    // Project
+    ProjectUpdated = "project_updated",
+    ProjectDeleted = "project_deleted",
+
+    // Project Label
+    ProjectLabelCreated = "project_label_created",
+    ProjectLabelUpdated = "project_label_updated",
+    ProjectLabelDeleted = "project_label_deleted",
+
+    // Project Wiki
+    ProjectWikiCreated = "project_wiki_created",
+    ProjectWikiUpdated = "project_wiki_updated",
+    ProjectWikiPublicityChanged = "project_wiki_publicity_changed",
+    ProjectWikiDeleted = "project_wiki_deleted",
+
     // Project Column
     ProjectColumnNameChanged = "project_column_name_changed",
     ProjectColumnDeleted = "project_column_deleted",
@@ -41,6 +56,20 @@ export enum EBotTriggerCondition {
     CardCheckitemCardified = "card_checkitem_cardified",
     CardCheckitemDeleted = "card_checkitem_deleted",
 }
+
+export const PROJECT_CATEGORIZED_BOT_TRIGGER_CONDITIONS = {
+    project: [EBotTriggerCondition.ProjectUpdated, EBotTriggerCondition.ProjectDeleted],
+    project_label: [EBotTriggerCondition.ProjectLabelCreated, EBotTriggerCondition.ProjectLabelUpdated, EBotTriggerCondition.ProjectLabelDeleted],
+};
+
+export const WIKI_CATEGORIZED_BOT_TRIGGER_CONDITIONS = {
+    project_wiki: [
+        EBotTriggerCondition.ProjectWikiCreated,
+        EBotTriggerCondition.ProjectWikiUpdated,
+        EBotTriggerCondition.ProjectWikiPublicityChanged,
+        EBotTriggerCondition.ProjectWikiDeleted,
+    ],
+};
 
 export const COLUMN_CATEGORIZED_BOT_TRIGGER_CONDITIONS = {
     project_column: [EBotTriggerCondition.ProjectColumnNameChanged, EBotTriggerCondition.ProjectColumnDeleted],

@@ -137,9 +137,13 @@ const getInitials = (firstname?: string, lastname?: string): string => {
     return `${firstname?.charAt(0) ?? ""}${lastname?.charAt(0) ?? ""}`.toUpperCase();
 };
 
-const format = (str: string, map: Record<string, string>): string => {
+type TExtractPlaceholders<TString extends string> = TString extends `${infer _TStart}{${infer TParam}}${infer TRest}`
+    ? { [K in TParam]: string } & TExtractPlaceholders<TRest>
+    : {};
+
+const format = <TString extends string, TMap extends TExtractPlaceholders<TString>>(str: TString, map: TMap): string => {
     return str.replace(/{(\w+)}/g, (match, key) => {
-        return map[key] || match;
+        return (map[key as keyof TMap] || match) as string;
     });
 };
 
@@ -181,11 +185,20 @@ const isJsonString = (str: string): bool => {
     return false;
 };
 
-const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T[keyof T] | string) => {
+const convertSafeEnum = <T extends Record<string, string>>(EnumType: T, value: T[keyof T] | string): T[keyof T] => {
     if (value.includes(".")) {
         value = value.split(".").pop() || value;
     }
-    return EnumType[new Case(value).toPascal() as keyof typeof EnumType];
+    const valueCase = new Case(value);
+    let enumValue;
+    if (EnumType[valueCase.toUpper()]) {
+        enumValue = EnumType[valueCase.toUpper()];
+    } else if (EnumType[valueCase.toPascal()]) {
+        enumValue = EnumType[valueCase.toPascal()];
+    } else {
+        enumValue = value;
+    }
+    return enumValue as T[keyof T];
 };
 
 class Crontab {

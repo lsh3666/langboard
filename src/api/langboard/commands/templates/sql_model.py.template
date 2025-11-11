@@ -1,18 +1,10 @@
 from typing import Any
-from sqlmodel import Field
-from core.db import DateTimeField, EnumLikeType, ModelColumnType, SecretStr, SecretStrType, SnowflakeIDField, {base_class}
-from core.types import SafeDateTime, SnowflakeID
+from ..core.db import ApiField, DateTimeField, EnumLikeType, Field, ModelColumnType, SecretStr, SecretStrType, SnowflakeIDField, {base_class}
+from ..core.types import SafeDateTime, SnowflakeID
 
 
 class {class_name}({base_class}, table=True):
     
-
-    @staticmethod
-    def api_schema() -> dict[str, Any]:
-        return {empty_dict}
-
-    def api_response(self) -> dict[str, Any]:
-        return {empty_dict}
 
     def notification_data(self) -> dict[str, Any]:
         return {empty_dict}

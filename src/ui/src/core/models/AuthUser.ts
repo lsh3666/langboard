@@ -71,7 +71,7 @@ class AuthUser extends User.Model<Interface> {
         return this.getForeignValue("user_groups");
     }
     public set user_groups(value: (UserGroup.TModel | UserGroup.Interface)[]) {
-        this.update({ user_groups: value as UserGroup.TModel[] });
+        this.update({ user_groups: value });
     }
 
     public get subemails() {

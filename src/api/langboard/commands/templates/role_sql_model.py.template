@@ -1,5 +1,5 @@
 from enum import Enum
-from sqlmodel import Field
+from ..core.db import ApiField, Field
 from .bases import BaseRoleModel
 
 

@@ -1,4 +1,4 @@
-from core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
 from .CommandUtils import logger, run_db_command
 
 

@@ -23,6 +23,7 @@ class ChatHistory extends BaseModel {
             chat_session_uid: new SnowflakeID(this.chat_session_id).toShortCode(),
             message: this.message,
             is_received: this.is_received,
+            created_at: this.created_at,
             updated_at: this.updated_at,
         };
     }

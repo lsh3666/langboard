@@ -45,7 +45,7 @@ const useRowOrderChangedHandlers = ({ callback, type, params, topicId }: IUseRow
         case "ProjectCard":
             onEventName = SocketEvents.SERVER.BOARD.CARD.ORDER_CHANGED;
             targetModel = ProjectCard.Model;
-            targetModelColumn = "column_uid";
+            targetModelColumn = "project_column_uid";
             topic = ESocketTopic.Board;
             break;
         case "ProjectCheckitem":

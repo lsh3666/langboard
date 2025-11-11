@@ -22,7 +22,7 @@ interface IGerProjectActivitiesForm extends IBaseGetActivitiesForm<"project"> {
 
 interface IGetProjectColumnActivitiesForm extends IBaseGetActivitiesForm<"project_column"> {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
 }
 
 interface IGetCardActivitiesForm extends IBaseGetActivitiesForm<"card"> {

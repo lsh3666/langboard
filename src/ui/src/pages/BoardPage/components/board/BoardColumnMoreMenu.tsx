@@ -31,7 +31,7 @@ const BoardColumnMoreMenu = memo(({ column }: IBoardColumnMoreMenuProps) => {
                 modal
                 form={{
                     project_uid: project.uid,
-                    column_uid: column.uid,
+                    project_column_uid: column.uid,
                 }}
                 triggerProps={{
                     variant: "ghost",
@@ -60,7 +60,7 @@ const BoardColumnMoreMenuDelete = memo(({ column }: IBoardColumnMoreMenuProps) =
     const deleteColumn = (endCallback: (shouldClose: bool) => void) => {
         const promise = mutateAsync({
             project_uid: project.uid,
-            column_uid: column.uid,
+            project_column_uid: column.uid,
         });
 
         Toast.Add.promise(promise, {

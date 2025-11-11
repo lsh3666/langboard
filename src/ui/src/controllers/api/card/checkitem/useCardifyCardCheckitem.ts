@@ -8,7 +8,7 @@ export interface ICardifyCardCheckitemForm {
     project_uid: string;
     card_uid: string;
     checkitem_uid: string;
-    column_uid?: string;
+    project_column_uid?: string;
 }
 
 const useCardifyCardCheckitem = (options?: TMutationOptions<ICardifyCardCheckitemForm>) => {
@@ -23,7 +23,7 @@ const useCardifyCardCheckitem = (options?: TMutationOptions<ICardifyCardCheckite
         const res = await api.post(
             url,
             {
-                column_uid: params.column_uid,
+                project_column_uid: params.project_column_uid,
             },
             {
                 env: {

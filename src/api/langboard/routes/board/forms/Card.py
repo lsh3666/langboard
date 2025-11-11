@@ -1,12 +1,12 @@
-from core.db import EditorContentModel
-from core.routing import BaseFormModel, form_model
+from langboard_shared.core.db import EditorContentModel
+from langboard_shared.core.routing import BaseFormModel, form_model
 from pydantic import Field
 
 
 @form_model
 class CreateCardForm(BaseFormModel):
     title: str = Field(..., title="Title of the card")
-    column_uid: str = Field(..., title="UID of the column")
+    project_column_uid: str = Field(..., title="UID of the column")
     description: EditorContentModel | None = Field(default=None, title="Description of the card")
     assign_users: list[str] | None = Field(default=None, title="List of user UIDs to assign to the card")
 

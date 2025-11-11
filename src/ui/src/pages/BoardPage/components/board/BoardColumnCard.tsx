@@ -49,7 +49,7 @@ function BoardColumnCard({ card }: { card: ProjectCard.TModel }) {
     const innerRef = useRef<HTMLDivElement | null>(null);
     const [state, setState] = useState<TRowState>(ROW_IDLE);
     const order = card.useField("order");
-    const columnUID = card.useField("column_uid");
+    const columnUID = card.useField("project_column_uid");
 
     useEffect(() => {
         if (!canDragAndDrop) {

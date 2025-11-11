@@ -19,14 +19,15 @@ Langboard’s mission is to enable enterprises to harness AI efficiency without 
 
 - For Windows users
 
-  - You can double-click one of `quickstart.bat`, `quickstart-ollama-cpu.bat`, and `quickstart-ollama-gpu.bat` in `scripts` directory
-  - You can run bat scripts below
+  - You can run one of `quickstart.ps1`, `quickstart-ollama-cpu.ps1`, and `quickstart-ollama-gpu.ps1` in `scripts` directory with powershell
+    - If the system opens Notepad when you double-click the files, you should select 'Run with powershell' by right-click menu.
+  - You can run powershell scripts below
 
-  ```batch
+  ```powershell
   cd .\scripts
-  .\quickstart.bat    REM default
-  .\quickstart-ollama-cpu.bat   REM if you want CPU mode
-  .\quickstart-ollama-gpu.bat   REM if you want GPU mode
+  .\quickstart.ps1    REM default
+  .\quickstart-ollama-cpu.ps1   REM if you want CPU mode
+  .\quickstart-ollama-gpu.ps1   REM if you want GPU mode
   ```
 
 - For other OS users,

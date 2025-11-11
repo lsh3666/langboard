@@ -1,17 +1,16 @@
-from core.Env import Env
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
-from core.security import AuthSecurity
-from core.utils.Encryptor import Encryptor
 from fastapi import Request, status
 from jwt import ExpiredSignatureError
-from models import Bot, User, UserEmail, UserGroup, UserProfile
-from models.UserNotification import NotificationType
-from models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
-from ...Constants import DOMAIN
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.security import AuthSecurity
+from langboard_shared.core.utils.Encryptor import Encryptor
+from langboard_shared.Env import Env
+from langboard_shared.models import Bot, User, UserEmail, UserGroup, UserProfile
+from langboard_shared.models.UserNotification import NotificationType
+from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
 
 
@@ -71,7 +70,7 @@ async def sign_in(form: SignInForm, service: Service = Service.scope()) -> JsonR
         Env.REFRESH_TOKEN_NAME,
         refresh_token,
         max_age=Env.JWT_RT_EXPIRATION * 60 * 60 * 24,
-        domain=DOMAIN if DOMAIN else None,
+        domain=Env.DOMAIN if Env.DOMAIN else None,
         httponly=True,
         secure=Env.PUBLIC_UI_URL.startswith("https://"),
     )
@@ -102,7 +101,7 @@ async def refresh(request: Request) -> JsonResponse:
         if not user:
             raise Exception()
     except ExpiredSignatureError:
-        return JsonResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return JsonResponse(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT)
     except Exception:
         return JsonResponse(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -149,7 +148,7 @@ async def refresh(request: Request) -> JsonResponse:
     ),
 )
 @AuthFilter.add("user")
-async def about_me(user: User = Auth.scope("api_user"), service: Service = Service.scope()) -> JsonResponse:
+async def about_me(user: User = Auth.scope("user"), service: Service = Service.scope()) -> JsonResponse:
     profile = await service.user.get_profile(user)
     response = {
         **user.api_response(),

@@ -6,7 +6,7 @@ import { ESocketTopic } from "@langboard/core/enums";
 
 export interface IDashboarCardDeletedRawResponse {
     uid: string;
-    column_uid: string;
+    project_column_uid: string;
 }
 
 export interface IUseDashboardCardDeletedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -23,7 +23,7 @@ const useDashboardCardDeletedHandlers = ({ callback, project }: IUseDashboardCar
             params: { uid: project.uid },
             callback,
             responseConverter: (data) => {
-                const column = ProjectColumn.Model.getModel((model) => model.uid === data.column_uid);
+                const column = ProjectColumn.Model.getModel((model) => model.uid === data.project_column_uid);
                 if (column) {
                     --column.count;
                 }

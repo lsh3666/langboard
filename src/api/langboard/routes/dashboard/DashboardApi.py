@@ -1,10 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import Depends, status
-from models import Card, Checkitem, Project, ProjectColumn, User
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.models import Card, Checkitem, Project, ProjectColumn, User
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .DashboardForm import DashboardPagination, DashboardProjectCreateForm
 
 
@@ -24,7 +24,7 @@ from .DashboardForm import DashboardPagination, DashboardProjectCreateForm
     ),
 )
 @AuthFilter.add("user")
-async def get_starred_projects(user: User = Auth.scope("api_user"), service: Service = Service.scope()) -> JsonResponse:
+async def get_starred_projects(user: User = Auth.scope("user"), service: Service = Service.scope()) -> JsonResponse:
     projects = await service.project.get_starred_projects(user)
 
     return JsonResponse(content={"projects": projects})
@@ -57,7 +57,7 @@ async def get_starred_projects(user: User = Auth.scope("api_user"), service: Ser
     ),
 )
 @AuthFilter.add("user")
-async def get_projects(user: User = Auth.scope("api_user"), service: Service = Service.scope()) -> JsonResponse:
+async def get_projects(user: User = Auth.scope("user"), service: Service = Service.scope()) -> JsonResponse:
     projects, columns = await service.project.get_dashboard_list(user)
 
     return JsonResponse(content={"projects": projects, "columns": columns})
@@ -70,7 +70,7 @@ async def get_projects(user: User = Auth.scope("api_user"), service: Service = S
 )
 @AuthFilter.add("user")
 async def create_project(
-    form: DashboardProjectCreateForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: DashboardProjectCreateForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ):
     project = await service.project.create(user, form.title, form.description, form.project_type)
     return JsonResponse(content={"project_uid": project.get_uid()}, status_code=status.HTTP_201_CREATED)
@@ -83,7 +83,7 @@ async def create_project(
 )
 @AuthFilter.add("user")
 async def toggle_star_project(
-    project_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    project_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project.toggle_star(user, project_uid)
     if not result:
@@ -99,7 +99,7 @@ async def toggle_star_project(
         OpenApiSchema()
         .suc(
             {
-                "cards": [(Card, {"schema": {"column_name": "string"}})],
+                "cards": [(Card, {"schema": {"project_column_name": "string"}})],
                 "projects": [Project],
             }
         )
@@ -110,7 +110,7 @@ async def toggle_star_project(
 )
 @AuthFilter.add("user")
 async def get_card_list(
-    pagination: DashboardPagination = Depends(), user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    pagination: DashboardPagination = Depends(), user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     cards, projects = await service.card.get_dashboard_list(user, pagination, pagination.refer_time)
 
@@ -147,7 +147,7 @@ async def get_card_list(
 )
 @AuthFilter.add("user")
 async def track_checkitems(
-    pagination: DashboardPagination = Depends(), user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    pagination: DashboardPagination = Depends(), user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     checkitems, cards, projects = await service.checkitem.get_track_list(user, pagination, pagination.refer_time)
 

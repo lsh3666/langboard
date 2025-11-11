@@ -2,10 +2,11 @@ from pathlib import Path
 from typing import Literal
 from alembic import command as alembic_command
 from alembic.config import Config as AlembicConfig
-from core.utils.StringCase import StringCase
+from langboard_shared.core.logger import Logger
+from langboard_shared.core.utils.StringCase import StringCase
+from langboard_shared.Env import Env
 from pydantic import BaseModel
-from ..Constants import BASE_DIR, ROOT_DIR
-from ..core.logger import Logger
+from ..Constants import BASE_DIR
 
 
 logger = Logger.use("cli")
@@ -26,7 +27,7 @@ def _get_py_config(config_type: _TPyConfigType):
             should_update_init=True,
         ),
         "task": _TPyConfig(
-            dirpath=BASE_DIR / "tasks",
+            dirpath=BASE_DIR / ".." / ".." / "shared" / "py" / "tasks",
             filename="{name}Task.py",
             should_update_init=False,
         ),
@@ -154,7 +155,7 @@ def update_init_py(target_dir: Path) -> None:
 
 
 def run_db_command(command: Literal["upgrade", "downgrade", "migrate"], *args, **kwargs) -> None:
-    alembic_config = AlembicConfig(str(ROOT_DIR / "alembic.ini"))
+    alembic_config = AlembicConfig(str(Env.ROOT_DIR / "alembic.ini"))
 
     if command == "upgrade":
         alembic_command.upgrade(alembic_config, *args, **kwargs)

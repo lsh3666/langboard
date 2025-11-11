@@ -15,8 +15,7 @@ interface IBoardColumnMoreMenuBotScopeItemProps {
 
 const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScopeItemProps) => {
     const { projectUID, card } = useBoardCard();
-    const botScopes = ProjectCardBotScope.Model.useModels((model) => model.bot_uid === bot.uid && model.card_uid === card.uid);
-    const botScope = botScopes[0];
+    const botScope = ProjectCardBotScope.Model.useModel((model) => model.bot_uid === bot.uid && model.card_uid === card.uid, [bot, card]);
 
     return (
         <Flex items="center" justify="between" gap="3">
@@ -40,7 +39,7 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         params={{
                             target_table: "card",
                             target_uid: card.uid,
-                            project_uid: projectUID,
+                            bot_uid: bot.uid,
                         }}
                         botUID={bot.uid}
                         botScope={botScope}
@@ -51,7 +50,7 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         bot={bot}
                         params={{
                             target_table: "card",
-                            project_uid: projectUID,
+                            bot_uid: bot.uid,
                         }}
                         target={card}
                     />
@@ -61,7 +60,6 @@ const BoardCardActionBotScopeDrawer = memo(({ bot }: IBoardColumnMoreMenuBotScop
                         bot={bot}
                         params={{
                             target_table: "card",
-                            project_uid: projectUID,
                         }}
                         target={card}
                     />

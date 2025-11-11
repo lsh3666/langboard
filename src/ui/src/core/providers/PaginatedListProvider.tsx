@@ -41,7 +41,9 @@ export function PaginatedListProvider<TModelName extends TCreatedAtModelName>({
     children,
 }: IPaginatedListProviderProps<TModelName>): React.ReactNode {
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const lastCurrentDateRef = useRef<Date>(models[0] ? new Date(models[0].created_at) : new Date());
+    const lastCurrentDateRef = useRef<Date>(
+        models[0] ? new Date(models.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())[0].created_at) : new Date()
+    );
     const {
         mutateAsync,
         refresh,

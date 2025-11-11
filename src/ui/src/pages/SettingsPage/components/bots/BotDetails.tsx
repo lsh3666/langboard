@@ -18,7 +18,7 @@ import BotValue from "@/pages/SettingsPage/components/bots/BotValue";
 import { requirements } from "@/components/bots/BotValueInput/utils";
 import { memo, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ALLOWED_ALL_IPS_BY_PLATFORMS } from "@/core/models/bot.related.type";
+import { ALLOWED_ALL_IPS_BY_PLATFORMS } from "@langboard/core/ai";
 
 export interface IBotDetailsProps {
     bot: BotModel.TModel;

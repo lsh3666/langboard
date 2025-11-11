@@ -9,7 +9,6 @@ export interface Interface extends IBaseModel {
     name: string;
     url: string;
     order: number;
-    created_at: Date;
 }
 
 export interface IStore extends Interface {
@@ -41,9 +40,6 @@ class ProjectCardAttachment extends BaseModel<IStore> {
         if (model.url) {
             model.url = Utils.String.convertServerFileURL(model.url);
         }
-        if (Utils.Type.isString(model.created_at)) {
-            model.created_at = new Date(model.created_at);
-        }
         return model;
     }
 
@@ -73,13 +69,6 @@ class ProjectCardAttachment extends BaseModel<IStore> {
     }
     public set order(value) {
         this.update({ order: value });
-    }
-
-    public get created_at(): Date {
-        return this.getValue("created_at");
-    }
-    public set created_at(value: string | Date) {
-        this.update({ created_at: new Date(value) });
     }
 
     public get user(): User.TModel {

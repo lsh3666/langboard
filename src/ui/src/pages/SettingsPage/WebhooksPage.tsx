@@ -60,9 +60,18 @@ function WebhooksPage() {
 
     return (
         <>
-            <Flex justify="between" mb="4" pb="2" textSize="3xl" weight="semibold" className="scroll-m-20 tracking-tight">
+            <Flex
+                justify={{ sm: "between" }}
+                direction={{ initial: "col", sm: "row" }}
+                gap="2"
+                mb="4"
+                pb="2"
+                textSize="3xl"
+                weight="semibold"
+                className="scroll-m-20 tracking-tight"
+            >
                 <span className="w-36">{t("settings.Webhooks")}</span>
-                <Flex gap="2" wrap justify="end">
+                <Flex gap="2" wrap justify="end" maxW={{ initial: "full", sm: "auto" }}>
                     {selectedWebhooks.length > 0 && (
                         <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedSettings}>
                             <IconComponent icon="trash" size="4" />

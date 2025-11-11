@@ -1,5 +1,5 @@
-from core.routing import BaseFormModel, form_model
-from models.bases import REACTION_TYPES
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.models.bases import REACTION_TYPES
 from pydantic import Field
 
 

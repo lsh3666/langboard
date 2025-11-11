@@ -74,7 +74,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
     const socket = useSocket();
     const { selectCardViewType } = useBoardController();
     const [t] = useTranslation();
-    const members = project.useForeignField("all_members");
+    const members = project.useForeignFieldArray("all_members");
     const {
         filters,
         toString: filtersToString,
@@ -84,6 +84,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
         filterKeys: BOARD_FILTER_KEYS,
         searchKey: "filters",
     });
+    const isAdmin = currentUser.useField("is_admin");
     const currentUserRoleActions = project.useField("current_auth_role_actions");
     const { hasRoleAction } = useRoleActionFilter(currentUserRoleActions);
     const columns = ProjectColumn.Model.useModels((model) => model.project_uid === project.uid);
@@ -100,7 +101,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
     const canDragAndDrop = useMemo(() => hasRoleAction(Project.ERoleAction.Update) && !selectCardViewType, [hasRoleAction, selectCardViewType]);
 
     useEffect(() => {
-        if (currentUser.is_admin || members.some((member) => member.uid === currentUser.uid) || forbiddenMessageIdRef.current) {
+        if (isAdmin || members.some((member) => member.uid === currentUser.uid) || forbiddenMessageIdRef.current) {
             return;
         }
 
@@ -114,7 +115,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
         });
         forbiddenMessageIdRef.current = toastId;
         navigate(ROUTES.DASHBOARD.PROJECTS.ALL);
-    }, [members]);
+    }, [isAdmin, members]);
 
     const navigateWithFilters = (to?: To, options?: IPageNavigateOptions) => {
         uniqueFilters();

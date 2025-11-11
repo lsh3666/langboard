@@ -31,7 +31,7 @@ function UserAvatarDefaultViewActivitiesAction({ scopeModels, currentUser }: IUs
 
         if (scopeModels.column) {
             scopeType = "project_column";
-            form.column_uid = scopeModels.column.uid;
+            form.project_column_uid = scopeModels.column.uid;
         }
 
         if (scopeModels.card) {

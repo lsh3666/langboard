@@ -13,8 +13,8 @@ const useDeleteBotScope = (params: TUseDeleteBotScopeParams, options?: TMutation
     const { mutate } = useQueryMutation();
 
     const deleteBotScope = async () => {
-        const url = Utils.String.format(Routing.API.BOARD.BOT.SCOPE.CREATE, {
-            uid: params.project_uid,
+        const url = Utils.String.format(Routing.API.BOT.SCOPE.DELETE, {
+            bot_uid: params.bot_uid,
             scope_uid: params.bot_scope_uid,
         });
         const res = await api.delete(url, {

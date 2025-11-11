@@ -1,12 +1,12 @@
 from typing import cast
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema, PaginatedList
-from core.types import SafeDateTime
 from fastapi import Depends, status
-from models import User, UserProfile
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema, PaginatedList
+from langboard_shared.core.types import SafeDateTime
+from langboard_shared.models import User, UserProfile
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, UsersPagination
 
 
@@ -86,7 +86,7 @@ async def create_user_in_settings(form: CreateUserForm, service: Service = Servi
 )
 @AuthFilter.add("admin")
 async def update_user_in_settings(
-    user_uid: str, form: UpdateUserForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    user_uid: str, form: UpdateUserForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     target_user = await service.user.get_by_uid(user_uid)
     if not target_user:
@@ -112,7 +112,7 @@ async def update_user_in_settings(
 )
 @AuthFilter.add("admin")
 async def delete_user_in_settings(
-    user_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    user_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     target_user = await service.user.get_by_uid(user_uid)
     if not target_user:
@@ -129,7 +129,7 @@ async def delete_user_in_settings(
 @AppRouter.api.delete("/settings/users", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get())
 @AuthFilter.add("admin")
 async def delete_selected_users_in_settings(
-    form: DeleteSelectedUsersForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: DeleteSelectedUsersForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     user_uid = user.get_uid()
     form.user_uids = [uid for uid in form.user_uids if uid != user_uid]

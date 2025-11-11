@@ -1,6 +1,6 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
+import { ProjectBotScope, ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
 import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 import { EBotTriggerCondition } from "@/core/models/botScopes/EBotTriggerCondition";
 import { ESocketTopic } from "@langboard/core/enums";
@@ -26,7 +26,9 @@ const useBoardBotScopeConditionsUpdatedHandlers = ({ callback, projectUID }: IUs
             callback,
             responseConverter: (data) => {
                 let model;
-                if (data.scope_table === "project_column") {
+                if (data.scope_table === "project") {
+                    model = ProjectBotScope.Model.getModel(data.uid);
+                } else if (data.scope_table === "project_column") {
                     model = ProjectColumnBotScope.Model.getModel(data.uid);
                 } else if (data.scope_table === "card") {
                     model = ProjectCardBotScope.Model.getModel(data.uid);

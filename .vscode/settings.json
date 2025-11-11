@@ -27,10 +27,13 @@
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true
   },
+  "pythonEnvy.showNotifications": false,
+  "pythonEnvy.venvName": ".venv",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.extraPaths": [
-    "./src/langboard",
+    "./src/api/langboard",
     "./src/flows",
+    "./src/graph",
     "./src/shared/py"
   ],
   "python.languageServer": "Pylance",

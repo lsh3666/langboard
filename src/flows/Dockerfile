@@ -3,6 +3,7 @@ FROM python:3.12
 WORKDIR /app/src/flows
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
+ENV UV_HTTP_TIMEOUT=120
 
 RUN apt-get update && apt-get install -y
 RUN apt update && apt install -y

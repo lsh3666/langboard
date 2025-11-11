@@ -45,7 +45,7 @@ function UserAvatarUserCreateAssignedCardAction({ user, project }: IUserAvatarUs
 
         const promise = createCardMutateAsync({
             project_uid: project.uid,
-            column_uid: columnUidValueRef.current,
+            project_column_uid: columnUidValueRef.current,
             title: titleInputRef.current.value,
             assign_users: [user.uid],
         });

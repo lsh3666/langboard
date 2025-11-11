@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 import { getValueType } from "@/components/bots/BotValueInput/utils";
-import { EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatformRunningType } from "@langboard/core/ai";
 import BotValueInput from "@/components/bots/BotValueInput";
 import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/types";
 
@@ -26,12 +26,13 @@ const BotValue = memo(() => {
     const [isValidating, setIsValidating] = useState(false);
 
     const change = () => {
-        if (isValidating || !newValueRef.current || !inputRef.current) {
+        const input = inputRef.current;
+        if (isValidating || !newValueRef.current || !input) {
             return;
         }
 
-        if (inputRef.current.type === "default-bot-json") {
-            const validated = (inputRef.current as TBotValueDefaultInputRefLike).validate(true);
+        if (input.type === "default-bot-json") {
+            const validated = (input as TBotValueDefaultInputRefLike).validate(true);
             if (!validated) {
                 return;
             }
@@ -64,6 +65,10 @@ const BotValue = memo(() => {
                 return messageRef.message;
             },
             success: () => {
+                if (input.type === "default-bot-json") {
+                    (input as TBotValueDefaultInputRefLike).onSuccess();
+                }
+
                 return t("successes.Bot value changed successfully.");
             },
             finally: () => {
@@ -80,6 +85,8 @@ const BotValue = memo(() => {
                 </Alert>
             )}
             <BotValueInput
+                platform={platform}
+                platformRunningType={platformRunningType}
                 value={value}
                 label={t(`bot.platformRunningTypes.${platformRunningType}`)}
                 valueType={valueType}

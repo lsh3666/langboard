@@ -24,9 +24,11 @@ import type { Model as UserModel } from "@/core/models/User";
 import type { Model as UserGroupModel } from "@/core/models/UserGroup";
 import type { Model as UserNotificationModel } from "@/core/models/UserNotification";
 import type { Interface as BaseBotScopeInterface } from "@/core/models/botScopes/BaseBotScopeModel";
+import type { Model as ProjectBotScopeModel } from "@/core/models/botScopes/ProjectBotScope";
 import type { Model as ProjectColumnBotScopeModel } from "@/core/models/botScopes/ProjectColumnBotScope";
 import type { Model as ProjectCardBotScopeModel } from "@/core/models/botScopes/ProjectCardBotScope";
 import type { Interface as BaseBotScheduleInterface } from "@/core/models/botSchedules/BaseBotScheduleModel";
+import type { Model as ProjectBotScheduleModel } from "@/core/models/botSchedules/ProjectBotSchedule";
 import type { Model as ProjectColumnBotScheduleModel } from "@/core/models/botSchedules/ProjectColumnBotSchedule";
 import type { Model as ProjectCardBotScheduleModel } from "@/core/models/botSchedules/ProjectCardBotSchedule";
 import { createContext, useContext } from "react";
@@ -57,8 +59,10 @@ export interface IModelMap {
     UserGroup: IModelRegistry<typeof UserGroupModel>;
     UserNotification: IModelRegistry<typeof UserNotificationModel>;
 
+    ProjectBotScope: IModelRegistry<typeof ProjectBotScopeModel>;
     ProjectColumnBotScope: IModelRegistry<typeof ProjectColumnBotScopeModel>;
     ProjectCardBotScope: IModelRegistry<typeof ProjectCardBotScopeModel>;
+    ProjectBotSchedule: IModelRegistry<typeof ProjectBotScheduleModel>;
     ProjectColumnBotSchedule: IModelRegistry<typeof ProjectColumnBotScheduleModel>;
     ProjectCardBotSchedule: IModelRegistry<typeof ProjectCardBotScheduleModel>;
 }

@@ -11,4 +11,5 @@ export interface IBotRequestModel {
     tweaks?: Record<string, Record<string, any>>;
     restData?: Record<string, any>;
     isTitle?: bool;
+    filePath?: string;
 }

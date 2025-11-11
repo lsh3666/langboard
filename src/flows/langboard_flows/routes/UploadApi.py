@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Annotated
 from uuid import uuid4
-from core.routing import AppRouter
-from core.utils.String import generate_random_string
 from fastapi import Depends, File, HTTPException, UploadFile, status
+from langboard_shared.core.routing import AppRouter
+from langboard_shared.core.utils.String import generate_random_string
 from langflow.services.deps import get_settings_service, get_storage_service
 from ..core.schema import UploadFileResponse
 

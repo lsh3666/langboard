@@ -21,8 +21,8 @@ const useToggleBotScopeTriggerCondition = (
     const { mutate } = useQueryMutation();
 
     const toggleBotScopeTriggerCondition = async (form: IToggleBotScopeTriggerConditionForm) => {
-        const url = Utils.String.format(Routing.API.BOARD.BOT.SCOPE.TOGGLE_TRIGGER_CONDITION, {
-            uid: params.project_uid,
+        const url = Utils.String.format(Routing.API.BOT.SCOPE.TOGGLE_TRIGGER_CONDITION, {
+            bot_uid: params.bot_uid,
             scope_uid: params.bot_scope_uid,
         });
         const res = await api.put(

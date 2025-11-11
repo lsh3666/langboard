@@ -1,15 +1,14 @@
-from core.bootstrap import BaseCommand, Commander
-from core.Env import Env
-from core.FastAPIAppConfig import FastAPIAppConfig
+from time import sleep
+from typing import cast
+from langboard_shared.core.bootstrap import BaseCommand, Commander
+from langboard_shared.Env import Env
+from langboard_shared.FastAPIAppConfig import FastAPIAppConfig
+from pydantic import SecretStr
 from .commands.DbUpgradeCommand import DbUpgradeCommand, DbUpgradeCommandOptions
 from .commands.RunCommand import RunCommandOptions
 from .Constants import APP_CONFIG_FILE, HOST
-from .core.broadcast import ensure_initialized
 from .Loader import ModuleLoader
 from .ServerRunner import run as run_server
-
-
-ensure_initialized()
 
 
 def execute():
@@ -29,12 +28,10 @@ def execute():
 def _run_app(options: RunCommandOptions):
     ssl_options = options.create_ssl_options() if options.ssl_keyfile else None
 
-    if options.watch or "in-memory" in {Env.BROADCAST_TYPE, Env.CACHE_TYPE}:
-        options.workers = 1
-
-    DbUpgradeCommand().execute(DbUpgradeCommandOptions())
-
-    _init_internal_bots()
+    if Env.WORKER == "main":
+        DbUpgradeCommand().execute(DbUpgradeCommandOptions())
+        _init_internal_bots()
+        _init_admin()
 
     app_config = FastAPIAppConfig(APP_CONFIG_FILE)
     app_config.create(
@@ -43,7 +40,9 @@ def _run_app(options: RunCommandOptions):
         uds=options.uds,
         lifespan=options.lifespan,
         ssl_options=ssl_options,
-        workers=options.workers,
+        workers=1,
+        timeout_keep_alive=options.timeout_keep_alive,
+        healthcheck_interval=options.healthcheck_interval,
         watch=options.watch,
     )
 
@@ -54,10 +53,10 @@ def _run_app(options: RunCommandOptions):
 
 
 def _init_internal_bots():
-    from core.db import DbSession, SqlBuilder
-    from models import InternalBot
-    from models.BaseBotModel import BotPlatform, BotPlatformRunningType
-    from models.InternalBot import InternalBotType
+    from langboard_shared.core.db import DbSession, SqlBuilder
+    from langboard_shared.models import InternalBot
+    from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+    from langboard_shared.models.InternalBot import InternalBotType
 
     settings = []
     with DbSession.use(readonly=True) as db:
@@ -88,3 +87,40 @@ def _init_internal_bots():
                 is_default=True,
             )
             db.insert(setting)
+
+
+def _init_admin():
+    from langboard_shared.core.db import DbSession, SqlBuilder
+    from langboard_shared.core.types import SafeDateTime
+    from langboard_shared.models import User, UserProfile
+
+    user_count = 0
+    with DbSession.use(readonly=True) as db:
+        result = db.exec(SqlBuilder.select.count(User, User.id).where(User.is_admin == True))  # noqa
+        user_count = result.first()
+
+    if user_count:
+        return
+
+    admin = User(
+        firstname="Admin",
+        lastname="User",
+        email=Env.ADMIN_EMAIL,
+        password=cast(SecretStr, Env.ADMIN_PASSWORD),
+        username="admin",
+        is_admin=True,
+        activated_at=SafeDateTime.now(),
+    )
+    with DbSession.use(readonly=False) as db:
+        db.insert(admin)
+
+    if admin.is_new():
+        _init_admin()
+        return
+
+    admin_profile = None
+    while not admin_profile:
+        with DbSession.use(readonly=False) as db:
+            admin_profile = UserProfile(user_id=admin.id, industry="", purpose="")
+            db.insert(admin_profile)
+        sleep(1)

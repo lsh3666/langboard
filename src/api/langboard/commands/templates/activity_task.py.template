@@ -1,7 +1,7 @@
 from typing import Any
-from models import {class_name}Activity, Bot, User
-from models.{class_name}Activity import {class_name}ActivityType
-from models.ActivityTaskHelper import ActivityTaskHelper
-from models.UserActivityTask import record_project_activity
-from ..core.broker import Broker
+from ...models import {class_name}Activity, Bot, User
+from ...models.{class_name}Activity import {class_name}ActivityType
+from ...models.ActivityTaskHelper import ActivityTaskHelper
+from ...models.UserActivityTask import record_project_activity
+from ...core.broker import Broker
 

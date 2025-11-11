@@ -27,6 +27,8 @@ export interface IChatContent {
 
 export interface IBaseModel {
     uid: string;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export type TStateStore<T = any, V = undefined> = V extends undefined
@@ -106,6 +108,13 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         const targetModelMap = BaseModel.#MODELS[modelName];
 
         model = { ...model };
+
+        if (Utils.Type.isString(model.created_at)) {
+            model.created_at = new Date(model.created_at);
+        }
+        if (Utils.Type.isString(model.updated_at)) {
+            model.updated_at = new Date(model.updated_at);
+        }
 
         if (!targetModelMap[model.uid]) {
             model = this.convertModel(model);
@@ -234,6 +243,54 @@ export abstract class BaseModel<TModel extends IBaseModel> {
             }
         }
         return models;
+    }
+
+    public static useModel<TDerived extends typeof BaseModel<any>>(
+        this: TDerived,
+        uidOrFilter: string | ((model: InstanceType<TDerived>) => bool),
+        dependencies?: React.DependencyList
+    ): InstanceType<TDerived> | undefined {
+        const filter = Utils.Type.isString(uidOrFilter) ? (model: InstanceType<TDerived>) => model.uid === uidOrFilter : uidOrFilter;
+        const [model, setModel] = useState<InstanceType<TDerived> | undefined>(
+            Object.values(BaseModel.#MODELS[this.MODEL_NAME] ?? {}).filter(filter as any)[0]
+        );
+
+        useEffect(() => {
+            const key = Utils.String.Token.uuid();
+            const unsubscribeCreation = this.subscribe(
+                "CREATION",
+                key,
+                (newModels) => {
+                    const newModel = newModels.find(filter);
+                    if (!newModel) {
+                        return;
+                    }
+
+                    setModel(() => newModel);
+                },
+                filter
+            );
+            const unsubscribeDeletion = this.subscribe("DELETION", key, (uids) => {
+                if (!uids.length || !model || !uids.includes(model.uid)) {
+                    return;
+                }
+
+                setModel(() => undefined);
+            });
+
+            return () => {
+                unsubscribeCreation();
+                unsubscribeDeletion();
+            };
+        }, [model]);
+
+        useEffect(() => {
+            if (dependencies && dependencies.length > 0) {
+                setModel(() => Object.values(BaseModel.#MODELS[this.MODEL_NAME] ?? {}).filter(filter as any)[0]);
+            }
+        }, dependencies);
+
+        return model;
     }
 
     public static useModels<TDerived extends typeof BaseModel<any>>(
@@ -413,6 +470,20 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         this.update({ uid: value });
     }
 
+    public get created_at(): Date {
+        return this.getValue("created_at");
+    }
+    public set created_at(value: string | Date) {
+        this.update({ created_at: new Date(value) });
+    }
+
+    public get updated_at(): Date {
+        return this.getValue("updated_at");
+    }
+    public set updated_at(value: string | Date) {
+        this.update({ updated_at: new Date(value) });
+    }
+
     public get MODEL_NAME(): keyof IModelMap {
         return this.constructor.name as any;
     }
@@ -457,13 +528,35 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         return fieldValue;
     }
 
-    public useForeignField<TDerived extends BaseModel<TModel>, TKey extends keyof TDerived["FOREIGN_MODELS"]>(this: TDerived, field: TKey) {
+    public useForeignFieldArray<TDerived extends BaseModel<TModel>, TKey extends keyof TDerived["FOREIGN_MODELS"]>(
+        this: TDerived,
+        field: TKey,
+        dependencies?: React.DependencyList
+    ) {
         type TModelName = TDerived["FOREIGN_MODELS"][TKey];
         type TForeignModel = TModelName extends keyof IModelMap ? InstanceType<IModelMap[TModelName]["Model"]> : never;
         const modelName = this.#getConstructor().FOREIGN_MODELS[field as string];
-        const fieldValue = ModelEdgeStore.useModels(this as any, ModelRegistry[modelName].Model);
+        const fieldValue = ModelEdgeStore.useModels(this as any, ModelRegistry[modelName].Model, dependencies);
 
         return fieldValue as TForeignModel[];
+    }
+
+    public useForeignFieldOne<TDerived extends BaseModel<TModel>, TKey extends keyof TDerived["FOREIGN_MODELS"]>(
+        this: TDerived,
+        field: TKey,
+        dependencies?: React.DependencyList
+    ) {
+        type TModelName = TDerived["FOREIGN_MODELS"][TKey];
+        type TForeignModel = TModelName extends keyof IModelMap ? InstanceType<IModelMap[TModelName]["Model"]> : never;
+        const modelName = this.#getConstructor().FOREIGN_MODELS[field as string];
+        const models = ModelEdgeStore.useModels(this as any, ModelRegistry[modelName].Model, dependencies);
+        const [fieldValue, setFieldValue] = useState(models[0] || null);
+
+        useEffect(() => {
+            setFieldValue(models[0] || null);
+        }, [models]);
+
+        return fieldValue as TForeignModel;
     }
 
     protected getValue<TKey extends keyof TModel>(field: TKey): TModel[TKey] {
@@ -616,7 +709,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
 
             const foreigns = model[key] as (BaseModel<any> | IBaseModel)[];
             const rawModels = foreigns.filter((subModel) => !(subModel instanceof BaseModel));
-            const models = ModelRegistry[modelName].Model.fromArray(rawModels);
+            const models = ModelRegistry[modelName].Model.fromArray(rawModels as any);
 
             const allModels = [...(foreigns.filter((m) => m instanceof BaseModel) as TPickedModel<keyof IModelMap>[]), ...models];
             ModelEdgeStore.addEdge(this as any, allModels);

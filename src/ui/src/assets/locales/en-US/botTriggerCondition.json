@@ -1,4 +1,31 @@
 {
+  "project": {
+    "Category": "Project",
+    "conditions": {
+      "project_updated": "Updated",
+      "project_deleted": "Deleted"
+    }
+  },
+
+  "project_label": {
+    "Category": "Project label",
+    "conditions": {
+      "project_label_created": "Created",
+      "project_label_updated": "Updated",
+      "project_label_deleted": "Deleted"
+    }
+  },
+
+  "project_wiki": {
+    "Category": "Project wiki",
+    "conditions": {
+      "project_wiki_created": "Created",
+      "project_wiki_updated": "Updated",
+      "project_wiki_publicity_changed": "Publicity changed",
+      "project_wiki_deleted": "Deleted"
+    }
+  },
+
   "project_column": {
     "Category": "Project column",
     "conditions": {

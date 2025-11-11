@@ -135,7 +135,7 @@ function ChatSidebarSessionListButton() {
 
 function ChatSessionMoreMenuButton() {
     const { currentSessionUID } = useBoardChat();
-    const sessions = ChatSessionModel.Model.useModels((model) => model.uid === currentSessionUID, [currentSessionUID]);
+    const session = ChatSessionModel.Model.useModel((model) => model.uid === currentSessionUID, [currentSessionUID]);
 
     return (
         <ChatSessionMoreMenu
@@ -146,7 +146,7 @@ function ChatSessionMoreMenuButton() {
                 size: "icon",
                 className: "absolute left-12 right-[unset] top-1/2 -translate-y-1/2 transform md:left-[unset] md:right-1",
             }}
-            session={sessions[0]}
+            session={session}
         />
     );
 }

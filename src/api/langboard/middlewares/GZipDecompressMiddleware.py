@@ -1,5 +1,5 @@
 from gzip import decompress
-from core.routing import BaseMiddleware
+from langboard_shared.core.routing import BaseMiddleware
 from starlette.datastructures import Headers
 from starlette.types import Message
 

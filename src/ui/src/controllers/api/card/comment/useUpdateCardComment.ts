@@ -33,7 +33,7 @@ const useUpdateCardComment = (options?: TMutationOptions<IUpdateCardCommentForm>
             }
         );
 
-        res.data.commented_at = new Date(res.data.commented_at);
+        res.data.updated_at = new Date(res.data.updated_at);
 
         return res.data;
     };

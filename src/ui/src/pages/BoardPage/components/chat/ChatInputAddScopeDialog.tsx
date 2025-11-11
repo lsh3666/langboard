@@ -58,7 +58,8 @@ function ChatInputAddScopeDialogContent({ setIsOpened }: { setIsOpened: React.Di
         [projectUID, searchText]
     );
     const cards = ProjectCard.Model.useModels(
-        (model) => model.project_uid === projectUID && (!searchText || model.title.includes(searchText) || model.column_name.includes(searchText)),
+        (model) =>
+            model.project_uid === projectUID && (!searchText || model.title.includes(searchText) || model.project_column_name.includes(searchText)),
         [projectUID, searchText]
     );
     const wikis = ProjectWiki.Model.useModels(
@@ -194,7 +195,7 @@ function ChatInputAddScopeDialogContentScopeCardItem({
     setIsOpened: React.Dispatch<React.SetStateAction<bool>>;
 }) {
     const title = scope.useField("title");
-    const columnName = scope.useField("column_name");
+    const columnName = scope.useField("project_column_name");
     const titleWithColumn = columnName ? `${title} - ${columnName}` : title;
 
     return <ChatInputAddScopeDialogContentScopeItem scopeType="card" uid={scope.uid} title={titleWithColumn} setIsOpened={setIsOpened} />;

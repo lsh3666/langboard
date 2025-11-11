@@ -1,18 +1,19 @@
-FROM alpine:latest
+FROM ubuntu:latest
 
-RUN apk add --no-cache postgresql-client busybox-suid
+RUN apt update && apt install -y gnupg wget apt-transport-https lsb-release cron dos2unix
 
-RUN mkdir -p /etc/cron.d
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
 
-COPY docker-entrypoint.sh /scripts/docker-entrypoint.sh
-COPY backup.sh /scripts/backup.sh
-COPY cron.tab /var/spool/cron/crontabs/root
-RUN chmod +x /scripts/docker-entrypoint.sh
+RUN apt update && apt install -y postgresql-client-17
+RUN rm -rf /var/lib/apt/lists/*
 
-RUN chmod +x /scripts/backup.sh && \
-    chmod 600 /var/spool/cron/crontabs/root && \
-    chown root:root /var/spool/cron/crontabs/root
+COPY cron.tab /etc/cron.d/cron.tab
+RUN dos2unix /etc/cron.d/cron.tab
+RUN chmod 0644 /etc/cron.d/cron.tab
+RUN mkdir -p /var/log/cron
+RUN touch /var/log/cron/backup.log
 
-RUN mkdir -p /logs
+RUN crontab /etc/cron.d/cron.tab
 
-ENTRYPOINT ["/scripts/docker-entrypoint.sh"]
+CMD cron && tail -f /var/log/cron/backup.log

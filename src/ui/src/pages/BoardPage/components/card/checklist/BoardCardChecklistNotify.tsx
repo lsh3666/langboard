@@ -17,8 +17,8 @@ function BoardCardChecklistNotify() {
     const { mutateAsync: notifyChecklistMutateAsync } = useNotifyCardChecklist({ interceptToast: true });
     const [t] = useTranslation();
     const canEdit = hasRoleAction(Project.ERoleAction.CardUpdate);
-    const projectMembers = card.useForeignField("project_members");
-    const groups = currentUser.useForeignField("user_groups");
+    const projectMembers = card.useForeignFieldArray("project_members");
+    const groups = currentUser.useForeignFieldArray("user_groups");
 
     const notify = useCallback(
         (selectedItems: User.TModel[]) => {

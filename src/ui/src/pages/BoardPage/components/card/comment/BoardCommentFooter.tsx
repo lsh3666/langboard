@@ -100,10 +100,11 @@ function BoardCommentFooterActions() {
     const [t] = useTranslation();
     const { model: comment, params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { author, deletedComment, editorName, editorRef } = params;
-    const projectMembers = card.useForeignField("project_members");
+    const projectMembers = card.useForeignFieldArray("project_members");
     const bots = BotModel.Model.useModels(() => true);
+    const isAdmin = currentUser.useField("is_admin");
     const [isValidating, setIsValidating] = useState(false);
-    const canEdit = currentUser.uid === author.uid || currentUser.is_admin;
+    const canEdit = currentUser.uid === author.uid || isAdmin;
     const { mutateAsync: deleteCommentMutateAsync } = useDeleteCardComment({ interceptToast: true });
 
     const deleteComment = () => {

@@ -1,6 +1,6 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
+import { ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 import { ESocketTopic } from "@langboard/core/enums";
 
@@ -22,7 +22,9 @@ const useBoardBotCronUnscheduledHandlers = ({ callback, projectUID }: IUseBoardB
             name: SocketEvents.SERVER.BOARD.BOT.SCHEDULE.UNSCHEDULED,
             callback,
             responseConverter: (data) => {
-                if (data.target_table === "project_column") {
+                if (data.target_table === "project") {
+                    ProjectBotSchedule.Model.deleteModel(data.uid);
+                } else if (data.target_table === "project_column") {
                     ProjectColumnBotSchedule.Model.deleteModel(data.uid);
                 } else if (data.target_table === "card") {
                     ProjectCardBotSchedule.Model.deleteModel(data.uid);

@@ -7,7 +7,7 @@ export interface IDashboardCardOrderChangedRawResponse {
     uid: string;
     from_column_uid: string;
     to_column_uid: string;
-    column_name: string;
+    project_column_name: string;
     archived_at: string;
 }
 
@@ -38,8 +38,8 @@ const useDashboardCardOrderChangedHandlers = ({ callback, project }: IUseDashboa
 
                 const card = ProjectCard.Model.getModel(data.uid);
                 if (card) {
-                    card.column_uid = data.to_column_uid;
-                    card.column_name = data.column_name;
+                    card.project_column_uid = data.to_column_uid;
+                    card.project_column_name = data.project_column_name;
                     card.archived_at = data.archived_at;
                 }
 

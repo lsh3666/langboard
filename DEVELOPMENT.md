@@ -42,7 +42,6 @@ git remote set-url --push upstream no_push
     ```bash
     scoop install make
     ```
-- `poetry`: The project uses `poetry` to coordinate `api` packaging, a Python package and project manager. Install instructions at [Poetry](https://python-poetry.org/docs/#installation).
 - `uv`: The project uses `uv` to coordinate `flows` packaging, a Python package and project manager from Astral. Install instructions at [uv](https://docs.astral.sh/uv/getting-started/installation/).
 - `Yarn`: The `ui`, the `socket`, and the `ts/core` are built with Node.js (`v22 LTS`) and `yarn` (`v1.22`). Install instructions at [Node.js](https://nodejs.org/en/download), and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
 - `Docker` and `Docker Compose`: The project uses Docker to containerize and manage services, ensuring consistency across development and production environments.
@@ -115,45 +114,55 @@ make dev_ts_core_build
 make dev_ui
 ```
 
-## Start docker development
+## Start docker
 
 You must set required [environment variables](#environmnet-variables)
 
 ```bash
-make start_docker_dev
+make start_docker
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev
+make update_docker
 
 # If you want to stop
-make stop_docker_dev
+make stop_docker
 ```
 
 - If you want to use `docs`
 
 ```bash
-make start_docker_dev WITH_DOCS=true
+make start_docker WITH_DOCS=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_DOCS=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_DOCS=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_DOCS=true
+make update_docker WITH_DOCS=true
 
 # If you want to stop
-make stop_docker_dev WITH_DOCS=true
+make stop_docker WITH_DOCS=true
 ```
 
 - If you want to use `ui watcher`
 
 ```bash
-make start_docker_dev WITH_UI_WATCHER=true
+make start_docker WITH_UI_WATCHER=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_UI_WATCHER=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_UI_WATCHER=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_UI_WATCHER=true
+make update_docker WITH_UI_WATCHER=true
 
 # If you want to stop
-make stop_docker_dev WITH_UI_WATCHER=true
+make stop_docker WITH_UI_WATCHER=true
 ```
 
 - If you want to use `ollama`
@@ -161,40 +170,55 @@ make stop_docker_dev WITH_UI_WATCHER=true
   - `CPU`
 
   ```bash
-  make start_docker_dev WITH_OLLAMA_CPU=true
+  make start_docker WITH_OLLAMA_CPU=true
+
+  # If you want to rebuild specific image(s)
+  # You can use below
+  make rebuild_docker IMAGES=single_image WITH_OLLAMA_CPU=true
+  make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_OLLAMA_CPU=true
 
   # If you want to recreate containers without building images
   # Usually, it is used when the environment variables are updated
-  make update_docker_dev WITH_OLLAMA_CPU=true
+  make update_docker WITH_OLLAMA_CPU=true
 
   # If you want to stop
-  make stop_docker_dev WITH_OLLAMA_CPU=true
+  make stop_docker WITH_OLLAMA_CPU=true
   ```
 
   - `GPU`
 
   ```bash
-  make start_docker_dev WITH_OLLAMA_GPU=true
+  make start_docker WITH_OLLAMA_GPU=true
+
+  # If you want to rebuild specific image(s)
+  # You can use below
+  make rebuild_docker IMAGES=single_image WITH_OLLAMA_GPU=true
+  make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_OLLAMA_GPU=true
 
   # If you want to recreate containers without building images
   # Usually, it is used when the environment variables are updated
-  make update_docker_dev WITH_OLLAMA_GPU=true
+  make update_docker WITH_OLLAMA_GPU=true
 
   # If you want to stop
-  make stop_docker_dev WITH_OLLAMA_GPU=true
+  make stop_docker WITH_OLLAMA_GPU=true
   ```
 
 You can combine those options, for example:
 
 ```bash
-make start_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make start_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+
+# If you want to rebuild specific image(s)
+# You can use below
+make rebuild_docker IMAGES=single_image WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make rebuild_docker IMAGES="multiple_image1 multiple_image2" WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 
 # If you want to recreate containers without building images
 # Usually, it is used when the environment variables are updated
-make update_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make update_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 
 # If you want to stop
-make stop_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
+make stop_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 ```
 
 ## Environmnet Variables
@@ -221,10 +245,11 @@ make stop_docker_dev WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 | FLOWS_PORT                     | **int**               | Default: `5019`                                                                                                                 |
 | FLOWS_WORKERS_COUNT            | **int**               | Default: `1`<br>Used to run docker to build `flows`                                                                             |
 | MAX_FILE_SIZE_MB               | **int**               | Default: `50`                                                                                                                   |
+| AI_REQUEST_TIMEOUT             | **int**               | Default: `120`<br>Value must be set in seconds                                                                                  |
+| AI_REQUEST_TRIALS              | **int**               | Default: `5`                                                                                                                    |
 | TERMINAL_LOGGING_LEVEL         | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | FILE_LOGGING_LEVEL             | **enum (Optional)**   | Default: `AUTO`<br>(See [Log level enum](#log-level-enum))                                                                      |
 | LOGGING_DIR                    | **string (Optional)** | Logging directory path for `api`                                                                                                |
-| FLOWS_LOGGING_DIR              | **string (Optional)** | Logging directory path for `flows`                                                                                              |
 | SOCKET_LOGGING_DIR             | **string (Optional)** | Logging directory path for `socket`                                                                                             |
 | SENTRY_DSN                     | **string (Optional)** | Sentry dsn url if you want to trace errors                                                                                      |
 | LOCAL_STORAGE_DIR              | **string (Optional)** | Uploading direcotory path                                                                                                       |

@@ -1,13 +1,13 @@
 from json import dumps as json_dumps
 from json import loads as json_loads
 from typing import cast
-from core.filter import AuthFilter
-from core.routing import AppExceptionHandlingRoute, AppRouter, JsonResponse
-from core.utils.Converter import json_default
 from fastapi import Request, status
-from models import Bot, User
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import AppExceptionHandlingRoute, AppRouter, JsonResponse
+from langboard_shared.core.utils.Converter import json_default
+from langboard_shared.models import Bot, User
+from langboard_shared.security import Auth
 from starlette.types import Message
-from ...security import Auth
 from .BatchForm import BatchForm
 
 
@@ -21,7 +21,7 @@ _cached_apis: dict[str, str] = {}
     description="Batch API for processing multiple requests in a single call. The response will be a list of responses corresponding to each request schema provided in the form.",
 )
 @AuthFilter.add()
-async def batch_apis(request: Request, form: BatchForm, user_or_bot: User | Bot = Auth.scope("api")):
+async def batch_apis(request: Request, form: BatchForm, user_or_bot: User | Bot = Auth.scope("all")):
     if not _cached_apis:
         _set_cache_apis()
 

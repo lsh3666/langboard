@@ -13,7 +13,6 @@ export interface Interface extends IBaseModel {
     notifier_bot?: BotModel.Interface;
     message_vars: Record<string, any>;
     read_at?: Date;
-    created_at: Date;
     records: Record<string, any>;
 }
 
@@ -34,9 +33,6 @@ class UserNotification extends BaseModel<Interface> {
     public static convertModel(model: Interface): Interface {
         if (Utils.Type.isString(model.read_at)) {
             model.read_at = new Date(model.read_at);
-        }
-        if (Utils.Type.isString(model.created_at)) {
-            model.created_at = new Date(model.created_at);
         }
         if (Utils.Type.isString(model.type)) {
             model.type = Utils.String.convertSafeEnum(ENotificationType, model.type);
@@ -87,14 +83,7 @@ class UserNotification extends BaseModel<Interface> {
         return this.getValue("read_at");
     }
     public set read_at(value: string | Date | undefined) {
-        this.update({ read_at: Utils.Type.isString(value) ? new Date(value) : value });
-    }
-
-    public get created_at(): Date {
-        return this.getValue("created_at");
-    }
-    public set created_at(value: string | Date) {
-        this.update({ created_at: new Date(value) });
+        this.update({ read_at: value as unknown as Date });
     }
 
     public get records() {

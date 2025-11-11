@@ -13,7 +13,7 @@ import useCreateInternalBot from "@/controllers/api/settings/internalBots/useCre
 import PasswordInput from "@/components/PasswordInput";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { getValueType, requirements } from "@/components/bots/BotValueInput/utils";
-import { AVAILABLE_RUNNING_TYPES_BY_PLATFORM, EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { AVAILABLE_RUNNING_TYPES_BY_PLATFORM, EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import BotValueInput from "@/components/bots/BotValueInput";
 import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/types";
 import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
@@ -109,7 +109,7 @@ function InternalBotCreateFormDialog({ opened, setOpened }: IInternalBotCreateFo
                 display_name: values.displayName,
                 platform: selectedPlatform,
                 platform_running_type: selectedPlatformRunningType,
-                url: values.url,
+                api_url: values.url,
                 api_key: values.apiKey,
                 value: valueRef.current,
                 avatar: dataTransferRef.current.files[0],
@@ -243,6 +243,8 @@ function InternalBotCreateFormDialog({ opened, setOpened }: IInternalBotCreateFo
                                 </Alert>
                             )}
                             <BotValueInput
+                                platform={selectedPlatform}
+                                platformRunningType={selectedPlatformRunningType}
                                 value=""
                                 label={t(`bot.platformRunningTypes.${selectedPlatformRunningType}`)}
                                 valueType={valueType}

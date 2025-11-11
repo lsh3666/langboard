@@ -2,7 +2,7 @@ import { IHeaderNavItem, THeaderNavItemsProps } from "@/components/Header/types"
 import { Accordion, DropdownMenu, NavigationMenu } from "@/components/base";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface IDropdownMenuNavProps {
     setDropdownMenuOpenedRef?: React.RefObject<React.Dispatch<React.SetStateAction<bool>>>;
@@ -111,16 +111,17 @@ function DropdownMenuNav({ item, setIsOpen, activatedClass, deactivatedClass, sh
 
 function AccordionNavItem({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): JSX.Element {
     const ariaCurrent = item.active ? "page" : undefined;
+    const handleClick = useCallback(() => {
+        setIsOpen!(false);
+        item.onClick?.();
+    }, [setIsOpen, item.onClick]);
 
     return (
         <a
             aria-current={ariaCurrent}
             href={item.href}
             className={cn(item.active ? activatedClass : deactivatedClass, shardClass, "cursor-pointer")}
-            onClick={() => {
-                setIsOpen!(false);
-                item.onClick?.();
-            }}
+            onClick={handleClick}
         >
             <h3 className="py-2 text-base">{item.name}</h3>
         </a>
@@ -129,6 +130,10 @@ function AccordionNavItem({ item, setIsOpen, activatedClass, deactivatedClass, s
 
 function NavLinkItem({ item, activatedClass, deactivatedClass, shardClass, setDropdownMenuOpenedRef }: IHeaderNavItemProps): JSX.Element {
     const ariaCurrent = item.active ? "page" : undefined;
+    const handleClick = useCallback(() => {
+        setDropdownMenuOpenedRef?.current(false);
+        item.onClick?.();
+    }, [item.onClick]);
 
     return (
         <NavigationMenu.Item hidden={item.hidden}>
@@ -137,10 +142,7 @@ function NavLinkItem({ item, activatedClass, deactivatedClass, shardClass, setDr
                 aria-current={ariaCurrent}
                 href={item.href}
                 className={cn(NavigationMenu.TriggerStyle(), item.active ? activatedClass : deactivatedClass, shardClass, "cursor-pointer")}
-                onClick={() => {
-                    setDropdownMenuOpenedRef?.current(false);
-                    item.onClick?.();
-                }}
+                onClick={handleClick}
             >
                 {item.name}
             </NavigationMenu.Link>

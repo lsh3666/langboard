@@ -1,9 +1,8 @@
-import { memo, Suspense, useEffect, useMemo, useState } from "react";
+import { memo, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router";
 import { DashboardStyledLayout } from "@/components/Layout";
 import { Toast } from "@/components/base";
-import useIsProjectAvailable from "@/controllers/api/board/useIsProjectAvailable";
 import { ROUTES } from "@/core/routing/constants";
 import ChatSidebar from "@/pages/BoardPage/components/chat/ChatSidebar";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
@@ -20,7 +19,6 @@ import { TBoardViewType, useBoardController } from "@/core/providers/BoardContro
 import useBoardAssignedUsersUpdatedHandlers from "@/controllers/socket/board/useBoardAssignedUsersUpdatedHandlers";
 import useProjectDeletedHandlers from "@/controllers/socket/shared/useProjectDeletedHandlers";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
-import useBoardDetailsChangedHandlers from "@/controllers/socket/board/useBoardDetailsChangedHandlers";
 import { SkeletonBoard } from "@/pages/BoardPage/components/board/Board";
 import useBoardAssignedInternalBotChangedHandlers from "@/controllers/socket/board/useBoardAssignedInternalBotChangedHandlers";
 import useInternalBotUpdatedHandlers from "@/controllers/socket/global/useInternalBotUpdatedHandlers";
@@ -28,6 +26,8 @@ import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { InternalBotModel, Project } from "@/core/models";
 import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
 import useBoardBotStatusMapHandlers from "@/controllers/socket/board/useBoardBotStatusMapHandlers";
+import BoardBotScope from "@/pages/BoardPage/components/board/BoardBotScope";
+import useGetProject from "@/controllers/api/board/useGetProject";
 
 const getCurrentPage = (pageRoute?: string): TBoardViewType => {
     switch (pageRoute) {
@@ -47,12 +47,11 @@ const BoardProxy = memo((): JSX.Element => {
     const socket = useSocket();
     const navigate = usePageNavigateRef();
     const [projectUID, pageRoute] = location.pathname.split("/").slice(2);
-    const [projectTitle, setProjectTitle] = useState("");
     if (!projectUID) {
         return <Navigate to={ROUTES.ERROR(EHttpStatus.HTTP_404_NOT_FOUND)} replace />;
     }
 
-    const { data, isFetching, error, refetch } = useIsProjectAvailable({ uid: projectUID });
+    const { data, isFetching, error, refetch } = useGetProject({ uid: projectUID });
     const { send: sendBoardBotStatusMap } = useBoardBotStatusMapHandlers({ projectUID });
 
     useEffect(() => {
@@ -86,10 +85,8 @@ const BoardProxy = memo((): JSX.Element => {
         }
 
         if (pageRoute !== "card") {
-            setPageAliasRef.current(data.title);
+            setPageAliasRef.current(data.project.title);
         }
-
-        setProjectTitle(() => data.title);
 
         socket.subscribe(ESocketTopic.Board, [projectUID], () => {
             sendBoardBotStatusMap({});
@@ -102,44 +99,39 @@ const BoardProxy = memo((): JSX.Element => {
         };
     }, [isFetching]);
 
-    return (
-        <BoardProxyDisplay
-            projectUID={projectUID}
-            pageRoute={pageRoute}
-            isFetching={isFetching}
-            projectTitle={projectTitle}
-            setProjectTitle={setProjectTitle}
-        />
-    );
+    return <>{data && <BoardProxyDisplay project={data.project} pageRoute={pageRoute} isFetching={isFetching} />}</>;
 });
 
 interface IBoardProxyDisplayProps {
-    projectUID: string;
+    project: Project.TModel;
     pageRoute: string;
     isFetching: bool;
-    projectTitle: string;
-    setProjectTitle: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, setProjectTitle }: IBoardProxyDisplayProps): JSX.Element {
+function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDisplayProps): JSX.Element {
     const [t] = useTranslation();
     const { setPageAliasRef } = usePageHeader();
     const socket = useSocket();
     const { currentUser } = useAuth();
     const navigate = usePageNavigateRef();
     const [isReady, setIsReady] = useState(false);
+    const [isBotScopeOpened, setIsBotScopeOpened] = useState(false);
+    const openBotScope = useCallback(() => {
+        setIsBotScopeOpened(true);
+    }, [setIsBotScopeOpened]);
     const { boardViewType, selectCardViewType, chatResizableSidebar, chatSidebarRef, setBoardViewType, setChatResizableSidebar } =
         useBoardController();
+    const projectTitle = project.useField("title");
     const isBoardChatAvailableHandlers = useMemo(
         () =>
             useIsBoardChatAvailableHandlers({
-                projectUID,
+                projectUID: project.uid,
                 callback: (result) => {
                     if (result.available) {
                         setChatResizableSidebar(() => ({
                             children: (
                                 <Suspense>
-                                    <BoardChatProvider projectUID={projectUID} bot={result.bot}>
+                                    <BoardChatProvider projectUID={project.uid} bot={result.bot}>
                                         <ChatSidebar ref={chatSidebarRef} />
                                     </BoardChatProvider>
                                 </Suspense>
@@ -161,57 +153,39 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
                     setIsReady(() => true);
                 },
             }),
-        [projectUID, setChatResizableSidebar, setIsReady]
+        [project, setChatResizableSidebar, setIsReady]
     );
     const boardAssignedUsersUpdatedHandlers = useMemo(
         () =>
             useBoardAssignedUsersUpdatedHandlers({
-                projectUID,
+                projectUID: project.uid,
                 callback: (result) => {
                     if (!currentUser || (!result.assigned_user_uids.includes(currentUser.uid) && !currentUser.is_admin)) {
                         Toast.Add.error(t("errors.Forbidden"));
                     }
                 },
             }),
-        [projectUID, currentUser]
+        [project, currentUser]
     );
     const projectDeletedHandlers = useMemo(
         () =>
             useProjectDeletedHandlers({
                 topic: ESocketTopic.Board,
-                projectUID,
+                projectUID: project.uid,
                 callback: () => {
                     Toast.Add.error(t("project.errors.Project closed."));
                     navigate(ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
                 },
             }),
-        [projectUID, navigate]
-    );
-    const boardDetailsChangedHandlers = useMemo(
-        () =>
-            useBoardDetailsChangedHandlers({
-                projectUID,
-                callback: (res) => {
-                    const title = res.title;
-                    if (title) {
-                        if (pageRoute !== "card") {
-                            setPageAliasRef.current(title);
-                        }
-
-                        setProjectTitle(() => title);
-                    }
-                },
-            }),
-        [projectUID, setProjectTitle]
+        [project, navigate]
     );
     const boardAssignedInternalBotChangedHandlers = useMemo(
         () =>
             useBoardAssignedInternalBotChangedHandlers({
-                projectUID,
+                projectUID: project.uid,
                 callback: (data) => {
                     const internalBot = InternalBotModel.Model.getModel(data.internal_bot_uid);
-                    const project = Project.Model.getModel(projectUID);
-                    if (internalBot && project) {
+                    if (internalBot) {
                         const existingBots = [...project.internal_bots];
                         const targetBotIndex = existingBots.findIndex((bot) => bot.bot_type === internalBot.bot_type);
                         if (targetBotIndex !== -1 && existingBots[targetBotIndex].uid !== internalBot.uid) {
@@ -228,7 +202,7 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
                     isBoardChatAvailableHandlers.send({});
                 },
             }),
-        [projectUID, isBoardChatAvailableHandlers]
+        [project, isBoardChatAvailableHandlers]
     );
     const internalBotUpdatedHandlers = useMemo(
         () =>
@@ -242,7 +216,7 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
                     isBoardChatAvailableHandlers.send({});
                 },
             }),
-        [projectUID, isBoardChatAvailableHandlers]
+        [project, isBoardChatAvailableHandlers]
     );
 
     const { subscribedTopics } = useSwitchSocketHandlers({
@@ -251,7 +225,6 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             isBoardChatAvailableHandlers,
             boardAssignedUsersUpdatedHandlers,
             projectDeletedHandlers,
-            boardDetailsChangedHandlers,
             boardAssignedInternalBotChangedHandlers,
             internalBotUpdatedHandlers,
         ],
@@ -259,7 +232,6 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             isBoardChatAvailableHandlers,
             boardAssignedUsersUpdatedHandlers,
             projectDeletedHandlers,
-            boardDetailsChangedHandlers,
             boardAssignedInternalBotChangedHandlers,
             internalBotUpdatedHandlers,
         ],
@@ -274,6 +246,10 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
     }, [isFetching, subscribedTopics]);
 
     useEffect(() => {
+        setPageAliasRef.current(projectTitle);
+    }, [projectTitle]);
+
+    useEffect(() => {
         setBoardViewType(getCurrentPage(pageRoute));
     }, [pageRoute]);
 
@@ -282,7 +258,7 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             name: t("board.Board"),
             onClick: () => {
                 setBoardViewType("board");
-                navigate(ROUTES.BOARD.MAIN(projectUID), { smooth: true });
+                navigate(ROUTES.BOARD.MAIN(project.uid), { smooth: true });
             },
             active: boardViewType === "board" || boardViewType === "card",
             hidden: !!selectCardViewType,
@@ -291,7 +267,7 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             name: t("board.Wiki"),
             onClick: () => {
                 setBoardViewType("wiki");
-                navigate(ROUTES.BOARD.WIKI(projectUID), { smooth: true });
+                navigate(ROUTES.BOARD.WIKI(project.uid), { smooth: true });
             },
             active: boardViewType === "wiki",
             hidden: !!selectCardViewType,
@@ -300,7 +276,7 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             name: t("board.Activity"),
             onClick: () => {
                 navigate({
-                    pathname: ROUTES.BOARD.ACTIVITY(projectUID),
+                    pathname: ROUTES.BOARD.ACTIVITY(project.uid),
                     hash: location.pathname,
                 });
             },
@@ -310,10 +286,16 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             name: t("board.Settings"),
             onClick: () => {
                 setBoardViewType("settings");
-                navigate(ROUTES.BOARD.SETTINGS(projectUID), { smooth: true });
+                navigate(ROUTES.BOARD.SETTINGS(project.uid), { smooth: true });
             },
             active: boardViewType === "settings",
             hidden: !!selectCardViewType,
+        },
+        {
+            name: t("bot.Scope bot"),
+            onClick: openBotScope,
+            active: boardViewType === "settings",
+            hidden: !!selectCardViewType && !!currentUser && currentUser.is_admin,
         },
     ];
 
@@ -343,7 +325,14 @@ function BoardProxyDisplay({ projectUID, pageRoute, isFetching, projectTitle, se
             }
             className="!p-0"
         >
-            {isReady && currentUser ? <PageComponent projectUID={projectUID} currentUser={currentUser} /> : <SkeletonComponent />}
+            {isReady && currentUser && project ? (
+                <>
+                    <PageComponent project={project} currentUser={currentUser} />
+                    <BoardBotScope project={project} currentUser={currentUser} isOpened={isBotScopeOpened} setIsOpened={setIsBotScopeOpened} />
+                </>
+            ) : (
+                <SkeletonComponent />
+            )}
         </DashboardStyledLayout>
     );
 }

@@ -4,9 +4,9 @@ import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
 import { ProjectCardBotSchedule, ProjectColumnBotSchedule, ProjectCard, ProjectColumn } from "@/core/models";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 import { Utils } from "@langboard/core/utils";
 import { useEffect, useRef, useState } from "react";
+import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 
 export type TUseGetBotSchedulesForm = TBotScheduleRelatedParams & {
     target_uid: string;
@@ -21,16 +21,20 @@ const useGetBotSchedules = (botUID: string, params: TUseGetBotSchedulesForm, lim
 
     let url;
     switch (params.target_table) {
-        case "project_column":
-            url = Utils.String.format(Routing.API.BOARD.BOT.SCHEDULE.GET_ALL_BY_COLUMN, {
-                uid: params.project_uid,
+        case "project":
+            url = Utils.String.format(Routing.API.BOT.SCHEDULE.GET_ALL_BY_PROJECT, {
                 bot_uid: botUID,
-                column_uid: params.target_uid,
+                project_uid: params.target_uid,
+            });
+            break;
+        case "project_column":
+            url = Utils.String.format(Routing.API.BOT.SCHEDULE.GET_ALL_BY_COLUMN, {
+                bot_uid: botUID,
+                project_column_uid: params.target_uid,
             });
             break;
         case "card":
-            url = Utils.String.format(Routing.API.BOARD.BOT.SCHEDULE.GET_ALL_BY_CARD, {
-                uid: params.project_uid,
+            url = Utils.String.format(Routing.API.BOT.SCHEDULE.GET_ALL_BY_CARD, {
                 bot_uid: botUID,
                 card_uid: params.target_uid,
             });

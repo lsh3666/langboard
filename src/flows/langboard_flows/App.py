@@ -1,7 +1,7 @@
-from core.FastAPIAppConfig import FastAPIAppConfig
-from core.routing import AppExceptionHandlingRoute, AppRouter, BaseMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
+from langboard_shared.core.routing import AppExceptionHandlingRoute, AppRouter, BaseMiddleware
+from langboard_shared.FastAPIAppConfig import FastAPIAppConfig
 from .Constants import APP_CONFIG_FILE
 from .Loader import ModuleLoader
 

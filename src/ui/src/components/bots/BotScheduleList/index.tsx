@@ -1,6 +1,6 @@
 import { Box, Flex, Loading, ScrollArea } from "@/components/base";
 import InfiniteScroller from "@/components/InfiniteScroller";
-import { BotModel, ProjectCard, ProjectCardBotSchedule, ProjectColumn, ProjectColumnBotSchedule } from "@/core/models";
+import { BotModel, Project, ProjectCard, ProjectCardBotSchedule, ProjectColumn, ProjectColumnBotSchedule } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef } from "react";
 import BotScheduleListItemAddButton from "@/components/bots/BotScheduleList/ItemAddButton";
@@ -13,7 +13,7 @@ import { TPickedModelClass, TBotScheduleModelName, TBotScheduleModel } from "@/c
 export interface IBotScheduleListProps {
     bot: BotModel.TModel;
     params: TBotScheduleRelatedParams;
-    target: ProjectColumn.TModel | ProjectCard.TModel;
+    target: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
 }
 
 function BotScheduleList({ params, ...props }: IBotScheduleListProps) {

@@ -29,13 +29,15 @@ const getEnv = <TValue extends string | number = string>({ key, defaultValue, av
     return value as TValue;
 };
 
-export const ENVIRONMENT = getEnv({ key: "ENVIRONMENT", defaultValue: "local", availableValues: ["local", "development", "production"] });
+export const ENVIRONMENT = getEnv({ key: "ENVIRONMENT", defaultValue: "development", availableValues: ["development", "production"] });
 
 export const IS_EXECUTABLE = getEnv<string>({ key: "IS_EXECUTABLE", defaultValue: "false" }) == "true";
 
 export const PROJECT_NAME = getEnv({ key: "PROJECT_NAME" });
 export const PROJECT_SHORT_NAME = getEnv({ key: "PROJECT_SHORT_NAME", defaultValue: PROJECT_NAME });
 export const MAX_FILE_SIZE_MB = parseInt(getEnv<string>({ key: "MAX_FILE_SIZE_MB", defaultValue: "50" }));
+export const AI_REQUEST_TIMEOUT = parseInt(getEnv<string>({ key: "AI_REQUEST_TIMEOUT", defaultValue: "120" }));
+export const AI_REQUEST_TRIALS = parseInt(getEnv<string>({ key: "AI_REQUEST_TRIALS", defaultValue: "5" }));
 
 export const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT_DIR = path.join(BASE_DIR, "..", "..", "..");
@@ -62,7 +64,9 @@ When using kafka for broadcasting, you must use redis for caching, and vice vers
 
 export const API_URL = getEnv<string>({ key: "API_URL", defaultValue: `http://localhost:${API_PORT}` });
 export const PUBLIC_UI_URL =
-    ENVIRONMENT !== "local" ? getEnv<string>({ key: "PUBLIC_UI_URL", defaultValue: `http://localhost:${UI_PORT}` }) : `http://localhost:${UI_PORT}`;
+    ENVIRONMENT !== "development"
+        ? getEnv<string>({ key: "PUBLIC_UI_URL", defaultValue: `http://localhost:${UI_PORT}` })
+        : `http://localhost:${UI_PORT}`;
 export const OLLAMA_API_URL = getEnv<string>({ key: "OLLAMA_API_URL", defaultValue: "" });
 
 const SUPPORTED_JWT_ALTORITHMES: jwt.Algorithm[] = [

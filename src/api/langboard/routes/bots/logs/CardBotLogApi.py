@@ -1,0 +1,44 @@
+from fastapi import Depends, status
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import BotLog, Card, CardBotLog, ProjectRole
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import RoleFinder
+from langboard_shared.services import Service
+from ..forms import BotLogPagination
+
+
+@AppRouter.schema(query=BotLogPagination)
+@AppRouter.api.get(
+    "/bot/{bot_uid}/card/{card_uid}/logs",
+    tags=["Bot.Log"],
+    description="Get all bot logs for a specific card.",
+    responses=(
+        OpenApiSchema()
+        .suc({"logs": [(BotLog, {"schema": CardBotLog.api_schema()})], "target": Card})
+        .auth()
+        .forbidden()
+        .err(404, ApiErrorCode.NF2014)
+        .get()
+    ),
+)
+@RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
+@AuthFilter.add()
+async def get_bot_logs_by_card(
+    bot_uid: str, card_uid: str, pagination: BotLogPagination = Depends(), service: Service = Service.scope()
+) -> JsonResponse:
+    bot = await service.bot.get_by_uid(bot_uid)
+    if not bot:
+        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+
+    card = await service.card.get_by_uid(card_uid)
+    if not card:
+        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+
+    logs = await service.bot_log.get_all_by_scope(
+        CardBotLog, bot, card, as_api=True, pagination=pagination, refer_time=pagination.refer_time
+    )
+
+    return JsonResponse(content={"logs": logs, "target": card.api_response()})

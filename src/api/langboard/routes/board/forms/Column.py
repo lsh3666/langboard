@@ -1,4 +1,4 @@
-from core.routing import BaseFormModel, form_model
+from langboard_shared.core.routing import BaseFormModel, form_model
 from pydantic import Field
 
 

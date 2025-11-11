@@ -1,4 +1,4 @@
-.PHONY: help init format lint start_docker_dev stop_docker_dev start_docker_prod stop_docker_prod
+.PHONY: help init format lint start_docker stop_docker rebuild_docker update_docker
 
 COMPOSE_PREFIX := ./docker/docker-compose
 COMPOSE_ARGS := -f $(COMPOSE_PREFIX).kafka.yaml -f $(COMPOSE_PREFIX).pg.yaml -f $(COMPOSE_PREFIX).redis.yaml -f $(COMPOSE_PREFIX).server.yaml --env-file ./.env
@@ -40,7 +40,6 @@ endif
 
 
 check_tools:
-	@command -v poetry >/dev/null 2>&1 || { echo >&2 "$(RED)Poetry is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v yarn >/dev/null 2>&1 || { echo >&2 "$(RED)Yarn is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v docker >/dev/null 2>&1 || { echo >&2 "$(RED)Docker is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v docker compose >/dev/null 2>&1 || { echo >&2 "$(RED)Docker Compose is not installed. Aborting.$(NC)"; exit 1; }
@@ -60,8 +59,8 @@ help: ## show this help message
 	@printf 'Command: $(CYAN)$(BOLD)make <target> [options]$(NC)\n'
 
 format: ## run code formatters
-	poetry run ruff check . --fix
-	poetry run ruff format .
+	uv run ruff check . --fix
+	uv run ruff format .
 	cd $(FLOWS_DIR) && uv run ruff check . --fix
 	cd $(FLOWS_DIR) && uv run ruff format .
 	cd $(TS_CORE_DIR) && yarn run format
@@ -69,7 +68,7 @@ format: ## run code formatters
 	cd $(SOCKET_DIR) && yarn run format
 
 lint: ## run linters
-	poetry run ruff check .
+	uv run ruff check .
 	cd $(FLOWS_DIR) && uv run ruff check .
 	cd $(TS_CORE_DIR) && yarn run lint
 	cd $(UI_DIR) && yarn run lint
@@ -86,18 +85,18 @@ init: check_tools clean_python_cache clean_ts_core_cache clean_ui_cache clean_so
 
 install_api: ## install the api dependencies
 	@echo 'Installing api dependencies'
-	@poetry install
+	@uv install
 
 install_ts_core: ## install the ts core dependencies
 	@echo 'Installing ts core dependencies'
-	cd $(TS_CORE_DIR) && yarn run format
 	cd $(TS_CORE_DIR) && yarn install
+	cd $(TS_CORE_DIR) && yarn run format
 	cd $(TS_CORE_DIR) && yarn run build
 
 install_ui: ## install ui dependencies
 	@echo 'Installing ui dependencies'
-	cd $(UI_DIR) && yarn run format
 	cd $(UI_DIR) && yarn install
+	cd $(UI_DIR) && yarn run format
 
 install_flows: ## install flows dependencies
 	@echo 'Installing flows dependencies'
@@ -105,60 +104,57 @@ install_flows: ## install flows dependencies
 
 install_socket: ## install socket dependencies
 	@echo 'Installing socket dependencies'
-	cd $(SOCKET_DIR) && yarn run format
 	cd $(SOCKET_DIR) && yarn install
+	cd $(SOCKET_DIR) && yarn run format
 
-dev_api: ## run the API in development mode
+dev_api: ## run the API in development environment
 	langboard run -w
 
-dev_ts_core_build: ## build the shared core in development mode
+dev_ts_core_build: ## build the shared core in development environment
 	cd $(TS_CORE_DIR) && yarn run build -w
 
-dev_ui: ## run the UI in development mode
+dev_ui: ## run the UI in development environment
 	cd $(UI_DIR) && yarn run dev
 
-dev_flows: ## run the Flows in development mode
+dev_flows: ## run the Flows in development environment
 	cd $(FLOWS_DIR) && uv run flows run -w
 
-dev_socket: ## run the Socket in development mode
+dev_socket: ## run the Socket in development environment
 	cd $(SOCKET_DIR) && nodemon dist/index.js
 
-dev_socket_build: ## build the Socket in development mode
+dev_socket_build: ## build the Socket in development environment
 	cd $(SOCKET_DIR) && yarn run build -w
 
-start_docker_dev: ## run Docker in the development environment
+start_docker: ## run Docker in the production environment
 	make init_env
-	make update_docker_env
+	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --build
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans
 
-update_docker_dev: ## update Docker in the development environment
+rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_docker IMAGES=image_name or IMAGES="image_name1 image_name2")
+	if [ "$(IMAGES)" = "" ]; then \
+		echo "$(RED)Please specify the IMAGES variable to rebuild (e.g. make rebuild_docker IMAGES=image_name or IMAGES=\"image_name1 image_name2\")$(NC)"; \
+		exit 1; \
+	fi
+
 	make init_env
-	make update_docker_env
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate
-
-stop_docker_dev: ## stop Docker in the development environment
-	docker compose -f $(COMPOSE_PREFIX).dev.yaml $(COMPOSE_ARGS) down --rmi all --volumes
-
-start_docker_prod: ## run Docker in the production environment
-	make init_env
-	make update_docker_env
+	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --build
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans
 
-update_docker_prod: ## update Docker in the production environment
+update_docker: ## update Docker in the production environment
 	make init_env
-	make update_docker_env
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate
+	make update_docker_settings
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans
 
-stop_docker_prod: ## stop Docker in the production environment
-	docker compose -f $(COMPOSE_PREFIX).prod.yaml $(COMPOSE_ARGS) down --rmi all --volumes
+stop_docker: ## stop Docker in the production environment
+	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans
 
 unit_tests: ## run unit tests
-	poetry run pytest $(API_DIR)/tests/units
+	uv run pytest $(API_DIR)/tests/units
 
 cov_unit_tests: ## run unit tests with coverage
-	poetry run pytest -vv --cov=$(API_DIR)/langboard $(API_DIR)/tests/units --cov-report=html:./$(API_DIR)/coverage
+	uv run pytest -vv --cov=$(API_DIR)/langboard $(API_DIR)/tests/units --cov-report=html:./$(API_DIR)/coverage
 	@printf "$(GREEN)Coverage report generated in $(API_DIR)/coverage directory.$(NC)"
 
 init_env: ## initialize the .env file from .env.example if it does not exist
@@ -166,8 +162,9 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 		cp .env.example .env; \
 	fi
 
-update_docker_env: ## update the environment variables in Docker
-	bash ./scripts/update-docker-envs.sh
+update_docker_settings: ## update Docker settings
+	bash ./scripts/dockerutils/scale-docker-api.sh
+	bash ./scripts/dockerutils/update-docker-envs.sh
 
 clean_python_cache: ## clean Python cache
 	@echo "Cleaning Python cache..."

@@ -6,7 +6,9 @@ import * as path from "path";
 
 class InMemoryConsumer extends BaseConsumer {
     public static get BROADCAST_DIR() {
-        return path.join(DATA_DIR, "broadcast");
+        const dir = path.join(DATA_DIR, "broadcast");
+        fs.mkdirSync(dir, { recursive: true });
+        return dir;
     }
     #watcher!: fs.FSWatcher;
 

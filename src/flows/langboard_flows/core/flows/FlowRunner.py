@@ -1,18 +1,18 @@
 import asyncio
 import time
 from typing import AsyncGenerator, Literal
-from core.caching import Cache
-from core.db import DbSession
+from langboard_shared.core.caching import Cache
+from langboard_shared.core.db import DbSession
+from langboard_shared.core.logger import Logger
+from langboard_shared.models import Bot, BotLog, InternalBot, Project
+from langboard_shared.models.BotLog import BotLogMessage, BotLogType
+from langboard_shared.publishers import CardPublisher, ProjectBotPublisher, ProjectColumnPublisher
 from langflow.events.event_manager import EventManager, create_stream_tokens_event_manager
 from langflow.exceptions.serialization import SerializationError
 from langflow.graph import Graph
 from langflow.graph.schema import RunOutputs
 from langflow.schema.schema import INPUT_FIELD_NAME
 from langflow.services.deps import get_settings_service
-from models import Bot, BotLog, InternalBot, Project
-from models.BotLog import BotLogMessage, BotLogType
-from publishers import CardPublisher, ProjectBotPublisher, ProjectColumnPublisher
-from ..logger import Logger
 from ..schema import FlowRequestModel, InputValueRequest, RunResponse
 from ..schema.Exception import InvalidChatInputError
 
@@ -212,7 +212,7 @@ class FlowRunner:
         if not rest_data:
             return
 
-        column_uid = rest_data.get("column_uid")
+        column_uid = rest_data.get("project_column_uid")
         card_uid = rest_data.get("card_uid")
         if not column_uid and not card_uid:
             return

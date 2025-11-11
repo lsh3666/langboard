@@ -40,8 +40,10 @@ interface IBoardColumnMoreMenuBotScopeItemProps {
 
 const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreMenuBotScopeItemProps) => {
     const { project } = useBoard();
-    const botScopes = ProjectColumnBotScope.Model.useModels((model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid);
-    const botScope = botScopes[0];
+    const botScope = ProjectColumnBotScope.Model.useModel(
+        (model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid,
+        [bot, column]
+    );
 
     return (
         <Flex items="center" justify="between" gap="3">
@@ -65,7 +67,7 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         params={{
                             target_table: "project_column",
                             target_uid: column.uid,
-                            project_uid: project.uid,
+                            bot_uid: bot.uid,
                         }}
                         botUID={bot.uid}
                         botScope={botScope}
@@ -76,7 +78,7 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         bot={bot}
                         params={{
                             target_table: "project_column",
-                            project_uid: project.uid,
+                            bot_uid: bot.uid,
                         }}
                         target={column}
                     />
@@ -86,7 +88,6 @@ const BoardColumnMoreMenuBotScopeItem = memo(({ bot, column }: IBoardColumnMoreM
                         bot={bot}
                         params={{
                             target_table: "project_column",
-                            project_uid: project.uid,
                         }}
                         target={column}
                     />

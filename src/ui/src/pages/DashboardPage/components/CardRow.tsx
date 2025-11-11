@@ -16,7 +16,7 @@ export interface ICardRowProps extends React.HTMLAttributes<HTMLTableRowElement>
 function CardRow({ card, ...props }: ICardRowProps): JSX.Element | null {
     const navigate = usePageNavigateRef();
     const title = card.useField("title");
-    const columnName = card.useField("column_name");
+    const columnName = card.useField("project_column_name");
     const archivedAt = card.useField("archived_at");
     const rawCreatedAt = card.useField("created_at");
     const createdAt = useUpdateDateDistance(rawCreatedAt);

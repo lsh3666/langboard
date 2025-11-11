@@ -14,7 +14,7 @@ import CopyInput from "@/components/CopyInput";
 import MultiSelect from "@/components/MultiSelect";
 import PasswordInput from "@/components/PasswordInput";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import { ALLOWED_ALL_IPS_BY_PLATFORMS, EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { ALLOWED_ALL_IPS_BY_PLATFORMS, EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { getValueType, requirements } from "@/components/bots/BotValueInput/utils";
 import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/types";
 import BotValueInput from "@/components/bots/BotValueInput";
@@ -260,6 +260,8 @@ function BotCreateFormDialog({ opened, setOpened }: IBotCreateFormDialogProps): 
                                     </Alert>
                                 )}
                                 <BotValueInput
+                                    platform={selectedPlatform}
+                                    platformRunningType={selectedPlatformRunningType}
                                     value=""
                                     label={t(`bot.platformRunningTypes.${selectedPlatformRunningType}`)}
                                     valueType={valueType}

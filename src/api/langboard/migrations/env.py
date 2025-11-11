@@ -2,10 +2,10 @@ from logging.config import fileConfig
 from typing import Any
 from alembic import context
 from alembic.autogenerate.api import AutogenContext
-from core.db import BaseSqlModel
-from core.db.DbConfigHelper import DbConfigHelper  # type: ignore
-from core.Env import Env  # type: ignore
-from helpers import ensure_models_imported
+from langboard_shared.core.db import BaseSqlModel
+from langboard_shared.core.db.DbConfigHelper import DbConfigHelper  # type: ignore
+from langboard_shared.Env import Env  # type: ignore
+from langboard_shared.helpers import ensure_models_imported
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection, engine_from_config
 
@@ -54,9 +54,12 @@ def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
         elif obj.__class__.__name__ == "SnowflakeIDType":
             autogen_context.imports.add(f"from {obj.__class__.__module__} import SnowflakeIDType")
             return "SnowflakeIDType"
-        elif obj.__class__.__name__ == "CSVType":
+        elif obj.__class__.__name__ == "_CSVType":
+            item_type_class: type = obj._item_type_class  # type: ignore
             autogen_context.imports.add(f"from {obj.__class__.__module__} import CSVType")
-            return "CSVType"
+            if item_type_class is not str:
+                autogen_context.imports.add(f"from {item_type_class.__module__} import {item_type_class.__name__}")
+            return f"CSVType({item_type_class.__name__})"
         elif obj.__class__.__name__ == "_EnumLikeType":
             enum_type_class: type = obj._enum_type_class  # type: ignore
             autogen_context.imports.add(f"from {obj.__class__.__module__} import EnumLikeType")

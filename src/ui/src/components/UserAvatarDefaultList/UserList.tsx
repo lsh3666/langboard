@@ -23,7 +23,7 @@ const getNotificationForm = (scopeModels: IUserAvatarDefaultListContext["scopeMo
         return null;
     }
 
-    const form: { project_uid: string; column_uid?: string; card_uid?: string; wiki_uid?: string } = {
+    const form: { project_uid: string; project_column_uid?: string; card_uid?: string; wiki_uid?: string } = {
         project_uid: scopeModels.project.uid,
     };
     let type: "project" | "column" | "card" | "wiki" = "project";
@@ -31,7 +31,7 @@ const getNotificationForm = (scopeModels: IUserAvatarDefaultListContext["scopeMo
 
     if (scopeModels.column) {
         type = "column";
-        form.column_uid = scopeModels.column.uid;
+        form.project_column_uid = scopeModels.column.uid;
         specificUID = scopeModels.column.uid;
     }
 

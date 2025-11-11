@@ -1,5 +1,5 @@
 import { Floating, Select } from "@/components/base";
-import { EBotPlatform } from "@/core/models/bot.related.type";
+import { EBotPlatform } from "@langboard/core/ai";
 import { useTranslation } from "react-i18next";
 
 export interface IBotPlatformSelectProps {

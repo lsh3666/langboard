@@ -57,7 +57,7 @@ function BoardCommentListResult(): JSX.Element {
     const [t] = useTranslation();
     const PAGE_SIZE = 10;
     const flatComments = ProjectCardComment.Model.useModels((model) => model.card_uid === card.uid);
-    const sortedComments = useMemo(() => flatComments.sort((a, b) => b.commented_at.getTime() - a.commented_at.getTime()), [flatComments]);
+    const sortedComments = useMemo(() => flatComments.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime()), [flatComments]);
     const { items: comments, nextPage, forceUpdate, hasMore } = useInfiniteScrollPager({ allItems: sortedComments, size: PAGE_SIZE });
 
     const deletedComment = (commentUID: string) => {

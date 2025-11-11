@@ -101,7 +101,7 @@ api.interceptors.response.use(
                 },
                 toast: !interceptToast,
             },
-            [EHttpStatus.HTTP_422_UNPROCESSABLE_ENTITY]: {
+            [EHttpStatus.HTTP_422_UNPROCESSABLE_CONTENT]: {
                 message: async (e) => {
                     const authStore = getAuthStore();
                     const originalConfig: AxiosRequestConfig = e.config!;

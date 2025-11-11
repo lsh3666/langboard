@@ -43,10 +43,10 @@ class ChatSessionModel extends BaseModel<Interface> {
         this.update({ user_uid: value });
     }
 
-    public get title(): string {
+    public get title() {
         return this.getValue("title") || "Untitled Session";
     }
-    public set title(value: string) {
+    public set title(value) {
         this.update({ title: value });
     }
 
@@ -54,7 +54,7 @@ class ChatSessionModel extends BaseModel<Interface> {
         return this.getValue("last_messaged_at");
     }
     public set last_messaged_at(value: string | Date | undefined) {
-        this.update({ last_messaged_at: value ? new Date(value) : undefined });
+        this.update({ last_messaged_at: value as unknown as Date });
     }
 }
 

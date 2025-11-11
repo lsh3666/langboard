@@ -1,15 +1,15 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import Bot, InternalBot, User
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.models import Bot, InternalBot, User
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 
 
-@AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 204).get())
+@AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 200).get())
 async def health_check() -> JsonResponse:
-    return JsonResponse(content={}, status_code=status.HTTP_204_NO_CONTENT)
+    return JsonResponse(content={"status": "ok"}, status_code=status.HTTP_200_OK)
 
 
 @AppRouter.api.get(
@@ -19,7 +19,7 @@ async def health_check() -> JsonResponse:
 )
 @AuthFilter.add("user")
 async def get_internal_bot(
-    bot_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    bot_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     internal_bot = await service.internal_bot.get_by_uid(bot_uid)
     if not internal_bot:

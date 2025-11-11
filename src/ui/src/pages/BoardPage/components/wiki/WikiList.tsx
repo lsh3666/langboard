@@ -30,12 +30,12 @@ export function SkeletonWikiList() {
 const WikiList = memo(() => {
     const { wikiUID } = useParams();
     const navigate = usePageNavigateRef();
-    const { projectUID, canAccessWiki } = useBoardWiki();
+    const { project, canAccessWiki } = useBoardWiki();
 
     useEffect(() => {
         if (!canAccessWiki(true, wikiUID)) {
             getEditorStore().setCurrentEditor(null);
-            navigate(ROUTES.BOARD.WIKI(projectUID));
+            navigate(ROUTES.BOARD.WIKI(project.uid));
         }
     }, [wikiUID]);
 

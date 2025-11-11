@@ -31,7 +31,7 @@ const BoardCardDescription = memo((): JSX.Element => {
     const [_, forceUpdate] = useReducer((x) => x + 1, 0);
     const editorRef = useRef<TEditor>(null);
     const editorName = `${card.uid}-card-description`;
-    const projectMembers = card.useForeignField("project_members");
+    const projectMembers = card.useForeignFieldArray("project_members");
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
     const cards = ProjectCard.Model.useModels((model) => model.uid !== card.uid && model.project_uid === projectUID, [projectUID, card]);

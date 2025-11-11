@@ -6,7 +6,7 @@ import { Utils } from "@langboard/core/utils";
 
 export interface IDeleteProjectColumnForm {
     project_uid: string;
-    column_uid: string;
+    project_column_uid: string;
 }
 
 const useDeleteProjectColumn = (options?: TMutationOptions<IDeleteProjectColumnForm>) => {
@@ -15,7 +15,7 @@ const useDeleteProjectColumn = (options?: TMutationOptions<IDeleteProjectColumnF
     const deleteProjectColumn = async (params: IDeleteProjectColumnForm) => {
         const url = Utils.String.format(Routing.API.BOARD.COLUMN.DELETE, {
             uid: params.project_uid,
-            column_uid: params.column_uid,
+            project_column_uid: params.project_column_uid,
         });
         const res = await api.delete(url, {
             env: {

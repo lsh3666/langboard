@@ -1,14 +1,13 @@
 from ssl import CERT_NONE
 from typing import cast
-from core.bootstrap import BaseCommand, BaseCommandOptions
-from core.Env import Env
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.Env import Env
 from pydantic import Field
 from uvicorn.config import SSL_PROTOCOL_VERSION, LifespanType
 
 
 class RunCommandOptions(BaseCommandOptions):
     uds: str = cast(str, Field(default=None, description="Bind to a UNIX domain socket"))
-    workers: int = Field(default=1, description="Number of workers to run")
     lifespan: LifespanType = Field(default="auto", description="Lifespan type [auto, on, off]", short="lfsp")  # type: ignore
     ssl_keyfile: str = Field(default=None, description="SSL key file", short="ssl-key")  # type: ignore
     ssl_certfile: str = Field(default=None, description="SSL certificate file", short="ssl-cert")  # type: ignore
@@ -19,6 +18,8 @@ class RunCommandOptions(BaseCommandOptions):
     ssl_ciphers: str = Field(
         default="TLSv1", description="Ciphers to use (see stdlib ssl module's) (default: TLSv1)", short="ssl-cp"
     )  # type: ignore
+    timeout_keep_alive: int = Field(default=30, description="Keep-alive timeout in seconds", short="tka")  # type: ignore
+    healthcheck_interval: int = Field(default=30, description="Healthcheck interval in seconds", short="hci")  # type: ignore
     if not Env.IS_EXECUTABLE:
         watch: bool = Field(default=False, description="Watch for changes", short="w")  # type: ignore
 

@@ -3,7 +3,7 @@ import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
 import { InternalBotModel } from "@/core/models";
-import { EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { Utils } from "@langboard/core/utils";
 
 export interface ICreateInternalBotForm {
@@ -11,7 +11,7 @@ export interface ICreateInternalBotForm {
     display_name: string;
     platform: EBotPlatform;
     platform_running_type: EBotPlatformRunningType;
-    url?: string;
+    api_url?: string;
     api_key?: string;
     value: string;
     avatar?: File;

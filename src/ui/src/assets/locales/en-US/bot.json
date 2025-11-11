@@ -9,7 +9,8 @@
   "Select running type": "Select running type",
   "platforms": {
     "default": "Default",
-    "langflow": "LangFlow"
+    "langflow": "LangFlow",
+    "n8n": "N8N"
   },
   "platformRunningTypes": {
     "default": "Default",

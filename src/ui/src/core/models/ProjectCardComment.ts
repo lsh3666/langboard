@@ -2,14 +2,12 @@ import * as BotModel from "@/core/models/BotModel";
 import * as User from "@/core/models/User";
 import { BaseModel, IBaseModel, IEditorContent } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
-import { Utils } from "@langboard/core/utils";
 import { TReactionEmoji } from "@/components/ReactionCounter";
 
 export interface Interface extends IBaseModel {
     card_uid: string;
     content: IEditorContent;
     is_edited: bool;
-    commented_at: Date;
 }
 
 export interface IStore extends Interface {
@@ -32,13 +30,6 @@ class ProjectCardComment extends BaseModel<IStore> {
         return "ProjectCardComment" as const;
     }
 
-    public static convertModel(model: Interface): Interface {
-        if (Utils.Type.isString(model.commented_at)) {
-            model.commented_at = new Date(model.commented_at);
-        }
-        return model;
-    }
-
     public get card_uid() {
         return this.getValue("card_uid");
     }
@@ -58,13 +49,6 @@ class ProjectCardComment extends BaseModel<IStore> {
     }
     public set is_edited(value) {
         this.update({ is_edited: value });
-    }
-
-    public get commented_at(): Date {
-        return this.getValue("commented_at");
-    }
-    public set commented_at(value: string | Date) {
-        this.update({ commented_at: new Date(value) });
     }
 
     public get user(): User.TModel | undefined {

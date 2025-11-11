@@ -1,8 +1,8 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { BaseBotScheduleModel, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { BaseBotScheduleModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
+import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
 
 export interface TBoardBotCronRescheduledRawResponse {
     target_table: TBotRelatedTargetTable;
@@ -24,7 +24,9 @@ const useBoardBotCronRescheduledHandlers = ({ callback, projectUID }: IUseBoardB
             callback,
             responseConverter: (data) => {
                 let model;
-                if (data.target_table === "project_column") {
+                if (data.target_table === "project") {
+                    model = ProjectBotSchedule.Model.getModel(data.uid);
+                } else if (data.target_table === "project_column") {
                     model = ProjectColumnBotSchedule.Model.getModel(data.uid);
                 } else if (data.target_table === "card") {
                     model = ProjectCardBotSchedule.Model.getModel(data.uid);

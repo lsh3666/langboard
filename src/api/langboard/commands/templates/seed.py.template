@@ -1,5 +1,5 @@
 from typing import Any, AsyncGenerator
-from core.db import BaseSeed
+from langboard_shared.core.db import BaseSeed
 
 
 class {class_name}Seed(BaseSeed):

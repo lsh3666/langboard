@@ -3,7 +3,7 @@ import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/So
 import { BotModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
-import { EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 
 export interface IBotSettingUpdatedRawResponse {
     api_url?: string;

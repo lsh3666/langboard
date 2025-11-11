@@ -1,15 +1,14 @@
-from core.caching import Cache
-from core.Env import UI_QUERY_NAMES
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.routing.Exception import InvalidError, InvalidException
-from core.schema import OpenApiSchema
-from core.storage import StorageName
 from fastapi import File, UploadFile, status
-from models import User, UserGroup
-from ...core.storage import Storage
-from ...security import Auth
-from ...services import Service
+from langboard_shared.core.caching import Cache
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing.Exception import InvalidError, InvalidException
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.Env import UI_QUERY_NAMES
+from langboard_shared.models import User, UserGroup
+from langboard_shared.security import Auth
+from langboard_shared.services import Service
 from .AccountForm import (
     AddNewEmailForm,
     ChangePasswordForm,
@@ -27,7 +26,7 @@ from .AccountForm import (
 async def update_profile(
     form: UpdateProfileForm = UpdateProfileForm.scope(),
     avatar: UploadFile | None = File(None),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     file_model = Storage.upload(avatar, StorageName.Avatar) if avatar else None
@@ -54,7 +53,7 @@ async def update_profile(
 )
 @AuthFilter.add("user")
 async def add_new_email(
-    form: AddNewEmailForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: AddNewEmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     cache_key = service.user.create_cache_name("subemail", user.email)
     existed_user, subemail = await service.user.get_by_email(form.new_email)
@@ -133,7 +132,7 @@ async def verify_subemail(form: VerifyNewEmailForm, service: Service = Service.s
 )
 @AuthFilter.add("user")
 async def change_primary_email(
-    form: EmailForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: EmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
@@ -156,7 +155,7 @@ async def change_primary_email(
 )
 @AuthFilter.add("user")
 async def delete_email(
-    form: EmailForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: EmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
@@ -172,7 +171,7 @@ async def delete_email(
 @AppRouter.api.put("/account/password", tags=["Account"], responses=OpenApiSchema().auth().get())
 @AuthFilter.add("user")
 async def change_password(
-    form: ChangePasswordForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: ChangePasswordForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     if not user.check_password(form.current_password):
         raise InvalidException(InvalidError(loc="body", field="current_password", inputs=form.model_dump()))
@@ -190,7 +189,7 @@ async def change_password(
 )
 @AuthFilter.add("user")
 async def create_user_group(
-    form: CreateUserGroupForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: CreateUserGroupForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     group = await service.user_group.create(user, form.name)
     api_group = group.api_response()
@@ -205,7 +204,7 @@ async def create_user_group(
 )
 @AuthFilter.add("user")
 async def change_user_group_name(
-    group_uid: str, form: CreateUserGroupForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    group_uid: str, form: CreateUserGroupForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.user_group.change_name(user, group_uid, form.name)
     if not result:
@@ -223,7 +222,7 @@ async def change_user_group_name(
 async def update_user_group_assigned_emails(
     group_uid: str,
     form: UpdateUserGroupAssignedEmailForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.user_group.update_assigned_emails(user, group_uid, form.emails)
@@ -242,7 +241,7 @@ async def update_user_group_assigned_emails(
 )
 @AuthFilter.add("user")
 async def delete_user_group(
-    group_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    group_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.user_group.delete(user, group_uid)
     if not result:
@@ -258,7 +257,7 @@ async def delete_user_group(
 )
 @AuthFilter.add("user")
 async def update_preferred_language(
-    form: UpdatePreferredLangForm, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    form: UpdatePreferredLangForm, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.user.update_preferred_lang(user, form.lang)
     if not result:

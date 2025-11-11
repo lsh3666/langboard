@@ -40,12 +40,12 @@ export function SkeletonWikiContent() {
 
 const WikiContent = memo(({ wiki }: IWikiContentProps) => {
     const navigate = usePageNavigateRef();
-    const { projectUID, wikis: flatWikis, socket, projectMembers, currentUser, changeTab } = useBoardWiki();
+    const { project, wikis: flatWikis, socket, projectMembers, currentUser, changeTab } = useBoardWiki();
     const [t] = useTranslation();
     const { mutateAsync: changeWikiDetailsMutateAsync } = useChangeWikiDetails("content", { interceptToast: true });
     const editorName = `${wiki.uid}-wiki-description`;
     const isPublic = wiki.useField("is_public");
-    const assignedMembers = wiki.useForeignField("assigned_members");
+    const assignedMembers = wiki.useForeignFieldArray("assigned_members");
     const bots = BotModel.Model.useModels(() => true);
     const wikis = useMemo(() => flatWikis.filter((w) => w.uid !== wiki.uid), [flatWikis, wiki]);
     const mentionables = useMemo(
@@ -66,7 +66,7 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
         editorName,
         save: (value) => {
             const promise = changeWikiDetailsMutateAsync({
-                project_uid: projectUID,
+                project_uid: project.uid,
                 wiki_uid: wiki.uid,
                 content: value,
             });
@@ -78,7 +78,7 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
                     const { handle } = setupApiErrorHandler(
                         {
                             [EHttpStatus.HTTP_403_FORBIDDEN]: {
-                                after: () => navigate(ROUTES.BOARD.WIKI(projectUID)),
+                                after: () => navigate(ROUTES.BOARD.WIKI(project.uid)),
                             },
                         },
                         messageRef
@@ -115,10 +115,10 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
     const boardUIWikiDeletedHandlers = useMemo(
         () =>
             useBoardUIWikiDeletedHandlers({
-                projectUID,
+                projectUID: project.uid,
                 wiki,
                 callback: () => {
-                    navigate(ROUTES.BOARD.WIKI(projectUID));
+                    navigate(ROUTES.BOARD.WIKI(project.uid));
                 },
             }),
         []
@@ -164,7 +164,7 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
                     readOnly={!isEditing}
                     editorType="wiki-content"
                     form={{
-                        project_uid: projectUID,
+                        project_uid: project.uid,
                         wiki_uid: wiki.uid,
                     }}
                     placeholder={!isEditing ? t("wiki.No content") : undefined}
@@ -173,10 +173,10 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
                 />
             </Box>
             <Flex items="center" justify="start" pt="2" mx="2" gap="2" className="border-t">
-                <Button variant="secondary" onClick={() => navigate(ROUTES.BOARD.WIKI_ACTIVITY(projectUID, wiki.uid))}>
+                <Button variant="secondary" onClick={() => navigate(ROUTES.BOARD.WIKI_ACTIVITY(project.uid, wiki.uid))}>
                     {t("board.Activity")}
                 </Button>
-                <Button variant="secondary" onClick={() => navigate(ROUTES.BOARD.WIKI_METADATA(projectUID, wiki.uid))}>
+                <Button variant="secondary" onClick={() => navigate(ROUTES.BOARD.WIKI_METADATA(project.uid, wiki.uid))}>
                     {t("metadata.Metadata")}
                 </Button>
             </Flex>

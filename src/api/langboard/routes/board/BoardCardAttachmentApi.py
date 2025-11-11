@@ -1,15 +1,14 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.routing.Exception import MissingException
-from core.schema import OpenApiSchema
-from core.storage import StorageName
 from fastapi import File, UploadFile, status
-from models import CardAttachment, ProjectRole, User
-from models.ProjectRole import ProjectRoleAction
-from ...core.storage import Storage
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder, RoleSecurity
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing.Exception import MissingException
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import CardAttachment, ProjectRole, User
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder, RoleSecurity
+from langboard_shared.services import Service
 from .forms import ChangeAttachmentNameForm, ChangeChildOrderForm
 
 
@@ -35,7 +34,7 @@ async def upload_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment: UploadFile = File(),
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     if not attachment:
@@ -84,7 +83,7 @@ async def change_card_attachment_name(
     card_uid: str,
     attachment_uid: str,
     form: ChangeAttachmentNameForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_uid(attachment_uid)
@@ -118,7 +117,7 @@ async def delete_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment_uid: str,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_uid(attachment_uid)

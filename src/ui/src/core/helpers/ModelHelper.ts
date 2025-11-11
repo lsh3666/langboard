@@ -112,7 +112,7 @@ export const deleteCardModel = (cardUID: string, shouldUnsubscribe: bool) => {
     ProjectCard.Model.deleteModel(cardUID);
     MetadataModel.Model.deleteModels((model) => model.uid === cardUID);
 
-    ProjectCard.Model.getModels((model) => model.column_uid === card.column_uid).forEach((model) => {
+    ProjectCard.Model.getModels((model) => model.project_column_uid === card.project_column_uid).forEach((model) => {
         if (model.order > card.order) {
             model.order -= 1;
         }
@@ -155,17 +155,17 @@ export const deleteProjectColumnModel = (columnUID: string, archiveData?: { uid:
         }
     }
 
-    const cards = ProjectCard.Model.getModels((model) => model.column_uid === column.uid || model.column_uid === archiveData.uid);
+    const cards = ProjectCard.Model.getModels((model) => model.project_column_uid === column.uid || model.project_column_uid === archiveData.uid);
     let archivedCardsCount = 0;
     for (let i = 0; i < cards.length; ++i) {
         const card = cards[i];
-        if (card.column_uid === archiveData.uid) {
+        if (card.project_column_uid === archiveData.uid) {
             card.order += archiveData.sourceCount ?? column.count;
             continue;
         }
 
-        card.column_uid = archiveData.uid;
-        card.column_name = archiveData.name;
+        card.project_column_uid = archiveData.uid;
+        card.project_column_name = archiveData.name;
         card.archived_at = archiveData.archivedAt;
         card.order = archivedCardsCount;
         archivedCardsCount += 1;

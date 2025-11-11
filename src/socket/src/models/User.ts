@@ -60,6 +60,8 @@ class User extends BaseModel {
             email: this.email,
             username: this.username,
             avatar: this.avatar?.path ?? null,
+            created_at: this.created_at,
+            updated_at: this.updated_at,
         };
     }
 

@@ -17,7 +17,10 @@ export const getListRequestData = (form: TGetListForm) => {
                     url = Utils.String.format(Routing.API.ACTIVITIY.PROJECT, { uid: form.project_uid });
                     break;
                 case "project_column":
-                    url = Utils.String.format(Routing.API.ACTIVITIY.PROJECT_COLUMN, { uid: form.project_uid, column_uid: form.column_uid });
+                    url = Utils.String.format(Routing.API.ACTIVITIY.PROJECT_COLUMN, {
+                        uid: form.project_uid,
+                        project_column_uid: form.project_column_uid,
+                    });
                     break;
                 case "card":
                     url = Utils.String.format(Routing.API.ACTIVITIY.CARD, { uid: form.project_uid, card_uid: form.card_uid });

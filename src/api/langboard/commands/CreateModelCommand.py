@@ -1,4 +1,4 @@
-from core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
 from pydantic import Field
 from .CommandUtils import create_py, format_template, make_name
 

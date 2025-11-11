@@ -32,7 +32,7 @@ function ActivityList({ form, ...props }: IActivityListProps) {
                 return (model: ActivityModel.TModel) => model.filterable_map.project === form.project_uid;
             case "project_column":
                 return (model: ActivityModel.TModel) =>
-                    model.filterable_map.project === form.project_uid && model.filterable_map.project_column === form.column_uid;
+                    model.filterable_map.project === form.project_uid && model.filterable_map.project_column === form.project_column_uid;
             case "card":
                 return (model: ActivityModel.TModel) =>
                     model.filterable_map.project === form.project_uid && model.filterable_map.card === form.card_uid;

@@ -42,7 +42,7 @@ const API = {
             ALL_PROJECT: "/notification/settings/project",
             PROJECT: "/notification/settings/project/{uid}",
             ALL_COLUMN: "/notification/settings/column",
-            COLUMN: "/notification/settings/project/{uid}/column/{column_uid}",
+            COLUMN: "/notification/settings/project/{uid}/column/{project_column_uid}",
             ALL_CARD: "/notification/settings/card",
             CARD: "/notification/settings/project/{uid}/card/{card_uid}",
             ALL_WIKI: "/notification/settings/wiki",
@@ -52,7 +52,7 @@ const API = {
     ACTIVITIY: {
         USER: "/activity/user",
         PROJECT: "/activity/project/{uid}",
-        PROJECT_COLUMN: "/activity/project/{uid}/column/{column_uid}",
+        PROJECT_COLUMN: "/activity/project/{uid}/column/{project_column_uid}",
         CARD: "/activity/project/{uid}/card/{card_uid}",
         PROJECT_WIKI: "/activity/project/{uid}/wiki/{wiki_uid}",
     },
@@ -90,9 +90,9 @@ const API = {
         },
         COLUMN: {
             CREATE: "/board/{uid}/column",
-            CHANGE_NAME: "/board/{uid}/column/{column_uid}/name",
-            CHANGE_ORDER: "/board/{uid}/column/{column_uid}/order",
-            DELETE: "/board/{uid}/column/{column_uid}",
+            CHANGE_NAME: "/board/{uid}/column/{project_column_uid}/name",
+            CHANGE_ORDER: "/board/{uid}/column/{project_column_uid}/order",
+            DELETE: "/board/{uid}/column/{project_column_uid}",
         },
         CARD: {
             CREATE: "/board/{uid}/card",
@@ -150,24 +150,6 @@ const API = {
             UPDATE_ASSIGNEES: "/board/{uid}/wiki/{wiki_uid}/assignees",
             DELETE: "/board/{uid}/wiki/{wiki_uid}",
         },
-        BOT: {
-            SCOPE: {
-                CREATE: "/board/{uid}/bot/{bot_uid}/scope",
-                TOGGLE_TRIGGER_CONDITION: "/board/{uid}/scope/{scope_uid}/trigger-condition",
-                DELETE: "/board/{uid}/scope/{scope_uid}",
-            },
-            SCHEDULE: {
-                GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/schedules",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{column_uid}/schedules",
-                SCHEDULE: "/board/{uid}/bot/{bot_uid}/schedule",
-                RESCHEDULE: "/board/{uid}/bot/{bot_uid}/reschedule/{schedule_uid}",
-                UNSCHEDULE: "/board/{uid}/bot/{bot_uid}/unschedule/{schedule_uid}",
-            },
-            LOG: {
-                GET_ALL_BY_CARD: "/board/{uid}/bot/{bot_uid}/card/{card_uid}/logs",
-                GET_ALL_BY_COLUMN: "/board/{uid}/bot/{bot_uid}/column/{column_uid}/logs",
-            },
-        },
         SETTINGS: {
             UPDATE_DETAILS: "/board/{uid}/settings/details",
             UPDATE_USER_ROLES: "/board/{uid}/settings/roles/user/{user_uid}",
@@ -182,6 +164,26 @@ const API = {
                 CHANGE_BOT: "/board/{uid}/settings/internal-bot",
                 CHANGE_SETTINGS: "/board/{uid}/settings/internal-bot/settings",
             },
+        },
+    },
+    BOT: {
+        SCOPE: {
+            CREATE: "/bot/{bot_uid}/scope",
+            TOGGLE_TRIGGER_CONDITION: "/bot/{bot_uid}/scope/{scope_uid}/trigger-condition",
+            DELETE: "/bot/{bot_uid}/scope/{scope_uid}",
+        },
+        SCHEDULE: {
+            GET_ALL_BY_PROJECT: "/bot/{bot_uid}/project/{project_uid}/schedules",
+            GET_ALL_BY_CARD: "/bot/{bot_uid}/card/{card_uid}/schedules",
+            GET_ALL_BY_COLUMN: "/bot/{bot_uid}/column/{project_column_uid}/schedules",
+            SCHEDULE: "/bot/{bot_uid}/schedule",
+            RESCHEDULE: "/bot/{bot_uid}/reschedule/{schedule_uid}",
+            UNSCHEDULE: "/bot/{bot_uid}/unschedule/{schedule_uid}",
+        },
+        LOG: {
+            GET_ALL_BY_PROJECT: "/bot/{bot_uid}/project/{project_uid}/logs",
+            GET_ALL_BY_CARD: "/bot/{bot_uid}/card/{card_uid}/logs",
+            GET_ALL_BY_COLUMN: "/bot/{bot_uid}/column/{project_column_uid}/logs",
         },
     },
     METADATA: {
@@ -211,6 +213,7 @@ const API = {
         },
         GLOBAL_RELATIONSHIPS: {
             CREATE: "/settings/global-relationship",
+            IMPORT: "/settings/import-global-relationships",
             UPDATE: "/settings/global-relationship/{uid}",
             DELETE: "/settings/global-relationship/{uid}",
             DELETE_SELECTED: "/settings/global-relationship",

@@ -1,5 +1,5 @@
-from core.routing import BaseFormModel, form_model
-from models.Checkitem import CheckitemStatus
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.models.Checkitem import CheckitemStatus
 from pydantic import Field
 
 
@@ -20,4 +20,4 @@ class CardChecklistNotifyForm(BaseFormModel):
 
 @form_model
 class CardifyCheckitemForm(BaseFormModel):
-    column_uid: str = Field(..., title="UID of the project column for the new card that will be created")
+    project_column_uid: str = Field(..., title="UID of the project column for the new card that will be created")

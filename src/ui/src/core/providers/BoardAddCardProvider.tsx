@@ -78,7 +78,7 @@ export const BoardAddCardProvider = ({ column, viewportRef, toLastPage, children
 
             const promise = createCardMutateAsync({
                 project_uid: project.uid,
-                column_uid: column.uid,
+                project_column_uid: column.uid,
                 title: value,
             });
 

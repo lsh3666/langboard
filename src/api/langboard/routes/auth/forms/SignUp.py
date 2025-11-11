@@ -1,6 +1,6 @@
 from re import match
-from core.routing import BaseFormModel, form_model
-from core.routing.Exception import InvalidError, InvalidException, MissingException
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.core.routing.Exception import InvalidError, InvalidException, MissingException
 from pydantic import field_validator
 from ....Constants import EMAIL_REGEX
 

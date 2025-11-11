@@ -21,7 +21,6 @@ export interface Interface extends IBaseModel {
     purpose: string;
     affiliation?: string;
     position?: string;
-    created_at: Date;
     activated_at?: Date;
 }
 
@@ -63,6 +62,7 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
             username: "",
             avatar: undefined,
             created_at: undefined!,
+            updated_at: undefined!,
             activated_at: undefined,
             is_admin: undefined,
             industry: "",
@@ -84,6 +84,7 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
             username: "",
             avatar: undefined,
             created_at: undefined!,
+            updated_at: undefined!,
             activated_at: undefined,
             is_admin: undefined,
             industry: "",
@@ -102,9 +103,6 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
     public static convertModel(model: Interface): Interface {
         if (model.avatar) {
             model.avatar = Utils.String.convertServerFileURL(model.avatar);
-        }
-        if (Utils.Type.isString(model.created_at)) {
-            model.created_at = new Date(model.created_at);
         }
         if (Utils.Type.isString(model.activated_at)) {
             model.activated_at = new Date(model.activated_at);
@@ -215,18 +213,11 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
         this.update({ position: value });
     }
 
-    public get created_at(): Date {
-        return this.getValue("created_at");
-    }
-    public set created_at(value: string | Date) {
-        this.update({ created_at: new Date(value) });
-    }
-
     public get activated_at(): Date | undefined {
         return this.getValue("activated_at");
     }
     public set activated_at(value: string | Date | undefined) {
-        this.update({ activated_at: Utils.Type.isString(value) ? new Date(value) : value });
+        this.update({ activated_at: value as unknown as Date });
     }
 
     public isPresentableUnknownUser(type?: User["type"]) {

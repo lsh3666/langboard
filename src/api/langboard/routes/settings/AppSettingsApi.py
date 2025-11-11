@@ -1,10 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import AppSetting, Bot, GlobalCardRelationshipType, InternalBot
-from models.AppSetting import AppSettingType
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.models import AppSetting, Bot, GlobalCardRelationshipType, InternalBot
+from langboard_shared.models.AppSetting import AppSettingType
+from langboard_shared.services import Service
 from .Form import CreateSettingForm, DeleteSelectedSettingsForm, UpdateSettingForm
 
 

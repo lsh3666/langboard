@@ -53,7 +53,6 @@ export interface Interface extends IBaseModel {
     owner_uid: string;
     title: string;
     project_type: string;
-    updated_at: Date;
 }
 
 export interface IStore extends Interface {
@@ -139,9 +138,6 @@ class Project extends BaseModel<IStore> {
     }
 
     public static convertModel(model: IStore): Interface {
-        if (Utils.Type.isString(model.updated_at)) {
-            model.updated_at = new Date(model.updated_at);
-        }
         if (Utils.Type.isString(model.last_viewed_at)) {
             model.last_viewed_at = new Date(model.last_viewed_at);
         }
@@ -206,10 +202,10 @@ class Project extends BaseModel<IStore> {
         this.update({ all_members: value });
     }
 
-    public get invited_member_uids(): string[] {
+    public get invited_member_uids() {
         return this.getValue("invited_member_uids");
     }
-    public set invited_member_uids(value: string[]) {
+    public set invited_member_uids(value) {
         this.update({ invited_member_uids: value });
     }
 
@@ -241,18 +237,11 @@ class Project extends BaseModel<IStore> {
         this.update({ labels: value });
     }
 
-    public get updated_at(): Date {
-        return this.getValue("updated_at");
-    }
-    public set updated_at(value: string | Date) {
-        this.update({ updated_at: new Date(value) });
-    }
-
     public get last_viewed_at(): Date {
         return this.getValue("last_viewed_at");
     }
     public set last_viewed_at(value: string | Date) {
-        this.update({ last_viewed_at: new Date(value) });
+        this.update({ last_viewed_at: value as unknown as Date });
     }
 
     public get member_roles() {

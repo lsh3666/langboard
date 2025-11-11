@@ -17,7 +17,7 @@ const BoardSettingsInternalBot = memo(({ botType }: IBoardSettingsInternalBotPro
     const [t] = useTranslation();
     const { project } = useBoardSettings();
     const internalBots = InternalBotModel.Model.useModels((model) => model.bot_type === botType);
-    const projectInternalBots = project.useForeignField("internal_bots");
+    const projectInternalBots = project.useForeignFieldArray("internal_bots");
     const currentInternalBot = useMemo(
         () => projectInternalBots.find((model) => model.bot_type === botType) ?? internalBots[0],
         [projectInternalBots, botType]

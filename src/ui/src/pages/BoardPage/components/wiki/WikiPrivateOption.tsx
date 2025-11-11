@@ -34,12 +34,12 @@ export function SkeletonWikiPrivateOption() {
 const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) => {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { projectUID, projectMembers, currentUser } = useBoardWiki();
+    const { project, projectMembers, currentUser } = useBoardWiki();
     const isPublic = wiki.useField("is_public");
     const forbidden = wiki.useField("forbidden");
     const isChangedTabRef = useRef(false);
-    const assignedMembers = wiki.useForeignField("assigned_members");
-    const groups = currentUser.useForeignField("user_groups");
+    const assignedMembers = wiki.useForeignFieldArray("assigned_members");
+    const groups = currentUser.useForeignFieldArray("user_groups");
     const allItems = useMemo(() => projectMembers.filter((item) => item.uid !== currentUser.uid), [projectMembers]);
     const originalAssignees = useMemo(() => assignedMembers.filter((item) => item.uid !== currentUser.uid), [assignedMembers]);
     const [isValidating, setIsValidating] = useState(false);
@@ -64,7 +64,7 @@ const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) =>
         setIsValidating(true);
 
         const promise = changeWikiPublicMutateAsync({
-            project_uid: projectUID,
+            project_uid: project.uid,
             wiki_uid: wiki.uid,
             is_public: !privateState,
         });
@@ -76,7 +76,7 @@ const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) =>
                 const { handle } = setupApiErrorHandler(
                     {
                         [EHttpStatus.HTTP_403_FORBIDDEN]: {
-                            after: () => navigate(ROUTES.BOARD.WIKI(projectUID)),
+                            after: () => navigate(ROUTES.BOARD.WIKI(project.uid)),
                         },
                     },
                     messageRef
@@ -107,7 +107,7 @@ const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) =>
         }
 
         const promise = updateWikiAssigneesMutateAsync({
-            project_uid: projectUID,
+            project_uid: project.uid,
             wiki_uid: wiki.uid,
             assignees: newAssignees,
         });
@@ -119,7 +119,7 @@ const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) =>
                 const { handle } = setupApiErrorHandler(
                     {
                         [EHttpStatus.HTTP_403_FORBIDDEN]: {
-                            after: () => navigate(ROUTES.BOARD.WIKI(projectUID)),
+                            after: () => navigate(ROUTES.BOARD.WIKI(project.uid)),
                         },
                     },
                     messageRef
@@ -171,7 +171,7 @@ const WikiPrivateOption = memo(({ wiki, changeTab }: IWikiPrivateOptionProps) =>
                     showableAssignees={assignedMembers}
                     tagContentProps={{
                         scope: {
-                            projectUID,
+                            projectUID: project.uid,
                             wikiUID: wiki.uid,
                         },
                     }}

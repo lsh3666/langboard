@@ -1,12 +1,12 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import Bot, ProjectColumn, ProjectRole, User
-from models.ProjectRole import ProjectRoleAction
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import Bot, ProjectColumn, ProjectRole, User
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder
+from langboard_shared.services import Service
 from .forms import ChangeRootOrderForm, ColumnForm
 
 
@@ -27,7 +27,7 @@ from .forms import ChangeRootOrderForm, ColumnForm
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def create_project_column(
-    project_uid: str, form: ColumnForm, user_or_bot: User | Bot = Auth.scope("api"), service: Service = Service.scope()
+    project_uid: str, form: ColumnForm, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
 ) -> JsonResponse:
     column = await service.project_column.create(user_or_bot, project_uid, form.name)
     if not column:
@@ -57,7 +57,7 @@ async def update_project_column_name(
     project_uid: str,
     column_uid: str,
     form: ColumnForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project_column.change_name(user_or_bot, project_uid, column_uid, form.name)
@@ -79,7 +79,7 @@ async def update_project_column_order(
     project_uid: str,
     column_uid: str,
     form: ChangeRootOrderForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project_column.change_order(user, project_uid, column_uid, form.order)
@@ -99,7 +99,7 @@ async def update_project_column_order(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def delete_project_column(
-    project_uid: str, column_uid: str, user_or_bot: User | Bot = Auth.scope("api"), service: Service = Service.scope()
+    project_uid: str, column_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project_column.delete(user_or_bot, project_uid, column_uid)
     if not result:

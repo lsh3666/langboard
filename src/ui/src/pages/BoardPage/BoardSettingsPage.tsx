@@ -26,8 +26,8 @@ export function SkeletonBoardSettingsPage(): JSX.Element {
     );
 }
 
-const BoardSettingsPage = memo(({ projectUID, currentUser }: IBoardRelatedPageProps) => {
-    const { data, error } = useGetProjectDetails({ uid: projectUID });
+const BoardSettingsPage = memo(({ project, currentUser }: IBoardRelatedPageProps) => {
+    const { data, error } = useGetProjectDetails({ uid: project.uid });
     const navigate = usePageNavigateRef();
 
     useEffect(() => {
@@ -49,9 +49,9 @@ const BoardSettingsPage = memo(({ projectUID, currentUser }: IBoardRelatedPagePr
 
     return (
         <>
-            <BoardSettingsUserList currentUser={currentUser} projectUID={projectUID} />
+            <BoardSettingsUserList currentUser={currentUser} project={project} />
             {data && (
-                <BoardSettingsProvider project={data.project} currentUser={currentUser}>
+                <BoardSettingsProvider project={project} currentUser={currentUser}>
                     <BoardSettingsList />
                 </BoardSettingsProvider>
             )}

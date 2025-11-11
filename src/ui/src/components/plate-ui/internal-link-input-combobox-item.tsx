@@ -40,7 +40,7 @@ const InternalLinkInputComboboxCardItem = ({
     ...props
 }: Omit<IInternalLinkInputComboboxItemInnerProps, "linkable"> & { card: ProjectCard.TModel }) => {
     const title = card.useField("title");
-    const columnName = card.useField("column_name");
+    const columnName = card.useField("project_column_name");
 
     return (
         <InternalLinkInputComboboxItemInner

@@ -1,5 +1,5 @@
 import BaseModel from "@/core/db/BaseModel";
-import { EBotPlatform, EBotPlatformRunningType } from "@/models/bot.related.types";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { Entity, Column } from "typeorm";
 
 export enum EInternalBotType {
@@ -23,7 +23,7 @@ class InternalBot extends BaseModel {
     public platform_running_type!: EBotPlatformRunningType;
 
     @Column({ type: "varchar" })
-    public url!: string;
+    public api_url!: string;
 
     @Column({ type: "varchar" })
     public api_key: string = "";
@@ -40,6 +40,8 @@ class InternalBot extends BaseModel {
             bot_type: this.bot_type,
             display_name: this.display_name,
             avatar: this.avatar?.path ?? null,
+            created_at: this.created_at,
+            updated_at: this.updated_at,
         };
     }
 
@@ -51,7 +53,7 @@ class InternalBot extends BaseModel {
             `${prefix}display_name as display_name`,
             `${prefix}platform as platform`,
             `${prefix}platform_running_type as platform_running_type`,
-            `${prefix}url as url`,
+            `${prefix}api_url as api_url`,
             `${prefix}api_key as api_key`,
             `CASE WHEN ${prefix}platform_running_type = '${EBotPlatformRunningType.FlowJson}' THEN NULL ELSE ${prefix}value END as value`,
             `${prefix}avatar as avatar`,

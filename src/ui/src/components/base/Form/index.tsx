@@ -7,7 +7,6 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { composeEventHandlers } from "@radix-ui/primitive";
 import { useComposedRefs } from "@radix-ui/react-compose-refs";

@@ -1,9 +1,10 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
-from core.utils.Converter import convert_python_data
 from fastapi import status
-from models import (
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.core.utils.Converter import convert_python_data
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import (
     Bot,
     Card,
     ChatTemplate,
@@ -15,12 +16,11 @@ from models import (
     ProjectRole,
     User,
 )
-from models.bases import ALL_GRANTED
-from models.InternalBot import InternalBotType
-from models.ProjectRole import ProjectRoleAction
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder
-from ...services import Service
+from langboard_shared.models.bases import ALL_GRANTED
+from langboard_shared.models.InternalBot import InternalBotType
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder
+from langboard_shared.services import Service
 from .forms import (
     ChangeInternalBotForm,
     ChangeInternalBotSettingsForm,
@@ -58,7 +58,7 @@ from .forms import (
                 ),
                 "internal_bots": [InternalBot],
                 "project_columns": [(ProjectColumn, {"schema": {"count": "integer"}})],
-                "cards": [(Card, {"schema": {"column_name": "string"}})],
+                "cards": [(Card, {"schema": {"project_column_name": "string"}})],
             }
         )
         .auth()
@@ -70,14 +70,12 @@ from .forms import (
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def get_project_details(
-    project_uid: str, user_or_bot: User | Bot = Auth.scope("api"), service: Service = Service.scope()
+    project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project.get_details(user_or_bot, project_uid, is_setting=True)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
     project, response = result
-    response["description"] = project.description
-    response["ai_description"] = project.ai_description
     assigned_internal_bots = await service.project.get_assigned_internal_bots(project, as_api=False)
     response["internal_bots"] = [internal_bot.api_response() for internal_bot, _ in assigned_internal_bots]
     response["internal_bot_settings"] = {
@@ -113,7 +111,7 @@ async def get_project_details(
 async def change_project_details(
     project_uid: str,
     form: UpdateProjectDetailsForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project.update(user_or_bot, project_uid, form.model_dump())
@@ -192,7 +190,7 @@ async def update_project_user_roles(
 async def create_project_label(
     project_uid: str,
     form: CreateProjectLabelForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project_label.create(user_or_bot, project_uid, form.name, form.color, form.description)
@@ -229,7 +227,7 @@ async def change_project_label_details(
     project_uid: str,
     label_uid: str,
     form: UpdateProjectLabelDetailsForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.project_label.update(user_or_bot, project_uid, label_uid, form.model_dump())
@@ -279,7 +277,7 @@ async def change_project_label_order(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def delete_label(
-    project_uid: str, label_uid: str, user_or_bot: User | Bot = Auth.scope("api"), service: Service = Service.scope()
+    project_uid: str, label_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
 ) -> JsonResponse:
     result = await service.project_label.delete(user_or_bot, project_uid, label_uid)
     if not result:
@@ -296,7 +294,7 @@ async def delete_label(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def delete_project(
-    project_uid: str, user: User = Auth.scope("api_user"), service: Service = Service.scope()
+    project_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
 ) -> JsonResponse:
     project = await service.project.get_by_uid(project_uid)
     if project is None:

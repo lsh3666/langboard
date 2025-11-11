@@ -1,6 +1,6 @@
-from core.routing import BaseFormModel, form_model
-from models.UserNotification import NotificationType
-from models.UserNotificationUnsubscription import NotificationChannel
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.models.UserNotification import NotificationType
+from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel
 
 
 @form_model

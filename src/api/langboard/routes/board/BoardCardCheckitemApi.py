@@ -1,12 +1,12 @@
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import Bot, ProjectRole, User
-from models.ProjectRole import ProjectRoleAction
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder
-from ...services import Service
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import Bot, ProjectRole, User
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder
+from langboard_shared.services import Service
 from .forms import CardCheckRelatedForm, CardifyCheckitemForm, ChangeCardCheckitemStatusForm, ChangeChildOrderForm
 
 
@@ -24,7 +24,7 @@ async def change_checkitem_title(
     card_uid: str,
     checkitem_uid: str,
     form: CardCheckRelatedForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_title(user_or_bot, project_uid, card_uid, checkitem_uid, form.title)
@@ -48,7 +48,7 @@ async def change_checkitem_order_or_move_checklist(
     card_uid: str,
     checkitem_uid: str,
     form: ChangeChildOrderForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_order(
@@ -73,7 +73,7 @@ async def change_checkitem_status(
     card_uid: str,
     checkitem_uid: str,
     form: ChangeCardCheckitemStatusForm,
-    user: User = Auth.scope("api_user"),
+    user: User = Auth.scope("user"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -104,7 +104,7 @@ async def cardify_checkitem(
     card_uid: str,
     checkitem_uid: str,
     form: CardifyCheckitemForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -114,7 +114,9 @@ async def cardify_checkitem(
     if checkitem.user_id and checkitem.user_id != user_or_bot.id:
         return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
 
-    cardified_card = await service.checkitem.cardify(user_or_bot, project_uid, card_uid, checkitem, form.column_uid)
+    cardified_card = await service.checkitem.cardify(
+        user_or_bot, project_uid, card_uid, checkitem, form.project_column_uid
+    )
     if not cardified_card:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -134,7 +136,7 @@ async def toggle_checkitem_checked(
     project_uid: str,
     card_uid: str,
     checkitem_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)
@@ -164,7 +166,7 @@ async def delete_checkitem(
     project_uid: str,
     card_uid: str,
     checkitem_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_uid(checkitem_uid)

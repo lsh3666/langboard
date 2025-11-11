@@ -1,9 +1,9 @@
-from core.routing import BaseFormModel, form_model
-from core.schema import Pagination
-from core.types import SafeDateTime
-from models import Card, ProjectColumn
-from models.bases import BotTriggerCondition
-from models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
+from langboard_shared.core.routing import BaseFormModel, form_model
+from langboard_shared.core.schema import Pagination
+from langboard_shared.core.types import SafeDateTime
+from langboard_shared.models import Card, ProjectColumn
+from langboard_shared.models.bases import BotTriggerCondition
+from langboard_shared.models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
 from pydantic import Field
 
 

@@ -1,13 +1,13 @@
-from core.db import EditorContentModel
-from core.filter import AuthFilter
-from core.routing import ApiErrorCode, AppRouter, JsonResponse
-from core.schema import OpenApiSchema
 from fastapi import status
-from models import Bot, CardComment, ProjectRole, User
-from models.ProjectRole import ProjectRoleAction
-from ...filter import RoleFilter
-from ...security import Auth, RoleFinder
-from ...services import Service
+from langboard_shared.core.db import EditorContentModel
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.filter import RoleFilter
+from langboard_shared.models import Bot, CardComment, ProjectRole, User
+from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.security import Auth, RoleFinder
+from langboard_shared.services import Service
 from .forms import ToggleCardCommentReactionForm
 
 
@@ -24,7 +24,7 @@ async def add_card_comment(
     project_uid: str,
     card_uid: str,
     comment: EditorContentModel,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     result = await service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
@@ -32,6 +32,40 @@ async def add_card_comment(
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
 
     return JsonResponse(status_code=status.HTTP_201_CREATED)
+
+
+@AppRouter.api.get(
+    "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}",
+    tags=["Board.Card.Comment"],
+    description="Get a card comment.",
+    responses=OpenApiSchema(200)
+    .suc(
+        {
+            "comment": (
+                CardComment,
+                {
+                    "schema": {
+                        "user?": User,
+                        "bot?": Bot,
+                        "reactions": {"<reaction type>": ["<user or bot uid>"]},
+                    }
+                },
+            ),
+        }
+    )
+    .auth()
+    .forbidden()
+    .err(404, ApiErrorCode.NF2003)
+    .get(),
+)
+@RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
+@AuthFilter.add()
+async def get_card_comment(card_uid: str, comment_uid: str, service: Service = Service.scope()) -> JsonResponse:
+    result = await service.card_comment.get_board_comment(card_uid, comment_uid)
+    if not result:
+        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+
+    return JsonResponse(content={"comment": result}, status_code=status.HTTP_200_OK)
 
 
 @AppRouter.schema(form=EditorContentModel)
@@ -48,7 +82,7 @@ async def update_card_comment(
     card_uid: str,
     comment_uid: str,
     comment: EditorContentModel,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)
@@ -76,7 +110,7 @@ async def delete_card_comment(
     project_uid: str,
     card_uid: str,
     comment_uid: str,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)
@@ -105,7 +139,7 @@ async def toggle_reaction_card_comment(
     card_uid: str,
     comment_uid: str,
     form: ToggleCardCommentReactionForm,
-    user_or_bot: User | Bot = Auth.scope("api"),
+    user_or_bot: User | Bot = Auth.scope("all"),
     service: Service = Service.scope(),
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_uid(comment_uid)

@@ -1,5 +1,5 @@
-from core.bootstrap import BaseCommand, BaseCommandOptions
-from core.utils.StringCase import StringCase
+from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
+from langboard_shared.core.utils.StringCase import StringCase
 from .CommandUtils import create_service_py, format_template, make_name
 
 

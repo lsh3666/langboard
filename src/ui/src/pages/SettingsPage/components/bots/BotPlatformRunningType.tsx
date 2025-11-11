@@ -3,7 +3,7 @@ import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTy
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import { EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatformRunningType } from "@langboard/core/ai";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";

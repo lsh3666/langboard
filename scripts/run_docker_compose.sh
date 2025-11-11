@@ -45,4 +45,4 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-docker compose -f $COMPOSE_PREFIX.prod.yaml $COMPOSE_ARGS up -d --build
+docker compose -f $COMPOSE_PREFIX.yaml $COMPOSE_ARGS up -d --build

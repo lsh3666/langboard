@@ -15,6 +15,7 @@ export const InputVariants = cva(
             variant: {
                 default: "border border-input ring-offset-background focus-visible:ring-2 focus-visible:ring-ring",
                 destructive: "border-destructive focus-visible:ring-destructive",
+                warning: "border-warning-border focus-visible:ring-2 focus-visible:ring-warning-border",
                 ghost: "border-transparent focus-visible:ring-transparent",
             },
             h: {

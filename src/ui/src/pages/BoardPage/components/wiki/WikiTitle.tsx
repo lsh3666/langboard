@@ -17,7 +17,7 @@ export interface IWikiTitleProps {
 
 const WikiTitle = memo(({ wiki }: IWikiTitleProps) => {
     const navigate = usePageNavigateRef();
-    const { projectUID } = useBoardWiki();
+    const { project } = useBoardWiki();
     const [t] = useTranslation();
     const { mutateAsync: changeWikiDetailsMutateAsync } = useChangeWikiDetails("title", { interceptToast: true });
     const title = wiki.useField("title");
@@ -30,7 +30,7 @@ const WikiTitle = memo(({ wiki }: IWikiTitleProps) => {
         editorName,
         save: (value, endCallback) => {
             const promise = changeWikiDetailsMutateAsync({
-                project_uid: projectUID,
+                project_uid: project.uid,
                 wiki_uid: wiki.uid,
                 title: value,
             });
@@ -42,7 +42,7 @@ const WikiTitle = memo(({ wiki }: IWikiTitleProps) => {
                     const { handle } = setupApiErrorHandler(
                         {
                             [EHttpStatus.HTTP_403_FORBIDDEN]: {
-                                after: () => navigate(ROUTES.BOARD.WIKI(projectUID)),
+                                after: () => navigate(ROUTES.BOARD.WIKI(project.uid)),
                             },
                         },
                         messageRef

@@ -6,11 +6,12 @@ import Logger from "@/core/utils/Logger";
 import { EInternalBotType } from "@/models/InternalBot";
 import ProjectAssignedInternalBot from "@/models/ProjectAssignedInternalBot";
 import ProjectAssignedUser from "@/models/ProjectAssignedUser";
+import { Routing } from "@langboard/core/constants";
 import { EApiErrorCode, EHttpStatus } from "@langboard/core/enums";
 import { IncomingForm } from "formidable";
 
-Routes.post("/board/{projectUID}/chat/upload", async ({ req, user, params }) => {
-    const { projectUID } = params;
+Routes.post(Routing.API.BOARD.CHAT.UPLOAD, async ({ req, user, params }) => {
+    const { uid: projectUID } = params;
     if (!projectUID) {
         return ApiErrorResponse(EApiErrorCode.NF2001, EHttpStatus.HTTP_404_NOT_FOUND);
     }

@@ -12,10 +12,10 @@ const BoardCardMemberList = memo(() => {
     const { projectUID, card, currentUser, hasRoleAction } = useBoardCard();
     const [t] = useTranslation();
     const canEdit = hasRoleAction(Project.ERoleAction.CardUpdate);
-    const projectMembers = card.useForeignField("project_members");
+    const projectMembers = card.useForeignFieldArray("project_members");
     const cardMemberUIDs = card.useField("member_uids");
     const cardMembers = useMemo(() => projectMembers.filter((member) => cardMemberUIDs.includes(member.uid)), [projectMembers, cardMemberUIDs]);
-    const groups = currentUser.useForeignField("user_groups");
+    const groups = currentUser.useForeignFieldArray("user_groups");
     const { mutateAsync: updateCardAssignedUsersMutateAsync } = useUpdateCardAssignedUsers({ interceptToast: true });
 
     const onSave = async (items: User.TModel[]) => {

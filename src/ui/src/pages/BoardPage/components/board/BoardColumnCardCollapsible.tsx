@@ -26,14 +26,14 @@ function BoardColumnCardCollapsible({ isDragging }: IBoardColumnCardCollapsibleP
     const [t] = useTranslation();
     const { model: card } = ModelRegistry.ProjectCard.useContext<IBoardColumnCardContextParams>();
     const title = card.useField("title");
-    const projectMembers = project.useForeignField("all_members");
+    const projectMembers = project.useForeignFieldArray("all_members");
     const cardMemberUIDs = card.useField("member_uids");
     const cardMembers = useMemo(() => projectMembers.filter((member) => cardMemberUIDs.includes(member.uid)), [projectMembers, cardMemberUIDs]);
     const commentCount = card.useField("count_comment");
     const { updateCollapsed } = useCardStore();
     const isCollapsed = useCardIsCollapsed(card.uid);
-    const labels = card.useForeignField("labels");
-    const cardRelationships = card.useForeignField("relationships");
+    const labels = card.useForeignFieldArray("labels");
+    const cardRelationships = card.useForeignFieldArray("relationships");
     const hasRunningBot = useHasRunningBot({ type: "card", targetUID: card.uid });
     const [isSelectRelationshipDialogOpened, setIsSelectRelationshipDialogOpened] = useState(false);
     const selectedRelationship = useMemo(

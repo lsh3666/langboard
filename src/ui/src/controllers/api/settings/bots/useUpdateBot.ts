@@ -3,7 +3,7 @@ import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
 import { BotModel } from "@/core/models";
-import { EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
+import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { Utils } from "@langboard/core/utils";
 
 export interface IUpdateBotForm {

@@ -36,15 +36,14 @@ interface IBoardColumnMoreMenuBotListItemProps {
 const BoardColumnMoreMenuBotListItem = memo(({ bot, column }: IBoardColumnMoreMenuBotListItemProps) => {
     const { project, socket } = useBoard();
     const [updated, forceUpdate] = useReducer((x) => x + 1, 0);
-    const botScopes = ProjectColumnBotScope.Model.useModels(
+    const botScope = ProjectColumnBotScope.Model.useModel(
         (model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid && model.conditions.length > 0,
         [updated]
     );
-    const botSchedules = ProjectColumnBotSchedule.Model.useModels(
-        (model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid && model.status !== BaseBotScheduleModel.EStatus.Stopped
+    const botSchedule = ProjectColumnBotSchedule.Model.useModel(
+        (model) => model.bot_uid === bot.uid && model.project_column_uid === column.uid && model.status !== BaseBotScheduleModel.EStatus.Stopped,
+        [updated]
     );
-    const botScope = botScopes[0];
-    const botSchedule = botSchedules[0];
     const handlers = useMemo(
         () =>
             useBoardUIBotScopeConditionsUpdatedHandlers({

@@ -21,7 +21,7 @@ const errorMessages: Record<number, string> = {
     [EHttpStatus.HTTP_417_EXPECTATION_FAILED]: "Expectation Failed",
     [EHttpStatus.HTTP_418_IM_A_TEAPOT]: "I'm A Teapot",
     [EHttpStatus.HTTP_421_MISDIRECTED_REQUEST]: "Misdirected Request",
-    [EHttpStatus.HTTP_422_UNPROCESSABLE_ENTITY]: "Unprocessable Entity",
+    [EHttpStatus.HTTP_422_UNPROCESSABLE_CONTENT]: "Unprocessable Entity",
     [EHttpStatus.HTTP_423_LOCKED]: "Locked",
     [EHttpStatus.HTTP_424_FAILED_DEPENDENCY]: "Failed Dependency",
     [EHttpStatus.HTTP_425_TOO_EARLY]: "Too Early",

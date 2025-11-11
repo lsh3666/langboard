@@ -24,7 +24,7 @@ const useToggleSpecificScopedNotificationSettings = <TType extends TNotification
             break;
         case "column":
             url = Routing.API.NOTIFICATION.SETTINGS.COLUMN;
-            getSpecificUID = (params: TToggleSpecificScopedNotificationSettingsForm<"column">) => params.column_uid;
+            getSpecificUID = (params: TToggleSpecificScopedNotificationSettingsForm<"column">) => params.project_column_uid;
             break;
         case "card":
             url = Routing.API.NOTIFICATION.SETTINGS.CARD;

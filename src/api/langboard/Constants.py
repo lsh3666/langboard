@@ -1,36 +1,16 @@
 from os.path import dirname
 from pathlib import Path
 from sys import executable
-from core.caching import Cache
-from core.Env import Env
+from langboard_shared.Env import Env
 
 
 # Directory
 BASE_DIR = Path(dirname(__file__ if not Env.IS_EXECUTABLE else executable))
-ROOT_DIR = BASE_DIR / ".." / ".." / ".."
-DATA_DIR = ROOT_DIR / "local" if not Env.IS_EXECUTABLE else BASE_DIR / "data"
-DATA_DIR.mkdir(exist_ok=True)
-SCHEMA_DIR = DATA_DIR / "schemas"
-SCHEMA_DIR.mkdir(exist_ok=True)
 
 # URL
 HOST = Env.get_from_env("API_HOST", "localhost")
-DOMAIN = Env.get_from_env("DOMAIN")
-
-# Logging
-LOGGING_DIR = Path(Env.get_from_env("LOGGING_DIR", DATA_DIR / "logs" / "api"))
-
-# Storage
-LOCAL_STORAGE_DIR = Path(Env.get_from_env("LOCAL_STORAGE_DIR", DATA_DIR / "uploads"))
-
-# Scheduler
-CRON_TAB_FILE = Path(Env.get_from_env("CRON_TAB_FILE", DATA_DIR / "cron.tab"))
 
 # App Config
-APP_CONFIG_FILE = DATA_DIR / "api_config.json"
-
-# Cache
-CACHE_DIR = DATA_DIR / "cache"
-Cache.set_cache_dir(CACHE_DIR)
+APP_CONFIG_FILE = Env.DATA_DIR / "api_config.json"
 
 EMAIL_REGEX = r"^.+@.+\..+$"

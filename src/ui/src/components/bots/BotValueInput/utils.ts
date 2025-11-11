@@ -1,10 +1,15 @@
 import { TSVGIconMap } from "@/assets/svgs/icons";
 import { TBotValueInputType } from "@/components/bots/BotValueInput/types";
-import { EBotPlatform, EBotPlatformRunningType } from "@/core/models/bot.related.type";
-import { TAgentModelName } from "@langboard/core/ai";
+import { EBotPlatform, EBotPlatformRunningType, TAgentModelName } from "@langboard/core/ai";
 
 export const getValueType = (platform: EBotPlatform, runningType: EBotPlatformRunningType): TBotValueInputType => {
     if (platform === EBotPlatform.Default) {
+        if (runningType === EBotPlatformRunningType.Default) {
+            return "default";
+        }
+    }
+
+    if (platform === EBotPlatform.N8N) {
         if (runningType === EBotPlatformRunningType.Default) {
             return "default";
         }
@@ -26,7 +31,20 @@ export const requirements: Partial<Record<EBotPlatform, Partial<Record<EBotPlatf
         [EBotPlatformRunningType.Endpoint]: ["url", "apiKey", "value"],
         [EBotPlatformRunningType.FlowJson]: ["value"],
     },
+    [EBotPlatform.N8N]: {
+        [EBotPlatformRunningType.Default]: ["url", "apiKey", "value"],
+    },
 };
+
+export const showableDefaultInputs: Partial<Record<EBotPlatform, Partial<Record<EBotPlatformRunningType, ("api_names" | "provider" | "prompt")[]>>>> =
+    {
+        [EBotPlatform.Default]: {
+            [EBotPlatformRunningType.Default]: ["api_names", "provider", "prompt"],
+        },
+        [EBotPlatform.N8N]: {
+            [EBotPlatformRunningType.Default]: [],
+        },
+    };
 
 export const providerIconMap: Record<TAgentModelName, keyof TSVGIconMap> = {
     OpenAI: "OpenAI",

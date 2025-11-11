@@ -71,18 +71,18 @@ abstract class BaseBotScheduleModel<TModel extends Interface> extends BaseModel<
         this.update({ interval_str: value });
     }
 
-    public get start_at() {
+    public get start_at(): Date | undefined {
         return this.getValue("start_at");
     }
-    public set start_at(value: Date | undefined) {
-        this.update({ start_at: value });
+    public set start_at(value: string | Date | undefined) {
+        this.update({ start_at: value as unknown as Date });
     }
 
-    public get end_at() {
+    public get end_at(): Date | undefined {
         return this.getValue("end_at");
     }
-    public set end_at(value: Date | undefined) {
-        this.update({ end_at: value });
+    public set end_at(value: string | Date | undefined) {
+        this.update({ end_at: value as unknown as Date });
     }
 }
 
