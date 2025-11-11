@@ -113,7 +113,8 @@ services:
     init: true
     container_name: ${PROJECT_NAME}_flows
     build:
-      context: ../src/flows
+      context: ../src
+      dockerfile: flows/Dockerfile
     env_file:
       - ./envs/.flows.env
     working_dir: /app/src/flows

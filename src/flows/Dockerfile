@@ -18,9 +18,8 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 RUN uv --version
 
-COPY ./langboard_flows ./langboard_flows
-COPY pyproject.toml uv.lock ./
+COPY ./flows /app/src/flows
+COPY ./shared/py /app/src/shared/py
 
-RUN uv venv
-
-RUN uv pip install .
+RUN cd /app/src/shared/py && uv venv && uv pip install .
+RUN cd /app/src/flows && uv venv && uv pip install .
