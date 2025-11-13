@@ -25,6 +25,7 @@ const Overlay = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Overl
                 "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
                 className
             )}
+            data-dialog-overlay="true"
             {...props}
         />
     )
@@ -53,6 +54,7 @@ interface IContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrim
     withCloseButton?: bool;
     overlayClassName?: string;
     disableOverlayClick?: bool;
+    onOverlayInteract?: () => void;
 }
 
 const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Content>, IContentProps>(
@@ -66,6 +68,7 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
             overlayClassName,
             disableOverlayClick,
             onPointerDownOutside,
+            onOverlayInteract,
             ...props
         },
         ref
@@ -79,6 +82,9 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                   }>
         ) => {
             const target = event.target as HTMLElement;
+            if (event.currentTarget !== target) {
+                return;
+            }
             if (
                 disableOverlayClick ||
                 target.hasAttribute("data-scroll-area-scrollbar") ||
@@ -89,12 +95,22 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                 event.stopPropagation();
             }
 
+            if (target.closest("[data-dialog-content]")) {
+                return;
+            }
+
             if (getEditorStore().isInCurrentEditor()) {
-                if (target === motionRef.current) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Don't remove editor focus when onOverlayInteract exists (dialog opening case)
+                if (!onOverlayInteract) {
                     getEditorStore().setCurrentEditor(null);
                 }
+            }
+
+            if (!disableOverlayClick) {
+                onOverlayInteract?.();
             }
         };
 
@@ -122,6 +138,7 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
                                     "relative w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 focus-visible:outline-none sm:rounded-lg",
                                     className
                                 )}
+                                data-dialog-content="true"
                                 onPointerDownOutside={(e) => {
                                     onOverlayClick(e);
                                     onPointerDownOutside?.(e);
