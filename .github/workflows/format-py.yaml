@@ -6,13 +6,48 @@ on:
       - "**/*.py"
       - "**/uv.lock"
       - "**/pyproject.toml"
+      - "src/shared/py/**"
       - "src/flows/**"
       - ".github/workflows/lint-py.yaml"
   pull_request:
     paths: *py_paths
 
 jobs:
-  run-root-linter:
+  run-core-formatter:
+    name: Lint (src/shared/py via uv)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/shared/py
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        run: pipx install uv
+      - name: Cache uv and venv
+        uses: actions/cache@v4
+        with:
+          path: |
+            src/shared/py/.cache/uv
+            src/shared/py/.venv
+          key: core-uv-venv-${{ runner.os }}-${{ hashFiles('src/shared/py/uv.lock', 'src/shared/py/pyproject.toml') }}
+          restore-keys: core-uv-venv-${{ runner.os }}-
+      - name: Sync dependencies (core)
+        run: |
+          if [ -f uv.lock ]; then
+            uv sync --frozen
+          else
+            uv sync
+          fi
+      - name: Lint (core)
+        run: |
+          uv run ruff check . --fix
+          uv run ruff format .
+  run-root-formatter:
     name: Lint (root via uv)
     runs-on: ubuntu-latest
     strategy:
@@ -49,7 +84,7 @@ jobs:
         run: |
           uv run ruff check . --fix
           uv run ruff format .
-  run-flows-linter:
+  run-flows-formatter:
     name: Lint (src/flows via uv)
     runs-on: ubuntu-latest
     defaults:

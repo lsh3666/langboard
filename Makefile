@@ -8,10 +8,11 @@ OLLAMA_SHARED_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.shared.yaml
 OLLAMA_CPU_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.cpu.yaml $(OLLAMA_SHARED_COMPOSE_ARGS)
 OLLAMA_GPU_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.gpu.yaml $(OLLAMA_SHARED_COMPOSE_ARGS)
 UI_DIR := src/ui
+PY_CORE_DIR := src/shared/py
 API_DIR := src/api
 FLOWS_DIR := src/flows
 SOCKET_DIR := src/socket
-TS_CORE_DIR := src/shared/ts
+TS_SHARED_DIR := src/shared/ts
 GREEN := \033[0;32m
 RED := \033[0;31m
 CYAN := \033[0;36m
@@ -61,20 +62,24 @@ help: ## show this help message
 format: ## run code formatters
 	uv run ruff check . --fix
 	uv run ruff format .
+	cd $(PY_CORE_DIR) && uv run ruff check . --fix
+	cd $(PY_CORE_DIR) && uv run ruff format .
 	cd $(FLOWS_DIR) && uv run ruff check . --fix
 	cd $(FLOWS_DIR) && uv run ruff format .
-	cd $(TS_CORE_DIR) && yarn run format
+	cd $(TS_SHARED_DIR) && yarn run format
 	cd $(UI_DIR) && yarn run format
 	cd $(SOCKET_DIR) && yarn run format
 
 lint: ## run linters
 	uv run ruff check .
+	cd $(PY_CORE_DIR) && uv run ruff check .
 	cd $(FLOWS_DIR) && uv run ruff check .
-	cd $(TS_CORE_DIR) && yarn run lint
+	cd $(TS_SHARED_DIR) && yarn run lint
 	cd $(UI_DIR) && yarn run lint
 	cd $(SOCKET_DIR) && yarn run lint
 
 init: check_tools clean_python_cache clean_ts_core_cache clean_ui_cache clean_socket_cache ## initialize the project
+	make install_py_core
 	make install_api
 	make install_ts_core
 	make install_ui
@@ -83,24 +88,28 @@ init: check_tools clean_python_cache clean_ts_core_cache clean_ui_cache clean_so
 	make init_env
 	@printf "$(GREEN)All requirements are installed.$(NC)"
 
+install_py_core: ## install the py core dependencies
+	@echo 'Installing py core dependencies'
+	cd $(PY_CORE_DIR) && uv venv && uv pip install .
+
 install_api: ## install the api dependencies
 	@echo 'Installing api dependencies'
-	@uv install
+	uv venv && uv pip install .
+
+install_flows: ## install flows dependencies
+	@echo 'Installing flows dependencies'
+	cd $(FLOWS_DIR) && uv venv && uv pip install .
 
 install_ts_core: ## install the ts core dependencies
 	@echo 'Installing ts core dependencies'
-	cd $(TS_CORE_DIR) && yarn install
-	cd $(TS_CORE_DIR) && yarn run format
-	cd $(TS_CORE_DIR) && yarn run build
+	cd $(TS_SHARED_DIR) && yarn install
+	cd $(TS_SHARED_DIR) && yarn run format
+	cd $(TS_SHARED_DIR) && yarn run build
 
 install_ui: ## install ui dependencies
 	@echo 'Installing ui dependencies'
 	cd $(UI_DIR) && yarn install
 	cd $(UI_DIR) && yarn run format
-
-install_flows: ## install flows dependencies
-	@echo 'Installing flows dependencies'
-	cd $(FLOWS_DIR) && uv venv && uv pip install .
 
 install_socket: ## install socket dependencies
 	@echo 'Installing socket dependencies'
@@ -111,7 +120,7 @@ dev_api: ## run the API in development environment
 	langboard run -w
 
 dev_ts_core_build: ## build the shared core in development environment
-	cd $(TS_CORE_DIR) && yarn run build -w
+	cd $(TS_SHARED_DIR) && yarn run build -w
 
 dev_ui: ## run the UI in development environment
 	cd $(UI_DIR) && yarn run dev
@@ -176,8 +185,8 @@ clean_python_cache: ## clean Python cache
 
 clean_ts_core_cache: ## clean Yarn cache
 	@echo "Cleaning ts core cache..."
-	cd $(TS_CORE_DIR) && yarn cache clean --force
-	rm -rf $(TS_CORE_DIR)/node_modules $(TS_CORE_DIR)/dist $(TS_CORE_DIR)/.rollup.cache
+	cd $(TS_SHARED_DIR) && yarn cache clean --force
+	rm -rf $(TS_SHARED_DIR)/node_modules $(TS_SHARED_DIR)/dist $(TS_SHARED_DIR)/.rollup.cache
 	@printf "$(GREEN)Yarn cache and ts core directories cleaned.$(NC)"
 
 clean_ui_cache: ## clean Yarn cache
