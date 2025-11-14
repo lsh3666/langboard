@@ -3,7 +3,7 @@ import { MarkdownPlugin, remarkMdx } from "@platejs/markdown";
 import { KEYS, bindFirst } from "platejs";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { EscapeMarkdown, InternalLinkMarkdown, MentionMarkdown, PlantUMLMarkdown, ImageMarkdown } from "@/components/Editor/plugins/markdown";
+import { EscapeMarkdown, InternalLinkMarkdown, MentionMarkdown, PlantUMLMarkdown } from "@/components/Editor/plugins/markdown";
 
 export const MarkdownKit = [
     MarkdownPlugin.configure({
@@ -14,7 +14,6 @@ export const MarkdownKit = [
                 ...InternalLinkMarkdown.rules,
                 ...(MentionMarkdown.rules as any),
                 ...PlantUMLMarkdown.rules,
-                ...ImageMarkdown.rules,
             },
         },
     }).extendApi(({ editor }) => ({
