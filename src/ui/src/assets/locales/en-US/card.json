@@ -65,7 +65,7 @@
   },
   "unsavedChanges": {
     "title": "Discard description edits?",
-    "description": "You have unsaved description changes. Leaving now will discard them.",
+    "description": "You have unsaved description changes.\nLeaving now will discard them.",
     "stay": "Keep editing",
     "leave": "Discard changes"
   }

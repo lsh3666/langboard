@@ -103,10 +103,10 @@ const BoardCardPageComponent = () => {
                 </Dialog.Root>
             )}
             <AlertDialog open={isDirtyAlertOpen} onOpenChange={setIsDirtyAlertOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>{t("card.unsavedChanges.title")}</AlertDialogTitle>
-                        <AlertDialogDescription>{alertDescription}</AlertDialogDescription>
+                        <AlertDialogDescription className="whitespace-pre-line">{alertDescription}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>{t("card.unsavedChanges.stay")}</AlertDialogCancel>
