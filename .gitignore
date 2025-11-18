@@ -214,3 +214,7 @@ conf.template
 !**/api/**/seeds/.gitkeep
 
 bundler
+
+# Claude Code and Specify
+.claude
+.specify
