@@ -67,12 +67,12 @@ const BoardCardPageComponent = () => {
         const handleCompositionStart = () => setIsComposing(true);
         const handleCompositionEnd = () => setIsComposing(false);
 
-        document.addEventListener('compositionstart', handleCompositionStart);
-        document.addEventListener('compositionend', handleCompositionEnd);
+        document.addEventListener("compositionstart", handleCompositionStart);
+        document.addEventListener("compositionend", handleCompositionEnd);
 
         return () => {
-            document.removeEventListener('compositionstart', handleCompositionStart);
-            document.removeEventListener('compositionend', handleCompositionEnd);
+            document.removeEventListener("compositionstart", handleCompositionStart);
+            document.removeEventListener("compositionend", handleCompositionEnd);
         };
     }, []);
 
