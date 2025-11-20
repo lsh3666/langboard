@@ -2,7 +2,6 @@ import { Dialog } from "@/components/base";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useBoardController } from "@/core/providers/BoardController";
-import { getEditorStore } from "@/core/stores/EditorStore";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
 import BoardCard from "@/pages/BoardPage/components/card/BoardCard";
