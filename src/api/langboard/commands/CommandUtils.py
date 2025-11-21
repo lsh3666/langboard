@@ -12,6 +12,10 @@ from ..Constants import BASE_DIR
 logger = Logger.use("cli")
 
 _TPyConfigType = Literal["model", "task", "publisher", "command", "seed"]
+_TFactoryPyConfigType = Literal["domain_service", "repository"]
+
+
+SHARED_DIR = BASE_DIR / ".." / ".." / "shared" / "py" / "langboard_shared"
 
 
 def _get_py_config(config_type: _TPyConfigType):
@@ -22,17 +26,17 @@ def _get_py_config(config_type: _TPyConfigType):
 
     config_map: dict[_TPyConfigType, _TPyConfig] = {
         "model": _TPyConfig(
-            dirpath=BASE_DIR / ".." / ".." / "shared" / "py" / "models",
+            dirpath=SHARED_DIR / "domain" / "models",
             filename="{name}.py",
             should_update_init=True,
         ),
         "task": _TPyConfig(
-            dirpath=BASE_DIR / ".." / ".." / "shared" / "py" / "tasks",
+            dirpath=SHARED_DIR / "tasks",
             filename="{name}Task.py",
             should_update_init=False,
         ),
         "publisher": _TPyConfig(
-            dirpath=BASE_DIR / ".." / ".." / "shared" / "py" / "publishers",
+            dirpath=SHARED_DIR / "publishers",
             filename="{name}Publisher.py",
             should_update_init=True,
         ),
@@ -45,6 +49,31 @@ def _get_py_config(config_type: _TPyConfigType):
             dirpath=BASE_DIR / "migrations" / "seeds",
             filename="{name}Seed.py",
             should_update_init=True,
+        ),
+    }
+
+    return config_map.get(config_type, None)
+
+
+def _get_factory_py_config(config_type: _TFactoryPyConfigType):
+    class _TPyConfig(BaseModel):
+        dirpath: Path
+        filename: str
+        should_update_init: bool
+        main_factory: Path
+
+    config_map: dict[_TFactoryPyConfigType, _TPyConfig] = {
+        "domain_service": _TPyConfig(
+            dirpath=SHARED_DIR / "domain" / "services" / "factory",
+            filename="{name}Service.py",
+            should_update_init=True,
+            main_factory=SHARED_DIR / "domain" / "services" / "DomainService.py",
+        ),
+        "repository": _TPyConfig(
+            dirpath=SHARED_DIR / "infrastructure" / "repositories" / "factory",
+            filename="{name}Repository.py",
+            should_update_init=True,
+            main_factory=SHARED_DIR / "infrastructure" / "repositories" / "Repository.py",
         ),
     }
 
@@ -90,20 +119,21 @@ def create_py(config_type: _TPyConfigType, name: str, code: str) -> None:
         update_init_py(config.dirpath)
 
 
-def create_service_py(name: str, code: str, factory: tuple[str, str] | None = None) -> None:
-    target_dir = BASE_DIR / "services" / "factory"
+def create_factory_py(
+    config_type: _TFactoryPyConfigType, name: str, code: str, factory: tuple[str, str] | None = None
+) -> None:
+    config = _get_factory_py_config(config_type)
+    if not config:
+        raise ValueError(f"Py config type: {config_type}")
+
     if factory:
-        target_dir = target_dir / factory[0]
+        config.dirpath = config.dirpath / factory[0]
 
-    class_name = f"{name}{factory[1]}Service" if factory else f"{name}Service"
-    save_path = target_dir / f"{class_name}.py"
-    main_service = (
-        (BASE_DIR / "services" / "factory" / f"{factory[1]}Service.py")
-        if factory
-        else (BASE_DIR / "services" / "Service.py")
-    )
-
-    target_dir.mkdir(parents=True, exist_ok=True)
+    class_name = f"{name}{factory[1]}" if factory else name
+    file_name = config.filename.format(name=class_name)
+    save_path = config.dirpath / file_name
+    target_factory = config.dirpath.parent / config.filename.format(name=factory[1]) if factory else config.main_factory
+    target_factory.parent.mkdir(parents=True, exist_ok=True)
 
     if save_path.exists():
         raise FileExistsError(f"Service already exists: {name}")
@@ -112,21 +142,21 @@ def create_service_py(name: str, code: str, factory: tuple[str, str] | None = No
         f.write(code)
         f.close()
 
-    logger.info(f"Created service: {save_path}")
+    logger.info(f"Created factory: {save_path}")
 
-    update_init_py(target_dir)
+    update_init_py(config.dirpath)
 
-    main_service_code = main_service.read_text()
-    codes = [main_service_code]
+    target_factory_code = target_factory.read_text()
+    codes = [target_factory_code]
     codes.append("    @property")
     codes.append(f"    def {StringCase(name).to_snake()}(self):")
-    codes.append(f"        return self._create_or_get_service(factory.{class_name})\n")
+    codes.append(f"        return self._create_or_get_product(factory.{'.'.join(file_name.split('.')[:-1])})\n")
 
-    with open(main_service, "w") as f:
+    with open(target_factory, "w") as f:
         f.write("\n".join(codes))
         f.close()
 
-    logger.info(f"Updated service imports: {main_service}")
+    logger.info(f"Updated factory imports: {target_factory}")
 
 
 def get_template_path(file_name: str) -> Path:

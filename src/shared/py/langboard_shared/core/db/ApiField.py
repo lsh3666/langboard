@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 from types import UnionType
-from typing import Any, Callable, ClassVar, Literal, Union, get_args, get_origin
+from typing import Any, Callable, ClassVar, Literal, Union, _UnionGenericAlias, get_args, get_origin  # type: ignore
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from ..types import SafeDateTime, SnowflakeID
@@ -86,7 +86,10 @@ class ApiField:
         api_field: "ApiField", annotation: Any
     ) -> tuple[str, Literal["required", "optional"]] | tuple[None, None]:
         is_union = (
-            isinstance(annotation, UnionType) or hasattr(annotation, "__origin__") and annotation.__origin__ is Union
+            isinstance(annotation, UnionType)
+            or isinstance(annotation, _UnionGenericAlias)
+            or hasattr(annotation, "__origin__")
+            and annotation.__origin__ is Union
         )
         is_optional = False
         schema_name: str | None = None

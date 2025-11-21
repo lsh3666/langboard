@@ -1,0 +1,11 @@
+from ....core.db import DbSession, SqlBuilder
+from ....core.routing import GLOBAL_TOPIC_ID, NONE_TOPIC_ID, SocketTopic
+from ....core.domain import BaseDomainService
+from ....helpers import InfraHelper
+
+
+class {class_name}Service(BaseDomainService):
+    @staticmethod
+    def name() -> str:
+        """DO NOT EDIT THIS METHOD"""
+        return "{snake_name}"

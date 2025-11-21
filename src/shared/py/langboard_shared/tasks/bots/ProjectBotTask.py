@@ -1,6 +1,6 @@
 from ...core.broker import Broker
-from ...models import Bot, Project, User
-from ...models.bases import BotTriggerCondition
+from ...domain.models import Bot, Project, User
+from ...domain.models.bases import BotTriggerCondition
 from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 

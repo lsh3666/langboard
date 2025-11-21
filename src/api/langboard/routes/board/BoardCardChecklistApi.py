@@ -2,11 +2,11 @@ from fastapi import status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import Bot, Checkitem, Checklist, ProjectRole, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import Bot, Checkitem, Checklist, ProjectRole, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import CardChecklistNotifyForm, CardCheckRelatedForm, ChangeRootOrderForm
 
 
@@ -48,8 +48,8 @@ from .forms import CardChecklistNotifyForm, CardCheckRelatedForm, ChangeRootOrde
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_checklists(card_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    checklists = await service.checklist.get_list(card_uid, as_api=True)
+async def get_card_checklists(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    checklists = await service.checklist.get_api_list_by_card(card_uid)
     return JsonResponse(content={"checklists": checklists})
 
 
@@ -69,7 +69,7 @@ async def create_checklist(
     card_uid: str,
     form: CardCheckRelatedForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.create(user_or_bot, project_uid, card_uid, form.title)
     if not result:
@@ -101,7 +101,7 @@ async def create_checkitem(
     checklist_uid: str,
     form: CardCheckRelatedForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.create(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
@@ -125,7 +125,7 @@ async def notify_checklist(
     checklist_uid: str,
     form: CardChecklistNotifyForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.notify(user_or_bot, project_uid, card_uid, checklist_uid, form.user_uids)
     if not result:
@@ -149,7 +149,7 @@ async def change_checklist_title(
     checklist_uid: str,
     form: CardCheckRelatedForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.change_title(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
@@ -173,9 +173,9 @@ async def change_checklist_order(
     checklist_uid: str,
     form: ChangeRootOrderForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.change_order(user_or_bot, project_uid, card_uid, checklist_uid, form.order)
+    result = await service.checklist.change_order(project_uid, card_uid, checklist_uid, form.order)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -196,7 +196,7 @@ async def toggle_checklist_checked(
     card_uid: str,
     checklist_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.toggle_checked(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:
@@ -219,7 +219,7 @@ async def delete_checklist(
     card_uid: str,
     checklist_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.delete(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:

@@ -7,8 +7,8 @@ from multiprocessing import Pipe
 from socket import socket
 from typing import Any, Callable
 import click
+from uvicorn._subprocess import get_subprocess
 from uvicorn.config import Config
-from .._subprocess import get_subprocess
 
 
 SIGNALS = {

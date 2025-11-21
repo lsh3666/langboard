@@ -1,8 +1,8 @@
 from typing import Any, TypeVar, cast
 from sqlmodel.sql.expression import SelectOfScalar
 from ..core.db import DbSession, SqlBuilder
+from ..domain.models.bases import BaseRoleModel
 from ..filter.RoleFilter import _RoleFinderFunc
-from ..models.bases import BaseRoleModel
 
 
 _TRoleModel = TypeVar("_TRoleModel", bound=BaseRoleModel)

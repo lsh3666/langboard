@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Sequence
 from ...core.broker import Broker
-from ...models import Bot, Card, Project, ProjectActivity, ProjectColumn, User
-from ...models.ProjectActivity import ProjectActivityType
+from ...domain.models import Bot, Card, Project, ProjectActivity, ProjectColumn, User
+from ...domain.models.ProjectActivity import ProjectActivityType
 from .UserActivityTask import record_project_activity
 from .utils import ActivityHistoryHelper, ActivityTaskHelper
 
@@ -49,8 +49,11 @@ async def card_moved(
 
 @Broker.wrap_async_task_decorator
 async def card_assigned_users_updated(
-    user_or_bot: User | Bot, project: Project, card: Card, old_user_ids: list[int], new_user_ids: list[int]
+    user_or_bot: User | Bot, project: Project, card: Card, old_user_ids: Sequence[int], new_user_ids: Sequence[int]
 ):
+    if isinstance(old_user_ids, str) or isinstance(new_user_ids, str):
+        return  # Invalid input, should be sequences of integers
+
     helper = ActivityTaskHelper(ProjectActivity)
     removed_users, added_users = helper.get_updated_users(old_user_ids, new_user_ids)
     if not removed_users and not added_users:
@@ -71,7 +74,7 @@ async def card_assigned_users_updated(
 
 @Broker.wrap_async_task_decorator
 async def card_labels_updated(
-    user_or_bot: User | Bot, project: Project, card: Card, old_label_ids: list[int], new_label_ids: list[int]
+    user_or_bot: User | Bot, project: Project, card: Card, old_label_ids: Sequence[int], new_label_ids: Sequence[int]
 ):
     helper = ActivityTaskHelper(ProjectActivity)
     removed_labels, added_labels = helper.get_updated_labels(old_label_ids, new_label_ids)

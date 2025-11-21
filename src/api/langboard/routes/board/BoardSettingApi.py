@@ -3,8 +3,7 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.utils.Converter import convert_python_data
-from langboard_shared.filter import RoleFilter
-from langboard_shared.models import (
+from langboard_shared.domain.models import (
     Bot,
     Card,
     ChatTemplate,
@@ -16,11 +15,12 @@ from langboard_shared.models import (
     ProjectRole,
     User,
 )
-from langboard_shared.models.bases import ALL_GRANTED
-from langboard_shared.models.InternalBot import InternalBotType
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.models.bases import ALL_GRANTED
+from langboard_shared.domain.models.InternalBot import InternalBotType
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import (
     ChangeInternalBotForm,
     ChangeInternalBotSettingsForm,
@@ -70,23 +70,23 @@ from .forms import (
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def get_project_details(
-    project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
+    project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.project.get_details(user_or_bot, project_uid, is_setting=True)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
     project, response = result
-    assigned_internal_bots = await service.project.get_assigned_internal_bots(project, as_api=False)
-    response["internal_bots"] = [internal_bot.api_response() for internal_bot, _ in assigned_internal_bots]
-    response["internal_bot_settings"] = {
-        internal_bot.bot_type.value: assigned_bot.api_response()
-        for internal_bot, assigned_bot in assigned_internal_bots
-    }
+    (
+        project_internal_bots,
+        internal_bot_settings,
+    ) = await service.project.get_api_assigned_internal_bot_list_with_setting_map(project)
+    response["internal_bots"] = project_internal_bots
+    response["internal_bot_settings"] = internal_bot_settings
 
-    internal_bots = await service.internal_bot.get_list(as_api=True, is_setting=False)
-    columns = await service.project_column.get_all_by_project(project.id, as_api=True)
-    cards = await service.card.get_all_by_project(project, as_api=True)
-    templates = await service.chat.get_templates(Project.__tablename__, project_uid)
+    internal_bots = await service.internal_bot.get_api_list(is_setting=False)
+    columns = await service.project_column.get_api_list_by_project(project)
+    cards = await service.card.get_api_list_by_project(project)
+    templates = await service.chat.get_api_template_list(Project.__tablename__, project_uid)
 
     return JsonResponse(
         content={
@@ -112,7 +112,7 @@ async def change_project_details(
     project_uid: str,
     form: UpdateProjectDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project.update(user_or_bot, project_uid, form.model_dump())
     if not result:
@@ -130,7 +130,7 @@ async def change_project_details(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def change_project_internal_bot(
-    project_uid: str, form: ChangeInternalBotForm, service: Service = Service.scope()
+    project_uid: str, form: ChangeInternalBotForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.project.change_internal_bot(project_uid, form.internal_bot_uid)
     if not result:
@@ -148,7 +148,7 @@ async def change_project_internal_bot(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def change_project_internal_bot_settings(
-    project_uid: str, form: ChangeInternalBotSettingsForm, service: Service = Service.scope()
+    project_uid: str, form: ChangeInternalBotSettingsForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.project.change_internal_bot_settings(
         project_uid, form.bot_type, form.use_default_prompt, form.prompt
@@ -167,7 +167,7 @@ async def change_project_internal_bot_settings(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def update_project_user_roles(
-    project_uid: str, user_uid: str, form: UpdateRolesForm, service: Service = Service.scope()
+    project_uid: str, user_uid: str, form: UpdateRolesForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.project.update_user_roles(project_uid, user_uid, form.roles)
     if not result:
@@ -191,7 +191,7 @@ async def create_project_label(
     project_uid: str,
     form: CreateProjectLabelForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project_label.create(user_or_bot, project_uid, form.name, form.color, form.description)
     if not result:
@@ -228,7 +228,7 @@ async def change_project_label_details(
     label_uid: str,
     form: UpdateProjectLabelDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project_label.update(user_or_bot, project_uid, label_uid, form.model_dump())
     if not result:
@@ -258,7 +258,7 @@ async def change_project_label_details(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def change_project_label_order(
-    project_uid: str, label_uid: str, form: ChangeRootOrderForm, service: Service = Service.scope()
+    project_uid: str, label_uid: str, form: ChangeRootOrderForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.project_label.change_order(project_uid, label_uid, form.order)
     if not result:
@@ -277,7 +277,10 @@ async def change_project_label_order(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def delete_label(
-    project_uid: str, label_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: Service = Service.scope()
+    project_uid: str,
+    label_uid: str,
+    user_or_bot: User | Bot = Auth.scope("all"),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project_label.delete(user_or_bot, project_uid, label_uid)
     if not result:
@@ -294,9 +297,9 @@ async def delete_label(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def delete_project(
-    project_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
+    project_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+    project = await service.project.get_by_id_like(project_uid)
     if project is None:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
 

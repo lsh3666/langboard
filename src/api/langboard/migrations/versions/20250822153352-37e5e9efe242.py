@@ -21,17 +21,17 @@ from langboard_shared.core.db.ColumnTypes import (
 )
 from langboard_shared.core.db.Models import ChatContentModel, EditorContentModel
 from langboard_shared.core.storage.FileModel import FileModel
-from langboard_shared.models.AppSetting import AppSettingType
-from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from langboard_shared.models.bases.BaseBotScopeModel import BotTriggerCondition
-from langboard_shared.models.BotLog import BotLogMessage, BotLogType
-from langboard_shared.models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
-from langboard_shared.models.InternalBot import InternalBotType
-from langboard_shared.models.ProjectActivity import ProjectActivityType
-from langboard_shared.models.ProjectWikiActivity import ProjectWikiActivityType
-from langboard_shared.models.UserActivity import UserActivityType
-from langboard_shared.models.UserNotification import NotificationType
-from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.domain.models.AppSetting import AppSettingType
+from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.domain.models.bases.BaseBotScopeModel import BotTriggerCondition
+from langboard_shared.domain.models.BotLog import BotLogMessage, BotLogType
+from langboard_shared.domain.models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
+from langboard_shared.domain.models.InternalBot import InternalBotType
+from langboard_shared.domain.models.ProjectActivity import ProjectActivityType
+from langboard_shared.domain.models.ProjectWikiActivity import ProjectWikiActivityType
+from langboard_shared.domain.models.UserActivity import UserActivityType
+from langboard_shared.domain.models.UserNotification import NotificationType
+from langboard_shared.domain.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 
 
 # revision identifiers, used by Alembic.

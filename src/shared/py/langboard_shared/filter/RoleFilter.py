@@ -3,7 +3,7 @@ from typing import Any, Callable, Generic, Protocol, TypeVar
 from sqlmodel.sql.expression import SelectOfScalar
 from ..core.filter import BaseFilter
 from ..core.utils.decorators import class_instance, thread_safe_singleton
-from ..models.bases import BaseRoleModel
+from ..domain.models.bases import BaseRoleModel
 
 
 _TMethod = TypeVar("_TMethod", bound=Callable)

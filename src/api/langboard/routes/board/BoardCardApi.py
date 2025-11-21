@@ -5,9 +5,7 @@ from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.types import SafeDateTime
 from langboard_shared.core.utils.Converter import convert_python_data
-from langboard_shared.filter import RoleFilter
-from langboard_shared.helpers import ServiceHelper
-from langboard_shared.models import (
+from langboard_shared.domain.models import (
     Bot,
     Card,
     CardAttachment,
@@ -23,10 +21,12 @@ from langboard_shared.models import (
     ProjectRole,
     User,
 )
-from langboard_shared.models.bases import ALL_GRANTED
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.models.bases import ALL_GRANTED
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
+from langboard_shared.helpers import InfraHelper
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import (
     AssignUsersForm,
     ChangeCardDetailsForm,
@@ -103,30 +103,30 @@ async def get_card_details(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
     project, card = params
-    api_card = await service.card.get_details(project_uid, card)
+    api_card = await service.card.get_details(project, card)
     if api_card is None:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
-    global_relationships = await service.app_setting.get_global_relationships(as_api=True)
+    global_relationships = await service.app_setting.get_api_global_relationship_list()
     bot_scopes = []
     can_set_scopes = isinstance(user_or_bot, Bot)
     if isinstance(user_or_bot, User):
-        actions = await service.project.get_one_actions(user_or_bot, project)
+        actions = await service.project.get_user_role_actions_by_project(user_or_bot, project)
         api_card["current_auth_role_actions"] = actions
         can_set_scopes = ALL_GRANTED in actions or ProjectRoleAction.Update.value in actions
     if can_set_scopes:
-        bot_scopes = await service.card.get_bot_scopes(project, card, as_api=True)
+        bot_scopes = await service.card.get_api_bot_scope_list(project, card)
 
-    project_columns = await service.project_column.get_all_by_project(project.id, as_api=True)
-    project_labels = await service.project_label.get_all(project, as_api=True)
+    project_columns = await service.project_column.get_api_list_by_project(project.id)
+    project_labels = await service.project_label.get_api_list_by_project(project)
 
-    checklists = await service.checklist.get_list(card, as_api=True)
-    attachments = await service.card_attachment.get_board_list(card)
+    checklists = await service.checklist.get_api_list_by_card(card)
+    attachments = await service.card_attachment.get_api_list_by_card(card)
 
     return JsonResponse(
         content={
@@ -169,8 +169,8 @@ async def get_card_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_comments(card_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    comments = await service.card_comment.get_board_list(card_uid)
+async def get_card_comments(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    comments = await service.card_comment.get_api_list_by_card(card_uid)
     return JsonResponse(content={"comments": comments})
 
 
@@ -212,7 +212,7 @@ async def create_card(
     project_uid: str,
     form: CreateCardForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card.create(
         user_or_bot,
@@ -256,7 +256,7 @@ async def change_card_details(
     card_uid: str,
     form: ChangeCardDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     form_dict = {}
     for key in ChangeCardDetailsForm.model_fields:
@@ -304,7 +304,7 @@ async def update_card_assigned_users(
     card_uid: str,
     form: AssignUsersForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card.update_assigned_users(user_or_bot, project_uid, card_uid, form.assigned_users)
     if result is None:
@@ -327,7 +327,7 @@ async def change_card_order_or_move_column(
     card_uid: str,
     form: ChangeChildOrderForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card.change_order(user_or_bot, project_uid, card_uid, form.order, form.parent_uid)
     if not result:
@@ -350,7 +350,7 @@ async def update_card_labels(
     card_uid: str,
     form: UpdateCardLabelsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card.update_labels(user_or_bot, project_uid, card_uid, form.labels)
     if not result:
@@ -373,7 +373,7 @@ async def update_card_relationships(
     card_uid: str,
     form: UpdateCardRelationshipsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card_relationship.update(
         user_or_bot, project_uid, card_uid, form.is_parent, form.relationships
@@ -397,15 +397,13 @@ async def archive_card(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+    project = await service.project.get_by_id_like(project_uid)
     if project is None:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
 
-    column = await service.project_column.get_or_create_archive_if_not_exists(project.id)
-
-    result = await service.card.change_order(user_or_bot, project, card_uid, 0, column)
+    result = await service.card.archive(user_or_bot, project, card_uid)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -425,7 +423,7 @@ async def delete_card(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card.delete(user_or_bot, project_uid, card_uid)
     if not result:

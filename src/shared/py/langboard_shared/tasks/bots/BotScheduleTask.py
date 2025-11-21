@@ -2,10 +2,10 @@ from ...ai import BotDefaultTrigger, BotScheduleHelper
 from ...core.broker import Broker
 from ...core.db import BaseSqlModel, DbSession, SqlBuilder
 from ...core.types import SafeDateTime
+from ...domain.models import Bot, Card, Project, ProjectColumn
+from ...domain.models.bases import BaseBotScheduleModel
+from ...domain.models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
 from ...helpers import BotHelper, ModelHelper
-from ...models import Bot, Card, Project, ProjectColumn
-from ...models.bases import BaseBotScheduleModel
-from ...models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
 from ...publishers import ProjectBotPublisher
 from .utils import BotTaskHelper, BotTaskSchemaHelper
 from .utils.BotTaskHelper import logger
@@ -125,10 +125,7 @@ async def _check_bot_schedule_runnable(interval_str: str):
 
 
 async def _run_scheduler(
-    bot: Bot,
-    bot_schedule: BotSchedule,
-    schedule_model: BaseBotScheduleModel,
-    model: BaseSqlModel | None = None,
+    bot: Bot, bot_schedule: BotSchedule, schedule_model: BaseBotScheduleModel, model: BaseSqlModel | None = None
 ):
     if bot_schedule.status != BotScheduleStatus.Started:
         return
@@ -168,6 +165,10 @@ async def _run_scheduler(
             }
         else:
             return
+
+    with DbSession.use(readonly=False) as db:
+        schedule_model.last_rnu_at = SafeDateTime.now()
+        db.update(schedule_model)
 
     await BotTaskHelper.run(bot, BotDefaultTrigger.BotCronScheduled, data, project, model)
 

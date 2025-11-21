@@ -4,7 +4,6 @@ import { ROUTES } from "@/core/routing/constants";
 import BoardProxy from "@/pages/BoardPage";
 import BoardCardPage from "@/pages/BoardPage/BoardCardPage";
 import { BoardController } from "@/core/providers/BoardController";
-import BoardActivityDialog from "@/pages/BoardPage/components/board/BoardActivityDialog";
 import WikiActivityDialog from "@/pages/BoardPage/components/wiki/WikiActivityDialog";
 import WikiMetadataDialog from "@/pages/BoardPage/components/wiki/WikiMetadataDialog";
 import BoardInvitationPage from "@/pages/BoardPage/BoardInvitationPage";
@@ -46,10 +45,6 @@ const routes: RouteObject[] = [
             {
                 path: ROUTES.BOARD.WIKI_METADATA(":projectUID", ":wikiUID"),
                 element: <WikiMetadataDialog />,
-            },
-            {
-                path: ROUTES.BOARD.ACTIVITY(":projectUID"),
-                element: <BoardActivityDialog />,
             },
             {
                 path: ROUTES.BOARD.SETTINGS(":projectUID"),

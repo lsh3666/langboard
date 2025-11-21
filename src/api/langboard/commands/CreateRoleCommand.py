@@ -1,5 +1,6 @@
 from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
-from .CommandUtils import create_py, create_service_py, format_template, make_name
+from langboard_shared.core.utils.StringCase import StringCase
+from .CommandUtils import create_factory_py, create_py, format_template, make_name
 
 
 class CreateRoleCommandOptions(BaseCommandOptions):
@@ -25,7 +26,7 @@ class CreateRoleCommand(BaseCommand):
 
     @property
     def description(self) -> str:
-        return "Role model and service to create (If you give snake_case or camelCase, it will convert to PascalCase, and it will remove 'Role' suffix)"
+        return "Role model and repository to create (If you give snake_case or camelCase, it will convert to PascalCase, and it will remove 'Role' suffix)"
 
     @property
     def choices(self) -> list[str] | None:
@@ -40,10 +41,11 @@ class CreateRoleCommand(BaseCommand):
 
         formats = {
             "class_name": name,
+            "snake_name": StringCase(name).to_snake(),
         }
 
         model_code = format_template("role_sql_model", formats)
         create_py("model", f"{name}Role", model_code)
 
-        service_code = format_template("role_service", formats)
-        create_service_py(name, service_code, factory=("roles", "Role"))
+        repository_code = format_template("role_repository", formats)
+        create_factory_py("repository", name, repository_code, factory=("roles", "Role"))

@@ -2,7 +2,7 @@ from typing import Any
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.utils.decorators import staticclass
-from ..models import (
+from ..domain.models import (
     Card,
     Checkitem,
     CheckitemTimerRecord,
@@ -11,7 +11,7 @@ from ..models import (
     ProjectColumn,
     User,
 )
-from ..models.Checkitem import CheckitemStatus
+from ..domain.models.Checkitem import CheckitemStatus
 
 
 @staticclass

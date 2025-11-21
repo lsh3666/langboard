@@ -2,8 +2,8 @@ from typing import Literal
 from ...ai import BotDefaultTrigger
 from ...core.broker import Broker
 from ...core.db import BaseSqlModel
+from ...domain.models import Bot, Project, User
 from ...helpers import BotHelper, ModelHelper
-from ...models import Bot, Project, User
 from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 

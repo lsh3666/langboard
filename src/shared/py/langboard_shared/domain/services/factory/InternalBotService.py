@@ -1,0 +1,140 @@
+from typing import Any, Literal
+from ....core.domain import BaseDomainService
+from ....core.domain.BaseDomainService import TMutableValidatorMap
+from ....core.storage import FileModel
+from ....core.types.ParamTypes import TInternalBotParam
+from ....domain.models import InternalBot
+from ....domain.models.InternalBot import InternalBotType
+from ....helpers import InfraHelper
+from ....publishers import InternalBotPublisher, ProjectPublisher
+from ...models.BaseBotModel import BotPlatform, BotPlatformRunningType
+
+
+class InternalBotService(BaseDomainService):
+    @staticmethod
+    def name() -> str:
+        """DO NOT EDIT THIS METHOD"""
+        return "internal_bot"
+
+    async def get_by_id_like(self, internal_bot: TInternalBotParam | None) -> InternalBot | None:
+        internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
+        return internal_bot
+
+    async def get_api_list(self, is_setting: bool) -> list[dict[str, Any]]:
+        internal_bots = InfraHelper.get_all(InternalBot)
+        return [internal_bot.api_response(is_setting=is_setting) for internal_bot in internal_bots]
+
+    async def create(
+        self,
+        bot_type: InternalBotType,
+        display_name: str,
+        platform: BotPlatform,
+        platform_running_type: BotPlatformRunningType,
+        api_url: str = "",
+        value: str = "",
+        api_key: str = "",
+        avatar: FileModel | None = None,
+        is_default: bool = False,
+    ) -> InternalBot:
+        internal_bot = InternalBot(
+            bot_type=bot_type,
+            display_name=display_name,
+            platform=platform,
+            platform_running_type=platform_running_type,
+            api_url=api_url,
+            api_key=api_key,
+            value=value,
+            is_default=is_default,
+            avatar=avatar,
+        )
+
+        self.repo.internal_bot.insert(internal_bot)
+
+        await InternalBotPublisher.created(internal_bot)
+
+        return internal_bot
+
+    async def update(self, internal_bot: TInternalBotParam | None, form: dict) -> InternalBot | Literal[True] | None:
+        internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
+        if not internal_bot:
+            return None
+
+        validators: TMutableValidatorMap = {
+            "display_name": "default",
+            "platform": "default",
+            "platform_running_type": "default",
+            "api_url": "default",
+            "api_key": "default",
+            "value": "default",
+            "avatar": "default",
+        }
+
+        if "platform" in form and form["platform"] != internal_bot.platform:
+            if form["platform"] not in InternalBot.ALLOWED_ALL_IPS_BY_PLATFORMS:
+                form.pop("platform", None)
+                form.pop("platform_running_type", None)
+            else:
+                available_running_types = InternalBot.AVAILABLE_RUNNING_TYPES_BY_PLATFORM[form["platform"]]
+                platform_running_type = form.get("platform_running_type", available_running_types[0])
+                if platform_running_type not in available_running_types:
+                    form["platform_running_type"] = available_running_types[0]
+
+        if "platform_running_type" in form:
+            platform = form.get("platform", internal_bot.platform)
+            if platform not in InternalBot.AVAILABLE_RUNNING_TYPES_BY_PLATFORM:
+                form.pop("platform_running_type", None)
+            else:
+                available_running_types = InternalBot.AVAILABLE_RUNNING_TYPES_BY_PLATFORM[platform]
+                if form["platform_running_type"] not in available_running_types:
+                    form.pop("platform_running_type", None)
+
+        old_record = self.apply_mutates(internal_bot, form, validators)
+        if not old_record:
+            return True
+
+        self.repo.internal_bot.update(internal_bot)
+
+        await InternalBotPublisher.updated(internal_bot)
+
+        return internal_bot
+
+    async def change_default(self, internal_bot: TInternalBotParam | None) -> InternalBot | Literal[True] | None:
+        internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
+        if not internal_bot:
+            return None
+
+        if internal_bot.is_default:
+            return True
+
+        self.repo.internal_bot.replace_default(internal_bot, internal_bot.bot_type)
+
+        await InternalBotPublisher.default_changed(internal_bot)
+
+        return internal_bot
+
+    async def delete(self, internal_bot: TInternalBotParam | None) -> bool:
+        internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
+        if not internal_bot or internal_bot.is_default:
+            return False
+
+        default_internal_bot = self.repo.internal_bot.get_default_by_type(internal_bot.bot_type)
+        if not default_internal_bot:
+            display_name = internal_bot.bot_type.value.replace("_", " ").title()
+            new_default_internal_bot = await self.create(
+                bot_type=internal_bot.bot_type,
+                display_name=display_name,
+                platform=BotPlatform.Default,
+                platform_running_type=BotPlatformRunningType.Default,
+                is_default=True,
+            )
+            default_internal_bot = new_default_internal_bot
+
+        projects = self.repo.project_assigned_internal_bot.get_all_projects_by_internal_bot(internal_bot)
+
+        self.repo.project_assigned_internal_bot.reassign_and_delete(internal_bot, default_internal_bot)
+
+        for project in projects:
+            await ProjectPublisher.internal_bot_changed(project, default_internal_bot.id)
+        await InternalBotPublisher.deleted(internal_bot)
+
+        return True

@@ -1,7 +1,7 @@
 from typing import Any
 from ...core.broker import Broker
-from ...models import Bot, Project, ProjectWiki, ProjectWikiActivity, User
-from ...models.ProjectWikiActivity import ProjectWikiActivityType
+from ...domain.models import Bot, Project, ProjectWiki, ProjectWikiActivity, User
+from ...domain.models.ProjectWikiActivity import ProjectWikiActivityType
 from .UserActivityTask import record_wiki_activity
 from .utils import ActivityHistoryHelper, ActivityTaskHelper
 

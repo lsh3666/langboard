@@ -8,12 +8,13 @@ from langboard_shared.core.logger import Logger
 from langboard_shared.core.resources import get_resource_path
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.types import SnowflakeID
-from langboard_shared.helpers import ModelHelper, ServiceHelper
-from langboard_shared.models import BotLog, Project
-from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from langboard_shared.models.bases import BaseBotLogModel
-from langboard_shared.models.Bot import Bot
-from langboard_shared.models.InternalBot import InternalBot
+from langboard_shared.domain.models import BotLog
+from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.domain.models.bases import BaseBotLogModel
+from langboard_shared.domain.models.Bot import Bot
+from langboard_shared.domain.models.InternalBot import InternalBot
+from langboard_shared.domain.services import DomainService
+from langboard_shared.helpers import ModelHelper
 from langflow.load import aload_flow_from_json
 from sqlalchemy import Row
 from ..core.flows import FlowRunner
@@ -22,7 +23,7 @@ from ..core.schema.Exception import APIException, InvalidChatInputError
 
 
 @AppRouter.api.post("/api/v1/run/{anypath}")
-async def run_flow(api_request: FlowRequestModel, stream: bool = False):
+async def run_flow(api_request: FlowRequestModel, stream: bool = False, service: DomainService = DomainService.scope()):
     result = _get_flow_json(api_request)
     if isinstance(result, ApiErrorCode):
         return JsonResponse(content=result, status_code=status.HTTP_404_NOT_FOUND)
@@ -30,7 +31,7 @@ async def run_flow(api_request: FlowRequestModel, stream: bool = False):
     bot, bot_json = result
     graph = await aload_flow_from_json(flow=json_loads(bot_json), tweaks=api_request.tweaks)
 
-    project = _get_raw_project(api_request)
+    project = await _get_raw_project(service, api_request)
     bot_log = _get_raw_bot_log(api_request)
 
     runner = FlowRunner(
@@ -70,7 +71,9 @@ async def run_flow(api_request: FlowRequestModel, stream: bool = False):
 
 
 @AppRouter.api.post("/api/v1/webhook/{anypath}")
-async def webhook_run_flow(api_request: FlowRequestModel, background_tasks: BackgroundTasks):
+async def webhook_run_flow(
+    api_request: FlowRequestModel, background_tasks: BackgroundTasks, service: DomainService = DomainService.scope()
+):
     result = _get_flow_json(api_request)
     if isinstance(result, ApiErrorCode):
         return JsonResponse(content=result, status_code=status.HTTP_404_NOT_FOUND)
@@ -82,7 +85,7 @@ async def webhook_run_flow(api_request: FlowRequestModel, background_tasks: Back
 
     graph = await aload_flow_from_json(flow=json_loads(bot_json), tweaks=api_request.tweaks)
 
-    project = _get_raw_project(api_request)
+    project = await _get_raw_project(service, api_request)
     bot_log = _get_raw_bot_log(api_request)
 
     runner = FlowRunner(
@@ -164,11 +167,11 @@ def _get_raw_bot_log(api_request: FlowRequestModel) -> tuple[dict | None, dict |
     return bot_log
 
 
-def _get_raw_project(api_request: FlowRequestModel) -> dict | None:
+async def _get_raw_project(service: DomainService, api_request: FlowRequestModel) -> dict | None:
     if not api_request.project_uid:
         return None
 
-    project = ServiceHelper.get_by_param(Project, api_request.project_uid)
+    project = await service.project.get_by_id_like(api_request.project_uid)
     return project.model_dump() if project else None
 
 

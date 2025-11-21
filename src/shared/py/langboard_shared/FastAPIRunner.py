@@ -26,22 +26,12 @@ def run(app: str, config_file: str | Path, watch_dir: str | Path):
             ssl_cert_reqs=config.ssl_options.get("cert_reqs", CERT_NONE),
             ssl_ca_certs=config.ssl_options.get("ca_certs"),
             workers=config.workers,
-            timeout_keep_alive=config.timeout_keep_alive,
-            timeout_worker_healthcheck=config.healthcheck_interval,
             reload=config.watch,
-            reload_dirs=(
-                [
-                    str(watch_dir),
-                    dirname(__file__),
-                ]
-                if config.watch
-                else None
-            ),
+            reload_dirs=([str(watch_dir), dirname(__file__)] if config.watch else None),
             log_config=Logger.get_config(),
             app_dir=str(watch_dir),
         )
 
         run_server(uvicorn_config)
-    except Exception as e:
-        Logger.main.error(f"Failed to start FastAPI server: {e}")
+    except Exception:
         return

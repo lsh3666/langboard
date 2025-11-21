@@ -8,10 +8,10 @@ from ..core.db import DbSession, SqlBuilder
 from ..core.security import AuthSecurity
 from ..core.utils.decorators import staticclass
 from ..core.utils.IpAddress import is_ipv4_in_range, is_valid_ipv4_address_or_range
+from ..domain.models import Bot, User
+from ..domain.models.BaseBotModel import BaseBotModel, BotPlatform
+from ..domain.models.Bot import ALLOWED_ALL_IPS
 from ..Env import Env
-from ..models import Bot, User
-from ..models.BaseBotModel import BaseBotModel, BotPlatform
-from ..models.Bot import ALLOWED_ALL_IPS
 
 
 @staticclass

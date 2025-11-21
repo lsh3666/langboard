@@ -4,9 +4,9 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema, PaginatedList
 from langboard_shared.core.types import SafeDateTime
-from langboard_shared.models import User, UserProfile
+from langboard_shared.domain.models import User, UserProfile
+from langboard_shared.domain.services import DomainService
 from langboard_shared.security import Auth
-from langboard_shared.services import Service
 from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, UsersPagination
 
 
@@ -37,9 +37,11 @@ from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, Users
 )
 @AuthFilter.add("admin")
 async def get_users_in_settings(
-    pagination: UsersPagination = Depends(), service: Service = Service.scope()
+    pagination: UsersPagination = Depends(), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.user.get_list(refer_time=pagination.refer_time, only_count=pagination.only_count)
+    result = await service.user.get_api_list_in_settings(
+        refer_time=pagination.refer_time, only_count=pagination.only_count
+    )
     if pagination.only_count:
         count_new_records = cast(int, result)
         return JsonResponse(content=PaginatedList(count_new_records=count_new_records))
@@ -64,7 +66,7 @@ async def get_users_in_settings(
 
 @AppRouter.api.post("/settings/users", tags=["AppSettings"], responses=OpenApiSchema(201).auth().forbidden().get())
 @AuthFilter.add("admin")
-async def create_user_in_settings(form: CreateUserForm, service: Service = Service.scope()) -> JsonResponse:
+async def create_user_in_settings(form: CreateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, _ = await service.user.get_by_email(form.email)
     if user:
         return JsonResponse(content=ApiErrorCode.EX1003, status_code=status.HTTP_409_CONFLICT)
@@ -86,9 +88,9 @@ async def create_user_in_settings(form: CreateUserForm, service: Service = Servi
 )
 @AuthFilter.add("admin")
 async def update_user_in_settings(
-    user_uid: str, form: UpdateUserForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    user_uid: str, form: UpdateUserForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    target_user = await service.user.get_by_uid(user_uid)
+    target_user = await service.user.get_by_id_like(user_uid)
     if not target_user:
         return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -112,9 +114,9 @@ async def update_user_in_settings(
 )
 @AuthFilter.add("admin")
 async def delete_user_in_settings(
-    user_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
+    user_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    target_user = await service.user.get_by_uid(user_uid)
+    target_user = await service.user.get_by_id_like(user_uid)
     if not target_user:
         return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -129,7 +131,7 @@ async def delete_user_in_settings(
 @AppRouter.api.delete("/settings/users", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get())
 @AuthFilter.add("admin")
 async def delete_selected_users_in_settings(
-    form: DeleteSelectedUsersForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: DeleteSelectedUsersForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     user_uid = user.get_uid()
     form.user_uids = [uid for uid in form.user_uids if uid != user_uid]

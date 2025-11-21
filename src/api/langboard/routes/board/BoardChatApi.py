@@ -2,12 +2,12 @@ from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import ChatHistory, ChatSession, ChatTemplate, Project, ProjectRole, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import ChatHistory, ChatSession, ChatTemplate, Project, ProjectRole, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.publishers import ProjectPublisher
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import ChatHistoryPagination, CreateChatTemplate, UpdateChatTemplate, UpdateProjectChatSessionForm
 
 
@@ -21,9 +21,9 @@ from .forms import ChatHistoryPagination, CreateChatTemplate, UpdateChatTemplate
 async def get_project_chat_sessions(
     project_uid: str,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    sessions = await service.chat.get_session_list(user, Project.__tablename__, project_uid)
+    sessions = await service.chat.get_api_session_list(user, Project.__tablename__, project_uid)
 
     return JsonResponse(content={"sessions": sessions})
 
@@ -40,13 +40,13 @@ async def get_project_chat_histories(
     session_uid: str,
     query: ChatHistoryPagination = Depends(),
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    session = await service.chat.get_session_by_uid(session_uid)
+    session = await service.chat.get_session_by_id_like(session_uid)
     if not _is_session_matched(session, user, project_uid):
         return JsonResponse(content={"histories": []})
 
-    histories = await service.chat.get_history_list(user, session, query.refer_time, query)
+    histories = await service.chat.get_api_history_list(user, session, query)
 
     return JsonResponse(content={"histories": histories})
 
@@ -63,9 +63,9 @@ async def update_project_chat_session(
     session_uid: str,
     form: UpdateProjectChatSessionForm,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    session = await service.chat.get_session_by_uid(session_uid)
+    session = await service.chat.get_session_by_id_like(session_uid)
     if not _is_session_matched(session, user, project_uid):
         return JsonResponse(content=ApiErrorCode.NF2021, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -85,9 +85,9 @@ async def delete_project_chat_session(
     project_uid: str,
     session_uid: str,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    session = await service.chat.get_session_by_uid(session_uid)
+    session = await service.chat.get_session_by_id_like(session_uid)
     if not _is_session_matched(session, user, project_uid):
         return JsonResponse(content={"histories": []})
 
@@ -103,8 +103,8 @@ async def delete_project_chat_session(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def get_chat_templates(project_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    templates = await service.chat.get_templates(Project.__tablename__, project_uid)
+async def get_chat_templates(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    templates = await service.chat.get_api_template_list(Project.__tablename__, project_uid)
 
     return JsonResponse(content={"templates": templates})
 
@@ -117,9 +117,9 @@ async def get_chat_templates(project_uid: str, service: Service = Service.scope(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
 async def create_chat_template(
-    project_uid: str, form: CreateChatTemplate, service: Service = Service.scope()
+    project_uid: str, form: CreateChatTemplate, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+    project = await service.project.get_by_id_like(project_uid)
     if not project:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -141,9 +141,9 @@ async def update_chat_template(
     project_uid: str,
     template_uid: str,
     form: UpdateChatTemplate,
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+    project = await service.project.get_by_id_like(project_uid)
     if not project:
         return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -167,8 +167,10 @@ async def update_chat_template(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def delete_chat_template(project_uid: str, template_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+async def delete_chat_template(
+    project_uid: str, template_uid: str, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    project = await service.project.get_by_id_like(project_uid)
     if not project:
         return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
 

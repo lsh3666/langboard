@@ -3,11 +3,11 @@ from langboard_shared.core.db import EditorContentModel
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import Bot, CardComment, ProjectRole, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import Bot, CardComment, ProjectRole, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import ToggleCardCommentReactionForm
 
 
@@ -25,7 +25,7 @@ async def add_card_comment(
     card_uid: str,
     comment: EditorContentModel,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
     if not result:
@@ -60,8 +60,10 @@ async def add_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_comment(card_uid: str, comment_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    result = await service.card_comment.get_board_comment(card_uid, comment_uid)
+async def get_card_comment(
+    card_uid: str, comment_uid: str, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    result = await service.card_comment.get_as_api(card_uid, comment_uid)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -83,9 +85,9 @@ async def update_card_comment(
     comment_uid: str,
     comment: EditorContentModel,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_uid(comment_uid)
+    card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
     if not _is_owner(user_or_bot, card_comment):
@@ -111,9 +113,9 @@ async def delete_card_comment(
     card_uid: str,
     comment_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_uid(comment_uid)
+    card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
     if not _is_owner(user_or_bot, card_comment):
@@ -140,9 +142,9 @@ async def toggle_reaction_card_comment(
     comment_uid: str,
     form: ToggleCardCommentReactionForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_uid(comment_uid)
+    card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
     result = await service.card_comment.toggle_reaction(user_or_bot, project_uid, card_uid, card_comment, form.reaction)

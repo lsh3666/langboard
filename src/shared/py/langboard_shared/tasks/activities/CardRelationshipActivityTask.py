@@ -1,6 +1,7 @@
+from typing import Sequence
 from ...core.broker import Broker
-from ...models import Bot, Card, Project, ProjectActivity, User
-from ...models.ProjectActivity import ProjectActivityType
+from ...domain.models import Bot, Card, Project, ProjectActivity, User
+from ...domain.models.ProjectActivity import ProjectActivityType
 from .UserActivityTask import record_project_activity
 from .utils import ActivityTaskHelper
 
@@ -10,8 +11,8 @@ async def card_relationship_updated(
     user_or_bot: User | Bot,
     project: Project,
     card: Card,
-    old_relationship_ids: list[int],
-    new_relationship_ids: list[int],
+    old_relationship_ids: Sequence[int],
+    new_relationship_ids: Sequence[int],
     is_parent: bool,
 ):
     helper = ActivityTaskHelper(ProjectActivity)

@@ -1,7 +1,7 @@
 from typing import Any
 from sqlmodel.sql.expression import SelectOfScalar
 from ..core.types import SnowflakeID
-from ..models import Project, ProjectRole
+from ..domain.models import Project, ProjectRole
 
 
 def project(

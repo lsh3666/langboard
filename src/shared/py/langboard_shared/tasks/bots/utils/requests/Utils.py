@@ -1,8 +1,8 @@
 from typing import Any
 from .....core.db import BaseSqlModel
+from .....domain.models import Bot, Project
+from .....domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from .....Env import Env
-from .....models import Bot, Project
-from .....models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from .BaseBotRequest import BaseBotRequest
 from .DefaultRequest import DefaultRequest
 from .LangflowRequest import LangflowRequest

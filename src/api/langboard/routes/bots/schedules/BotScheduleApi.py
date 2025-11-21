@@ -4,14 +4,14 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.types import SafeDateTime
+from langboard_shared.domain.models import Card, Project, ProjectColumn, ProjectRole
+from langboard_shared.domain.models.BotSchedule import BotScheduleRunningType
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.helpers import BotHelper, ServiceHelper
-from langboard_shared.models import Card, Project, ProjectColumn, ProjectRole
-from langboard_shared.models.BotSchedule import BotScheduleRunningType
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.helpers import BotHelper
 from langboard_shared.publishers import ProjectBotPublisher
 from langboard_shared.security import RoleFinder
-from langboard_shared.services import Service
 from ..forms import CreateBotCronTimeForm, DeleteBotCronTimeForm, UpdateBotCronTimeForm
 
 
@@ -27,7 +27,7 @@ from ..forms import CreateBotCronTimeForm, DeleteBotCronTimeForm, UpdateBotCronT
 async def schedule_bot_crons(
     bot_uid: str,
     form: CreateBotCronTimeForm,
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     form.interval_str = BotScheduleHelper.utils.convert_valid_interval_str(form.interval_str)
     if not form.interval_str:
@@ -46,7 +46,7 @@ async def schedule_bot_crons(
         return JsonResponse(content=ApiErrorCode.VA3004, status_code=status.HTTP_400_BAD_REQUEST)
     target_model_class, target_model = result
 
-    bot = await service.bot.get_by_uid(bot_uid)
+    bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -67,7 +67,7 @@ async def schedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = ServiceHelper.get_by_param(Project, target_model.project_id)
+            project = await service.project.get_by_id_like(target_model.project_id)
 
         if project:
             await ProjectBotPublisher.scheduled(project, bot_schedule)
@@ -88,14 +88,14 @@ async def reschedule_bot_crons(
     bot_uid: str,
     schedule_uid: str,
     form: UpdateBotCronTimeForm,
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not BotScheduleHelper.get_default_status_with_dates(
         running_type=form.running_type, start_at=form.start_at, end_at=form.end_at
     ):
         return JsonResponse(content=ApiErrorCode.VA3002, status_code=status.HTTP_400_BAD_REQUEST)
 
-    bot = await service.bot.get_by_uid(bot_uid)
+    bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -121,7 +121,7 @@ async def reschedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = ServiceHelper.get_by_param(Project, target_model.project_id)
+            project = await service.project.get_by_id_like(target_model.project_id)
 
         if project:
             await ProjectBotPublisher.rescheduled(project, schedule_model, model)
@@ -142,9 +142,9 @@ async def unschedule_bot_crons(
     bot_uid: str,
     schedule_uid: str,
     form: DeleteBotCronTimeForm,
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_uid(bot_uid)
+    bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -162,7 +162,7 @@ async def unschedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = ServiceHelper.get_by_param(Project, target_model.project_id)
+            project = await service.project.get_by_id_like(target_model.project_id)
 
         if project:
             await ProjectBotPublisher.unscheduled(project, schedule_model)
@@ -175,7 +175,7 @@ def _get_target_model_with_bot_schedule(target_table: str, schedule_uid: str):
     if not target_model_class:
         return JsonResponse(content=ApiErrorCode.VA3003, status_code=status.HTTP_400_BAD_REQUEST)
 
-    bot_schedule = ServiceHelper.get_by_param(target_model_class, schedule_uid)
+    bot_schedule = BotScheduleHelper.get_by_id_like(target_model_class, schedule_uid)
     if not bot_schedule:
         return JsonResponse(content=ApiErrorCode.NF2015, status_code=status.HTTP_404_NOT_FOUND)
 

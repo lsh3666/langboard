@@ -1,5 +1,5 @@
 from ..core.routing import BaseFormModel
-from ..models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from ..domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
 
 
 class BaseSharedBotForm(BaseFormModel):

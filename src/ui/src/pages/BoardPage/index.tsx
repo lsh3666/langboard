@@ -28,6 +28,7 @@ import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
 import useBoardBotStatusMapHandlers from "@/controllers/socket/board/useBoardBotStatusMapHandlers";
 import BoardBotScope from "@/pages/BoardPage/components/board/BoardBotScope";
 import useGetProject from "@/controllers/api/board/useGetProject";
+import BoardActivityDialog from "@/pages/BoardPage/components/board/BoardActivityDialog";
 
 const getCurrentPage = (pageRoute?: string): TBoardViewType => {
     switch (pageRoute) {
@@ -115,7 +116,11 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
     const { currentUser } = useAuth();
     const navigate = usePageNavigateRef();
     const [isReady, setIsReady] = useState(false);
+    const [isActivityDialogOpened, setIsActivityDialogOpened] = useState(false);
     const [isBotScopeOpened, setIsBotScopeOpened] = useState(false);
+    const openActivityDialog = useCallback(() => {
+        setIsActivityDialogOpened(true);
+    }, [setIsActivityDialogOpened]);
     const openBotScope = useCallback(() => {
         setIsBotScopeOpened(true);
     }, [setIsBotScopeOpened]);
@@ -274,12 +279,8 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
         },
         {
             name: t("board.Activity"),
-            onClick: () => {
-                navigate({
-                    pathname: ROUTES.BOARD.ACTIVITY(project.uid),
-                    hash: location.pathname,
-                });
-            },
+            onClick: openActivityDialog,
+            active: isActivityDialogOpened,
             hidden: !!selectCardViewType,
         },
         {
@@ -294,7 +295,7 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
         {
             name: t("bot.Scope bot"),
             onClick: openBotScope,
-            active: boardViewType === "settings",
+            active: isBotScopeOpened,
             hidden: !!selectCardViewType && !!currentUser && currentUser.is_admin,
         },
     ];
@@ -317,23 +318,22 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
     }
 
     return (
-        <DashboardStyledLayout
-            headerNavs={headerNavs}
-            headerTitle={projectTitle}
-            resizableSidebar={
-                chatResizableSidebar ? { ...chatResizableSidebar, hidden: !!selectCardViewType || !!chatResizableSidebar.hidden } : undefined
-            }
-            className="!p-0"
-        >
-            {isReady && currentUser && project ? (
-                <>
-                    <PageComponent project={project} currentUser={currentUser} />
-                    <BoardBotScope project={project} currentUser={currentUser} isOpened={isBotScopeOpened} setIsOpened={setIsBotScopeOpened} />
-                </>
-            ) : (
-                <SkeletonComponent />
+        <>
+            <DashboardStyledLayout
+                headerNavs={headerNavs}
+                headerTitle={projectTitle}
+                resizableSidebar={
+                    chatResizableSidebar ? { ...chatResizableSidebar, hidden: !!selectCardViewType || !!chatResizableSidebar.hidden } : undefined
+                }
+                className="!p-0"
+            >
+                {isReady && currentUser && project ? <PageComponent project={project} currentUser={currentUser} /> : <SkeletonComponent />}
+            </DashboardStyledLayout>
+            {isReady && !!currentUser && !!project && (
+                <BoardBotScope project={project} currentUser={currentUser} isOpened={isBotScopeOpened} setIsOpened={setIsBotScopeOpened} />
             )}
-        </DashboardStyledLayout>
+            <BoardActivityDialog isOpened={isActivityDialogOpened} setIsOpened={setIsActivityDialogOpened} />
+        </>
     );
 }
 
