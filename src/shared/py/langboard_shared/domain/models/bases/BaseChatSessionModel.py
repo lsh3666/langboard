@@ -1,11 +1,15 @@
 from typing import Any
 from ....core.db import BaseSqlModel, SnowflakeIDField
 from ....core.types import SnowflakeID
-from ..BotLog import BotLog
+from ..ChatSession import ChatSession
 
 
-class BaseBotLogModel(BaseSqlModel):
-    bot_log_id: SnowflakeID = SnowflakeIDField(foreign_key=BotLog, index=True)
+class BaseChatSessionModel(BaseSqlModel):
+    chat_session_id: SnowflakeID = SnowflakeIDField(foreign_key=ChatSession, index=True)
+
+    @classmethod
+    def get_filterable_column(cls) -> str:
+        return f"{cls.__tablename__.replace('_chat_session', '')}_id"
 
     @classmethod
     def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
@@ -19,7 +23,7 @@ class BaseBotLogModel(BaseSqlModel):
 
     def api_response(self) -> dict[str, Any]:
         return {
-            "filterable_table": self.__tablename__,
+            "filterable_table": self.__tablename__.replace("_chat_session", ""),
             **super().api_response(),
         }
 
@@ -27,6 +31,6 @@ class BaseBotLogModel(BaseSqlModel):
         return {}
 
     def _get_repr_keys(self) -> list[str | tuple[str, str]]:
-        keys: list[str | tuple[str, str]] = ["bot_log_id"]
-        keys.extend([field for field in self.model_fields if field not in BaseBotLogModel.model_fields])
+        keys: list[str | tuple[str, str]] = ["chat_session_id"]
+        keys.extend([field for field in self.model_fields if field not in BaseChatSessionModel.model_fields])
         return keys

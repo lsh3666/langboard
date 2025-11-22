@@ -28,6 +28,7 @@ from .ProjectAssignedUser import ProjectAssignedUser
 from .ProjectBotLog import ProjectBotLog
 from .ProjectBotSchedule import ProjectBotSchedule
 from .ProjectBotScope import ProjectBotScope
+from .ProjectChatSession import ProjectChatSession
 from .ProjectColumn import ProjectColumn
 from .ProjectColumnBotLog import ProjectColumnBotLog
 from .ProjectColumnBotSchedule import ProjectColumnBotSchedule
@@ -81,6 +82,7 @@ __all__ = [
     "ProjectBotLog",
     "ProjectBotSchedule",
     "ProjectBotScope",
+    "ProjectChatSession",
     "ProjectColumn",
     "ProjectColumnBotLog",
     "ProjectColumnBotSchedule",

@@ -17,7 +17,7 @@ _TSubModel1 = TypeVar("_TSubModel1", bound=BaseSqlModel)
 _TSubModel2 = TypeVar("_TSubModel2", bound=BaseSqlModel)
 _TSubModel3 = TypeVar("_TSubModel3", bound=BaseSqlModel)
 
-_TIdParam = BaseSqlModel | SnowflakeID | int | str | None
+_TIdParam = _TBaseModel | SnowflakeID | int | str | None
 
 
 @staticclass

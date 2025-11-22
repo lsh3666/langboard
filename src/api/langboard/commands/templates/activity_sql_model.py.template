@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any
-from ..core.db import ApiField, EnumLikeType, Field, SnowflakeIDField
-from ..core.types import SnowflakeID
+from ...core.db import ApiField, EnumLikeType, Field, SnowflakeIDField
+from ...core.types import SnowflakeID
 from .bases import BaseActivityModel
 
 
