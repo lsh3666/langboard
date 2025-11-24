@@ -76,7 +76,7 @@ const BoardCardPageComponent = () => {
         };
     }, []);
 
-    const alertDescription = useMemo(() => t("card.unsavedChanges.description"), [t]);
+    const alertDescription = useMemo(() => t("card.unsavedChanges.You have unsaved description changes.\nLeaving now will discard them."), [t]);
 
     return (
         <>
@@ -110,11 +110,11 @@ const BoardCardPageComponent = () => {
             <AlertDialog open={isDirtyAlertOpen} onOpenChange={setIsDirtyAlertOpen}>
                 <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t("card.unsavedChanges.title")}</AlertDialogTitle>
+                        <AlertDialogTitle>{t("card.unsavedChanges.Discard description edits?")}</AlertDialogTitle>
                         <AlertDialogDescription className="whitespace-pre-line">{alertDescription}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>{t("card.unsavedChanges.stay")}</AlertDialogCancel>
+                        <AlertDialogCancel>{t("card.unsavedChanges.Keep editing")}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
                                 resetAll();
@@ -122,7 +122,7 @@ const BoardCardPageComponent = () => {
                                 close();
                             }}
                         >
-                            {t("card.unsavedChanges.leave")}
+                            {t("card.unsavedChanges.Discard changes")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

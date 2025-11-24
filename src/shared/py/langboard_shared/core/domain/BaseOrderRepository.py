@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, overload
 from sqlalchemy import func
 from ...helpers import InfraHelper
 from ..db import BaseSqlModel, DbSession, SoftDeleteModel, SqlBuilder
@@ -198,15 +198,23 @@ class BaseOrderRepository(Generic[_TModel, _TParentModel], BaseRepository[_TMode
                 )
             )
 
+    def _get_parent_foreign_key_name(
+        self, parent_model_cls: type[_TParentModel] | type[_TParentModelParam] | None = None
+    ) -> str:
+        parent_model_cls = self._get_parent_model_cls(parent_model_cls)
+        return f"{parent_model_cls.__tablename__}_id"
+
+    @overload
+    def _get_parent_model_cls(self, parent_model_cls: type[_TParentModel] | None = None) -> type[_TParentModel]: ...
+    @overload
     def _get_parent_model_cls(
         self, parent_model_cls: type[_TParentModelParam] | None = None
+    ) -> type[_TParentModelParam]: ...
+    def _get_parent_model_cls(
+        self, parent_model_cls: type[_TParentModel] | type[_TParentModelParam] | None = None
     ) -> type[_TParentModel] | type[_TParentModelParam]:
         if parent_model_cls:
             return parent_model_cls
         if not self._parent_model_cls:
             self._parent_model_cls = self.parent_model_cls()
         return self._parent_model_cls
-
-    def _get_parent_foreign_key_name(self, parent_model_cls: type[_TParentModelParam] | None = None) -> str:
-        parent_model_cls = self._get_parent_model_cls(parent_model_cls)
-        return f"{parent_model_cls.__tablename__}_id"

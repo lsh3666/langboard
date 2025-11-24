@@ -64,9 +64,9 @@
     "Comment content cannot be empty.": "Comment content cannot be empty."
   },
   "unsavedChanges": {
-    "title": "Discard description edits?",
-    "description": "You have unsaved description changes.\nLeaving now will discard them.",
-    "stay": "Keep editing",
-    "leave": "Discard changes"
+    "Discard description edits?": "Discard description edits?",
+    "You have unsaved description changes.\nLeaving now will discard them.": "You have unsaved description changes.\nLeaving now will discard them.",
+    "Keep editing": "Keep editing",
+    "Discard changes": "Discard changes"
   }
 }
