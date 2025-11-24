@@ -3,6 +3,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useBoardController } from "@/core/providers/BoardController";
 import { ROUTES } from "@/core/routing/constants";
+import { getEditorStore } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
 import BoardCard from "@/pages/BoardPage/components/card/BoardCard";
 import { BoardCardUnsavedProvider, useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
@@ -88,13 +89,18 @@ const BoardCardPageComponent = () => {
                         viewportRef={viewportRef}
                         overlayClassName={selectCardViewType ? "hidden" : ""}
                         disableOverlayClick={!!selectCardViewType}
-                        onOverlayInteract={() => {
+                        onOverlayInteract={(event) => {
                             if (getHasUnsavedChanges()) {
                                 requestClose();
                                 return;
                             }
 
-                            close();
+                            if (getEditorStore().isInCurrentEditor()) {
+                                event.preventDefault();
+                                event.stopPropagation();
+
+                                getEditorStore().setCurrentEditor(null);
+                            }
                         }}
                     >
                         <BoardCard projectUID={projectUID} cardUID={cardUID} currentUser={currentUser} viewportRef={viewportRef} />
