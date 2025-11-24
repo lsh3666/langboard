@@ -1,6 +1,7 @@
 from asyncio import run as run_async
 from json import dumps as json_dumps
 from json import loads as json_loads
+from threading import Thread
 from typing import Any, Callable, Concatenate, Coroutine, Generic, ParamSpec, Protocol, TypeVar, cast, overload
 from celery import Celery
 from celery.app.task import Task
@@ -98,7 +99,7 @@ class Broker:
             if Env.CACHE_TYPE == "in-memory":
 
                 def local_task(*args: _TParams.args, **kwargs: _TParams.kwargs):
-                    return run_async(func(*args, **kwargs))
+                    return Thread(target=run_async, args=(func(*args, **kwargs),)).start()
 
                 return local_task
 

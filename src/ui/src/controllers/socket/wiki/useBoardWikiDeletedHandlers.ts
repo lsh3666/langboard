@@ -3,23 +3,26 @@ import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/So
 import { ProjectWiki } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
 
-export interface IUseBoardWikiDeletedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
-    projectUID: string;
-    wiki: ProjectWiki.TModel;
+export interface IUseBoardWikiDeletedResponse {
+    uid: string;
 }
 
-const useBoardWikiDeletedHandlers = ({ callback, projectUID, wiki }: IUseBoardWikiDeletedHandlersProps) => {
-    return useSocketHandler<{}, {}>({
+export interface IUseBoardWikiDeletedHandlersProps extends IBaseUseSocketHandlersProps<IUseBoardWikiDeletedResponse> {
+    projectUID: string;
+}
+
+const useBoardWikiDeletedHandlers = ({ callback, projectUID }: IUseBoardWikiDeletedHandlersProps) => {
+    return useSocketHandler<IUseBoardWikiDeletedResponse, IUseBoardWikiDeletedResponse>({
         topic: ESocketTopic.BoardWiki,
         topicId: projectUID,
-        eventKey: `board-wiki-deleted-${wiki.uid}`,
+        eventKey: `board-wiki-deleted-${projectUID}`,
         onProps: {
             name: SocketEvents.SERVER.BOARD.WIKI.DELETED,
-            params: { uid: wiki.uid },
+            params: { uid: projectUID },
             callback,
-            responseConverter: () => {
-                ProjectWiki.Model.deleteModel(wiki.uid);
-                return {};
+            responseConverter: (data) => {
+                ProjectWiki.Model.deleteModel(data.uid);
+                return data;
             },
         },
     });

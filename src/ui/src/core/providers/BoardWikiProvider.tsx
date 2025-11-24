@@ -1,5 +1,6 @@
 import { Toast } from "@/components/base";
 import useBoardWikiCreatedHandlers from "@/controllers/socket/wiki/useBoardWikiCreatedHandlers";
+import useBoardWikiDeletedHandlers from "@/controllers/socket/wiki/useBoardWikiDeletedHandlers";
 import useBoardWikiProjectUsersUpdatedHandlers from "@/controllers/socket/wiki/useBoardWikiProjectUsersUpdatedHandlers";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
@@ -65,6 +66,19 @@ export const BoardWikiProvider = ({
     const boardWikiCreatedHandlers = useBoardWikiCreatedHandlers({
         projectUID: project.uid,
     });
+    const boardWikiDeletedHandlers = useMemo(
+        () =>
+            useBoardWikiDeletedHandlers({
+                projectUID: project.uid,
+                callback: (data) => {
+                    if (wikiUID === data.uid) {
+                        navigate(ROUTES.BOARD.WIKI(project.uid));
+                        getEditorStore().setCurrentEditor(null);
+                    }
+                },
+            }),
+        [wikiUID]
+    );
     const projectUsersUpdatedHandlers = useMemo(
         () =>
             useBoardWikiProjectUsersUpdatedHandlers({
@@ -78,8 +92,8 @@ export const BoardWikiProvider = ({
 
     useSwitchSocketHandlers({
         socket,
-        handlers: [boardWikiCreatedHandlers, projectUsersUpdatedHandlers],
-        dependencies: [projectUsersUpdatedHandlers],
+        handlers: [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers],
+        dependencies: [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers],
     });
 
     useEffect(() => {
