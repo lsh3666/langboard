@@ -10,8 +10,10 @@ import { IEditorContent } from "@/core/models/Base";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { getEditorStore } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
+import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
+import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
-import { memo, useEffect, useMemo, useReducer, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function SkeletonBoardCardDescription() {
@@ -27,7 +29,7 @@ export function SkeletonBoardCardDescription() {
 const BoardCardDescription = memo((): JSX.Element => {
     const { projectUID, card, currentUser, hasRoleAction } = useBoardCard();
     const [t] = useTranslation();
-    const { mutateAsync: changeCardDetailsMutateAsync } = useChangeCardDetails("description", { interceptToast: true });
+    const { mutateAsync: changeCardDetailsMutateAsync, isPending } = useChangeCardDetails("description", { interceptToast: true });
     const [_, forceUpdate] = useReducer((x) => x + 1, 0);
     const editorRef = useRef<TEditor>(null);
     const editorName = `${card.uid}-card-description`;
@@ -36,7 +38,8 @@ const BoardCardDescription = memo((): JSX.Element => {
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
     const cards = ProjectCard.Model.useModels((model) => model.uid !== card.uid && model.project_uid === projectUID, [projectUID, card]);
     const description = card.useField("description");
-    const { valueRef, isEditing, changeMode } = useChangeEditMode({
+    const { markSectionDirty, resetSection, getHasUnsavedChanges } = useBoardCardUnsavedActions();
+    const { valueRef, isEditing, changeMode, setIsEditing } = useChangeEditMode({
         canEdit: () => hasRoleAction(Project.ERoleAction.CardUpdate),
         valueType: "editor",
         canEmpty: true,
@@ -63,6 +66,7 @@ const BoardCardDescription = memo((): JSX.Element => {
                     return messageRef.message;
                 },
                 success: () => {
+                    resetSection("description");
                     return t("successes.Description changed successfully.");
                 },
                 finally: () => {
@@ -83,46 +87,80 @@ const BoardCardDescription = memo((): JSX.Element => {
             aiChatApi.aiChat.hide();
         },
     });
-    const setValue = (value: IEditorContent) => {
-        valueRef.current = value;
-    };
-    const { startEditing, stopEditing } = useToggleEditingByClickOutside("[data-card-description]", changeMode, isEditing);
 
-    useEffect(() => {
-        setValue(description);
-        forceUpdate();
-    }, [description]);
+    const setValue = useCallback(
+        (value: IEditorContent) => {
+            valueRef.current = value;
+        },
+        [valueRef]
+    );
+    const { startEditing } = useToggleEditingByClickOutside("[data-card-description]", changeMode, isEditing);
+    const [initialEditorValue, setInitialEditorValue] = useState(description);
 
-    useEffect(() => {
+    const handleEditorValueChange = useCallback(
+        (value: IEditorContent) => {
+            setValue(value);
+            const nextContent = value?.content ?? "";
+            const originalContent = description?.content ?? "";
+            const nextDirty = nextContent !== originalContent;
+
+            markSectionDirty("description", nextDirty);
+        },
+        [description, markSectionDirty, setValue]
+    );
+
+    const handleSave = useCallback(() => {
+        if (!getHasUnsavedChanges() || isPending) {
+            return;
+        }
+
+        changeMode("view");
+    }, [changeMode, getHasUnsavedChanges, isPending]);
+
+    const handleCancel = useCallback(() => {
         if (!isEditing) {
             return;
         }
 
-        window.addEventListener("pointerdown", stopEditing);
+        setValue(description);
+        resetSection("description");
+        forceUpdate();
+        setIsEditing(false);
+        getEditorStore().setCurrentEditor(null);
+    }, [description, isEditing, resetSection, setIsEditing, setValue]);
 
-        return () => {
-            window.removeEventListener("pointerdown", stopEditing);
-        };
-    }, [isEditing]);
+    useEffect(() => {
+        if (isEditing) {
+            return;
+        }
+
+        setInitialEditorValue(description);
+        setValue(description);
+        resetSection("description");
+        forceUpdate();
+    }, [description, isEditing, resetSection, setValue]);
 
     return (
-        <Box onPointerDown={startEditing} data-card-description>
-            <PlateEditor
-                value={valueRef.current}
-                mentionables={mentionables}
-                linkables={cards}
-                currentUser={currentUser}
-                className={cn("h-full min-h-[calc(theme(spacing.56)_-_theme(spacing.8))]", isEditing ? "px-6 py-3" : "")}
-                readOnly={!isEditing}
-                editorType="card-description"
-                form={{
-                    project_uid: projectUID,
-                    card_uid: card.uid,
-                }}
-                placeholder={!isEditing ? t("card.No description") : undefined}
-                setValue={setValue}
-                editorRef={editorRef}
-            />
+        <Box data-card-description>
+            {isEditing && <CardEditControls isEditing={isEditing} onSave={handleSave} onCancel={handleCancel} saveDisabled={isPending} />}
+            <Box onPointerDown={startEditing}>
+                <PlateEditor
+                    value={initialEditorValue}
+                    mentionables={mentionables}
+                    linkables={cards}
+                    currentUser={currentUser}
+                    className={cn("h-full min-h-[calc(theme(spacing.56)_-_theme(spacing.8))]", isEditing ? "px-6 py-3" : "")}
+                    readOnly={!isEditing}
+                    editorType="card-description"
+                    form={{
+                        project_uid: projectUID,
+                        card_uid: card.uid,
+                    }}
+                    placeholder={!isEditing ? t("card.No description") : undefined}
+                    setValue={handleEditorValueChange}
+                    editorRef={editorRef}
+                />
+            </Box>
         </Box>
     );
 });
