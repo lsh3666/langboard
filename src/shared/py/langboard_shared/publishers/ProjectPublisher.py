@@ -3,8 +3,8 @@ from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.types import SnowflakeID
 from ..core.utils.decorators import staticclass
-from ..models import ChatTemplate, Project, ProjectAssignedInternalBot, User
-from ..models.InternalBot import InternalBotType
+from ..domain.models import ChatTemplate, Project, ProjectAssignedInternalBot, User
+from ..domain.models.InternalBot import InternalBotType
 
 
 @staticclass

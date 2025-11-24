@@ -54,7 +54,13 @@ interface IContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrim
     withCloseButton?: bool;
     overlayClassName?: string;
     disableOverlayClick?: bool;
-    onOverlayInteract?: () => void;
+    onOverlayInteract?: (
+        event:
+            | React.PointerEvent<HTMLDivElement>
+            | CustomEvent<{
+                  originalEvent: PointerEvent;
+              }>
+    ) => void;
 }
 
 const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Content>, IContentProps>(
@@ -85,6 +91,7 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
             if (event.currentTarget !== target) {
                 return;
             }
+
             if (
                 disableOverlayClick ||
                 target.hasAttribute("data-scroll-area-scrollbar") ||
@@ -110,7 +117,7 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
             }
 
             if (!disableOverlayClick) {
-                onOverlayInteract?.();
+                onOverlayInteract?.(event);
             }
         };
 
@@ -155,7 +162,6 @@ const Content = React.forwardRef<React.ComponentRef<typeof DialogPrimitive.Conte
         );
     }
 );
-Content.displayName = DialogPrimitive.Content.displayName;
 
 const Header = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />

@@ -1,6 +1,5 @@
 from langboard_shared.core.routing import BaseFormModel, form_model
-from langboard_shared.core.schema import Pagination
-from langboard_shared.core.types import SafeDateTime
+from langboard_shared.core.schema import TimeBasedPagination
 
 
 @form_model
@@ -10,5 +9,5 @@ class DashboardProjectCreateForm(BaseFormModel):
     project_type: str = "Other"
 
 
-class DashboardPagination(Pagination):
-    refer_time: SafeDateTime = SafeDateTime.now()
+class DashboardPagination(TimeBasedPagination):
+    pass

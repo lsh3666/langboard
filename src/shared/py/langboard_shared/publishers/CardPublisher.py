@@ -2,7 +2,7 @@ from typing import Any, Literal
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.utils.decorators import staticclass
-from ..models import Card, Checkitem, Project, ProjectColumn, ProjectLabel, User
+from ..domain.models import Card, Checkitem, Project, ProjectColumn, ProjectLabel, User
 
 
 @staticclass

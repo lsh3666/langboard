@@ -2,7 +2,7 @@ from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.routing.SocketTopic import GLOBAL_TOPIC_ID
 from ..core.utils.decorators import staticclass
-from ..models import InternalBot
+from ..domain.models import InternalBot
 
 
 @staticclass

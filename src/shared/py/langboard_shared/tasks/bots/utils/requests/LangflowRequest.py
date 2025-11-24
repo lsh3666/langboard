@@ -3,9 +3,9 @@ from json import loads as json_loads
 from .....ai import LangboardCalledVariablesComponent
 from .....core.logger import Logger
 from .....core.utils.Converter import json_default
-from .....models import BotLog
-from .....models.BaseBotModel import BotPlatformRunningType
-from .....models.bases import BaseBotLogModel
+from .....domain.models import BotLog
+from .....domain.models.BaseBotModel import BotPlatformRunningType
+from .....domain.models.bases import BaseBotLogModel
 from ..BotTaskDataHelper import BotTaskDataHelper
 from .BaseBotRequest import BaseBotRequest, RequestData
 

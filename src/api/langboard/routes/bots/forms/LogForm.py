@@ -1,6 +1,5 @@
-from langboard_shared.core.schema import Pagination
-from langboard_shared.core.types import SafeDateTime
+from langboard_shared.core.schema import TimeBasedPagination
 
 
-class BotLogPagination(Pagination):
-    refer_time: SafeDateTime = SafeDateTime.now()
+class BotLogPagination(TimeBasedPagination):
+    pass

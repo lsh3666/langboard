@@ -1,7 +1,7 @@
 from typing import TypeVar, cast
-from .. import models
 from ..core.db import BaseSqlModel
 from ..core.utils.decorators import staticclass
+from ..domain import models
 
 
 _TBaseModel = TypeVar("_TBaseModel", bound=BaseSqlModel)

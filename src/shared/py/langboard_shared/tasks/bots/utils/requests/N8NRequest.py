@@ -3,7 +3,7 @@ from json import loads as json_loads
 from .....ai import LangboardCalledVariablesComponent
 from .....core.logger import Logger
 from .....core.utils.Converter import json_default
-from .....models.BaseBotModel import BotPlatformRunningType
+from .....domain.models.BaseBotModel import BotPlatformRunningType
 from ..BotTaskDataHelper import BotTaskDataHelper
 from .BaseBotRequest import BaseBotRequest, RequestData
 

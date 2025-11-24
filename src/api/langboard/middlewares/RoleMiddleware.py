@@ -1,8 +1,8 @@
 from fastapi import status
 from langboard_shared.core.filter import FilterMiddleware
 from langboard_shared.core.routing import ApiErrorCode, JsonResponse
+from langboard_shared.domain.models import Bot, User
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import Bot, User
 from langboard_shared.security import RoleSecurity
 from starlette.routing import BaseRoute
 from starlette.types import ASGIApp

@@ -167,7 +167,7 @@ def CSVType(item_type: type[TCSVType] = str):
             if value is None:
                 return None
             if issubclass(item_type, Enum):
-                return ",".join([cast(Enum, item).value for item in value])
+                return ",".join([item.value if isinstance(item, Enum) else item for item in value])
             return ",".join(cast(str, item) for item in value)
 
         def process_result_value(self, value: str, dialect) -> list[TCSVType] | None:

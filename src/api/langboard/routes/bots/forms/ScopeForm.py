@@ -1,6 +1,6 @@
 from langboard_shared.core.routing import BaseFormModel, form_model
-from langboard_shared.models import Card, ProjectColumn
-from langboard_shared.models.bases import BotTriggerCondition
+from langboard_shared.domain.models import Card, ProjectColumn
+from langboard_shared.domain.models.bases import BotTriggerCondition
 from pydantic import Field
 
 

@@ -1,8 +1,8 @@
 from typing import Any
 from ....ai import BotDefaultTrigger
 from ....core.utils.decorators import staticclass
-from ....models import Bot, User
-from ....models.bases import BotTriggerCondition
+from ....domain.models import Bot, User
+from ....domain.models.bases import BotTriggerCondition
 from ...webhooks.utils import WebhookDataHelper
 
 

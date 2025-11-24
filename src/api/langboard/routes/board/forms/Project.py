@@ -1,8 +1,7 @@
 from langboard_shared.core.routing import BaseFormModel, form_model
-from langboard_shared.core.schema import Pagination
-from langboard_shared.core.types import SafeDateTime
-from langboard_shared.models.InternalBot import InternalBotType
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.core.schema import TimeBasedPagination
+from langboard_shared.domain.models.InternalBot import InternalBotType
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
 from pydantic import Field
 
 
@@ -16,8 +15,8 @@ class ProjectInvitationForm(BaseFormModel):
     invitation_token: str
 
 
-class ChatHistoryPagination(Pagination):
-    refer_time: SafeDateTime = SafeDateTime.now()
+class ChatHistoryPagination(TimeBasedPagination):
+    pass
 
 
 @form_model

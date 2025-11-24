@@ -10,7 +10,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 from langboard_shared.core.db.ColumnTypes import CSVType, SnowflakeIDType
-from langboard_shared.models.bases.BaseBotScopeModel import BotTriggerCondition
+from langboard_shared.domain.models.bases.BaseBotScopeModel import BotTriggerCondition
 
 
 # revision identifiers, used by Alembic.

@@ -1,11 +1,11 @@
 from .BotHelper import BotHelper
+from .InfraHelper import InfraHelper
 from .ModelHelper import ModelHelper, ensure_models_imported
-from .ServiceHelper import ServiceHelper
 
 
 __all__ = [
     "BotHelper",
     "ModelHelper",
-    "ServiceHelper",
+    "InfraHelper",
     "ensure_models_imported",
 ]

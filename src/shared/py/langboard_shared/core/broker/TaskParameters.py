@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Literal,
+    Sequence,
     _UnionGenericAlias,  # type: ignore
 )
 from pydantic import BaseModel
@@ -62,11 +63,15 @@ class TaskParameters:
         arg_type, value = self.__get_param_value(param_name)
         if isinstance(annotation, type) and issubclass(annotation, BaseModel):
             return arg_type, annotation.model_validate(from_json(value))
+        elif isinstance(annotation, type) and annotation is Sequence:
+            return arg_type, list(value)
         elif isinstance(annotation, UnionType) or isinstance(annotation, _UnionGenericAlias):
             for sub_annotation in annotation.__args__:  # type: ignore
                 try:
                     if isinstance(sub_annotation, type) and issubclass(sub_annotation, BaseModel):
                         return arg_type, sub_annotation.model_validate(from_json(value))
+                    elif sub_annotation is Sequence:
+                        return arg_type, list(value)
                 except Exception:
                     continue
 

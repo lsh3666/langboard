@@ -4,9 +4,9 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
-from langboard_shared.models import Bot
-from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from langboard_shared.services import Service
+from langboard_shared.domain.models import Bot
+from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.domain.services import DomainService
 from .Form import CreateBotForm, UpdateBotForm
 
 
@@ -26,7 +26,7 @@ from .Form import CreateBotForm, UpdateBotForm
 async def create_bot(
     form: CreateBotForm = CreateBotForm.scope(),
     avatar: UploadFile | None = File(None),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not validate_bot_form(form):
         return JsonResponse(content=ApiErrorCode.VA0000, status_code=status.HTTP_400_BAD_REQUEST)
@@ -91,9 +91,9 @@ async def update_bot(
     bot_uid: str,
     form: UpdateBotForm = UpdateBotForm.scope(),
     avatar: UploadFile | None = File(None),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_uid(bot_uid)
+    bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -142,7 +142,7 @@ async def update_bot(
     ),
 )
 @AuthFilter.add("admin")
-async def generate_new_bot_api_token(bot_uid: str, service: Service = Service.scope()) -> JsonResponse:
+async def generate_new_bot_api_token(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     bot = await service.bot.generate_new_api_token(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
@@ -161,7 +161,7 @@ async def generate_new_bot_api_token(bot_uid: str, service: Service = Service.sc
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3001).get(),
 )
 @AuthFilter.add("admin")
-async def delete_bot(bot_uid: str, service: Service = Service.scope()) -> JsonResponse:
+async def delete_bot(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     result = await service.bot.delete(bot_uid)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)

@@ -2,7 +2,6 @@ import { useState } from "react";
 import CachedImage from "@/components/CachedImage";
 import HedaerNavItems from "@/components/Header/HedaerNavItems";
 import { IHeaderProps } from "@/components/Header/types";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { Button, Flex, IconComponent, NavigationMenu, Separator, Sheet } from "@/components/base";
 import { useAuth } from "@/core/providers/AuthProvider";
@@ -10,7 +9,6 @@ import { ROUTES } from "@/core/routing/constants";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import HeaderUserMenu from "@/components/Header/HeaderUserMenu";
 import HeaderUserNotification from "@/components/Header/HeaderUserNotification";
-import UserPreferenceLanguageSwitcher from "@/components/LanguageSwitcher/UserPreference";
 
 function Header({ navs, title }: IHeaderProps) {
     const { currentUser } = useAuth();

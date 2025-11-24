@@ -1,6 +1,6 @@
 from typing import Any
 from pydantic import BaseModel
-from ...models import User, UserNotification
+from ...domain.models import User, UserNotification
 from ..broadcast import DispatcherModel, DispatcherQueue
 from ..resources.locales.EmailTemplateNames import TEmailTemplateName
 from ..utils.decorators import staticclass

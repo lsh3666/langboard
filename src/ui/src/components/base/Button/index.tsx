@@ -8,7 +8,7 @@ import { cn } from "@/core/utils/ComponentUtils";
 export const ButtonVariants = tv(
     {
         // eslint-disable-next-line @/max-len
-        base: "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+        base: "inline-flex items-center select-none justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
         variants: {
             isMenu: {
                 true: "w-full cursor-pointer justify-start gap-1",

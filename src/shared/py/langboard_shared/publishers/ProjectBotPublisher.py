@@ -2,10 +2,10 @@ from typing import Any, Literal
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.utils.decorators import staticclass
+from ..domain.models import BotLog, BotSchedule, Project
+from ..domain.models.bases import BaseBotLogModel, BaseBotScheduleModel, BaseBotScopeModel
+from ..domain.models.BotLog import BotLogMessage
 from ..helpers import BotHelper
-from ..models import BotLog, BotSchedule, Project
-from ..models.bases import BaseBotLogModel, BaseBotScheduleModel, BaseBotScopeModel
-from ..models.BotLog import BotLogMessage
 
 
 @staticclass

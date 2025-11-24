@@ -4,8 +4,8 @@ from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.routing.Exception import InvalidError, InvalidException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.utils.String import make_fullname
+from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import UI_QUERY_NAMES
-from langboard_shared.services import Service
 from .forms import ResetPasswordForm, SendResetLinkForm, ValidateTokenForm
 
 
@@ -14,7 +14,7 @@ from .forms import ResetPasswordForm, SendResetLinkForm, ValidateTokenForm
     tags=["Auth.Recovery"],
     responses=OpenApiSchema().err(404, ApiErrorCode.NF1004).err(503, ApiErrorCode.OP1001).get(),
 )
-async def send_recovery_link(form: SendResetLinkForm, service: Service = Service.scope()) -> JsonResponse:
+async def send_recovery_link(form: SendResetLinkForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, _ = await service.user.get_by_token(form.email_token, form.sign_token)
     if not user:
         return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)
@@ -44,7 +44,9 @@ async def send_recovery_link(form: SendResetLinkForm, service: Service = Service
 @AppRouter.api.post(
     "/auth/recovery/validate", tags=["Auth.Recovery"], responses=OpenApiSchema().err(404, ApiErrorCode.NF1004).get()
 )
-async def validate_recovery_token(form: ValidateTokenForm, service: Service = Service.scope()) -> JsonResponse:
+async def validate_recovery_token(
+    form: ValidateTokenForm, service: DomainService = DomainService.scope()
+) -> JsonResponse:
     user, _, _ = await service.user.validate_token_from_url("recovery", form.recovery_token)
     if not user:
         return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)
@@ -55,7 +57,7 @@ async def validate_recovery_token(form: ValidateTokenForm, service: Service = Se
 @AppRouter.api.post(
     "/auth/recovery/reset", tags=["Auth.Recovery"], responses=OpenApiSchema().err(404, ApiErrorCode.NF1004).get()
 )
-async def change_password(form: ResetPasswordForm, service: Service = Service.scope()) -> JsonResponse:
+async def change_password(form: ResetPasswordForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, cache_key, _ = await service.user.validate_token_from_url("recovery", form.recovery_token)
     if not user or not cache_key:
         return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)

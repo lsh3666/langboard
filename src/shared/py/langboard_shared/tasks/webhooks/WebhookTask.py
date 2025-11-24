@@ -3,8 +3,8 @@ from httpx import post
 from ...core.broker import Broker
 from ...core.db import DbSession, SqlBuilder
 from ...core.types import SafeDateTime
-from ...models import AppSetting
-from ...models.AppSetting import AppSettingType
+from ...domain.models import AppSetting
+from ...domain.models.AppSetting import AppSettingType
 from ...publishers import AppSettingPublisher
 from .utils import WebhookModel
 

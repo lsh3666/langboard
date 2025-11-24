@@ -24,7 +24,7 @@ const BoardColumnAddCardButton = memo(() => {
     return (
         <>
             {!isEditing ? (
-                <Button variant="ghost" className="w-full select-none justify-start gap-2 p-2" onClick={() => changeMode("edit")}>
+                <Button variant="ghost" className="w-full justify-start gap-2 p-2" onClick={() => changeMode("edit")}>
                     <IconComponent icon="plus" size="5" />
                     {t("board.Add a card")}
                 </Button>

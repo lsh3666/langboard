@@ -14,6 +14,7 @@ from email.utils import formatdate
 from types import FrameType
 from typing import TYPE_CHECKING, Union
 import click
+from uvicorn._compat import asyncio_run
 from uvicorn.config import Config
 
 
@@ -21,9 +22,10 @@ if TYPE_CHECKING:
     from uvicorn.protocols.http.h11_impl import H11Protocol
     from uvicorn.protocols.http.httptools_impl import HttpToolsProtocol
     from uvicorn.protocols.websockets.websockets_impl import WebSocketProtocol
+    from uvicorn.protocols.websockets.websockets_sansio_impl import WebSocketsSansIOProtocol
     from uvicorn.protocols.websockets.wsproto_impl import WSProtocol
 
-    Protocols = Union[H11Protocol, HttpToolsProtocol, WSProtocol, WebSocketProtocol]
+    Protocols = Union[H11Protocol, HttpToolsProtocol, WSProtocol, WebSocketProtocol, WebSocketsSansIOProtocol]
 
 HANDLED_SIGNALS = (
     signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
@@ -60,7 +62,7 @@ class Server:
         self._captured_signals: list[int] = []
 
     def run(self, sockets: list[socket.socket] | None = None) -> None:
-        return asyncio.run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+        return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
 
     async def serve(self, sockets: list[socket.socket] | None = None) -> None:
         with self.capture_signals():

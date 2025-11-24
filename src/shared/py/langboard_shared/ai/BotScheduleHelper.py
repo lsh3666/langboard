@@ -2,14 +2,14 @@ from typing import Any, Literal, TypeVar, cast, overload
 from crontab import CronTab
 from sqlalchemy import tuple_
 from ..core.db import BaseSqlModel, DbSession, SqlBuilder
-from ..core.schema import Pagination
+from ..core.schema import TimeBasedPagination
 from ..core.types import SafeDateTime, SnowflakeID
 from ..core.utils.CronTabUtils import CronTabUtils
 from ..core.utils.decorators import staticclass
-from ..helpers import ServiceHelper
-from ..models import Bot, BotSchedule
-from ..models.bases import BaseBotScheduleModel
-from ..models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
+from ..domain.models import Bot, BotSchedule
+from ..domain.models.bases import BaseBotScheduleModel
+from ..domain.models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
+from ..helpers import InfraHelper
 
 
 _TBotScheduleModel = TypeVar("_TBotScheduleModel", bound=BaseBotScheduleModel)
@@ -20,6 +20,13 @@ _TBaseParam = int | str | None
 class BotScheduleHelper:
     utils = CronTabUtils()
 
+    @staticmethod
+    def get_by_id_like(
+        model_cls: type[_TBotScheduleModel], model: _TBotScheduleModel | _TBaseParam | None
+    ) -> _TBotScheduleModel | None:
+        record = InfraHelper.get_by_id_like(model_cls, model)
+        return record
+
     @overload
     @staticmethod
     async def get_all_by_scope(
@@ -27,9 +34,8 @@ class BotScheduleHelper:
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
         as_api: Literal[False],
-        pagination: Pagination | None = None,
+        pagination: TimeBasedPagination | None = None,
         status: BotScheduleStatus | None = None,
-        refer_time: SafeDateTime | None = None,
     ) -> list[tuple[_TBotScheduleModel, BotSchedule]]: ...
     @overload
     @staticmethod
@@ -38,9 +44,8 @@ class BotScheduleHelper:
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
         as_api: Literal[True],
-        pagination: Pagination | None = None,
+        pagination: TimeBasedPagination | None = None,
         status: BotScheduleStatus | None = None,
-        refer_time: SafeDateTime | None = None,
     ) -> list[dict[str, Any]]: ...
     @staticmethod
     async def get_all_by_scope(
@@ -48,9 +53,8 @@ class BotScheduleHelper:
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
         as_api: bool,
-        pagination: Pagination | None = None,
+        pagination: TimeBasedPagination | None = None,
         status: BotScheduleStatus | None = None,
-        refer_time: SafeDateTime | None = None,
     ) -> list[tuple[_TBotScheduleModel, BotSchedule]] | list[dict[str, Any]]:
         query = SqlBuilder.select.tables(schedule_model_class, BotSchedule).join(
             BotSchedule,
@@ -80,11 +84,9 @@ class BotScheduleHelper:
         if status:
             query = query.where(BotSchedule.column("status") == status)
 
-        if refer_time is not None:
-            query = query.where(BotSchedule.column("created_at") <= refer_time)
-
         if pagination:
             query = query.limit(pagination.limit).offset((pagination.page - 1) * pagination.limit)
+            query = query.where(BotSchedule.column("created_at") <= pagination.refer_time)
 
         schedules = []
         with DbSession.use(readonly=True) as db:
@@ -195,11 +197,11 @@ class BotScheduleHelper:
         end_at: SafeDateTime | None = None,
         tz: str | float = "UTC",
     ) -> tuple[BotSchedule, _TBotScheduleModel, dict[str, Any]] | None:
-        schedule_model = ServiceHelper.get_by_param(schedule_model_class, schedule_model)
+        schedule_model = InfraHelper.get_by_id_like(schedule_model_class, schedule_model)
         if not schedule_model:
             return None
 
-        bot_schedule = ServiceHelper.get_by_param(BotSchedule, schedule_model.bot_schedule_id)
+        bot_schedule = InfraHelper.get_by_id_like(BotSchedule, schedule_model.bot_schedule_id)
         if not bot_schedule:
             return None
 
@@ -288,11 +290,11 @@ class BotScheduleHelper:
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
     ) -> tuple[BotSchedule, _TBotScheduleModel] | None:
-        schedule_model = ServiceHelper.get_by_param(schedule_model_class, schedule_model)
+        schedule_model = InfraHelper.get_by_id_like(schedule_model_class, schedule_model)
         if not schedule_model:
             return None
 
-        bot_schedule = ServiceHelper.get_by_param(BotSchedule, schedule_model.bot_schedule_id)
+        bot_schedule = InfraHelper.get_by_id_like(BotSchedule, schedule_model.bot_schedule_id)
         if not bot_schedule:
             return None
 
@@ -378,13 +380,13 @@ class BotScheduleHelper:
         no_update: bool | None = None,
         bot_schedule: BotSchedule | None = None,
     ) -> BotSchedule | tuple[CronTab, bool] | None:
-        schedule_model = ServiceHelper.get_by_param(schedule_model_class, schedule_model)
+        schedule_model = InfraHelper.get_by_id_like(schedule_model_class, schedule_model)
         cron = BotScheduleHelper.utils.get_cron()
         if not schedule_model:
             return None if not no_update else (cron, False)
 
         if not bot_schedule:
-            bot_schedule = ServiceHelper.get_by_param(BotSchedule, schedule_model.bot_schedule_id)
+            bot_schedule = InfraHelper.get_by_id_like(BotSchedule, schedule_model.bot_schedule_id)
             if not bot_schedule:
                 return None if not no_update else (cron, False)
 

@@ -3,11 +3,11 @@ from langboard_shared.ai import BotScheduleHelper
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import BotSchedule, Card, CardBotSchedule, ProjectRole
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import BotSchedule, Card, CardBotSchedule, ProjectRole
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.security import RoleFinder
-from langboard_shared.services import Service
 from ..forms import BotSchedulePagination
 
 
@@ -31,24 +31,18 @@ async def get_bot_schedules_by_card(
     bot_uid: str,
     card_uid: str,
     pagination: BotSchedulePagination = Depends(),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_uid(bot_uid)
+    bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
         return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
 
-    card = await service.card.get_by_uid(card_uid)
+    card = await service.card.get_by_id_like(card_uid)
     if not card:
         return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
 
     schedules = await BotScheduleHelper.get_all_by_scope(
-        CardBotSchedule,
-        bot,
-        card,
-        as_api=True,
-        pagination=pagination,
-        refer_time=pagination.refer_time,
-        status=pagination.status,
+        CardBotSchedule, bot, card, as_api=True, pagination=pagination, status=pagination.status
     )
 
     return JsonResponse(content={"schedules": schedules, "target": card.api_response()})

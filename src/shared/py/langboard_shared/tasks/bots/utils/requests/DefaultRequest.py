@@ -3,10 +3,10 @@ from json import loads as json_loads
 from typing import Any
 from .....ai import LangboardCalledVariablesComponent
 from .....core.logger import Logger
+from .....domain.models import BotLog
+from .....domain.models.BaseBotModel import BotPlatformRunningType
+from .....domain.models.bases import BaseBotLogModel
 from .....Env import Env
-from .....models import BotLog
-from .....models.BaseBotModel import BotPlatformRunningType
-from .....models.bases import BaseBotLogModel
 from .LangflowRequest import LangflowRequest
 
 

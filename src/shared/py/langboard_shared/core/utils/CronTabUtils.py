@@ -3,10 +3,14 @@ from pathlib import Path
 from subprocess import run as subprocess_run
 from typing import Callable
 from zoneinfo import ZoneInfo
+import crontab
 from crontab import SPECIALS, CronItem, CronTab, OrderedVariableList
 from psutil import process_iter
 from ...Env import Env
 from ..types import SafeDateTime
+
+
+crontab.SPECIALS_CONVERSION = False
 
 
 class CronTabUtils:

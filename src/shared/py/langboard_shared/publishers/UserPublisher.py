@@ -3,7 +3,7 @@ from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.types import SnowflakeID
 from ..core.utils.decorators import staticclass
-from ..models import User
+from ..domain.models import User
 
 
 @staticclass

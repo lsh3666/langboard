@@ -4,11 +4,11 @@ from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.routing.Exception import MissingException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.domain.models import CardAttachment, ProjectRole, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import CardAttachment, ProjectRole, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.security import Auth, RoleFinder, RoleSecurity
-from langboard_shared.services import Service
 from .forms import ChangeAttachmentNameForm, ChangeChildOrderForm
 
 
@@ -35,7 +35,7 @@ async def upload_card_attachment(
     card_uid: str,
     attachment: UploadFile = File(),
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not attachment:
         raise MissingException("body", "attachment")
@@ -62,7 +62,11 @@ async def upload_card_attachment(
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add("user")
 async def change_attachment_order(
-    project_uid: str, card_uid: str, attachment_uid: str, form: ChangeChildOrderForm, service: Service = Service.scope()
+    project_uid: str,
+    card_uid: str,
+    attachment_uid: str,
+    form: ChangeChildOrderForm,
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.card_attachment.change_order(project_uid, card_uid, attachment_uid, form.order)
     if not result:
@@ -84,9 +88,9 @@ async def change_card_attachment_name(
     attachment_uid: str,
     form: ChangeAttachmentNameForm,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_attachment = await service.card_attachment.get_by_uid(attachment_uid)
+    card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
         return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -118,9 +122,9 @@ async def delete_card_attachment(
     card_uid: str,
     attachment_uid: str,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_attachment = await service.card_attachment.get_by_uid(attachment_uid)
+    card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
         return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
 
