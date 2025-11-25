@@ -20,8 +20,8 @@ const WikiEmptyState = () => {
                 <IconComponent icon="file-plus" size="6" />
             </Flex>
             <Box className="space-y-1">
-                <p className="text-base font-semibold text-foreground">{t("wiki.No wikis yet")}</p>
-                <p className="text-sm text-muted-foreground">{t("wiki.Create your first wiki to keep notes and docs.")}</p>
+                <p className="text-base font-semibold text-foreground">{t("wiki.Start your first wiki")}</p>
+                <p className="text-sm text-muted-foreground">{t("wiki.Add your first wiki page to keep everything in one place.")}</p>
             </Box>
             <WikiCreateButton />
         </Flex>
