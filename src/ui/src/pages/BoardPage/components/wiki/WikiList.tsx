@@ -36,7 +36,7 @@ const WikiList = memo(() => {
     // Auto-select: Redirect to first accessible wiki when no wikiUID and wikis exist
     useEffect(() => {
         if (!wikiUID && wikis.length > 0) {
-            const firstAccessibleWiki = wikis.find(wiki => canAccessWiki(false, wiki.uid));
+            const firstAccessibleWiki = wikis.find((wiki) => canAccessWiki(false, wiki.uid));
             if (firstAccessibleWiki) {
                 navigate(ROUTES.BOARD.WIKI_PAGE(project.uid, firstAccessibleWiki.uid));
                 return;
