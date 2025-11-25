@@ -1,14 +1,9 @@
 from typing import Any, ClassVar, Literal, cast, overload
 from ..core.utils.decorators import staticclass
-from ..models import Card, Project, ProjectColumn
-from ..models.bases import (
-    BaseBotLogModel,
-    BaseBotScheduleModel,
-    BaseBotScopeModel,
-    BotTriggerCondition,
-)
+from ..domain.models import Card, Project, ProjectColumn
+from ..domain.models.bases import BaseBotLogModel, BaseBotScheduleModel, BaseBotScopeModel, BotTriggerCondition
+from .InfraHelper import InfraHelper
 from .ModelHelper import ModelHelper
-from .ServiceHelper import ServiceHelper
 
 
 _TAvailableTargets = Project | ProjectColumn | Card
@@ -93,7 +88,7 @@ class BotHelper:
         if not target_class or not target_schedule_class:
             return None
 
-        target = ServiceHelper.get_by_param(target_class, param)
+        target = InfraHelper.get_by_id_like(target_class, param)
         if not target:
             return None
 
@@ -127,7 +122,7 @@ class BotHelper:
         if not target_class:
             return None
 
-        target = ServiceHelper.get_by_param(target_class, getattr(bot_model, f"{target_table}_id"))
+        target = InfraHelper.get_by_id_like(target_class, getattr(bot_model, f"{target_table}_id"))
         if not target:
             return None
 

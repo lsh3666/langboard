@@ -1,13 +1,13 @@
 from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse, SocketTopic
+from langboard_shared.domain.models import Bot, Project, ProjectRole, ProjectWiki, ProjectWikiMetadata, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.helpers import ServiceHelper
-from langboard_shared.models import Bot, Project, ProjectRole, ProjectWiki, ProjectWikiMetadata, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.helpers import InfraHelper
 from langboard_shared.publishers import MetadataPublisher
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .MetadataForm import MetadataDeleteForm, MetadataForm, MetadataGetModel
 from .MetadataHelper import create_metadata_api_schema
 
@@ -25,9 +25,9 @@ async def get_wiki_metadata(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
     _, wiki = params
@@ -35,7 +35,7 @@ async def get_wiki_metadata(
     if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, wiki):
         return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
 
-    metadata = await service.metadata.get_list(ProjectWikiMetadata, wiki, as_api=True, as_dict=True)
+    metadata = await service.metadata.get_all_as_api(ProjectWikiMetadata, wiki, as_dict=True)
     return JsonResponse(content={"metadata": metadata})
 
 
@@ -53,9 +53,9 @@ async def get_wiki_metadata_by_key(
     wiki_uid: str,
     get_query: MetadataGetModel = Depends(),
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
     _, wiki = params
@@ -63,10 +63,9 @@ async def get_wiki_metadata_by_key(
     if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, wiki):
         return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
 
-    metadata = await service.metadata.get_by_key(ProjectWikiMetadata, wiki, get_query.key, as_api=False)
-    key = metadata.key if metadata else get_query.key
-    value = metadata.value if metadata else None
-    return JsonResponse(content={key: value})
+    metadata = await service.metadata.get_by_key_as_api(ProjectWikiMetadata, wiki, get_query.key)
+    value = metadata.get("value", None) if metadata else None
+    return JsonResponse(content={get_query.key: value})
 
 
 @AppRouter.schema(form=MetadataForm)
@@ -83,9 +82,9 @@ async def save_wiki_metadata(
     wiki_uid: str,
     form: MetadataForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2017, status_code=status.HTTP_404_NOT_FOUND)
     _, wiki = params
@@ -115,9 +114,9 @@ async def delete_wiki_metadata(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
     _, wiki = params

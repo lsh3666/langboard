@@ -108,7 +108,7 @@ const UserAvatarMoreList = memo(({ maxVisible, userOrBots, size = "default", lis
                 ) : (
                     <Button
                         variant="secondary"
-                        className={cn(AvatarVariants({ size }), "z-10 m-0 select-none border-none p-0")}
+                        className={cn(AvatarVariants({ size }), "z-10 m-0 border-none p-0")}
                         onClick={() => setIsOpened(!isOpened)}
                     >
                         +{moreUsersCountText}

@@ -81,24 +81,24 @@ lint: ## run linters
 init: check_tools clean_python_cache clean_ts_core_cache clean_ui_cache clean_socket_cache ## initialize the project
 	make install_py_core
 	make install_api
+	make install_flows
 	make install_ts_core
 	make install_ui
-	make install_flows
 	make install_socket
 	make init_env
 	@printf "$(GREEN)All requirements are installed.$(NC)"
 
 install_py_core: ## install the py core dependencies
 	@echo 'Installing py core dependencies'
-	cd $(PY_CORE_DIR) && uv venv && uv pip install .
+	cd $(PY_CORE_DIR) && uv venv && uv sync
 
 install_api: ## install the api dependencies
 	@echo 'Installing api dependencies'
-	uv venv && uv pip install .
+	uv venv && uv sync
 
 install_flows: ## install flows dependencies
 	@echo 'Installing flows dependencies'
-	cd $(FLOWS_DIR) && uv venv && uv pip install .
+	cd $(FLOWS_DIR) && uv venv && uv sync
 
 install_ts_core: ## install the ts core dependencies
 	@echo 'Installing ts core dependencies'

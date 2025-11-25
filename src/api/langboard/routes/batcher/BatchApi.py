@@ -5,7 +5,7 @@ from fastapi import Request, status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import AppExceptionHandlingRoute, AppRouter, JsonResponse
 from langboard_shared.core.utils.Converter import json_default
-from langboard_shared.models import Bot, User
+from langboard_shared.domain.models import Bot, User
 from langboard_shared.security import Auth
 from starlette.types import Message
 from .BatchForm import BatchForm

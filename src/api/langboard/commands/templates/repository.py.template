@@ -1,0 +1,15 @@
+from ...core.db import BaseSqlModel, DbSession, SqlBuilder
+from ...core.domain import BaseRepository, BaseOrderRepository
+from ...core.types import SnowflakeID, SafeDateTime
+from ...helpers import InfraHelper
+from ...domain.models import {class_name}
+
+
+class {class_name}Repository(BaseRepository[{class_name}]):
+    @staticmethod
+    def model_cls():
+        return {class_name}
+
+    @staticmethod
+    def name() -> str:
+        return "{snake_name}"

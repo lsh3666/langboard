@@ -3,15 +3,15 @@ from langboard_shared.core.caching import Cache
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import UI_QUERY_NAMES
-from langboard_shared.services import Service
 from .forms import ActivateUserForm, CheckEmailForm, ResendLinkForm, SignUpForm
 
 
 @AppRouter.api.post(
     "/auth/signup/exist/email", tags=["Auth.SignUp"], responses=OpenApiSchema().suc({"exists": "bool"}).get()
 )
-async def exists_email(form: CheckEmailForm, service: Service = Service.scope()) -> JsonResponse:
+async def exists_email(form: CheckEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, _ = await service.user.get_by_email(form.email)
     return JsonResponse(content={"exists": user is not None})
 
@@ -22,7 +22,9 @@ async def exists_email(form: CheckEmailForm, service: Service = Service.scope())
     responses=OpenApiSchema().err(409, ApiErrorCode.EX1003).err(503, ApiErrorCode.OP1001).get(),
 )
 async def signup(
-    form: SignUpForm = SignUpForm.scope(), avatar: UploadFile | None = File(None), service: Service = Service.scope()
+    form: SignUpForm = SignUpForm.scope(),
+    avatar: UploadFile | None = File(None),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     user, _ = await service.user.get_by_email(form.email)
     if user:
@@ -51,7 +53,7 @@ async def signup(
         OpenApiSchema().err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.EX1004).err(503, ApiErrorCode.OP1001).get()
     ),
 )
-async def resend_signup_link(form: ResendLinkForm, service: Service = Service.scope()) -> JsonResponse:
+async def resend_signup_link(form: ResendLinkForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, _ = await service.user.get_by_email(form.email)
     if not user:
         return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)
@@ -79,7 +81,7 @@ async def resend_signup_link(form: ResendLinkForm, service: Service = Service.sc
     tags=["Auth.SignUp"],
     responses=OpenApiSchema().err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.EX1004).get(),
 )
-async def activate_account(form: ActivateUserForm, service: Service = Service.scope()) -> JsonResponse:
+async def activate_account(form: ActivateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, cache_key, _ = await service.user.validate_token_from_url("signup", form.signup_token)
     if not user or not cache_key:
         return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)

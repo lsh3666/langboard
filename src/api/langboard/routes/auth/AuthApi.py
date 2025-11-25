@@ -5,12 +5,13 @@ from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.security import AuthSecurity
 from langboard_shared.core.utils.Encryptor import Encryptor
+from langboard_shared.domain.models import Bot, User, UserEmail, UserGroup, UserProfile
+from langboard_shared.domain.models.UserNotification import NotificationType
+from langboard_shared.domain.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import Env
-from langboard_shared.models import Bot, User, UserEmail, UserGroup, UserProfile
-from langboard_shared.models.UserNotification import NotificationType
-from langboard_shared.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 from langboard_shared.security import Auth
-from langboard_shared.services import Service
+from typing_extensions import Annotated
 from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
 
 
@@ -20,7 +21,9 @@ from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
     tags=["Auth"],
     responses=OpenApiSchema(None).err(406, ApiErrorCode.AU1001).err(404, ApiErrorCode.NF1004).get(),
 )
-async def auth_email(form: AuthEmailForm, service: Service = Service.scope()) -> JsonResponse | AuthEmailResponse:
+async def auth_email(
+    form: AuthEmailForm, service: Annotated[DomainService, DomainService.scope()]
+) -> JsonResponse | AuthEmailResponse:
     if form.is_token:
         user, subemail = await service.user.get_by_token(form.token, form.sign_token)
     else:
@@ -48,7 +51,7 @@ async def auth_email(form: AuthEmailForm, service: Service = Service.scope()) ->
         .get()
     ),
 )
-async def sign_in(form: SignInForm, service: Service = Service.scope()) -> JsonResponse:
+async def sign_in(form: SignInForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, subemail = await service.user.get_by_token(form.email_token, form.sign_token)
 
     if not user:
@@ -148,42 +151,21 @@ async def refresh(request: Request) -> JsonResponse:
     ),
 )
 @AuthFilter.add("user")
-async def about_me(user: User = Auth.scope("user"), service: Service = Service.scope()) -> JsonResponse:
-    profile = await service.user.get_profile(user)
+async def about_me(user: User = Auth.scope("user"), service: DomainService = DomainService.scope()) -> JsonResponse:
+    profile = await service.user.get_api_profile(user)
     response = {
         **user.api_response(),
-        **profile.api_response(),
+        **profile,
         "preferred_lang": user.preferred_lang,
     }
-    response["user_groups"] = await service.user_group.get_all_by_user(user, as_api=True)
+    response["user_groups"] = await service.user_group.get_api_list_by_user(user)
     response["subemails"] = await service.user.get_subemails(user)
-
-    notification_unsubs = await service.user_notification_setting.get_unsubscriptions_query_builder(user).all()
-    unsubs = {}
-    for unsub in notification_unsubs:
-        if unsub.scope_type.value not in unsubs:
-            unsubs[unsub.scope_type.value] = {}
-        if unsub.notification_type.value not in unsubs[unsub.scope_type.value]:
-            unsubs[unsub.scope_type.value][unsub.notification_type.value] = {}
-
-        if unsub.scope_type.value == NotificationScope.All.value:
-            unsubs[unsub.scope_type.value][unsub.notification_type.value][unsub.channel.value] = True
-            continue
-
-        if not unsub.specific_id:
-            continue
-
-        unsubs[unsub.scope_type.value][unsub.notification_type.value][unsub.channel.value] = []
-        unsubs[unsub.scope_type.value][unsub.notification_type.value][unsub.channel.value].append(
-            unsub.specific_id.to_short_code()
-        )
-
-    response["notification_unsubs"] = unsubs
+    response["notification_unsubs"] = await service.user_notification_setting.get_api_map_by_user(user)
 
     if user.is_admin:
         response["is_admin"] = True
 
-    bots = await service.bot.get_list(as_api=True)
+    bots = await service.bot.get_api_list()
 
     return JsonResponse(content={"user": response, "bots": bots})
 

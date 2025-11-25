@@ -6,6 +6,7 @@ import ChatSession from "@/models/ChatSession";
 import InternalBot from "@/models/InternalBot";
 import ProjectAssignedInternalBot from "@/models/ProjectAssignedInternalBot";
 import ProjectAssignedUser from "@/models/ProjectAssignedUser";
+import ProjectChatSession from "@/models/ProjectChatSession";
 import ProjectRole from "@/models/ProjectRole";
 import ProjectWiki from "@/models/ProjectWiki";
 import ProjectWikiAssignedUser from "@/models/ProjectWikiAssignedUser";
@@ -22,6 +23,7 @@ export const ALL_ENTITIES = [
     InternalBot,
     ProjectAssignedUser,
     ProjectAssignedInternalBot,
+    ProjectChatSession,
     ProjectRole,
     ProjectWiki,
     ProjectWikiAssignedUser,

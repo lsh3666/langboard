@@ -54,9 +54,9 @@ def _run_app(options: RunCommandOptions):
 
 def _init_internal_bots():
     from langboard_shared.core.db import DbSession, SqlBuilder
-    from langboard_shared.models import InternalBot
-    from langboard_shared.models.BaseBotModel import BotPlatform, BotPlatformRunningType
-    from langboard_shared.models.InternalBot import InternalBotType
+    from langboard_shared.domain.models import InternalBot
+    from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+    from langboard_shared.domain.models.InternalBot import InternalBotType
 
     settings = []
     with DbSession.use(readonly=True) as db:
@@ -92,7 +92,7 @@ def _init_internal_bots():
 def _init_admin():
     from langboard_shared.core.db import DbSession, SqlBuilder
     from langboard_shared.core.types import SafeDateTime
-    from langboard_shared.models import User, UserProfile
+    from langboard_shared.domain.models import User, UserProfile
 
     user_count = 0
     with DbSession.use(readonly=True) as db:

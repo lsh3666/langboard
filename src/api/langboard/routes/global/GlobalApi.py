@@ -2,9 +2,9 @@ from fastapi import status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
-from langboard_shared.models import Bot, InternalBot, User
+from langboard_shared.domain.models import Bot, InternalBot, User
+from langboard_shared.domain.services import DomainService
 from langboard_shared.security import Auth
-from langboard_shared.services import Service
 
 
 @AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().suc({}, 200).get())
@@ -19,9 +19,9 @@ async def health_check() -> JsonResponse:
 )
 @AuthFilter.add("user")
 async def get_internal_bot(
-    bot_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
+    bot_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_uid(bot_uid)
+    internal_bot = await service.internal_bot.get_by_id_like(bot_uid)
     if not internal_bot:
         return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -35,7 +35,7 @@ async def get_internal_bot(
     responses=OpenApiSchema().suc({"bots": Bot.api_schema()}).auth().forbidden().get(),
 )
 @AuthFilter.add()
-async def get_bots(service: Service = Service.scope()) -> JsonResponse:
-    bots = await service.bot.get_list(True)
+async def get_bots(service: DomainService = DomainService.scope()) -> JsonResponse:
+    bots = await service.bot.get_api_list(False)
 
     return JsonResponse(content={"bots": bots})

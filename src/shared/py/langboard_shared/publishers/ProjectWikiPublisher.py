@@ -2,7 +2,7 @@ from typing import Any
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.utils.decorators import staticclass
-from ..models import Bot, Project, ProjectWiki, User
+from ..domain.models import Bot, Project, ProjectWiki, User
 
 
 @staticclass
@@ -49,7 +49,7 @@ class ProjectWikiPublisher(BaseSocketPublisher):
             topic=SocketTopic.BoardWiki,
             topic_id=project.get_uid(),
             event=f"board:wiki:public:changed:{wiki_uid}",
-            data_keys="wiki",
+            data_keys=list(model.keys()),
         )
 
         await ProjectWikiPublisher.put_dispather(model, publish_model)
@@ -78,17 +78,21 @@ class ProjectWikiPublisher(BaseSocketPublisher):
             topic=SocketTopic.BoardWiki,
             topic_id=project.get_uid(),
             event=f"board:wiki:order:changed:{project.get_uid()}",
-            data_keys=["uid", "order"],
+            data_keys=list(model.keys()),
         )
 
         await ProjectWikiPublisher.put_dispather(model, publish_model)
 
     @staticmethod
     async def deleted(project: Project, wiki: ProjectWiki):
+        model = {
+            "uid": wiki.get_uid(),
+        }
         publish_model = SocketPublishModel(
             topic=SocketTopic.BoardWiki,
             topic_id=project.get_uid(),
-            event=f"board:wiki:deleted:{wiki.get_uid()}",
+            event=f"board:wiki:deleted:{project.get_uid()}",
+            data_keys=list(model.keys()),
         )
 
-        await ProjectWikiPublisher.put_dispather({}, publish_model)
+        await ProjectWikiPublisher.put_dispather(model, publish_model)

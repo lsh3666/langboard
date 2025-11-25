@@ -1,16 +1,15 @@
 from langboard_shared.core.routing import BaseFormModel, form_model
-from langboard_shared.core.schema import Pagination
+from langboard_shared.core.schema import TimeBasedPagination
 from langboard_shared.core.types import SafeDateTime
-from langboard_shared.models import Card, ProjectColumn
-from langboard_shared.models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
+from langboard_shared.domain.models import Card, ProjectColumn
+from langboard_shared.domain.models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
 from pydantic import Field
 
 
-class BotSchedulePagination(Pagination):
+class BotSchedulePagination(TimeBasedPagination):
     status: BotScheduleStatus | None = Field(
         default=None, title=f"Status: {', '.join(BotScheduleStatus.__members__.keys())} (Default: None)"
     )
-    refer_time: SafeDateTime = SafeDateTime.now()
 
 
 @form_model

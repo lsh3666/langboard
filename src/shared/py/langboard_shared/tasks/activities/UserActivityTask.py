@@ -1,7 +1,7 @@
 from ...core.broker import Broker
-from ...models import Bot, Project, ProjectActivity, ProjectWikiActivity, User, UserActivity
-from ...models.bases import BaseActivityModel
-from ...models.UserActivity import UserActivityType
+from ...domain.models import Bot, Project, ProjectActivity, ProjectWikiActivity, User, UserActivity
+from ...domain.models.bases import BaseActivityModel
+from ...domain.models.UserActivity import UserActivityType
 from .utils import ActivityHistoryHelper, ActivityTaskHelper
 
 

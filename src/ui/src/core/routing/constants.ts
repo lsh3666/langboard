@@ -39,7 +39,6 @@ export const ROUTES = {
         WIKI_PAGE: (uid: string, wikiUID: string) => `/board/${uid}/wiki/${wikiUID}`,
         WIKI_ACTIVITY: (uid: string, wikiUID: string) => `/board/${uid}/wiki/${wikiUID}/activity`,
         WIKI_METADATA: (uid: string, wikiUID: string) => `/board/${uid}/wiki/${wikiUID}/metadata`,
-        ACTIVITY: (uid: string) => `/board/${uid}/activity`,
         SETTINGS: (uid: string) => `/board/${uid}/settings`,
         SETTINGS_PAGE: (uid: string, page: string) => `/board/${uid}/settings/${page}`,
         CARD: (uid: string, cardUID: string) => `/board/${uid}/${cardUID}`,

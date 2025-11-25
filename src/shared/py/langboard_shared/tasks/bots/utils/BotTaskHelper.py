@@ -3,9 +3,9 @@ from ....ai import BotDefaultTrigger
 from ....core.db import BaseSqlModel, DbSession, SqlBuilder
 from ....core.logger import Logger
 from ....core.utils.decorators import staticclass
+from ....domain.models import Bot, Project
+from ....domain.models.bases import BotTriggerCondition
 from ....helpers import BotHelper
-from ....models import Bot, Project
-from ....models.bases import BotTriggerCondition
 from ...webhooks import WebhookTask
 from ...webhooks.utils import WebhookModel
 from .requests.Utils import create_request

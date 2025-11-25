@@ -4,7 +4,7 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
-from langboard_shared.services import Service
+from langboard_shared.domain.services import DomainService
 from .Form import CreateInternalBotForm, UpdateInternalBotForm
 
 
@@ -17,7 +17,7 @@ from .Form import CreateInternalBotForm, UpdateInternalBotForm
 async def create_internal_bot(
     form: CreateInternalBotForm = CreateInternalBotForm.scope(),
     avatar: UploadFile | None = File(None),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not validate_bot_form(form):
         return JsonResponse(content=ApiErrorCode.VA0000, status_code=status.HTTP_400_BAD_REQUEST)
@@ -50,9 +50,9 @@ async def update_internal_bot(
     internal_bot_uid: str,
     form: UpdateInternalBotForm = UpdateInternalBotForm.scope(),
     avatar: UploadFile | None = File(None),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_uid(internal_bot_uid)
+    internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
         return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -74,7 +74,9 @@ async def update_internal_bot(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).get(),
 )
 @AuthFilter.add("admin")
-async def set_internal_bot_default(internal_bot_uid: str, service: Service = Service.scope()) -> JsonResponse:
+async def set_internal_bot_default(
+    internal_bot_uid: str, service: DomainService = DomainService.scope()
+) -> JsonResponse:
     internal_bot = await service.internal_bot.change_default(internal_bot_uid)
     if not internal_bot:
         return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
@@ -88,8 +90,8 @@ async def set_internal_bot_default(internal_bot_uid: str, service: Service = Ser
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).err(409, ApiErrorCode.EX3002).get(),
 )
 @AuthFilter.add("admin")
-async def delete_internal_bot(internal_bot_uid: str, service: Service = Service.scope()) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_uid(internal_bot_uid)
+async def delete_internal_bot(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
         return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
 

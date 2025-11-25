@@ -5,12 +5,6 @@ import { Entity, Column } from "typeorm";
 
 @Entity({ name: "chat_session" })
 class ChatSession extends BaseModel {
-    @Column({ type: "varchar" })
-    public filterable_table!: string;
-
-    @BigIntColumn(false)
-    public filterable_id!: TBigIntString;
-
     @BigIntColumn(false)
     public user_id!: TBigIntString;
 
@@ -23,8 +17,6 @@ class ChatSession extends BaseModel {
     public get apiResponse() {
         return {
             uid: this.uid,
-            filterable_table: this.filterable_table,
-            filterable_uid: new SnowflakeID(this.filterable_id).toShortCode(),
             user_uid: this.user_id ? new SnowflakeID(this.user_id).toShortCode() : undefined,
             title: this.title,
             last_messaged_at: this.last_messaged_at,
@@ -35,8 +27,12 @@ class ChatSession extends BaseModel {
 
     public static async findByUID(uid: string): Promise<ChatSession | null> {
         const id = SnowflakeID.fromShortCode(uid).toString();
+        return this.findOne({ where: { id } });
+    }
+
+    public static async findByID(id: TBigIntString): Promise<ChatSession | null> {
         const session = await ChatSession.createQueryBuilder()
-            .select(["cast(id as text) as converted_id", "filterable_table", "filterable_id", "user_id", "title", "last_messaged_at"])
+            .select(["cast(id as text) as converted_id", "cast(user_id as text) as converted_user_id", "title", "last_messaged_at"])
             .where("id = :id", { id })
             .getRawOne();
 
@@ -45,6 +41,7 @@ class ChatSession extends BaseModel {
         }
 
         session.id = session.converted_id;
+        session.user_id = session.converted_user_id;
 
         return ChatSession.create({
             ...session,

@@ -1,7 +1,7 @@
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
 from ..core.utils.decorators import staticclass
-from ..models import Bot, Card, CardComment, Project, User
+from ..domain.models import Bot, Card, CardComment, Project, User
 
 
 @staticclass

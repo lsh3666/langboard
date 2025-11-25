@@ -1,6 +1,6 @@
 from ...core.broker import Broker
-from ...models import Bot, Card, Checklist, Project, ProjectActivity, User
-from ...models.ProjectActivity import ProjectActivityType
+from ...domain.models import Bot, Card, Checklist, Project, ProjectActivity, User
+from ...domain.models.ProjectActivity import ProjectActivityType
 from .UserActivityTask import record_project_activity
 from .utils import ActivityHistoryHelper, ActivityTaskHelper
 

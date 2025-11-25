@@ -2,11 +2,11 @@ from fastapi import status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import Bot, ProjectRole, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.models import Bot, ProjectRole, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import CardCheckRelatedForm, CardifyCheckitemForm, ChangeCardCheckitemStatusForm, ChangeChildOrderForm
 
 
@@ -25,7 +25,7 @@ async def change_checkitem_title(
     checkitem_uid: str,
     form: CardCheckRelatedForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_title(user_or_bot, project_uid, card_uid, checkitem_uid, form.title)
     if not result:
@@ -49,11 +49,9 @@ async def change_checkitem_order_or_move_checklist(
     checkitem_uid: str,
     form: ChangeChildOrderForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checkitem.change_order(
-        user_or_bot, project_uid, card_uid, checkitem_uid, form.order, form.parent_uid
-    )
+    result = await service.checkitem.change_order(project_uid, card_uid, checkitem_uid, form.order, form.parent_uid)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -74,9 +72,9 @@ async def change_checkitem_status(
     checkitem_uid: str,
     form: ChangeCardCheckitemStatusForm,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    checkitem = await service.checkitem.get_by_uid(checkitem_uid)
+    checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -105,9 +103,9 @@ async def cardify_checkitem(
     checkitem_uid: str,
     form: CardifyCheckitemForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    checkitem = await service.checkitem.get_by_uid(checkitem_uid)
+    checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -137,9 +135,9 @@ async def toggle_checkitem_checked(
     card_uid: str,
     checkitem_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    checkitem = await service.checkitem.get_by_uid(checkitem_uid)
+    checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -167,9 +165,9 @@ async def delete_checkitem(
     card_uid: str,
     checkitem_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    checkitem = await service.checkitem.get_by_uid(checkitem_uid)
+    checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
         return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
 

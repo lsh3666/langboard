@@ -3,9 +3,9 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse
 from langboard_shared.core.broker import Broker
 from langboard_shared.core.routing import AppRouter, JsonResponse
+from langboard_shared.domain.models import Bot, User
+from langboard_shared.domain.models.bases import BotTriggerCondition
 from langboard_shared.Env import Env
-from langboard_shared.models import Bot, User
-from langboard_shared.models.bases import BotTriggerCondition
 
 
 @AppRouter.api.get("/schema/webhook", tags=["Schema"], response_class=HTMLResponse)

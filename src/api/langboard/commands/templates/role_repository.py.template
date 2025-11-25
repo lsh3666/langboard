@@ -1,0 +1,34 @@
+from ....core.utils.Extractor import extract_func_param
+from ....domain.models import {class_name}
+from .BaseRoleRepository import BaseRoleRepository
+
+
+class {class_name}Repository(BaseRoleRepository[{class_name}]):
+    @staticmethod
+    def model_cls():
+        return {class_name}
+
+    @staticmethod
+    def name():
+        """DO NOT EDIT THIS METHOD"""
+        return "{snake_name}"
+
+    @extract_func_param(4)({class_name}Role)  # type: ignore
+    async def get_list(self, **kwargs):
+        return await super().get_list(**kwargs)
+
+    @extract_func_param(3)({class_name}Role)  # type: ignore
+    async def grant(self, **kwargs):
+        return await super().grant(**kwargs)
+
+    @extract_func_param(4)({class_name}Role)  # type: ignore
+    async def grant_all(self, **kwargs):
+        return await super().grant_all(**kwargs)
+
+    @extract_func_param(4)({class_name}Role)  # type: ignore
+    async def grant_default(self, **kwargs):
+        return await super().grant_default(**kwargs)
+
+    @extract_func_param(4)({class_name}Role)  # type: ignore
+    async def withdraw(self, **kwargs):
+        return await super().withdraw(**kwargs)

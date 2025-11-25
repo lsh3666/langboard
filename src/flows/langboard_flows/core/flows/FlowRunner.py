@@ -4,8 +4,8 @@ from typing import AsyncGenerator, Literal
 from langboard_shared.core.caching import Cache
 from langboard_shared.core.db import DbSession
 from langboard_shared.core.logger import Logger
-from langboard_shared.models import Bot, BotLog, InternalBot, Project
-from langboard_shared.models.BotLog import BotLogMessage, BotLogType
+from langboard_shared.domain.models import Bot, BotLog, InternalBot, Project
+from langboard_shared.domain.models.BotLog import BotLogMessage, BotLogType
 from langboard_shared.publishers import CardPublisher, ProjectBotPublisher, ProjectColumnPublisher
 from langflow.events.event_manager import EventManager, create_stream_tokens_event_manager
 from langflow.exceptions.serialization import SerializationError

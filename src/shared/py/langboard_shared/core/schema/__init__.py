@@ -1,7 +1,7 @@
 from .InfiniteRefreshableList import InfiniteRefreshableList
 from .OpenApiSchema import OpenApiSchema
 from .PaginatedList import PaginatedList
-from .Pagination import Pagination
+from .Pagination import Pagination, TimeBasedPagination
 
 
 __all__ = [
@@ -9,4 +9,5 @@ __all__ = [
     "OpenApiSchema",
     "PaginatedList",
     "Pagination",
+    "TimeBasedPagination",
 ]

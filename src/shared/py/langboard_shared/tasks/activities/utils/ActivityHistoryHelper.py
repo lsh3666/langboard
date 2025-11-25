@@ -4,7 +4,7 @@ from ....core.types import SnowflakeID
 from ....core.utils.Converter import convert_python_data
 from ....core.utils.decorators import staticclass
 from ....core.utils.EditorContentParser import find_mentioned
-from ....models import (
+from ....domain.models import (
     Bot,
     Card,
     CardAttachment,

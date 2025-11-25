@@ -5,10 +5,10 @@ from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
 from langboard_shared.core.routing.Exception import InvalidError, InvalidException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.domain.models import User, UserGroup
+from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import UI_QUERY_NAMES
-from langboard_shared.models import User, UserGroup
 from langboard_shared.security import Auth
-from langboard_shared.services import Service
 from .AccountForm import (
     AddNewEmailForm,
     ChangePasswordForm,
@@ -27,7 +27,7 @@ async def update_profile(
     form: UpdateProfileForm = UpdateProfileForm.scope(),
     avatar: UploadFile | None = File(None),
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     file_model = Storage.upload(avatar, StorageName.Avatar) if avatar else None
     form_dict = form.model_dump()
@@ -53,7 +53,7 @@ async def update_profile(
 )
 @AuthFilter.add("user")
 async def add_new_email(
-    form: AddNewEmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: AddNewEmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     cache_key = service.user.create_cache_name("subemail", user.email)
     existed_user, subemail = await service.user.get_by_email(form.new_email)
@@ -96,7 +96,7 @@ async def add_new_email(
     ),
 )
 @AuthFilter.add("user")
-async def verify_subemail(form: VerifyNewEmailForm, service: Service = Service.scope()) -> JsonResponse:
+async def verify_subemail(form: VerifyNewEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, cache_key, extra = await service.user.validate_token_from_url("subemail", form.verify_token)
     if not user or not cache_key or not extra or "email" not in extra:
         return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
@@ -132,7 +132,7 @@ async def verify_subemail(form: VerifyNewEmailForm, service: Service = Service.s
 )
 @AuthFilter.add("user")
 async def change_primary_email(
-    form: EmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: EmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
@@ -155,7 +155,7 @@ async def change_primary_email(
 )
 @AuthFilter.add("user")
 async def delete_email(
-    form: EmailForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: EmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
@@ -171,7 +171,7 @@ async def delete_email(
 @AppRouter.api.put("/account/password", tags=["Account"], responses=OpenApiSchema().auth().get())
 @AuthFilter.add("user")
 async def change_password(
-    form: ChangePasswordForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: ChangePasswordForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     if not user.check_password(form.current_password):
         raise InvalidException(InvalidError(loc="body", field="current_password", inputs=form.model_dump()))
@@ -189,11 +189,11 @@ async def change_password(
 )
 @AuthFilter.add("user")
 async def create_user_group(
-    form: CreateUserGroupForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: CreateUserGroupForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     group = await service.user_group.create(user, form.name)
     api_group = group.api_response()
-    api_group["users"] = await service.user_group.get_user_emails_by_group(group.id, as_api=True)
+    api_group["users"] = await service.user_group.get_api_user_email_list_by_group(group.id)
     return JsonResponse(content={"user_group": api_group}, status_code=status.HTTP_201_CREATED)
 
 
@@ -204,7 +204,10 @@ async def create_user_group(
 )
 @AuthFilter.add("user")
 async def change_user_group_name(
-    group_uid: str, form: CreateUserGroupForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    group_uid: str,
+    form: CreateUserGroupForm,
+    user: User = Auth.scope("user"),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.user_group.change_name(user, group_uid, form.name)
     if not result:
@@ -223,13 +226,13 @@ async def update_user_group_assigned_emails(
     group_uid: str,
     form: UpdateUserGroupAssignedEmailForm,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.user_group.update_assigned_emails(user, group_uid, form.emails)
     if not result:
         return JsonResponse(content=ApiErrorCode.NF1003, status_code=status.HTTP_404_NOT_FOUND)
 
-    group_users = await service.user_group.get_user_emails_by_group(group_uid, as_api=True)
+    group_users = await service.user_group.get_api_user_email_list_by_group(group_uid)
 
     return JsonResponse(content={"users": group_users})
 
@@ -241,7 +244,7 @@ async def update_user_group_assigned_emails(
 )
 @AuthFilter.add("user")
 async def delete_user_group(
-    group_uid: str, user: User = Auth.scope("user"), service: Service = Service.scope()
+    group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.user_group.delete(user, group_uid)
     if not result:
@@ -257,7 +260,7 @@ async def delete_user_group(
 )
 @AuthFilter.add("user")
 async def update_preferred_language(
-    form: UpdatePreferredLangForm, user: User = Auth.scope("user"), service: Service = Service.scope()
+    form: UpdatePreferredLangForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = await service.user.update_preferred_lang(user, form.lang)
     if not result:

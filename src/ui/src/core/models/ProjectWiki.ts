@@ -2,7 +2,6 @@ import * as AuthUser from "@/core/models/AuthUser";
 import * as User from "@/core/models/User";
 import { BaseModel, IBaseModel, IEditorContent } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
-import useBoardWikiDeletedHandlers from "@/controllers/socket/wiki/useBoardWikiDeletedHandlers";
 import useBoardWikiPublicChangedHandlers from "@/controllers/socket/wiki/useBoardWikiPublicChangedHandlers";
 import useBoardWikiDetailsChangedHandlers from "@/controllers/socket/wiki/useBoardWikiDetailsChangedHandlers";
 import useBoardWikiAssigneesUpdatedHandlers from "@/controllers/socket/wiki/useBoardWikiAssigneesUpdatedHandlers";
@@ -45,7 +44,7 @@ class ProjectWiki extends BaseModel<IStore> {
         super(model);
 
         // Public handlers
-        this.subscribeSocketEvents([useBoardWikiDeletedHandlers, useBoardWikiDetailsChangedHandlers], {
+        this.subscribeSocketEvents([useBoardWikiDetailsChangedHandlers], {
             projectUID: this.project_uid,
             wiki: this,
             isPrivate: false,

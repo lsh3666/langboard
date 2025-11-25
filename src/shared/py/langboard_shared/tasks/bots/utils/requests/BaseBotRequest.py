@@ -4,12 +4,12 @@ from httpx import TimeoutException, post
 from .....core.db import BaseSqlModel, DbSession
 from .....core.logger import Logger
 from .....core.utils.Converter import convert_python_data
+from .....domain.models import Bot, BotLog, Project
+from .....domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from .....domain.models.bases import BaseBotLogModel
+from .....domain.models.BotLog import BotLogMessage, BotLogType
 from .....Env import Env
 from .....helpers import BotHelper
-from .....models import Bot, BotLog, Project
-from .....models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from .....models.bases import BaseBotLogModel
-from .....models.BotLog import BotLogMessage, BotLogType
 from .....publishers import ProjectBotPublisher
 
 

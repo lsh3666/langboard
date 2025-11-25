@@ -6,12 +6,12 @@ from langboard_shared.core.routing.Exception import MissingException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
 from langboard_shared.core.utils.Converter import convert_python_data
+from langboard_shared.domain.models import Bot, Project, ProjectRole, ProjectWiki, ProjectWikiAttachment, User
+from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
+from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
-from langboard_shared.helpers import ServiceHelper
-from langboard_shared.models import Bot, Project, ProjectRole, ProjectWiki, ProjectWikiAttachment, User
-from langboard_shared.models.ProjectRole import ProjectRoleAction
+from langboard_shared.helpers import InfraHelper
 from langboard_shared.security import Auth, RoleFinder
-from langboard_shared.services import Service
 from .forms import (
     AssigneesForm,
     ChangeChildOrderForm,
@@ -54,13 +54,13 @@ from .forms import (
 async def get_project_wikis(
     project_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project = await service.project.get_by_uid(project_uid)
+    project = await service.project.get_by_id_like(project_uid)
     if project is None:
         return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
-    wikis = await service.project_wiki.get_board_list(user_or_bot, project_uid)
-    project_members = await service.project.get_assigned_users(project, as_api=True)
+    wikis = await service.project_wiki.get_api_list(user_or_bot, project_uid)
+    project_members = await service.project.get_api_assigned_user_list(project)
     return JsonResponse(content={"wikis": wikis, "project_members": project_members})
 
 
@@ -95,9 +95,9 @@ async def get_project_wiki_details(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    params = ServiceHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
+    params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
     project, project_wiki = params
@@ -141,7 +141,7 @@ async def create_project_wiki(
     project_uid: str,
     form: WikiForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project_wiki.create(user_or_bot, project_uid, form.title, form.content)
     if not result:
@@ -178,9 +178,9 @@ async def change_project_wiki_details(
     wiki_uid: str,
     form: ChangeWikiDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_uid(wiki_uid)
+    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -201,9 +201,7 @@ async def change_project_wiki_details(
     if result is True:
         response = {}
         for key in ChangeWikiDetailsForm.model_fields:
-            if ["title", "content"].count(key) == 0:
-                continue
-            value = getattr(form, key)
+            value = getattr(form, key, None)
             if value is None:
                 continue
             response[key] = convert_python_data(value)
@@ -226,9 +224,9 @@ async def change_project_wiki_public(
     wiki_uid: str,
     form: ChangeWikiPublicForm,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_uid(wiki_uid)
+    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -256,9 +254,9 @@ async def update_project_wiki_assignees(
     wiki_uid: str,
     form: AssigneesForm,
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_uid(wiki_uid)
+    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
 
@@ -288,7 +286,7 @@ async def change_project_wiki_order(
     project_uid: str,
     wiki_uid: str,
     form: ChangeChildOrderForm,
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.project_wiki.change_order(project_uid, wiki_uid, form.order)
     if not result:
@@ -323,7 +321,7 @@ async def upload_wiki_attachment(
     wiki_uid: str,
     attachment: UploadFile = File(),
     user: User = Auth.scope("user"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not attachment:
         raise MissingException("body", "attachment")
@@ -358,9 +356,9 @@ async def delete_project_wiki(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
-    service: Service = Service.scope(),
+    service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_uid(wiki_uid)
+    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
 

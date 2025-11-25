@@ -62,5 +62,11 @@
     "Checklist title cannot be empty.": "Checklist title cannot be empty.",
     "Checkitem title cannot be empty.": "Checkitem title cannot be empty.",
     "Comment content cannot be empty.": "Comment content cannot be empty."
+  },
+  "unsavedChanges": {
+    "Discard description edits?": "Discard description edits?",
+    "You have unsaved description changes.\nLeaving now will discard them.": "You have unsaved description changes.\nLeaving now will discard them.",
+    "Keep editing": "Keep editing",
+    "Discard changes": "Discard changes"
   }
 }

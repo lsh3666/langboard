@@ -1,7 +1,7 @@
-from typing import Any, Callable, Generic, TypeVar, cast
+from typing import Any, Callable, Generic, Sequence, TypeVar, cast
 from ....core.db import BaseSqlModel, DbSession, SqlBuilder
 from ....core.types import SnowflakeID
-from ....models import (
+from ....domain.models import (
     Bot,
     Card,
     CardRelationship,
@@ -11,7 +11,7 @@ from ....models import (
     ProjectLabel,
     User,
 )
-from ....models.bases import BaseActivityModel
+from ....domain.models.bases import BaseActivityModel
 from .ActivityHistoryHelper import ActivityHistoryHelper
 
 
@@ -43,21 +43,30 @@ class ActivityTaskHelper(Generic[_TActivityModel]):
 
         return activity
 
-    def get_updated_users(self, old_user_ids: list[int], new_user_ids: list[int]):
+    def get_updated_users(self, old_user_ids: Sequence[int], new_user_ids: Sequence[int]):
         def create_user_history(user: User):
             return ActivityHistoryHelper.create_user_or_bot_history(user)
 
+        if isinstance(old_user_ids, str) or isinstance(new_user_ids, str):
+            raise ValueError("old_user_ids and new_user_ids must be sequences of integers.")
+
         return self.__get_updated(User, old_user_ids, new_user_ids, create_user_history)
 
-    def get_updated_labels(self, old_label_ids: list[int], new_label_ids: list[int]):
+    def get_updated_labels(self, old_label_ids: Sequence[int], new_label_ids: Sequence[int]):
         def label_converter(label: ProjectLabel):
             return ActivityHistoryHelper.create_label_history(label)
+
+        if isinstance(old_label_ids, str) or isinstance(new_label_ids, str):
+            raise ValueError("old_label_ids and new_label_ids must be sequences of integers.")
 
         return self.__get_updated(ProjectLabel, old_label_ids, new_label_ids, label_converter)
 
     def get_updated_card_relationships(
-        self, old_relationship_ids: list[int], new_relationship_ids: list[int], is_parent: bool
+        self, old_relationship_ids: Sequence[int], new_relationship_ids: Sequence[int], is_parent: bool
     ):
+        if isinstance(old_relationship_ids, str) or isinstance(new_relationship_ids, str):
+            raise ValueError("old_relationship_ids and new_relationship_ids must be sequences of integers.")
+
         def relationship_converter(relationship: CardRelationship):
             related_card = None
             with DbSession.use(readonly=True) as db:
@@ -105,10 +114,13 @@ class ActivityTaskHelper(Generic[_TActivityModel]):
     def __get_updated(
         self,
         model_class: type[_TBaseModel],
-        old_ids: list[int],
-        new_ids: list[int],
+        old_ids: Sequence[int],
+        new_ids: Sequence[int],
         converter: Callable[[_TBaseModel], dict[str, Any]],
     ):
+        if isinstance(old_ids, str) or isinstance(new_ids, str):
+            raise ValueError("old_ids and new_ids must be sequences of integers.")
+
         with DbSession.use(readonly=True) as db:
             result = db.exec(
                 SqlBuilder.select.table(model_class).where(model_class.column("id").in_(set([*old_ids, *new_ids])))
