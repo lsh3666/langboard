@@ -1,6 +1,6 @@
 from fastapi import File, UploadFile, status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.routing.Exception import MissingException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
@@ -17,10 +17,7 @@ from .forms import ChangeAttachmentNameForm, ChangeChildOrderForm
     tags=["Board.Card.Attachment"],
     responses=(
         OpenApiSchema()
-        .suc(
-            {**CardAttachment.api_schema(), "user": User},
-            201,
-        )
+        .suc((CardAttachment, {"schema": {"user": User}}), 201)
         .auth()
         .forbidden()
         .err(404, ApiErrorCode.NF2003)
@@ -42,11 +39,11 @@ async def upload_card_attachment(
 
     file_model = Storage.upload(attachment, StorageName.CardAttachment)
     if not file_model:
-        return JsonResponse(content=ApiErrorCode.OP1002, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise ApiException.InternalServerError_500(ApiErrorCode.OP1002)
 
     result = await service.card_attachment.create(user, project_uid, card_uid, file_model)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse(
         content={**result.api_response(), "user": user.api_response()},
@@ -70,7 +67,7 @@ async def change_attachment_order(
 ) -> JsonResponse:
     result = await service.card_attachment.change_order(project_uid, card_uid, attachment_uid, form.order)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     return JsonResponse()
 
@@ -92,20 +89,20 @@ async def change_card_attachment_name(
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
-        return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     if card_attachment.user_id != user.id and not user.is_admin:
         role_filter = RoleSecurity(ProjectRole)
         if not await role_filter.is_authorized(
             user.id, {"project_uid": project_uid}, [ProjectRoleAction.CardUpdate.value], RoleFinder.project
         ):
-            return JsonResponse(content=ApiErrorCode.PE2002, status_code=status.HTTP_403_FORBIDDEN)
+            raise ApiException.Forbidden_403(ApiErrorCode.PE2002)
 
     result = await service.card_attachment.change_name(
         user, project_uid, card_uid, card_attachment, form.attachment_name
     )
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     return JsonResponse()
 
@@ -126,17 +123,17 @@ async def delete_card_attachment(
 ) -> JsonResponse:
     card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
-        return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     if card_attachment.user_id != user.id and not user.is_admin:
         role_filter = RoleSecurity(ProjectRole)
         if not await role_filter.is_authorized(
             user.id, {"project_uid": project_uid}, [ProjectRoleAction.CardUpdate.value], RoleFinder.project
         ):
-            return JsonResponse(content=ApiErrorCode.PE2002, status_code=status.HTTP_403_FORBIDDEN)
+            raise ApiException.Forbidden_403(ApiErrorCode.PE2002)
 
     result = await service.card_attachment.delete(user, project_uid, card_uid, card_attachment)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2009, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     return JsonResponse()

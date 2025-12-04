@@ -1,4 +1,4 @@
-from typing import Optional, Self
+from typing import Any, Optional, Self
 from langboard_shared.core.routing import BaseFormModel, form_model
 from langboard_shared.core.routing.Exception import MissingException
 from pydantic import BaseModel, model_validator
@@ -27,6 +27,13 @@ class AuthEmailForm(BaseFormModel):
 class AuthEmailResponse(BaseModel):
     token: str
     email: str
+
+    @staticmethod
+    def api_schema() -> dict[str, Any]:
+        return {
+            "token": "string",
+            "email": "string",
+        }
 
 
 @form_model

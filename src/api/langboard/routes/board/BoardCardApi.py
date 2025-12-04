@@ -1,7 +1,7 @@
 from fastapi import status
 from langboard_shared.core.db import EditorContentModel
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.types import SafeDateTime
 from langboard_shared.core.utils.Converter import convert_python_data
@@ -55,10 +55,7 @@ from .forms import (
                             "labels": [ProjectLabel],
                             "member_uids": "string[]",
                             "relationships": [CardRelationship],
-                            "current_auth_role_actions": [
-                                ALL_GRANTED,
-                                ProjectRoleAction,
-                            ],
+                            "current_auth_role_actions": [ALL_GRANTED, ProjectRoleAction],
                         }
                     },
                 ),
@@ -107,11 +104,11 @@ async def get_card_details(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     project, card = params
     api_card = await service.card.get_details(project, card)
     if api_card is None:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     global_relationships = await service.app_setting.get_api_global_relationship_list()
     bot_scopes = []
     can_set_scopes = isinstance(user_or_bot, Bot)
@@ -146,26 +143,28 @@ async def get_card_details(
     "/board/{project_uid}/card/{card_uid}/comments",
     tags=["Board.Card"],
     description="Get card comments.",
-    responses=OpenApiSchema()
-    .suc(
-        {
-            "comments": [
-                (
-                    CardComment,
-                    {
-                        "schema": {
-                            "user?": User,
-                            "bot?": Bot,
-                            "reactions": {"<reaction type>": ["<user or bot uid>"]},
-                        }
-                    },
-                ),
-            ]
-        }
-    )
-    .auth()
-    .forbidden()
-    .get(),
+    responses=(
+        OpenApiSchema()
+        .suc(
+            {
+                "comments": [
+                    (
+                        CardComment,
+                        {
+                            "schema": {
+                                "user?": User,
+                                "bot?": Bot,
+                                "reactions": {"<reaction type>": ["<user or bot uid>"]},
+                            }
+                        },
+                    ),
+                ]
+            }
+        )
+        .auth()
+        .forbidden()
+        .get()
+    ),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
@@ -190,10 +189,7 @@ async def get_card_comments(card_uid: str, service: DomainService = DomainServic
                             "labels": [ProjectLabel],
                             "member_uids": "string[]",
                             "relationships": [CardRelationship],
-                            "current_auth_role_actions": [
-                                ALL_GRANTED,
-                                ProjectRoleAction,
-                            ],
+                            "current_auth_role_actions": [ALL_GRANTED, ProjectRoleAction],
                         }
                     },
                 )
@@ -223,7 +219,7 @@ async def create_card(
         form.assign_users,
     )
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2004)
     _, api_card = result
 
     return JsonResponse(content={"card": api_card}, status_code=status.HTTP_201_CREATED)
@@ -240,7 +236,7 @@ async def create_card(
             {
                 "title?": "string",
                 "deadline_at?": "string",
-                "description?": EditorContentModel.api_schema(),
+                "description?": EditorContentModel,
             }
         )
         .auth()
@@ -274,7 +270,7 @@ async def change_card_details(
 
     result = await service.card.update(user_or_bot, project_uid, card_uid, form_dict)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     if result is True:
         response = {}
@@ -308,7 +304,7 @@ async def update_card_assigned_users(
 ) -> JsonResponse:
     result = await service.card.update_assigned_users(user_or_bot, project_uid, card_uid, form.assigned_users)
     if result is None:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()
 
@@ -331,7 +327,7 @@ async def change_card_order_or_move_column(
 ) -> JsonResponse:
     result = await service.card.change_order(user_or_bot, project_uid, card_uid, form.order, form.parent_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()
 
@@ -354,7 +350,7 @@ async def update_card_labels(
 ) -> JsonResponse:
     result = await service.card.update_labels(user_or_bot, project_uid, card_uid, form.labels)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()
 
@@ -379,7 +375,7 @@ async def update_card_relationships(
         user_or_bot, project_uid, card_uid, form.is_parent, form.relationships
     )
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()
 
@@ -401,11 +397,11 @@ async def archive_card(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if project is None:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     result = await service.card.archive(user_or_bot, project, card_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()
 
@@ -427,6 +423,6 @@ async def delete_card(
 ) -> JsonResponse:
     result = await service.card.delete(user_or_bot, project_uid, card_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse()

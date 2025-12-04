@@ -1,7 +1,7 @@
 from fastapi import File, UploadFile, status
 from langboard_shared.core.db import EditorContentModel
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.routing.Exception import MissingException
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
@@ -58,7 +58,7 @@ async def get_project_wikis(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if project is None:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     wikis = await service.project_wiki.get_api_list(user_or_bot, project_uid)
     project_members = await service.project.get_api_assigned_user_list(project)
     return JsonResponse(content={"wikis": wikis, "project_members": project_members})
@@ -99,12 +99,12 @@ async def get_project_wiki_details(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
     project, project_wiki = params
 
     api_wiki = await service.project_wiki.convert_to_api_response(user_or_bot, project, project_wiki)
     if not api_wiki:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse(content={"wiki": api_wiki})
 
@@ -145,7 +145,7 @@ async def create_project_wiki(
 ) -> JsonResponse:
     result = await service.project_wiki.create(user_or_bot, project_uid, form.title, form.content)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     _, api_wiki = result
 
     return JsonResponse(content={"wiki": api_wiki}, status_code=status.HTTP_201_CREATED)
@@ -158,12 +158,7 @@ async def create_project_wiki(
     description="Change project wiki details.",
     responses=(
         OpenApiSchema()
-        .suc(
-            {
-                "title?": "string",
-                "content?": EditorContentModel.api_schema(),
-            }
-        )
+        .suc({"title?": "string", "content?": EditorContentModel})
         .auth()
         .forbidden()
         .err(403, ApiErrorCode.PE2005)
@@ -182,10 +177,10 @@ async def change_project_wiki_details(
 ) -> JsonResponse:
     project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
-        return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     form_dict = {}
     for key in ChangeWikiDetailsForm.model_fields:
@@ -196,7 +191,7 @@ async def change_project_wiki_details(
 
     result = await service.project_wiki.update(user_or_bot, project_uid, wiki_uid, form_dict)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     if result is True:
         response = {}
@@ -228,14 +223,14 @@ async def change_project_wiki_public(
 ) -> JsonResponse:
     project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
-        return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     result = await service.project_wiki.change_public(user_or_bot, project_uid, project_wiki, form.is_public)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse()
 
@@ -258,17 +253,17 @@ async def update_project_wiki_assignees(
 ) -> JsonResponse:
     project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     if not await service.project_wiki.is_assigned(user, project_wiki):
-        return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     if not form.assignees:
         raise MissingException("body", "assignees")
 
     result = await service.project_wiki.update_assignees(user, project_uid, project_wiki, form.assignees)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse()
 
@@ -290,7 +285,7 @@ async def change_project_wiki_order(
 ) -> JsonResponse:
     result = await service.project_wiki.change_order(project_uid, wiki_uid, form.order)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse()
 
@@ -300,13 +295,7 @@ async def change_project_wiki_order(
     tags=["Board.Wiki"],
     responses=(
         OpenApiSchema()
-        .suc(
-            {
-                **ProjectWikiAttachment.api_schema(),
-                "user": User,
-            },
-            201,
-        )
+        .suc((ProjectWikiAttachment, {"schema": {"user": User}}), 201)
         .auth()
         .forbidden()
         .err(404, ApiErrorCode.NF2008)
@@ -328,14 +317,11 @@ async def upload_wiki_attachment(
 
     file_model = Storage.upload(attachment, StorageName.Wiki)
     if not file_model:
-        return JsonResponse(
-            content=ApiErrorCode.OP1002,
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+        raise ApiException.InternalServerError_500(ApiErrorCode.OP1002)
 
     result = await service.project_wiki.upload_attachment(user, project_uid, wiki_uid, file_model)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse(
         content={**result.api_response(), "user": user.api_response()},
@@ -360,13 +346,13 @@ async def delete_project_wiki(
 ) -> JsonResponse:
     project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
-        return JsonResponse(content=ApiErrorCode.PE2005, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     result = await service.project_wiki.delete(user_or_bot, project_uid, project_wiki)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2008, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
     return JsonResponse()

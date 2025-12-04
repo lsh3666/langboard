@@ -26,7 +26,7 @@ class BatchForm(BaseFormModel):
     - Example: [
         {
             "path": "<api path> or <api name>",
-            "method": "Literal[GET, POST, PUT, DELETE]",
+            "method": "Enum[GET, POST, PUT, DELETE]",
             "query?": {"field": "value"},
             "form?": {"field": "value"}
         }

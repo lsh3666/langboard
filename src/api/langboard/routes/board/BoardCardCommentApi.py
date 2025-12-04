@@ -1,7 +1,7 @@
 from fastapi import status
 from langboard_shared.core.db import EditorContentModel
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Bot, CardComment, ProjectRole, User
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
@@ -29,7 +29,7 @@ async def add_card_comment(
 ) -> JsonResponse:
     result = await service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse(status_code=status.HTTP_201_CREATED)
 
@@ -38,25 +38,27 @@ async def add_card_comment(
     "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}",
     tags=["Board.Card.Comment"],
     description="Get a card comment.",
-    responses=OpenApiSchema(200)
-    .suc(
-        {
-            "comment": (
-                CardComment,
-                {
-                    "schema": {
-                        "user?": User,
-                        "bot?": Bot,
-                        "reactions": {"<reaction type>": ["<user or bot uid>"]},
-                    }
-                },
-            ),
-        }
-    )
-    .auth()
-    .forbidden()
-    .err(404, ApiErrorCode.NF2003)
-    .get(),
+    responses=(
+        OpenApiSchema(200)
+        .suc(
+            {
+                "comment": (
+                    CardComment,
+                    {
+                        "schema": {
+                            "user?": User,
+                            "bot?": Bot,
+                            "reactions": {"<reaction type>": ["<user or bot uid>"]},
+                        }
+                    },
+                ),
+            }
+        )
+        .auth()
+        .forbidden()
+        .err(404, ApiErrorCode.NF2003)
+        .get()
+    ),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
@@ -65,9 +67,9 @@ async def get_card_comment(
 ) -> JsonResponse:
     result = await service.card_comment.get_as_api(card_uid, comment_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
-    return JsonResponse(content={"comment": result}, status_code=status.HTTP_200_OK)
+    return JsonResponse(content={"comment": result})
 
 
 @AppRouter.schema(form=EditorContentModel)
@@ -89,12 +91,12 @@ async def update_card_comment(
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
     if not _is_owner(user_or_bot, card_comment):
-        return JsonResponse(content=ApiErrorCode.PE2004, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2004)
     result = await service.card_comment.update(user_or_bot, project_uid, card_uid, card_comment, comment)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 
     return JsonResponse()
 
@@ -117,12 +119,12 @@ async def delete_card_comment(
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
     if not _is_owner(user_or_bot, card_comment):
-        return JsonResponse(content=ApiErrorCode.PE2004, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2004)
     result = await service.card_comment.delete(user_or_bot, project_uid, card_uid, card_comment)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 
     return JsonResponse()
 
@@ -132,7 +134,7 @@ async def delete_card_comment(
     "/board/{project_uid}/card/{card_uid}/comment/{comment_uid}/react",
     tags=["Board.Card.Comment"],
     description="Toggle reaction on a comment.",
-    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2012).get(),
+    responses=OpenApiSchema().suc({"is_reacted": "bool"}).auth().forbidden().err(404, ApiErrorCode.NF2012).get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
@@ -146,10 +148,10 @@ async def toggle_reaction_card_comment(
 ) -> JsonResponse:
     card_comment = await service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
     result = await service.card_comment.toggle_reaction(user_or_bot, project_uid, card_uid, card_comment, form.reaction)
     if result is None:
-        return JsonResponse(content=ApiErrorCode.NF2012, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 
     return JsonResponse(content={"is_reacted": result})
 

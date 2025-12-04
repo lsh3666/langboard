@@ -16,7 +16,7 @@ async def bot_created(bot: Bot):
 @BotTaskSchemaHelper.executor_schema(
     BotDefaultTrigger.BotMentioned,
     {
-        "mentioned_in": "Literal[card, comment, project_wiki]",
+        "mentioned_in": "Enum[card, comment, project_wiki]",
         "project_uid": "string",
         "project_column_uid?": "string",
         "card_uid?": "string",

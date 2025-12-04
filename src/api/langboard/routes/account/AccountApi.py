@@ -1,8 +1,8 @@
 from fastapi import File, UploadFile, status
 from langboard_shared.core.caching import Cache
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
-from langboard_shared.core.routing.Exception import InvalidError, InvalidException
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
+from langboard_shared.core.routing.Exception import ValidationFailureException, ValidationFailureInfo
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
 from langboard_shared.domain.models import User, UserGroup
@@ -59,12 +59,14 @@ async def add_new_email(
     existed_user, subemail = await service.user.get_by_email(form.new_email)
     if not form.is_resend:
         if existed_user:
-            raise InvalidException(InvalidError(loc="body", field="new_email", inputs=form.model_dump()))
+            raise ValidationFailureException(
+                ValidationFailureInfo(loc="body", field="new_email", inputs=form.model_dump())
+            )
 
         await service.user.create_subemail(user.id, form.new_email)
     else:
         if not existed_user or existed_user.id != user.id or not subemail:
-            return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
+            raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
         if subemail.verified_at:
             return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_304_NOT_MODIFIED)
@@ -78,7 +80,7 @@ async def add_new_email(
         user.preferred_lang, form.new_email, "subemail", {"recipient": user.firstname, "url": token_url}
     )
     if not result:
-        return JsonResponse(content=ApiErrorCode.OP1001, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+        raise ApiException.ServiceUnavailable_503(ApiErrorCode.OP1001)
 
     return JsonResponse(status_code=status.HTTP_201_CREATED)
 
@@ -99,14 +101,14 @@ async def add_new_email(
 async def verify_subemail(form: VerifyNewEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, cache_key, extra = await service.user.validate_token_from_url("subemail", form.verify_token)
     if not user or not cache_key or not extra or "email" not in extra:
-        return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
     existed_user, subemail = await service.user.get_by_email(extra["email"])
     if not existed_user or user.id != existed_user.id:
-        return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
     if not subemail:
-        return JsonResponse(content=ApiErrorCode.NF1002, status_code=status.HTTP_409_CONFLICT)
+        raise ApiException.Conflict_409(ApiErrorCode.NF1002)
 
     if subemail.verified_at:
         return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_304_NOT_MODIFIED)
@@ -136,10 +138,10 @@ async def change_primary_email(
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
-        return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
     if not subemail.verified_at:
-        return JsonResponse(content=ApiErrorCode.AU1002, status_code=status.HTTP_423_LOCKED)
+        raise ApiException.Locked_423(ApiErrorCode.AU1002)
 
     if existed_user.email == form.email:
         return JsonResponse(content=ApiErrorCode.EX1002, status_code=status.HTTP_304_NOT_MODIFIED)
@@ -159,10 +161,10 @@ async def delete_email(
 ) -> JsonResponse:
     existed_user, subemail = await service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
-        return JsonResponse(content=ApiErrorCode.NF1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
     if existed_user.email == form.email:
-        return JsonResponse(content=ApiErrorCode.PE1002, status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise ApiException.NotAcceptable_406(ApiErrorCode.PE1002)
 
     await service.user.delete_email(subemail)
     return JsonResponse()
@@ -174,7 +176,9 @@ async def change_password(
     form: ChangePasswordForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     if not user.check_password(form.current_password):
-        raise InvalidException(InvalidError(loc="body", field="current_password", inputs=form.model_dump()))
+        raise ValidationFailureException(
+            ValidationFailureInfo(loc="body", field="current_password", inputs=form.model_dump())
+        )
 
     await service.user.change_password(user, form.new_password)
     await Auth.reset_user(user)
@@ -211,7 +215,7 @@ async def change_user_group_name(
 ) -> JsonResponse:
     result = await service.user_group.change_name(user, group_uid, form.name)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF1003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
     return JsonResponse()
 
@@ -230,7 +234,7 @@ async def update_user_group_assigned_emails(
 ) -> JsonResponse:
     result = await service.user_group.update_assigned_emails(user, group_uid, form.emails)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF1003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
     group_users = await service.user_group.get_api_user_email_list_by_group(group_uid)
 
@@ -248,7 +252,7 @@ async def delete_user_group(
 ) -> JsonResponse:
     result = await service.user_group.delete(user, group_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF1003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
     return JsonResponse()
 
@@ -264,6 +268,6 @@ async def update_preferred_language(
 ) -> JsonResponse:
     result = await service.user.update_preferred_lang(user, form.lang)
     if not result:
-        return JsonResponse(content=ApiErrorCode.VA1003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.VA1003)
 
     return JsonResponse()

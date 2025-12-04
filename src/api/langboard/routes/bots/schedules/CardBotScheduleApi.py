@@ -1,7 +1,7 @@
-from fastapi import Depends, status
+from fastapi import Depends
 from langboard_shared.ai import BotScheduleHelper
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import BotSchedule, Card, CardBotSchedule, ProjectRole
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
@@ -18,7 +18,7 @@ from ..forms import BotSchedulePagination
     description="Get all bot cron schedules for a specific card.",
     responses=(
         OpenApiSchema()
-        .suc({"schedules": [(BotSchedule, {"schema": CardBotSchedule.api_schema()})], "target": Card})
+        .suc({"schedules": [(BotSchedule, CardBotSchedule)], "target": Card})
         .auth()
         .forbidden()
         .err(404, ApiErrorCode.NF2014)
@@ -35,11 +35,11 @@ async def get_bot_schedules_by_card(
 ) -> JsonResponse:
     bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
-        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
     card = await service.card.get_by_id_like(card_uid)
     if not card:
-        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
     schedules = await BotScheduleHelper.get_all_by_scope(
         CardBotSchedule, bot, card, as_api=True, pagination=pagination, status=pagination.status

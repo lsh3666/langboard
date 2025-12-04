@@ -1,9 +1,10 @@
 from fastapi import File, UploadFile, status
 from langboard_shared.ai import validate_bot_form
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
+from langboard_shared.domain.models import InternalBot
 from langboard_shared.domain.services import DomainService
 from .Form import CreateInternalBotForm, UpdateInternalBotForm
 
@@ -11,7 +12,14 @@ from .Form import CreateInternalBotForm, UpdateInternalBotForm
 @AppRouter.api.post(
     "/settings/internal-bot",
     tags=["AppSettings"],
-    responses=(OpenApiSchema(201).auth().forbidden().get()),
+    responses=(
+        OpenApiSchema()
+        .suc({"internal_bot": (InternalBot, {"is_setting": True})}, 201)
+        .auth()
+        .forbidden()
+        .err(400, ApiErrorCode.VA0000)
+        .get()
+    ),
 )
 @AuthFilter.add("admin")
 async def create_internal_bot(
@@ -20,7 +28,7 @@ async def create_internal_bot(
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     if not validate_bot_form(form):
-        return JsonResponse(content=ApiErrorCode.VA0000, status_code=status.HTTP_400_BAD_REQUEST)
+        raise ApiException.BadRequest_400(ApiErrorCode.VA0000)
 
     file_model = Storage.upload(avatar, StorageName.InternalBot) if avatar else None
     internal_bot = await service.internal_bot.create(
@@ -54,7 +62,7 @@ async def update_internal_bot(
 ) -> JsonResponse:
     internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
-        return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
     form_dict = form.model_dump()
     file_model = Storage.upload(avatar, StorageName.InternalBot) if avatar else None
@@ -63,7 +71,7 @@ async def update_internal_bot(
 
     result = await service.internal_bot.update(internal_bot, form_dict)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
     return JsonResponse()
 
@@ -79,7 +87,7 @@ async def set_internal_bot_default(
 ) -> JsonResponse:
     internal_bot = await service.internal_bot.change_default(internal_bot_uid)
     if not internal_bot:
-        return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
     return JsonResponse()
 
@@ -93,10 +101,10 @@ async def set_internal_bot_default(
 async def delete_internal_bot(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
-        return JsonResponse(content=ApiErrorCode.NF3004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
     if internal_bot.is_default:
-        return JsonResponse(content=ApiErrorCode.EX3002, status_code=status.HTTP_409_CONFLICT)
+        raise ApiException.Conflict_409(ApiErrorCode.EX3002)
 
     await service.internal_bot.delete(internal_bot)
     return JsonResponse()

@@ -1,6 +1,6 @@
 from fastapi import status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Bot, Checkitem, Checklist, ProjectRole, User
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
@@ -15,36 +15,38 @@ from .forms import CardChecklistNotifyForm, CardCheckRelatedForm, ChangeRootOrde
     "/board/{project_uid}/card/{card_uid}/checklist",
     tags=["Board.Card"],
     description="Get card checklists.",
-    responses=OpenApiSchema()
-    .suc(
-        {
-            "checklists": [
-                (
-                    Checklist,
-                    {
-                        "schema": {
-                            "checkitems": [
-                                (
-                                    Checkitem,
-                                    {
-                                        "schema": {
-                                            "card_uid": "string",
-                                            "timer_started_at?": "string",
-                                            "cardified_card?": "string",
-                                            "user?": User,
-                                        }
-                                    },
-                                ),
-                            ]
-                        }
-                    },
-                ),
-            ],
-        }
-    )
-    .auth()
-    .forbidden()
-    .get(),
+    responses=(
+        OpenApiSchema()
+        .suc(
+            {
+                "checklists": [
+                    (
+                        Checklist,
+                        {
+                            "schema": {
+                                "checkitems": [
+                                    (
+                                        Checkitem,
+                                        {
+                                            "schema": {
+                                                "card_uid": "string",
+                                                "timer_started_at?": "string",
+                                                "cardified_card?": "string",
+                                                "user?": User,
+                                            }
+                                        },
+                                    ),
+                                ]
+                            }
+                        },
+                    ),
+                ],
+            }
+        )
+        .auth()
+        .forbidden()
+        .get()
+    ),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
@@ -73,7 +75,7 @@ async def create_checklist(
 ) -> JsonResponse:
     result = await service.checklist.create(user_or_bot, project_uid, card_uid, form.title)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
     return JsonResponse(
         content={
@@ -105,7 +107,7 @@ async def create_checkitem(
 ) -> JsonResponse:
     result = await service.checkitem.create(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse(status_code=status.HTTP_201_CREATED)
 
@@ -129,7 +131,7 @@ async def notify_checklist(
 ) -> JsonResponse:
     result = await service.checklist.notify(user_or_bot, project_uid, card_uid, checklist_uid, form.user_uids)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse()
 
@@ -153,7 +155,7 @@ async def change_checklist_title(
 ) -> JsonResponse:
     result = await service.checklist.change_title(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse()
 
@@ -172,12 +174,11 @@ async def change_checklist_order(
     card_uid: str,
     checklist_uid: str,
     form: ChangeRootOrderForm,
-    user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checklist.change_order(project_uid, card_uid, checklist_uid, form.order)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse()
 
@@ -200,7 +201,7 @@ async def toggle_checklist_checked(
 ) -> JsonResponse:
     result = await service.checklist.toggle_checked(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse()
 
@@ -223,6 +224,6 @@ async def delete_checklist(
 ) -> JsonResponse:
     result = await service.checklist.delete(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2010, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
     return JsonResponse()

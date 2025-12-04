@@ -1,4 +1,5 @@
 from .ApiErrorCode import ApiErrorCode
+from .ApiException import ApiException
 from .ApiSchemaHelper import PATH_PARAM_PATTERN, ApiSchemaHelper, ApiSchemaMap
 from .AppExceptionHandlingRoute import AppExceptionHandlingRoute
 from .AppRouter import AppRouter, TApiRouteMap
@@ -10,6 +11,7 @@ from .SocketTopic import GLOBAL_TOPIC_ID, NONE_TOPIC_ID, SocketTopic
 
 __all__ = [
     "ApiErrorCode",
+    "ApiException",
     "ApiSchemaHelper",
     "ApiSchemaMap",
     "PATH_PARAM_PATTERN",

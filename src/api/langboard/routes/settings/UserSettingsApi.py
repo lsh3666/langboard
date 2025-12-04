@@ -1,7 +1,7 @@
 from typing import cast
 from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema, PaginatedList
 from langboard_shared.core.types import SafeDateTime
 from langboard_shared.domain.models import User, UserProfile
@@ -16,19 +16,7 @@ from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, Users
     responses=(
         OpenApiSchema()
         .suc(
-            PaginatedList.api_schema(
-                (
-                    User,
-                    {
-                        "schema": {
-                            "created_at": "string",
-                            "activated_at": "string?",
-                            **UserProfile.api_schema(),
-                            "is_admin": "bool",
-                        }
-                    },
-                )
-            )
+            PaginatedList.api_schema(((User, UserProfile), {"schema": {"activated_at": "string?", "is_admin": "bool"}}))
         )
         .auth()
         .forbidden()
@@ -64,12 +52,16 @@ async def get_users_in_settings(
     )
 
 
-@AppRouter.api.post("/settings/users", tags=["AppSettings"], responses=OpenApiSchema(201).auth().forbidden().get())
+@AppRouter.api.post(
+    "/settings/users",
+    tags=["AppSettings"],
+    responses=OpenApiSchema(201).auth().err(409, ApiErrorCode.EX1003).forbidden().get(),
+)
 @AuthFilter.add("admin")
 async def create_user_in_settings(form: CreateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     user, _ = await service.user.get_by_email(form.email)
     if user:
-        return JsonResponse(content=ApiErrorCode.EX1003, status_code=status.HTTP_409_CONFLICT)
+        raise ApiException.Conflict_409(ApiErrorCode.EX1003)
 
     form_dict = form.model_dump()
     if form.should_activate:
@@ -78,13 +70,15 @@ async def create_user_in_settings(form: CreateUserForm, service: DomainService =
         form_dict["updated_at"] = now
         form_dict["activated_at"] = now
 
-    user, profile = await service.user.create(form_dict)
+    user, _ = await service.user.create(form_dict)
 
-    return JsonResponse(status_code=201, content={})
+    return JsonResponse(status_code=status.HTTP_201_CREATED)
 
 
 @AppRouter.api.put(
-    "/settings/users/{user_uid}", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get()
+    "/settings/users/{user_uid}",
+    tags=["AppSettings"],
+    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF1004).get(),
 )
 @AuthFilter.add("admin")
 async def update_user_in_settings(
@@ -92,7 +86,7 @@ async def update_user_in_settings(
 ) -> JsonResponse:
     target_user = await service.user.get_by_id_like(user_uid)
     if not target_user:
-        return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
     form_dict = form.model_dump(exclude_unset=True)
     if user.id != target_user.id:
@@ -106,11 +100,13 @@ async def update_user_in_settings(
     if form.password:
         await service.user.change_password(target_user, form.password)
 
-    return JsonResponse(status_code=200, content={})
+    return JsonResponse()
 
 
 @AppRouter.api.delete(
-    "/settings/users/{user_uid}", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get()
+    "/settings/users/{user_uid}",
+    tags=["AppSettings"],
+    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.OP1003).get(),
 )
 @AuthFilter.add("admin")
 async def delete_user_in_settings(
@@ -118,14 +114,14 @@ async def delete_user_in_settings(
 ) -> JsonResponse:
     target_user = await service.user.get_by_id_like(user_uid)
     if not target_user:
-        return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
     if target_user.id == user.id:
-        return JsonResponse(content=ApiErrorCode.EX1004, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Conflict_409(ApiErrorCode.OP1003)
 
     await service.user.delete(target_user)
 
-    return JsonResponse(status_code=status.HTTP_200_OK, content={})
+    return JsonResponse()
 
 
 @AppRouter.api.delete("/settings/users", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get())
@@ -138,4 +134,4 @@ async def delete_selected_users_in_settings(
 
     await service.user.delete_selected(form.user_uids)
 
-    return JsonResponse(status_code=status.HTTP_200_OK, content={})
+    return JsonResponse()

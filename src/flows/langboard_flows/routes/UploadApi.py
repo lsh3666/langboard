@@ -5,14 +5,16 @@ from fastapi import Depends, File, HTTPException, UploadFile, status
 from langboard_shared.core.routing import AppRouter
 from langboard_shared.core.utils.String import generate_random_string
 from langflow.services.deps import get_settings_service, get_storage_service
+from langflow.services.settings.service import SettingsService
+from langflow.services.storage.service import StorageService
 from ..core.schema import UploadFileResponse
 
 
 @AppRouter.api.post("/api/v2/files", status_code=status.HTTP_201_CREATED)
 async def upload_user_file(
     file: Annotated[UploadFile, File(...)],
-    storage_service=Depends(get_storage_service),
-    settings_service=Depends(get_settings_service),
+    storage_service: StorageService = Depends(get_storage_service),
+    settings_service: SettingsService = Depends(get_settings_service),
 ) -> UploadFileResponse:
     try:
         max_file_size_upload = settings_service.settings.max_file_size_upload
@@ -22,7 +24,7 @@ async def upload_user_file(
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
 
-    if file.size > max_file_size_upload * 1024 * 1024:
+    if (file.size or 0) > max_file_size_upload * 1024 * 1024:
         raise HTTPException(
             status_code=413,
             detail=f"File size is larger than the maximum file size {max_file_size_upload}MB.",

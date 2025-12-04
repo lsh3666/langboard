@@ -70,4 +70,5 @@ export enum EApiErrorCode {
     OP0000 = "Internal server error.",
     OP1001 = "Failed to send email.",
     OP1002 = "Failed to upload.",
+    OP1003 = "Can't delete the user itself.",
 }

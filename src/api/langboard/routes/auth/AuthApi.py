@@ -1,7 +1,7 @@
 from fastapi import Request, status
 from jwt import ExpiredSignatureError
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.security import AuthSecurity
 from langboard_shared.core.utils.Encryptor import Encryptor
@@ -19,7 +19,9 @@ from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
     "/auth/email",
     response_model=AuthEmailResponse,
     tags=["Auth"],
-    responses=OpenApiSchema(None).err(406, ApiErrorCode.AU1001).err(404, ApiErrorCode.NF1004).get(),
+    responses=(
+        OpenApiSchema().suc(AuthEmailResponse).err(406, ApiErrorCode.AU1002).err(404, ApiErrorCode.NF1004).get()
+    ),
 )
 async def auth_email(
     form: AuthEmailForm, service: Annotated[DomainService, DomainService.scope()]
@@ -30,10 +32,10 @@ async def auth_email(
         user, subemail = await service.user.get_by_email(form.email)
 
     if subemail and not subemail.verified_at:
-        return JsonResponse(content=ApiErrorCode.AU1001, status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise ApiException.NotAcceptable_406(ApiErrorCode.AU1002)
 
     if not user:
-        return JsonResponse(content=ApiErrorCode.NF1004, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
     token = Encryptor.encrypt(user.email, form.sign_token)
     return AuthEmailResponse(token=token, email=user.email)
@@ -43,9 +45,9 @@ async def auth_email(
     "/auth/signin",
     tags=["Auth"],
     responses=(
-        OpenApiSchema(None)
+        OpenApiSchema()
         .suc({"access_token": "string"})
-        .err(404, ApiErrorCode.AU1001)
+        .err(404, ApiErrorCode.VA1001, ApiErrorCode.VA1002)
         .err(406, ApiErrorCode.AU1002)
         .err(423, ApiErrorCode.AU1003)
         .get()
@@ -55,20 +57,20 @@ async def sign_in(form: SignInForm, service: DomainService = DomainService.scope
     user, subemail = await service.user.get_by_token(form.email_token, form.sign_token)
 
     if not user:
-        return JsonResponse(content=ApiErrorCode.AU1001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.VA1001)
 
     if subemail and not subemail.verified_at:
-        return JsonResponse(content=ApiErrorCode.AU1002, status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise ApiException.NotAcceptable_406(ApiErrorCode.AU1002)
 
     if not user.check_password(form.password):
-        return JsonResponse(content=ApiErrorCode.VA1002, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.VA1002)
 
     if not user.activated_at:
-        return JsonResponse(content=ApiErrorCode.AU1003, status_code=status.HTTP_423_LOCKED)
+        raise ApiException.Locked_423(ApiErrorCode.AU1003)
 
     access_token, refresh_token = AuthSecurity.authenticate(user.id)
 
-    response = JsonResponse({"access_token": access_token}, status_code=status.HTTP_200_OK)
+    response = JsonResponse(content={"access_token": access_token})
     response.set_cookie(
         Env.REFRESH_TOKEN_NAME,
         refresh_token,
@@ -85,7 +87,7 @@ async def sign_in(form: SignInForm, service: DomainService = DomainService.scope
     "/auth/refresh",
     tags=["Auth"],
     responses=(
-        OpenApiSchema(None)
+        OpenApiSchema()
         .suc({"access_token": "string"})
         .err(422, ApiErrorCode.AU1004)
         .err(401, ApiErrorCode.AU1004)
@@ -108,7 +110,7 @@ async def refresh(request: Request) -> JsonResponse:
     except Exception:
         return JsonResponse(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    return JsonResponse({"access_token": new_access_token})
+    return JsonResponse(content={"access_token": new_access_token})
 
 
 @AppRouter.api.get(
@@ -119,10 +121,9 @@ async def refresh(request: Request) -> JsonResponse:
         .suc(
             {
                 "user": (
-                    User,
+                    (User, UserProfile),
                     {
                         "schema": {
-                            **UserProfile.api_schema(),
                             "preferred_lang": "string",
                             "user_groups": [UserGroup],
                             "subemails": [UserEmail],
@@ -170,7 +171,7 @@ async def about_me(user: User = Auth.scope("user"), service: DomainService = Dom
     return JsonResponse(content={"user": response, "bots": bots})
 
 
-@AppRouter.api.post("/auth/signout", tags=["Auth"], responses=OpenApiSchema(202).suc({}).get())
+@AppRouter.api.post("/auth/signout", tags=["Auth"], responses=OpenApiSchema(202).get())
 async def sign_out():
     is_secure = Env.PUBLIC_UI_URL.startswith("https://")
     response = JsonResponse(status_code=status.HTTP_202_ACCEPTED)

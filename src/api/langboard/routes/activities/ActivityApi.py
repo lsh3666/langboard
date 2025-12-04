@@ -62,7 +62,7 @@ async def get_current_user_activities(
 @AppRouter.api.get(
     "/activity/project/{project_uid}",
     tags=["Activity"],
-    responses=(OpenApiSchema().suc(_create_project_activity_schema()).auth().forbidden().get()),
+    responses=OpenApiSchema().suc(_create_project_activity_schema()).auth().forbidden().get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
@@ -135,7 +135,7 @@ async def get_project_column_activities(
                 "project": {
                     "uid": project.get_uid(),
                 },
-                "column": {
+                "project_column": {
                     "uid": column.get_uid(),
                 },
             },

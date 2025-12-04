@@ -3,12 +3,13 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse
 from langboard_shared.core.broker import Broker
 from langboard_shared.core.routing import AppRouter, JsonResponse
+from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Bot, User
 from langboard_shared.domain.models.bases import BotTriggerCondition
 from langboard_shared.Env import Env
 
 
-@AppRouter.api.get("/schema/webhook", tags=["Schema"], response_class=HTMLResponse)
+@AppRouter.api.get("/schema/webhook", response_class=HTMLResponse)
 async def webhook_docs():
     return get_swagger_ui_html(openapi_url="/schema/webhook.json", title=Env.PROJECT_NAME.capitalize())
 
@@ -52,7 +53,11 @@ async def webhook_openapi():
     )
 
 
-@AppRouter.api.get("/schema/bot/trigger-conditions", tags=["Schema"])
+@AppRouter.api.get(
+    "/schema/bot/trigger-conditions",
+    tags=["Schema"],
+    responses=OpenApiSchema().suc({"conditions": BotTriggerCondition}).get(),
+)
 async def get_bot_trigger_conditions():
     return JsonResponse(content={"conditions": [condition.value for condition in BotTriggerCondition]})
 

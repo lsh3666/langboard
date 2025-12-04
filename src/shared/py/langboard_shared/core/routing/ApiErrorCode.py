@@ -73,6 +73,7 @@ class ApiErrorCode(Enum):
     OP0000 = "Internal server error."
     OP1001 = "Failed to send email."
     OP1002 = "Failed to upload."
+    OP1003 = "Can't delete the user itself."
 
     def to_dict(self):
         return {"code": self.name, "message": self.value}

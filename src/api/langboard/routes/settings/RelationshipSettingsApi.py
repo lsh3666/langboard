@@ -1,6 +1,6 @@
 from fastapi import status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import GlobalCardRelationshipType
 from langboard_shared.domain.services import DomainService
@@ -77,7 +77,7 @@ async def update_global_relationship(
 
     result = await service.app_setting.update_global_relationship(global_relationship_uid, form_dict)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 
     if isinstance(result, bool):
         return JsonResponse()
@@ -98,7 +98,7 @@ async def delete_global_relationship(
 ) -> JsonResponse:
     result = await service.app_setting.delete_global_relationship(global_relationship_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 
     return JsonResponse()
 
@@ -114,6 +114,6 @@ async def delete_selected_global_relationship(
 ) -> JsonResponse:
     result = await service.app_setting.delete_selected_global_relationships(form.relationship_type_uids)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 
     return JsonResponse()

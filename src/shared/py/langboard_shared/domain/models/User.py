@@ -19,7 +19,9 @@ class User(SoftDeleteModel, table=True):
     )
     password: SecretStr = Field(nullable=False, sa_type=SecretStrType)
     is_admin: bool = Field(default=False)
-    avatar: FileModel | None = Field(default=None, sa_type=ModelColumnType(FileModel))
+    avatar: FileModel | None = Field(
+        default=None, sa_type=ModelColumnType(FileModel), api_field=ApiField(field_base_model="path")
+    )
     preferred_lang: str = Field(default="en-US", nullable=False)
     activated_at: SafeDateTime | None = DateTimeField(default=None, nullable=True)
 
@@ -27,7 +29,7 @@ class User(SoftDeleteModel, table=True):
     def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
         return super().api_schema(
             {
-                "type": f"Literal[{User.USER_TYPE}, {User.UNKNOWN_USER_TYPE}, {User.GROUP_EMAIL_TYPE}]",
+                "type": f"Enum[{User.USER_TYPE}, {User.UNKNOWN_USER_TYPE}, {User.GROUP_EMAIL_TYPE}]",
                 **(schema or {}),
             }
         )

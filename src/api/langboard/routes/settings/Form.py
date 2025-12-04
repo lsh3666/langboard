@@ -2,7 +2,7 @@ from re import match
 from typing import Any
 from langboard_shared.ai import BaseSharedBotForm
 from langboard_shared.core.routing import BaseFormModel, form_model
-from langboard_shared.core.routing.Exception import InvalidError, InvalidException, MissingException
+from langboard_shared.core.routing.Exception import MissingException, ValidationFailureException, ValidationFailureInfo
 from langboard_shared.core.types import SafeDateTime
 from langboard_shared.domain.models.AppSetting import AppSettingType
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
@@ -54,8 +54,8 @@ class CreateUserForm(BaseFormModel):
             raise MissingException("body", "email", {"email": value})
 
         if not bool(match(EMAIL_REGEX, value)):
-            raise InvalidException(
-                InvalidError(
+            raise ValidationFailureException(
+                ValidationFailureInfo(
                     loc="body",
                     field="email",
                     inputs={"email": value},

@@ -1,6 +1,6 @@
 from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import (
     ChatHistory,
@@ -63,7 +63,7 @@ async def get_project_chat_histories(
 @AppRouter.api.put(
     "/board/{project_uid}/chat/session/{session_uid}",
     tags=["Board.Chat"],
-    responses=OpenApiSchema().auth().forbidden().get(),
+    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2021).get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
@@ -76,7 +76,7 @@ async def update_project_chat_session(
 ) -> JsonResponse:
     session = await service.chat.get_session_by_filterable(ProjectChatSession, session_uid, project_uid)
     if not session or session[0].user_id != user.id:
-        return JsonResponse(content=ApiErrorCode.NF2021, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2021)
     chat_session, _ = session
 
     await service.chat.update_session(chat_session, form.title)
@@ -133,7 +133,7 @@ async def create_chat_template(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if not project:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     template = await service.chat.create_template(project, form.name, form.template)
 
@@ -157,11 +157,11 @@ async def update_chat_template(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if not project:
-        return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2018)
 
     result = await service.chat.update_template(template_uid, form.name, form.template)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2018)
 
     if result is True:
         return JsonResponse()
@@ -184,11 +184,11 @@ async def delete_chat_template(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if not project:
-        return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2018)
 
     result = await service.chat.delete_template(template_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2018, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2018)
 
     await ProjectPublisher.chat_template_deleted(project, template_uid)
 

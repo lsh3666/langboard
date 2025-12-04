@@ -1,6 +1,6 @@
 from fastapi import status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.utils.Converter import convert_python_data
 from langboard_shared.domain.models import (
@@ -74,7 +74,7 @@ async def get_project_details(
 ) -> JsonResponse:
     result = await service.project.get_details(user_or_bot, project_uid, is_setting=True)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     project, response = result
     (
         project_internal_bots,
@@ -116,7 +116,7 @@ async def change_project_details(
 ) -> JsonResponse:
     result = await service.project.update(user_or_bot, project_uid, form.model_dump())
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     return JsonResponse()
 
@@ -134,7 +134,7 @@ async def change_project_internal_bot(
 ) -> JsonResponse:
     result = await service.project.change_internal_bot(project_uid, form.internal_bot_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2019, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2019)
 
     return JsonResponse()
 
@@ -154,7 +154,7 @@ async def change_project_internal_bot_settings(
         project_uid, form.bot_type, form.use_default_prompt, form.prompt
     )
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2019, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2019)
 
     return JsonResponse()
 
@@ -171,7 +171,7 @@ async def update_project_user_roles(
 ) -> JsonResponse:
     result = await service.project.update_user_roles(project_uid, user_uid, form.roles)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2006, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2006)
 
     return JsonResponse()
 
@@ -195,7 +195,7 @@ async def create_project_label(
 ) -> JsonResponse:
     result = await service.project_label.create(user_or_bot, project_uid, form.name, form.color, form.description)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     _, api_label = result
 
     return JsonResponse(content={"label": api_label}, status_code=status.HTTP_201_CREATED)
@@ -232,7 +232,7 @@ async def change_project_label_details(
 ) -> JsonResponse:
     result = await service.project_label.update(user_or_bot, project_uid, label_uid, form.model_dump())
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2007, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
     if result is True:
         response = {}
@@ -262,7 +262,7 @@ async def change_project_label_order(
 ) -> JsonResponse:
     result = await service.project_label.change_order(project_uid, label_uid, form.order)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2007, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
     return JsonResponse()
 
@@ -284,7 +284,7 @@ async def delete_label(
 ) -> JsonResponse:
     result = await service.project_label.delete(user_or_bot, project_uid, label_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2007, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
     return JsonResponse()
 
@@ -301,13 +301,13 @@ async def delete_project(
 ) -> JsonResponse:
     project = await service.project.get_by_id_like(project_uid)
     if project is None:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     if project.owner_id != user.id and not user.is_admin:
-        return JsonResponse(content=ApiErrorCode.PE2001, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2001)
 
     result = await service.project.delete(user, project_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     return JsonResponse()

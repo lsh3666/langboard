@@ -1,8 +1,8 @@
-from fastapi import Depends, status
+from fastapi import Depends
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
-from langboard_shared.domain.models import BotLog, CardBotLog, ProjectColumn, ProjectColumnBotLog, ProjectRole
+from langboard_shared.domain.models import BotLog, ProjectColumn, ProjectColumnBotLog, ProjectRole
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
 from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
@@ -17,7 +17,7 @@ from ..forms import BotLogPagination
     description="Get all bot logs for a specific column.",
     responses=(
         OpenApiSchema()
-        .suc({"logs": [(BotLog, {"schema": CardBotLog.api_schema()})], "target": ProjectColumn})
+        .suc({"logs": [(BotLog, ProjectColumnBotLog)], "target": ProjectColumn})
         .auth()
         .forbidden()
         .err(404, ApiErrorCode.NF2014)
@@ -34,11 +34,11 @@ async def get_bot_logs_by_column(
 ) -> JsonResponse:
     bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
-        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
     column = await service.project_column.get_by_id_like(column_uid)
     if not column:
-        return JsonResponse(content=ApiErrorCode.NF2014, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
     logs = await service.bot_log.get_api_list_by_scope(ProjectColumnBotLog, bot, column, pagination)
 

@@ -1,6 +1,6 @@
-from fastapi import Depends, status
+from fastapi import Depends
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse, SocketTopic
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse, SocketTopic
 from langboard_shared.domain.models import Card, CardMetadata, Project, ProjectRole
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
 from langboard_shared.domain.services import DomainService
@@ -26,7 +26,7 @@ async def get_card_metadata(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     _, card = params
 
     metadata = await service.metadata.get_all_as_api(CardMetadata, card, as_dict=True)
@@ -50,7 +50,7 @@ async def get_card_metadata_by_key(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     _, card = params
 
     metadata = await service.metadata.get_by_key_as_api(CardMetadata, card, get_query.key)
@@ -72,12 +72,12 @@ async def save_card_metadata(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2016, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2016)
     _, card = params
 
     metadata = await service.metadata.save(CardMetadata, card, form.key, form.value, form.old_key)
     if metadata is None:
-        return JsonResponse(content=ApiErrorCode.NF2016, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2016)
 
     await MetadataPublisher.updated_metadata(SocketTopic.BoardCard, card.get_uid(), form.key, form.value, form.old_key)
     return JsonResponse()
@@ -97,7 +97,7 @@ async def delete_card_metadata(
 ) -> JsonResponse:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2003, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     _, card = params
 
     await service.metadata.delete(CardMetadata, card, form.keys)

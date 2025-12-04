@@ -1,6 +1,6 @@
 from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Card, Checkitem, Project, ProjectColumn, User
 from langboard_shared.domain.services import DomainService
@@ -11,17 +11,7 @@ from .DashboardForm import DashboardPagination, DashboardProjectCreateForm
 @AppRouter.api.get(
     "/dashboard/user/projects/starred",
     tags=["Dashboard"],
-    responses=(
-        OpenApiSchema()
-        .suc(
-            {
-                "projects": [Project],
-            }
-        )
-        .auth()
-        .forbidden()
-        .get()
-    ),
+    responses=OpenApiSchema().suc({"projects": [Project]}).auth().forbidden().get(),
 )
 @AuthFilter.add("user")
 async def get_starred_projects(
@@ -89,7 +79,7 @@ async def toggle_star_project(
 ) -> JsonResponse:
     result = await service.project.toggle_star(user, project_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     return JsonResponse()
 

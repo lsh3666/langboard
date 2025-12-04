@@ -12,13 +12,13 @@ def MissingException(
     )
 
 
-class InvalidError(BaseModel):
+class ValidationFailureInfo(BaseModel):
     loc: Literal["body", "query", "path", "header"]
     field: str
     inputs: dict = {}
 
 
-def InvalidException(*errors: InvalidError) -> RequestValidationError:
+def ValidationFailureException(*errors: ValidationFailureInfo) -> RequestValidationError:
     return RequestValidationError(
         errors=[
             {

@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from langboard_shared.core.db import DbSession, SqlBuilder
 from langboard_shared.core.logger import Logger
 from langboard_shared.core.resources import get_resource_path
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.types import SnowflakeID
 from langboard_shared.domain.models import BotLog
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
@@ -26,7 +26,7 @@ from ..core.schema.Exception import APIException, InvalidChatInputError
 async def run_flow(api_request: FlowRequestModel, stream: bool = False, service: DomainService = DomainService.scope()):
     result = _get_flow_json(api_request)
     if isinstance(result, ApiErrorCode):
-        return JsonResponse(content=result, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(result)
 
     bot, bot_json = result
     graph = await aload_flow_from_json(flow=json_loads(bot_json), tweaks=api_request.tweaks)

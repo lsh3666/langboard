@@ -1,7 +1,6 @@
-from fastapi import status
 from langboard_shared.ai import BotScopeHelper
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Bot, Card, Project, ProjectColumn, ProjectRole
 from langboard_shared.domain.models.bases import BaseBotScopeModel
@@ -18,27 +17,25 @@ from ..forms import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerCond
 @AppRouter.api.post(
     "/bot/{bot_uid}/scope",
     tags=["Bot.Scope"],
-    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2001).err(404, ApiErrorCode.NF3001).get(),
+    responses=OpenApiSchema().auth().forbidden().err(400, ApiErrorCode.VA3003).err(404, ApiErrorCode.NF2020).get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
 async def create_bot_scope_in_project(
-    bot_uid: str,
-    form: CreateBotScopeForm,
-    service: DomainService = DomainService.scope(),
+    bot_uid: str, form: CreateBotScopeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = BotHelper.get_target_model_by_param("scope", form.target_table, form.target_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.VA3003, status_code=status.HTTP_400_BAD_REQUEST)
+        raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
     scope_model_class, target_scope = result
 
     bot = await service.bot.get_by_id_like(bot_uid)
     if not bot:
-        return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
     bot_scope = BotScopeHelper.create(scope_model_class, bot, target_scope, form.conditions)
     if not bot_scope:
-        return JsonResponse(content=ApiErrorCode.NF3001, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
     if isinstance(target_scope, (Project, Card, ProjectColumn)):
         if isinstance(target_scope, Project):
@@ -56,7 +53,7 @@ async def create_bot_scope_in_project(
 @AppRouter.api.put(
     "/bot/{bot_uid}/scope/{bot_scope_uid}/trigger-condition",
     tags=["Bot.Scope"],
-    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2001).err(404, ApiErrorCode.NF2020).get(),
+    responses=OpenApiSchema().auth().forbidden().err(400, ApiErrorCode.VA3003).err(404, ApiErrorCode.NF2020).get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
@@ -68,20 +65,17 @@ async def toggle_bot_trigger_condition(
 ) -> JsonResponse:
     scope_model_class = BotHelper.get_bot_model_class("scope", form.target_table)
     if not scope_model_class:
-        return JsonResponse(content=ApiErrorCode.VA3003, status_code=status.HTTP_400_BAD_REQUEST)
+        raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
 
     params = InfraHelper.get_records_with_foreign_by_params((Bot, bot_uid), (scope_model_class, bot_scope_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2020, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
     _, bot_scope = params
 
     target_scope = _get_target_scope(bot_scope, form.target_table)
-    if isinstance(target_scope, JsonResponse):
-        return target_scope
-
     result = BotScopeHelper.toggle_trigger_condition(scope_model_class, bot_scope, form.condition)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2020, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
     if isinstance(target_scope, (Project, Card, ProjectColumn)):
         if isinstance(target_scope, Project):
@@ -99,7 +93,7 @@ async def toggle_bot_trigger_condition(
 @AppRouter.api.delete(
     "/bot/{bot_uid}/scope/{bot_scope_uid}",
     tags=["Bot.Scope"],
-    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2001).err(404, ApiErrorCode.NF2020).get(),
+    responses=OpenApiSchema().auth().forbidden().err(400, ApiErrorCode.VA3003).err(404, ApiErrorCode.NF2020).get(),
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
@@ -111,17 +105,14 @@ async def delete_bot_scope(
 ) -> JsonResponse:
     scope_model_class = BotHelper.get_bot_model_class("scope", form.target_table)
     if not scope_model_class:
-        return JsonResponse(content=ApiErrorCode.VA3003, status_code=status.HTTP_400_BAD_REQUEST)
+        raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
 
     params = InfraHelper.get_records_with_foreign_by_params((Bot, bot_uid), (scope_model_class, bot_scope_uid))
     if not params:
-        return JsonResponse(content=ApiErrorCode.NF2020, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
     _, bot_scope = params
 
     target_scope = _get_target_scope(bot_scope, form.target_table)
-    if isinstance(target_scope, JsonResponse):
-        return target_scope
-
     BotScopeHelper.delete(scope_model_class, bot_scope)
 
     if isinstance(target_scope, (Project, Card, ProjectColumn)):
@@ -139,10 +130,10 @@ async def delete_bot_scope(
 def _get_target_scope(bot_scope: BaseBotScopeModel, target_table: str):
     target_id = bot_scope.__dict__.get(bot_scope.get_scope_column_name())
     if not target_id:
-        return JsonResponse(content=ApiErrorCode.NF2020, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
     result = BotHelper.get_target_model_by_param("scope", target_table, target_id)
     if not result:
-        return JsonResponse(content=ApiErrorCode.VA3004, status_code=status.HTTP_400_BAD_REQUEST)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
     _, target_scope = result
     return target_scope

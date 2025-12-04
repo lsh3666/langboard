@@ -33,7 +33,8 @@ class UserNotificationSettingService(BaseDomainService):
             if not unsub.specific_id:
                 continue
 
-            unsubs_type[unsub.channel.value] = []
+            if unsub.channel.value not in unsubs_type:
+                unsubs_type[unsub.channel.value] = []
             cast(list, unsubs_type[unsub.channel.value]).append(unsub.specific_id.to_short_code())
         return unsubs
 

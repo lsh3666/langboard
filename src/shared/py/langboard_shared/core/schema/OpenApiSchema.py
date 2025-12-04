@@ -20,7 +20,7 @@ class OpenApiSchema:
                             "code": ApiErrorCode.VA0000.name,
                             "message": ApiErrorCode.VA0000.value,
                             "errors": {
-                                "Literal[body, query, path, header]": {
+                                "Enum[body, query, path, header]": {
                                     "location": ["<field name>"],
                                 },
                             },
@@ -36,12 +36,11 @@ class OpenApiSchema:
                 "content": self.__empty_schema(),
             }
 
-    def suc(self, schema: dict[str, Any], status_code: Literal[200, 201, 202, 204] = 200) -> Self:
+    def suc(self, schema: Any, status_code: Literal[200, 201, 202, 204] = 200) -> Self:
         if status_code != 200:
             self.__schema.pop(status.HTTP_200_OK, None)
 
-        for key, value in schema.items():
-            schema[key] = self.__make_schema_recursive(value)
+        schema = self.__make_schema_recursive(schema)
 
         self.__schema[status_code] = {
             "description": "Successful response.",
@@ -49,8 +48,9 @@ class OpenApiSchema:
         }
         return self
 
-    def err(self, status_code: int, error_code: ApiErrorCode) -> Self:
-        self.__errors.append((status_code, error_code))
+    def err(self, status_code: int, *error_codes: ApiErrorCode) -> Self:
+        for error_code in error_codes:
+            self.__errors.append((status_code, error_code))
         return self
 
     def auth(self, only_bot: bool = False) -> Self:
@@ -74,12 +74,9 @@ class OpenApiSchema:
 
     def __make_schema_recursive(self, value: Any) -> Any:
         if isinstance(value, type) and issubclass(value, Enum):
-            return f"Literal[{', '.join([enum_value.value for enum_value in value])}]"
+            return f"Enum[{', '.join([enum_value.value for enum_value in value])}]"
 
-        if isinstance(value, type) and issubclass(value, BaseSqlModel):
-            return self.__make_schema_recursive(value.api_schema())
-
-        if hasattr(value, "api_schema"):
+        if (isinstance(value, type) and issubclass(value, BaseSqlModel)) or hasattr(value, "api_schema"):
             return self.__make_schema_recursive(value.api_schema())
 
         if isinstance(value, dict):
@@ -91,15 +88,37 @@ class OpenApiSchema:
                     new_dict[cast(str, key)] = self.__make_schema_recursive(dict_value)
             return new_dict
 
-        if (
-            isinstance(value, tuple)
-            and len(value) == 2
-            and ((isinstance(value[0], type) and issubclass(value[0], BaseSqlModel)) or hasattr(value[0], "api_schema"))
-        ):
-            if isinstance(value[1], tuple):
-                return self.__make_schema_recursive(value[0].api_schema(*value[1]))
+        if isinstance(value, tuple):
+            if len(value) == 2 and isinstance(value[1], (dict, tuple)):
+                if (isinstance(value[0], type) and issubclass(value[0], BaseSqlModel)) or hasattr(
+                    value[0], "api_schema"
+                ):
+                    if isinstance(value[1], tuple):
+                        return self.__make_schema_recursive(value[0].api_schema(*value[1]))
+                    else:
+                        return self.__make_schema_recursive(value[0].api_schema(**value[1]))
+                elif isinstance(value[0], (tuple, list)):
+                    merged_schema = {}
+                    for item in value[0]:
+                        if not (isinstance(item, type) and issubclass(item, BaseSqlModel)) and not hasattr(
+                            item, "api_schema"
+                        ):
+                            continue
+
+                        if isinstance(value[1], tuple):
+                            merged_schema.update(self.__make_schema_recursive(item.api_schema(*value[1])))
+                        else:
+                            merged_schema.update(self.__make_schema_recursive(item.api_schema(**value[1])))
+                    return merged_schema
             else:
-                return self.__make_schema_recursive(value[0].api_schema(**value[1]))
+                merged_schema = {}
+                for item in value:
+                    if not (isinstance(item, type) and issubclass(item, BaseSqlModel)) and not hasattr(
+                        item, "api_schema"
+                    ):
+                        continue
+                    merged_schema.update(self.__make_schema_recursive(item.api_schema()))
+                return merged_schema
 
         if isinstance(value, list):
             new_list: list = []

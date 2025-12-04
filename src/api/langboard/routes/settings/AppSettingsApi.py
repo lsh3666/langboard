@@ -1,6 +1,6 @@
 from fastapi import status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import AppSetting, Bot, GlobalCardRelationshipType, InternalBot
 from langboard_shared.domain.models.AppSetting import AppSettingType
@@ -58,7 +58,7 @@ async def get_all_settings(service: DomainService = DomainService.scope()) -> Js
 async def get_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     setting = await service.app_setting.get_by_id_like(setting_uid)
     if not setting:
-        return JsonResponse(content=ApiErrorCode.NF3002, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3002)
     return JsonResponse(content={"setting": setting.api_response()})
 
 
@@ -92,7 +92,7 @@ async def update_setting(
 ) -> JsonResponse:
     result = await service.app_setting.update(setting_uid, form.setting_name, form.setting_value)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3002, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 
     return JsonResponse()
 
@@ -106,7 +106,7 @@ async def update_setting(
 async def delete_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     result = await service.app_setting.delete(setting_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3002, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 
     return JsonResponse()
 
@@ -122,6 +122,6 @@ async def delete_selected_settings(
 ) -> JsonResponse:
     result = await service.app_setting.delete_selected(form.setting_uids)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF3002, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 
     return JsonResponse()

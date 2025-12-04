@@ -78,7 +78,7 @@ async def batch_apis(request: Request, form: BatchForm, user_or_bot: User | Bot 
 
         await AppRouter.get_app()(scope, receive, send)
 
-    return JsonResponse(content=responses, status_code=status.HTTP_200_OK)
+    return JsonResponse(content=responses)
 
 
 def _query_dict_to_bytes(query: dict) -> bytes:

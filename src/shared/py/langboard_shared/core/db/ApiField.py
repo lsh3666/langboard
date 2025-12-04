@@ -63,7 +63,10 @@ class ApiField:
                 annotation = field_info.annotation
                 schema_name, requirement = ApiField.__get_annotation_arg_schemas(api_field, annotation)
             if schema_name:
-                api_schema[api_name] = f"{schema_name}{'' if requirement == 'required' else '?'}"
+                if isinstance(schema_name, str):
+                    api_schema[api_name] = f"{schema_name}{'' if requirement == 'required' else '?'}"
+                elif isinstance(schema_name, list):
+                    api_schema[f"{api_name}{'' if requirement == 'required' else '?'}"] = schema_name
 
         return api_schema
 
@@ -84,7 +87,7 @@ class ApiField:
     @staticmethod
     def __get_annotation_arg_schemas(
         api_field: "ApiField", annotation: Any
-    ) -> tuple[str, Literal["required", "optional"]] | tuple[None, None]:
+    ) -> tuple[str | list, Literal["required", "optional"]] | tuple[None, None]:
         is_union = (
             isinstance(annotation, UnionType)
             or isinstance(annotation, _UnionGenericAlias)
@@ -92,14 +95,15 @@ class ApiField:
             and annotation.__origin__ is Union
         )
         is_optional = False
-        schema_name: str | None = None
+        schema_name: str | list | None = None
         if is_union:
             schema_names, is_optional = ApiField.__get_iterable_arg_schema_names(api_field, annotation)
             if schema_names:
+                schema_names = [name if isinstance(name, str) else json.dumps(name) for name in schema_names]
                 schema_name = " | ".join(schema_names)
         elif isinstance(annotation, type):
             if issubclass(annotation, Enum):
-                schema_name = f"Literal[{', '.join([running_type.value for running_type in annotation])}]"
+                schema_name = f"Enum[{', '.join([running_type.value for running_type in annotation])}]"
             elif issubclass(annotation, BaseModel):
                 if api_field.__field_base_model:
                     base_model_field: FieldInfo | None = annotation.model_fields.get(api_field.__field_base_model)
@@ -123,8 +127,8 @@ class ApiField:
         return schema_name, "optional" if is_optional else "required"
 
     @staticmethod
-    def __get_origin_name(api_field: "ApiField", annotation: Any, is_optional: bool) -> tuple[str | None, bool]:
-        schema_name: str | None = None
+    def __get_origin_name(api_field: "ApiField", annotation: Any, is_optional: bool) -> tuple[str | list | None, bool]:
+        schema_name: str | list | None = None
         origin = get_origin(annotation) or annotation
         if origin.__name__ == "str":
             schema_name = "string"
@@ -137,15 +141,13 @@ class ApiField:
         elif origin.__name__ == "dict":
             schema_name = "object"
         elif origin.__name__ in ("list", "List"):
-            schema_names, is_optional = ApiField.__get_iterable_arg_schema_names(api_field, annotation)
-            if schema_names:
-                schema_name = f"Array[{', '.join(schema_names)}]"
+            schema_name, is_optional = ApiField.__get_iterable_arg_schema_names(api_field, annotation)
         return schema_name, is_optional
 
     @staticmethod
-    def __get_iterable_arg_schema_names(api_field: "ApiField", annotation: Any) -> tuple[list[str], bool]:
+    def __get_iterable_arg_schema_names(api_field: "ApiField", annotation: Any) -> tuple[list[str | list | dict], bool]:
         args = get_args(annotation)
-        schema_names: list[str] = []
+        schema_names: list[str | list | dict] = []
         is_optional = False
         for arg in args:
             if arg is type(None):
@@ -153,8 +155,6 @@ class ApiField:
                 continue
             arg_schema_name, _ = ApiField.__get_annotation_arg_schemas(api_field, arg)
             if arg_schema_name:
-                if isinstance(arg_schema_name, dict):
-                    arg_schema_name = json.dumps(arg_schema_name, indent=4)
                 schema_names.append(arg_schema_name)
         return schema_names, is_optional
 

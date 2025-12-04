@@ -1,6 +1,5 @@
-from fastapi import status
 from langboard_shared.core.filter import AuthFilter
-from langboard_shared.core.routing import ApiErrorCode, AppRouter, JsonResponse
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.domain.models import Bot, ProjectRole, User
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
@@ -29,7 +28,7 @@ async def change_checkitem_title(
 ) -> JsonResponse:
     result = await service.checkitem.change_title(user_or_bot, project_uid, card_uid, checkitem_uid, form.title)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     return JsonResponse()
 
@@ -48,12 +47,11 @@ async def change_checkitem_order_or_move_checklist(
     card_uid: str,
     checkitem_uid: str,
     form: ChangeChildOrderForm,
-    user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
     result = await service.checkitem.change_order(project_uid, card_uid, checkitem_uid, form.order, form.parent_uid)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     return JsonResponse()
 
@@ -76,14 +74,14 @@ async def change_checkitem_status(
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     if checkitem.user_id and checkitem.user_id != user.id:
-        return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2003)
 
     result = await service.checkitem.change_status(user, project_uid, card_uid, checkitem, form.status, from_api=True)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     return JsonResponse()
 
@@ -107,16 +105,16 @@ async def cardify_checkitem(
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     if checkitem.user_id and checkitem.user_id != user_or_bot.id:
-        return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2003)
 
     cardified_card = await service.checkitem.cardify(
         user_or_bot, project_uid, card_uid, checkitem, form.project_column_uid
     )
     if not cardified_card:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     return JsonResponse()
 
@@ -139,14 +137,14 @@ async def toggle_checkitem_checked(
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     if checkitem.user_id and checkitem.user_id != user_or_bot.id:
-        return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2003)
 
     result = await service.checkitem.toggle_checked(user_or_bot, project_uid, card_uid, checkitem)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     return JsonResponse()
 
@@ -169,13 +167,12 @@ async def delete_checkitem(
 ) -> JsonResponse:
     checkitem = await service.checkitem.get_by_id_like(checkitem_uid)
     if not checkitem:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
 
     if checkitem.user_id and checkitem.user_id != user_or_bot.id:
-        return JsonResponse(content=ApiErrorCode.PE2003, status_code=status.HTTP_403_FORBIDDEN)
+        raise ApiException.Forbidden_403(ApiErrorCode.PE2003)
 
     result = await service.checkitem.delete(user_or_bot, project_uid, card_uid, checkitem)
     if not result:
-        return JsonResponse(content=ApiErrorCode.NF2011, status_code=status.HTTP_404_NOT_FOUND)
-
+        raise ApiException.NotFound_404(ApiErrorCode.NF2011)
     return JsonResponse()

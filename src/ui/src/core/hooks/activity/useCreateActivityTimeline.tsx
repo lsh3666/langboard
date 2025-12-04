@@ -106,6 +106,7 @@ const useCreateActivityTimeline = (currentUser: AuthUser.TModel, viewType: TActi
                 case "project":
                     components.Project = <ProjectComponent project={value} references={{ ...history, ...references }} />;
                     break;
+                case "project_column":
                 case "column":
                     components.Column = <ProjectColumnComponent column={value} references={{ ...history, ...references }} />;
                     break;
@@ -115,6 +116,7 @@ const useCreateActivityTimeline = (currentUser: AuthUser.TModel, viewType: TActi
                 case "label":
                     components.Label = <ProjectLabelComponent label={value} references={{ ...history, ...references }} />;
                     break;
+                case "project_wiki":
                 case "wiki":
                     components.Wiki = <ProjectWikiComponent wiki={value} references={{ ...history, ...references }} />;
                     break;

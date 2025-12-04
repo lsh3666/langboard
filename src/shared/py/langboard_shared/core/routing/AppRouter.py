@@ -110,7 +110,7 @@ class AppRouter:
                     "title": "Error Type",
                     "type": "object",
                     "properties": {
-                        "Literal[body, query, path, header]": {
+                        "Enum[body, query, path, header]": {
                             "title": "Location",
                             "type": "array",
                             "items": {"anyOf": [{"type": "string", "example": "<field name>"}]},
@@ -124,6 +124,8 @@ class AppRouter:
 
     def set_app(self, app: FastAPI):
         self.__app = app
+        self.__app.title = Env.PROJECT_NAME.capitalize()
+        self.__app.version = Env.PROJECT_VERSION
 
     def create_schema_files(self, schema_dir: str | Path):
         schema_dir = Path(schema_dir)

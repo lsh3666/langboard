@@ -69,6 +69,14 @@ class Env:
         )
 
     @property
+    def FLOWS_PORT(self) -> int:
+        return int(self.__get_from_cache("FLOWS_PORT", "5019"))
+
+    @property
+    def DEFAULT_FLOWS_URL(self) -> str:
+        return self.__get_from_cache("DEFAULT_FLOWS_URL", "http://127.0.0.1:5019")
+
+    @property
     def DOMAIN(self) -> str | None:
         return self.__get_from_cache("DOMAIN", None)
 
@@ -212,14 +220,6 @@ class Env:
     @property
     def MAIL_SSL_TLS(self) -> bool:
         return self.__get_from_cache("MAIL_SSL_TLS", "false") == "true"
-
-    @property
-    def FLOWS_PORT(self) -> int:
-        return int(self.__get_from_cache("FLOWS_PORT", "5019"))
-
-    @property
-    def DEFAULT_FLOWS_URL(self) -> str:
-        return self.__get_from_cache("DEFAULT_FLOWS_URL", "http://127.0.0.1:5019")
 
     @property
     def WORKER(self) -> str:
