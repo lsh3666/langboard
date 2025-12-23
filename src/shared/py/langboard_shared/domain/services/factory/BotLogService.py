@@ -15,7 +15,7 @@ class BotLogService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "bot_log"
 
-    async def get_api_list_by_scope(
+    def get_api_list_by_scope(
         self,
         log_model_class: type[_TBotLogModel],
         bot: Bot,

@@ -15,9 +15,9 @@ _BROADCAST_DIR: Path = Env.DATA_DIR / "broadcast"
 
 class BaseDispatcherQueue(ABC):
     @abstractmethod
-    async def put(self, event: str | BaseModel, data: dict[str, Any] | None = None): ...
+    def put(self, event: str | BaseModel, data: dict[str, Any] | None = None): ...
 
-    async def _record_model(
+    def _record_model(
         self, event: str | DispatcherModel, data: dict[str, Any] | None = None, file_only: bool = False
     ) -> str:
         now_str = str(SafeDateTime.now().timestamp()).replace(".", "_")
@@ -28,7 +28,7 @@ class BaseDispatcherQueue(ABC):
         if Env.CACHE_TYPE == "redis":
             cache_key = f"broadcast-{now_str}-{random_str}"
             # Prevent enums from being Enum.Name
-            await Cache.set(cache_key, json_loads(model.model_dump_json())["data"], 3 * 60)
+            Cache.set(cache_key, json_loads(model.model_dump_json())["data"], 3 * 60)
             return cache_key
 
         name = f"{now_str}-{random_str}.json" if not file_only else f"{now_str}-{random_str}-fileonly.json"

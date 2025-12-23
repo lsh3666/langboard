@@ -1,3 +1,4 @@
+import asyncio
 from json import loads as json_loads
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from pydantic import SecretStr
@@ -13,9 +14,7 @@ class EmailService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "email"
 
-    async def send_template(
-        self, lang: str, to: str, template_name: TEmailTemplateName, formats: dict[str, str]
-    ) -> bool:
+    def send_template(self, lang: str, to: str, template_name: TEmailTemplateName, formats: dict[str, str]) -> bool:
         if not self.__create_config():
             return False
 
@@ -38,7 +37,7 @@ class EmailService(BaseDomainService):
 
         fm = FastMail(self.__config)
         try:
-            await fm.send_message(message)
+            asyncio.run(fm.send_message(message))
         except Exception:
             if Env.ENVIRONMENT == "development":
                 return True

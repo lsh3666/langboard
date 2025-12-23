@@ -6,7 +6,7 @@ from .User import User
 
 class UserEmail(SoftDeleteModel, table=True):
     user_id: SnowflakeID = SnowflakeIDField(foreign_key=User, nullable=False, index=True)
-    email: str = Field(nullable=False, api_field=ApiField())
+    email: str = Field(nullable=False, index=True, api_field=ApiField())
     verified_at: SafeDateTime | None = DateTimeField(default=None, nullable=True, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:

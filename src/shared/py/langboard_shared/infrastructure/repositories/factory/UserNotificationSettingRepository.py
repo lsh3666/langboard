@@ -61,14 +61,14 @@ class UserNotificationSettingRepository(BaseRepository[UserNotificationUnsubscri
                     )
                 return _QueryBuilder(query)
 
-            async def all(self):
+            def all(self):
                 records = []
                 with DbSession.use(readonly=True) as db:
                     result = db.exec(self.__query)
                     records = result.all()
                 return records
 
-            async def first(self):
+            def first(self):
                 record = None
                 with DbSession.use(readonly=True) as db:
                     result = db.exec(self.__query)

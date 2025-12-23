@@ -8,7 +8,7 @@ from ..domain.models import Card, Checkitem, Project, ProjectColumn, ProjectLabe
 @staticclass
 class CardPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(project: Project, column: ProjectColumn, model: dict[str, Any]):
+    def created(project: Project, column: ProjectColumn, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_models = [
             SocketPublishModel(
@@ -25,10 +25,10 @@ class CardPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CardPublisher.put_dispather(model, publish_models)
+        CardPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def updated(
+    def updated(
         project: Project,
         card: Card,
         checkitem_cardified_from: Checkitem | None,
@@ -71,10 +71,10 @@ class CardPublisher(BaseSocketPublisher):
                 ]
             )
 
-        await CardPublisher.put_dispather(model, publish_models)
+        CardPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def order_changed(
+    def order_changed(
         project: Project,
         card: Card,
         old_column: ProjectColumn,
@@ -150,10 +150,10 @@ class CardPublisher(BaseSocketPublisher):
                 )
             )
 
-        await CardPublisher.put_dispather(model, publish_models)
+        CardPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def assigned_users_updated(project: Project, card: Card, users: list[User]):
+    def assigned_users_updated(project: Project, card: Card, users: list[User]):
         model = {"member_uids": [user.get_uid() for user in users]}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -162,10 +162,10 @@ class CardPublisher(BaseSocketPublisher):
             data_keys="member_uids",
         )
 
-        await CardPublisher.put_dispather(model, publish_model)
+        CardPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def labels_updated(project: Project, card: Card, labels: list[ProjectLabel]):
+    def labels_updated(project: Project, card: Card, labels: list[ProjectLabel]):
         model = {"labels": [label.api_response() for label in labels]}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -174,10 +174,10 @@ class CardPublisher(BaseSocketPublisher):
             data_keys="labels",
         )
 
-        await CardPublisher.put_dispather(model, publish_model)
+        CardPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deleted(project: Project, card: Card):
+    def deleted(project: Project, card: Card):
         topic_id = project.get_uid()
         card_uid = card.get_uid()
         column_uid = card.project_column_id.to_short_code()
@@ -198,10 +198,10 @@ class CardPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CardPublisher.put_dispather({}, publish_models)
+        CardPublisher.put_dispather({}, publish_models)
 
     @staticmethod
-    async def bot_status_changed(project_uid: str, bot_uid: str, card_uid: str, status: Literal["running", "stopped"]):
+    def bot_status_changed(project_uid: str, bot_uid: str, card_uid: str, status: Literal["running", "stopped"]):
         data = {
             "bot_uid": bot_uid,
             "card_uid": card_uid,
@@ -215,4 +215,4 @@ class CardPublisher(BaseSocketPublisher):
             data_keys=list(data.keys()),
         )
 
-        await CardPublisher.put_dispather(data, publish_model)
+        CardPublisher.put_dispather(data, publish_model)

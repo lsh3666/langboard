@@ -14,10 +14,10 @@ from .DashboardForm import DashboardPagination, DashboardProjectCreateForm
     responses=OpenApiSchema().suc({"projects": [Project]}).auth().forbidden().get(),
 )
 @AuthFilter.add("user")
-async def get_starred_projects(
+def get_starred_projects(
     user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    projects = await service.project.get_api_starred_project_list(user)
+    projects = service.project.get_api_starred_project_list(user)
 
     return JsonResponse(content={"projects": projects})
 
@@ -49,8 +49,8 @@ async def get_starred_projects(
     ),
 )
 @AuthFilter.add("user")
-async def get_projects(user: User = Auth.scope("user"), service: DomainService = DomainService.scope()) -> JsonResponse:
-    projects, columns = await service.project.get_api_list_with_columns(user)
+def get_projects(user: User = Auth.scope("user"), service: DomainService = DomainService.scope()) -> JsonResponse:
+    projects, columns = service.project.get_api_list_with_columns(user)
 
     return JsonResponse(content={"projects": projects, "columns": columns})
 
@@ -61,10 +61,10 @@ async def get_projects(user: User = Auth.scope("user"), service: DomainService =
     responses=OpenApiSchema().suc({"project_uid": "string"}, 201).auth().forbidden().get(),
 )
 @AuthFilter.add("user")
-async def create_project(
+def create_project(
     form: DashboardProjectCreateForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ):
-    project = await service.project.create(user, form.title, form.description, form.project_type)
+    project = service.project.create(user, form.title, form.description, form.project_type)
     return JsonResponse(content={"project_uid": project.get_uid()}, status_code=status.HTTP_201_CREATED)
 
 
@@ -74,10 +74,10 @@ async def create_project(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF2001).get(),
 )
 @AuthFilter.add("user")
-async def toggle_star_project(
+def toggle_star_project(
     project_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.toggle_star(user, project_uid)
+    result = service.project.toggle_star(user, project_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
@@ -101,12 +101,12 @@ async def toggle_star_project(
     ),
 )
 @AuthFilter.add("user")
-async def get_card_list(
+def get_card_list(
     pagination: DashboardPagination = Depends(),
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    cards, projects = await service.card.get_dashboard_list(user, pagination)
+    cards, projects = service.card.get_dashboard_list(user, pagination)
 
     return JsonResponse(content={"cards": cards, "projects": projects})
 
@@ -140,11 +140,11 @@ async def get_card_list(
     ),
 )
 @AuthFilter.add("user")
-async def track_checkitems(
+def track_checkitems(
     pagination: DashboardPagination = Depends(),
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    checkitems, cards, projects = await service.checkitem.get_tracking_list(user, pagination)
+    checkitems, cards, projects = service.checkitem.get_tracking_list(user, pagination)
 
     return JsonResponse(content={"checkitems": checkitems, "cards": cards, "projects": projects})

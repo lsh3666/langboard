@@ -23,7 +23,7 @@ from .AccountForm import (
 
 @AppRouter.api.put("/account/profile", tags=["Account"], responses=OpenApiSchema().auth().get())
 @AuthFilter.add("user")
-async def update_profile(
+def update_profile(
     form: UpdateProfileForm = UpdateProfileForm.scope(),
     avatar: UploadFile | None = File(None),
     user: User = Auth.scope("user"),
@@ -34,7 +34,7 @@ async def update_profile(
     if file_model:
         form_dict["avatar"] = file_model
 
-    await service.user.update(user, form_dict)
+    service.user.update(user, form_dict)
 
     return JsonResponse()
 
@@ -52,18 +52,18 @@ async def update_profile(
     ),
 )
 @AuthFilter.add("user")
-async def add_new_email(
+def add_new_email(
     form: AddNewEmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     cache_key = service.user.create_cache_name("subemail", user.email)
-    existed_user, subemail = await service.user.get_by_email(form.new_email)
+    existed_user, subemail = service.user.get_by_email(form.new_email)
     if not form.is_resend:
         if existed_user:
             raise ValidationFailureException(
                 ValidationFailureInfo(loc="body", field="new_email", inputs=form.model_dump())
             )
 
-        await service.user.create_subemail(user.id, form.new_email)
+        service.user.create_subemail(user.id, form.new_email)
     else:
         if not existed_user or existed_user.id != user.id or not subemail:
             raise ApiException.NotFound_404(ApiErrorCode.NF1001)
@@ -71,12 +71,12 @@ async def add_new_email(
         if subemail.verified_at:
             return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_304_NOT_MODIFIED)
 
-        await Cache.delete(cache_key)
+        Cache.delete(cache_key)
 
-    token_url = await service.user.create_token_url(
+    token_url = service.user.create_token_url(
         user, cache_key, UI_QUERY_NAMES.SUB_EMAIL_VERIFY_TOKEN, {"email": form.new_email}
     )
-    result = await service.email.send_template(
+    result = service.email.send_template(
         user.preferred_lang, form.new_email, "subemail", {"recipient": user.firstname, "url": token_url}
     )
     if not result:
@@ -98,12 +98,12 @@ async def add_new_email(
     ),
 )
 @AuthFilter.add("user")
-async def verify_subemail(form: VerifyNewEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
-    user, cache_key, extra = await service.user.validate_token_from_url("subemail", form.verify_token)
+def verify_subemail(form: VerifyNewEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    user, cache_key, extra = service.user.validate_token_from_url("subemail", form.verify_token)
     if not user or not cache_key or not extra or "email" not in extra:
         raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
-    existed_user, subemail = await service.user.get_by_email(extra["email"])
+    existed_user, subemail = service.user.get_by_email(extra["email"])
     if not existed_user or user.id != existed_user.id:
         raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
@@ -113,9 +113,9 @@ async def verify_subemail(form: VerifyNewEmailForm, service: DomainService = Dom
     if subemail.verified_at:
         return JsonResponse(content=ApiErrorCode.EX1001, status_code=status.HTTP_304_NOT_MODIFIED)
 
-    await service.user.verify_subemail(subemail)
+    service.user.verify_subemail(subemail)
 
-    await Cache.delete(cache_key)
+    Cache.delete(cache_key)
 
     return JsonResponse()
 
@@ -133,10 +133,10 @@ async def verify_subemail(form: VerifyNewEmailForm, service: DomainService = Dom
     ),
 )
 @AuthFilter.add("user")
-async def change_primary_email(
+def change_primary_email(
     form: EmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    existed_user, subemail = await service.user.get_by_email(form.email)
+    existed_user, subemail = service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
         raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
@@ -146,7 +146,7 @@ async def change_primary_email(
     if existed_user.email == form.email:
         return JsonResponse(content=ApiErrorCode.EX1002, status_code=status.HTTP_304_NOT_MODIFIED)
 
-    await service.user.change_primary_email(user, subemail)
+    service.user.change_primary_email(user, subemail)
     return JsonResponse()
 
 
@@ -156,23 +156,23 @@ async def change_primary_email(
     responses=OpenApiSchema().auth().err(404, ApiErrorCode.NF1001).err(406, ApiErrorCode.PE1002).get(),
 )
 @AuthFilter.add("user")
-async def delete_email(
+def delete_email(
     form: EmailForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    existed_user, subemail = await service.user.get_by_email(form.email)
+    existed_user, subemail = service.user.get_by_email(form.email)
     if not existed_user or existed_user.id != user.id or not subemail:
         raise ApiException.NotFound_404(ApiErrorCode.NF1001)
 
     if existed_user.email == form.email:
         raise ApiException.NotAcceptable_406(ApiErrorCode.PE1002)
 
-    await service.user.delete_email(subemail)
+    service.user.delete_email(subemail)
     return JsonResponse()
 
 
 @AppRouter.api.put("/account/password", tags=["Account"], responses=OpenApiSchema().auth().get())
 @AuthFilter.add("user")
-async def change_password(
+def change_password(
     form: ChangePasswordForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     if not user.check_password(form.current_password):
@@ -180,8 +180,8 @@ async def change_password(
             ValidationFailureInfo(loc="body", field="current_password", inputs=form.model_dump())
         )
 
-    await service.user.change_password(user, form.new_password)
-    await Auth.reset_user(user)
+    service.user.change_password(user, form.new_password)
+    Auth.reset_user(user)
 
     return JsonResponse()
 
@@ -192,12 +192,12 @@ async def change_password(
     responses=OpenApiSchema().suc({"user_group": (UserGroup, {"schema": {"users": [User]}})}, 201).auth().get(),
 )
 @AuthFilter.add("user")
-async def create_user_group(
+def create_user_group(
     form: CreateUserGroupForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    group = await service.user_group.create(user, form.name)
+    group = service.user_group.create(user, form.name)
     api_group = group.api_response()
-    api_group["users"] = await service.user_group.get_api_user_email_list_by_group(group.id)
+    api_group["users"] = service.user_group.get_api_user_email_list_by_group(group.id)
     return JsonResponse(content={"user_group": api_group}, status_code=status.HTTP_201_CREATED)
 
 
@@ -207,13 +207,13 @@ async def create_user_group(
     responses=OpenApiSchema().auth().err(404, ApiErrorCode.NF1003).get(),
 )
 @AuthFilter.add("user")
-async def change_user_group_name(
+def change_user_group_name(
     group_uid: str,
     form: CreateUserGroupForm,
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.user_group.change_name(user, group_uid, form.name)
+    result = service.user_group.change_name(user, group_uid, form.name)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
@@ -226,17 +226,17 @@ async def change_user_group_name(
     responses=OpenApiSchema().suc({"users": [User]}).auth().err(404, ApiErrorCode.NF1003).get(),
 )
 @AuthFilter.add("user")
-async def update_user_group_assigned_emails(
+def update_user_group_assigned_emails(
     group_uid: str,
     form: UpdateUserGroupAssignedEmailForm,
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.user_group.update_assigned_emails(user, group_uid, form.emails)
+    result = service.user_group.update_assigned_emails(user, group_uid, form.emails)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
-    group_users = await service.user_group.get_api_user_email_list_by_group(group_uid)
+    group_users = service.user_group.get_api_user_email_list_by_group(group_uid)
 
     return JsonResponse(content={"users": group_users})
 
@@ -247,10 +247,10 @@ async def update_user_group_assigned_emails(
     responses=OpenApiSchema().auth().err(404, ApiErrorCode.NF1003).get(),
 )
 @AuthFilter.add("user")
-async def delete_user_group(
+def delete_user_group(
     group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.user_group.delete(user, group_uid)
+    result = service.user_group.delete(user, group_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF1003)
 
@@ -263,10 +263,10 @@ async def delete_user_group(
     responses=OpenApiSchema().auth().err(404, ApiErrorCode.VA1003).get(),
 )
 @AuthFilter.add("user")
-async def update_preferred_language(
+def update_preferred_language(
     form: UpdatePreferredLangForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.user.update_preferred_lang(user, form.lang)
+    result = service.user.update_preferred_lang(user, form.lang)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.VA1003)
 

@@ -15,11 +15,11 @@ class CardAttachmentService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "card_attachment"
 
-    async def get_by_id_like(self, attachment: TAttachmentParam | None) -> CardAttachment | None:
+    def get_by_id_like(self, attachment: TAttachmentParam | None) -> CardAttachment | None:
         attachment = InfraHelper.get_by_id_like(CardAttachment, attachment)
         return attachment
 
-    async def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
         card = InfraHelper.get_by_id_like(Card, card)
         if not card:
             return []
@@ -29,7 +29,7 @@ class CardAttachmentService(BaseDomainService):
             for card_attachment, user in card_attachments
         ]
 
-    async def create(
+    def create(
         self, user: User, project: TProjectParam | None, card: TCardParam | None, attachment: FileModel
     ) -> CardAttachment | None:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
@@ -47,13 +47,13 @@ class CardAttachmentService(BaseDomainService):
 
         self.repo.card_attachment.insert(card_attachment)
 
-        await CardAttachmentPublisher.uploaded(user, card, card_attachment)
+        CardAttachmentPublisher.uploaded(user, card, card_attachment)
         CardAttachmentActivityTask.card_attachment_uploaded(user, project, card, card_attachment)
         CardAttachmentBotTask.card_attachment_uploaded(user, project, card, card_attachment)
 
         return card_attachment
 
-    async def change_order(
+    def change_order(
         self,
         project: TProjectParam | None,
         card: TCardParam | None,
@@ -71,11 +71,11 @@ class CardAttachmentService(BaseDomainService):
         card_attachment.order = order
         self.repo.card_attachment.update_column_order(card_attachment, card, old_order, order)
 
-        await CardAttachmentPublisher.order_changed(card, card_attachment)
+        CardAttachmentPublisher.order_changed(card, card_attachment)
 
         return True
 
-    async def change_name(
+    def change_name(
         self,
         user: User,
         project: TProjectParam | None,
@@ -95,13 +95,13 @@ class CardAttachmentService(BaseDomainService):
 
         self.repo.card_attachment.update(card_attachment)
 
-        await CardAttachmentPublisher.name_changed(card, card_attachment)
+        CardAttachmentPublisher.name_changed(card, card_attachment)
         CardAttachmentActivityTask.card_attachment_name_changed(user, project, card, old_name, card_attachment)
         CardAttachmentBotTask.card_attachment_name_changed(user, project, card, card_attachment)
 
         return True
 
-    async def delete(
+    def delete(
         self,
         user: User,
         project: TProjectParam | None,
@@ -118,7 +118,7 @@ class CardAttachmentService(BaseDomainService):
         self.repo.card_attachment.delete(card_attachment)
         self.repo.card_attachment.reoder_after_delete(card, card_attachment.order)
 
-        await CardAttachmentPublisher.deleted(card, card_attachment)
+        CardAttachmentPublisher.deleted(card, card_attachment)
         CardAttachmentActivityTask.card_attachment_deleted(user, project, card, card_attachment)
         CardAttachmentBotTask.card_attachment_deleted(user, project, card, card_attachment)
 

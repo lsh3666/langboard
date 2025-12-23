@@ -24,7 +24,7 @@ from .Form import CreateBotForm, UpdateBotForm
     ),
 )
 @AuthFilter.add("admin")
-async def create_bot(
+def create_bot(
     form: CreateBotForm = CreateBotForm.scope(),
     avatar: UploadFile | None = File(None),
     service: DomainService = DomainService.scope(),
@@ -43,7 +43,7 @@ async def create_bot(
     else:
         ip_whitelist = []
 
-    bot = await service.bot.create(
+    bot = service.bot.create(
         form.bot_name,
         form.bot_uname,
         form.platform,
@@ -88,13 +88,13 @@ async def create_bot(
     ),
 )
 @AuthFilter.add("admin")
-async def update_bot(
+def update_bot(
     bot_uid: str,
     form: UpdateBotForm = UpdateBotForm.scope(),
     avatar: UploadFile | None = File(None),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
@@ -109,14 +109,14 @@ async def update_bot(
     if file_model:
         form_dict["avatar"] = file_model
 
-    result = await service.bot.update(bot, form_dict)
+    result = service.bot.update(bot, form_dict)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
     if form.ip_whitelist is not None:
         ip_whitelist = form.ip_whitelist.strip().replace(" ", "")
         ip_whitelist = ip_whitelist.split(",") if ip_whitelist else []
-        ip_result = await service.bot.update_ip_whitelist(bot, ip_whitelist)
+        ip_result = service.bot.update_ip_whitelist(bot, ip_whitelist)
         if not ip_result:
             raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
@@ -143,8 +143,8 @@ async def update_bot(
     ),
 )
 @AuthFilter.add("admin")
-async def generate_new_bot_api_token(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    bot = await service.bot.generate_new_api_token(bot_uid)
+def generate_new_bot_api_token(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    bot = service.bot.generate_new_api_token(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
@@ -162,8 +162,8 @@ async def generate_new_bot_api_token(bot_uid: str, service: DomainService = Doma
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3001).get(),
 )
 @AuthFilter.add("admin")
-async def delete_bot(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    result = await service.bot.delete(bot_uid)
+def delete_bot(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    result = service.bot.delete(bot_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 

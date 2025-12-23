@@ -69,24 +69,24 @@ from .forms import (
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_details(
+def get_project_details(
     project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.get_details(user_or_bot, project_uid, is_setting=True)
+    result = service.project.get_details(user_or_bot, project_uid, is_setting=True)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     project, response = result
     (
         project_internal_bots,
         internal_bot_settings,
-    ) = await service.project.get_api_assigned_internal_bot_list_with_setting_map(project)
+    ) = service.project.get_api_assigned_internal_bot_list_with_setting_map(project)
     response["internal_bots"] = project_internal_bots
     response["internal_bot_settings"] = internal_bot_settings
 
-    internal_bots = await service.internal_bot.get_api_list(is_setting=False)
-    columns = await service.project_column.get_api_list_by_project(project)
-    cards = await service.card.get_api_list_by_project(project)
-    templates = await service.chat.get_api_template_list(Project.__tablename__, project_uid)
+    internal_bots = service.internal_bot.get_api_list(is_setting=False)
+    columns = service.project_column.get_api_list_by_project(project)
+    cards = service.card.get_api_list_by_project(project)
+    templates = service.chat.get_api_template_list(Project.__tablename__, project_uid)
 
     return JsonResponse(
         content={
@@ -108,13 +108,13 @@ async def get_project_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def change_project_details(
+def change_project_details(
     project_uid: str,
     form: UpdateProjectDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project.update(user_or_bot, project_uid, form.model_dump())
+    result = service.project.update(user_or_bot, project_uid, form.model_dump())
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
@@ -129,10 +129,10 @@ async def change_project_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def change_project_internal_bot(
+def change_project_internal_bot(
     project_uid: str, form: ChangeInternalBotForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.change_internal_bot(project_uid, form.internal_bot_uid)
+    result = service.project.change_internal_bot(project_uid, form.internal_bot_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2019)
 
@@ -147,10 +147,10 @@ async def change_project_internal_bot(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def change_project_internal_bot_settings(
+def change_project_internal_bot_settings(
     project_uid: str, form: ChangeInternalBotSettingsForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.change_internal_bot_settings(
+    result = service.project.change_internal_bot_settings(
         project_uid, form.bot_type, form.use_default_prompt, form.prompt
     )
     if not result:
@@ -166,10 +166,10 @@ async def change_project_internal_bot_settings(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def update_project_user_roles(
+def update_project_user_roles(
     project_uid: str, user_uid: str, form: UpdateRolesForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.update_user_roles(project_uid, user_uid, form.roles)
+    result = service.project.update_user_roles(project_uid, user_uid, form.roles)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2006)
 
@@ -187,13 +187,13 @@ async def update_project_user_roles(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def create_project_label(
+def create_project_label(
     project_uid: str,
     form: CreateProjectLabelForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_label.create(user_or_bot, project_uid, form.name, form.color, form.description)
+    result = service.project_label.create(user_or_bot, project_uid, form.name, form.color, form.description)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     _, api_label = result
@@ -223,14 +223,14 @@ async def create_project_label(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def change_project_label_details(
+def change_project_label_details(
     project_uid: str,
     label_uid: str,
     form: UpdateProjectLabelDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_label.update(user_or_bot, project_uid, label_uid, form.model_dump())
+    result = service.project_label.update(user_or_bot, project_uid, label_uid, form.model_dump())
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
@@ -257,10 +257,10 @@ async def change_project_label_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def change_project_label_order(
+def change_project_label_order(
     project_uid: str, label_uid: str, form: ChangeRootOrderForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project_label.change_order(project_uid, label_uid, form.order)
+    result = service.project_label.change_order(project_uid, label_uid, form.order)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
@@ -276,13 +276,13 @@ async def change_project_label_order(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def delete_label(
+def delete_label(
     project_uid: str,
     label_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_label.delete(user_or_bot, project_uid, label_uid)
+    result = service.project_label.delete(user_or_bot, project_uid, label_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2007)
 
@@ -296,17 +296,17 @@ async def delete_label(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def delete_project(
+def delete_project(
     project_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     if project.owner_id != user.id and not user.is_admin:
         raise ApiException.Forbidden_403(ApiErrorCode.PE2001)
 
-    result = await service.project.delete(user, project_uid)
+    result = service.project.delete(user, project_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 

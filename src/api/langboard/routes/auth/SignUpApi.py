@@ -11,8 +11,8 @@ from .forms import ActivateUserForm, CheckEmailForm, ResendLinkForm, SignUpForm
 @AppRouter.api.post(
     "/auth/signup/exist/email", tags=["Auth.SignUp"], responses=OpenApiSchema().suc({"exists": "bool"}).get()
 )
-async def exists_email(form: CheckEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
-    user, _ = await service.user.get_by_email(form.email)
+def exists_email(form: CheckEmailForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    user, _ = service.user.get_by_email(form.email)
     return JsonResponse(content={"exists": user is not None})
 
 
@@ -21,23 +21,23 @@ async def exists_email(form: CheckEmailForm, service: DomainService = DomainServ
     tags=["Auth.SignUp"],
     responses=OpenApiSchema().err(409, ApiErrorCode.EX1003).err(503, ApiErrorCode.OP1001).get(),
 )
-async def signup(
+def signup(
     form: SignUpForm = SignUpForm.scope(),
     avatar: UploadFile | None = File(None),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    user, _ = await service.user.get_by_email(form.email)
+    user, _ = service.user.get_by_email(form.email)
     if user:
         raise ApiException.Conflict_409(ApiErrorCode.EX1003)
 
     file_model = Storage.upload(avatar, StorageName.Avatar) if avatar else None
-    user, _ = await service.user.create(form.model_dump(), avatar=file_model)
+    user, _ = service.user.create(form.model_dump(), avatar=file_model)
 
     cache_key = service.user.create_cache_name("signup", user.email)
 
-    token_url = await service.user.create_token_url(user, cache_key, UI_QUERY_NAMES.SIGN_UP_ACTIVATE_TOKEN)
+    token_url = service.user.create_token_url(user, cache_key, UI_QUERY_NAMES.SIGN_UP_ACTIVATE_TOKEN)
 
-    result = await service.email.send_template(
+    result = service.email.send_template(
         user.preferred_lang, user.email, "signup", {"recipient": user.firstname, "url": token_url}
     )
     if not result:
@@ -53,8 +53,8 @@ async def signup(
         OpenApiSchema().err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.EX1004).err(503, ApiErrorCode.OP1001).get()
     ),
 )
-async def resend_signup_link(form: ResendLinkForm, service: DomainService = DomainService.scope()) -> JsonResponse:
-    user, _ = await service.user.get_by_email(form.email)
+def resend_signup_link(form: ResendLinkForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    user, _ = service.user.get_by_email(form.email)
     if not user:
         raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
@@ -63,11 +63,11 @@ async def resend_signup_link(form: ResendLinkForm, service: DomainService = Doma
 
     cache_key = service.user.create_cache_name("signup", user.email)
 
-    await Cache.delete(cache_key)
+    Cache.delete(cache_key)
 
-    token_url = await service.user.create_token_url(user, cache_key, UI_QUERY_NAMES.SIGN_UP_ACTIVATE_TOKEN)
+    token_url = service.user.create_token_url(user, cache_key, UI_QUERY_NAMES.SIGN_UP_ACTIVATE_TOKEN)
 
-    result = await service.email.send_template(
+    result = service.email.send_template(
         user.preferred_lang, user.email, "signup", {"recipient": user.firstname, "url": token_url}
     )
     if not result:
@@ -83,16 +83,16 @@ async def resend_signup_link(form: ResendLinkForm, service: DomainService = Doma
         OpenApiSchema().suc({"email": "string"}).err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.EX1004).get()
     ),
 )
-async def activate_account(form: ActivateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
-    user, cache_key, _ = await service.user.validate_token_from_url("signup", form.signup_token)
+def activate_account(form: ActivateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    user, cache_key, _ = service.user.validate_token_from_url("signup", form.signup_token)
     if not user or not cache_key:
         raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
     if user.activated_at:
         raise ApiException.Conflict_409(ApiErrorCode.EX1004)
 
-    await service.user.activate(user)
+    service.user.activate(user)
 
-    await Cache.delete(cache_key)
+    Cache.delete(cache_key)
 
     return JsonResponse(content={"email": user.email})

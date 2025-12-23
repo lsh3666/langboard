@@ -43,7 +43,7 @@ class RoleMiddleware(FilterMiddleware):
                 role_model, actions, role_finder = RoleFilter.get_filtered(child_scope["endpoint"])
                 role = RoleSecurity(role_model)
 
-                is_authorized = await role.is_authorized(
+                is_authorized = role.is_authorized(
                     user_or_bot.id,
                     child_scope["path_params"],
                     actions,

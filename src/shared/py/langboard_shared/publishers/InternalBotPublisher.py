@@ -8,7 +8,7 @@ from ..domain.models import InternalBot
 @staticclass
 class InternalBotPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(setting: InternalBot):
+    def created(setting: InternalBot):
         model = {"uid": setting.get_uid()}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Global,
@@ -17,10 +17,10 @@ class InternalBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await InternalBotPublisher.put_dispather(model, publish_model)
+        InternalBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def updated(setting: InternalBot):
+    def updated(setting: InternalBot):
         model = {"uid": setting.get_uid()}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Global,
@@ -29,10 +29,10 @@ class InternalBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await InternalBotPublisher.put_dispather(model, publish_model)
+        InternalBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def default_changed(setting: InternalBot):
+    def default_changed(setting: InternalBot):
         model = {"bot_type": setting.bot_type.value}
         publish_model = SocketPublishModel(
             topic=SocketTopic.AppSettings,
@@ -41,10 +41,10 @@ class InternalBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await InternalBotPublisher.put_dispather(model, publish_model)
+        InternalBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deleted(setting: InternalBot):
+    def deleted(setting: InternalBot):
         model = {"uid": setting.get_uid()}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Global,
@@ -53,4 +53,4 @@ class InternalBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await InternalBotPublisher.put_dispather(model, publish_model)
+        InternalBotPublisher.put_dispather(model, publish_model)

@@ -11,11 +11,11 @@ _TCastReturn = TypeVar("_TCastReturn")
 
 class InMemoryCache(BaseCache):
     @overload
-    async def get(self, key: str) -> Any | None: ...
+    def get(self, key: str) -> Any | None: ...
     @overload
-    async def get(self, key: str, caster: Callable[[Any], _TCastReturn]) -> _TCastReturn | None: ...
-    async def get(self, key: str, caster: Callable[[Any], _TCastReturn] | None = None) -> Any | None:
-        await self._expire()
+    def get(self, key: str, caster: Callable[[Any], _TCastReturn]) -> _TCastReturn | None: ...
+    def get(self, key: str, caster: Callable[[Any], _TCastReturn] | None = None) -> Any | None:
+        self._expire()
         with self._get_cache_db() as conn:
             cursor = conn.execute(
                 "SELECT value, expiry FROM cache WHERE key = ? AND expiry > ?",
@@ -25,11 +25,11 @@ class InMemoryCache(BaseCache):
             if raw_value is None or ttl is None:
                 return None
 
-            value = await self._cast_get(raw_value, caster)
+            value = self._cast_get(raw_value, caster)
         return value
 
-    async def has(self, key: str) -> bool:
-        await self._expire()
+    def has(self, key: str) -> bool:
+        self._expire()
         result = False
         with self._get_cache_db() as conn:
             cursor = conn.execute(
@@ -38,26 +38,26 @@ class InMemoryCache(BaseCache):
             result = cursor.fetchone() is not None
         return result
 
-    async def set(self, key: str, value: Any, ttl: int = 0) -> None:
-        await self._expire()
+    def set(self, key: str, value: Any, ttl: int = 0) -> None:
+        self._expire()
         with self._get_cache_db() as conn:
-            casted_value = await self._cast_set(value)
+            casted_value = self._cast_set(value)
             expiry = int((SafeDateTime.now() + timedelta(seconds=ttl)).timestamp())
             conn.execute("REPLACE INTO cache (key, value, expiry) VALUES (?, ?, ?)", (key, casted_value, expiry))
             conn.commit()
 
-    async def delete(self, key: str) -> None:
-        await self._expire()
+    def delete(self, key: str) -> None:
+        self._expire()
         with self._get_cache_db() as conn:
             conn.execute("DELETE FROM cache WHERE key = ?", (key,))
             conn.commit()
 
-    async def clear(self) -> None:
+    def clear(self) -> None:
         with self._get_cache_db() as conn:
             conn.execute("DELETE FROM cache")
             conn.commit()
 
-    async def _expire(self) -> None:
+    def _expire(self) -> None:
         with self._get_cache_db() as conn:
             conn.execute("DELETE FROM cache WHERE expiry <= ?", (int(SafeDateTime.now().timestamp()),))
             conn.commit()

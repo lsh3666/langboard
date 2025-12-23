@@ -16,15 +16,15 @@ class InternalBotService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "internal_bot"
 
-    async def get_by_id_like(self, internal_bot: TInternalBotParam | None) -> InternalBot | None:
+    def get_by_id_like(self, internal_bot: TInternalBotParam | None) -> InternalBot | None:
         internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
         return internal_bot
 
-    async def get_api_list(self, is_setting: bool) -> list[dict[str, Any]]:
+    def get_api_list(self, is_setting: bool) -> list[dict[str, Any]]:
         internal_bots = InfraHelper.get_all(InternalBot)
         return [internal_bot.api_response(is_setting=is_setting) for internal_bot in internal_bots]
 
-    async def create(
+    def create(
         self,
         bot_type: InternalBotType,
         display_name: str,
@@ -50,11 +50,11 @@ class InternalBotService(BaseDomainService):
 
         self.repo.internal_bot.insert(internal_bot)
 
-        await InternalBotPublisher.created(internal_bot)
+        InternalBotPublisher.created(internal_bot)
 
         return internal_bot
 
-    async def update(self, internal_bot: TInternalBotParam | None, form: dict) -> InternalBot | Literal[True] | None:
+    def update(self, internal_bot: TInternalBotParam | None, form: dict) -> InternalBot | Literal[True] | None:
         internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
         if not internal_bot:
             return None
@@ -94,11 +94,11 @@ class InternalBotService(BaseDomainService):
 
         self.repo.internal_bot.update(internal_bot)
 
-        await InternalBotPublisher.updated(internal_bot)
+        InternalBotPublisher.updated(internal_bot)
 
         return internal_bot
 
-    async def change_default(self, internal_bot: TInternalBotParam | None) -> InternalBot | Literal[True] | None:
+    def change_default(self, internal_bot: TInternalBotParam | None) -> InternalBot | Literal[True] | None:
         internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
         if not internal_bot:
             return None
@@ -108,11 +108,11 @@ class InternalBotService(BaseDomainService):
 
         self.repo.internal_bot.replace_default(internal_bot, internal_bot.bot_type)
 
-        await InternalBotPublisher.default_changed(internal_bot)
+        InternalBotPublisher.default_changed(internal_bot)
 
         return internal_bot
 
-    async def delete(self, internal_bot: TInternalBotParam | None) -> bool:
+    def delete(self, internal_bot: TInternalBotParam | None) -> bool:
         internal_bot = InfraHelper.get_by_id_like(InternalBot, internal_bot)
         if not internal_bot or internal_bot.is_default:
             return False
@@ -120,7 +120,7 @@ class InternalBotService(BaseDomainService):
         default_internal_bot = self.repo.internal_bot.get_default_by_type(internal_bot.bot_type)
         if not default_internal_bot:
             display_name = internal_bot.bot_type.value.replace("_", " ").title()
-            new_default_internal_bot = await self.create(
+            new_default_internal_bot = self.create(
                 bot_type=internal_bot.bot_type,
                 display_name=display_name,
                 platform=BotPlatform.Default,
@@ -134,7 +134,7 @@ class InternalBotService(BaseDomainService):
         self.repo.project_assigned_internal_bot.reassign_and_delete(internal_bot, default_internal_bot)
 
         for project in projects:
-            await ProjectPublisher.internal_bot_changed(project, default_internal_bot.id)
-        await InternalBotPublisher.deleted(internal_bot)
+            ProjectPublisher.internal_bot_changed(project, default_internal_bot.id)
+        InternalBotPublisher.deleted(internal_bot)
 
         return True

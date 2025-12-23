@@ -29,7 +29,7 @@ class BotScheduleHelper:
 
     @overload
     @staticmethod
-    async def get_all_by_scope(
+    def get_all_by_scope(
         schedule_model_class: type[_TBotScheduleModel],
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
@@ -39,7 +39,7 @@ class BotScheduleHelper:
     ) -> list[tuple[_TBotScheduleModel, BotSchedule]]: ...
     @overload
     @staticmethod
-    async def get_all_by_scope(
+    def get_all_by_scope(
         schedule_model_class: type[_TBotScheduleModel],
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
@@ -48,7 +48,7 @@ class BotScheduleHelper:
         status: BotScheduleStatus | None = None,
     ) -> list[dict[str, Any]]: ...
     @staticmethod
-    async def get_all_by_scope(
+    def get_all_by_scope(
         schedule_model_class: type[_TBotScheduleModel],
         bot: Bot | None,
         scope_model: BaseSqlModel | list[BaseSqlModel] | tuple[type[BaseSqlModel], int | list[int]],
@@ -130,7 +130,7 @@ class BotScheduleHelper:
         return BotScheduleStatus.Pending, start_at, end_at
 
     @staticmethod
-    async def schedule(
+    def schedule(
         schedule_model_class: type[_TBotScheduleModel],
         bot: Bot,
         interval_str: str,
@@ -188,7 +188,7 @@ class BotScheduleHelper:
         return bot_schedule, schedule_model
 
     @staticmethod
-    async def reschedule(
+    def reschedule(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
         interval_str: str | None = None,
@@ -228,7 +228,7 @@ class BotScheduleHelper:
                 model["start_at"] = start_at
                 model["end_at"] = end_at
 
-                cron, has_changed = await BotScheduleHelper.change_status(
+                cron, has_changed = BotScheduleHelper.change_status(
                     schedule_model_class,
                     schedule_model,
                     status,
@@ -286,7 +286,7 @@ class BotScheduleHelper:
         return bot_schedule, schedule_model, model
 
     @staticmethod
-    async def unschedule(
+    def unschedule(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
     ) -> tuple[BotSchedule, _TBotScheduleModel] | None:
@@ -312,7 +312,7 @@ class BotScheduleHelper:
         return bot_schedule, schedule_model
 
     @staticmethod
-    async def unschedule_by_scope(schedule_model_class: type[_TBotScheduleModel], scope_model: BaseSqlModel) -> None:
+    def unschedule_by_scope(schedule_model_class: type[_TBotScheduleModel], scope_model: BaseSqlModel) -> None:
         old_schedules: list[tuple[SnowflakeID, str, BotScheduleStatus]] = []
         with DbSession.use(readonly=True) as db:
             query = (
@@ -347,7 +347,7 @@ class BotScheduleHelper:
 
     @overload
     @staticmethod
-    async def change_status(
+    def change_status(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
         status: BotScheduleStatus,
@@ -356,7 +356,7 @@ class BotScheduleHelper:
     ) -> BotSchedule | None: ...
     @overload
     @staticmethod
-    async def change_status(
+    def change_status(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
         status: BotScheduleStatus,
@@ -365,7 +365,7 @@ class BotScheduleHelper:
     ) -> BotSchedule | None: ...
     @overload
     @staticmethod
-    async def change_status(
+    def change_status(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
         status: BotScheduleStatus,
@@ -373,7 +373,7 @@ class BotScheduleHelper:
         bot_schedule: BotSchedule | None = None,
     ) -> tuple[CronTab, bool]: ...
     @staticmethod
-    async def change_status(
+    def change_status(
         schedule_model_class: type[_TBotScheduleModel],
         schedule_model: _TBotScheduleModel | _TBaseParam,
         status: BotScheduleStatus,

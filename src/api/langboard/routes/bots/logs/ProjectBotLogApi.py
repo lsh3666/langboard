@@ -26,20 +26,20 @@ from ..forms import BotLogPagination
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def get_bot_logs_by_project(
+def get_bot_logs_by_project(
     bot_uid: str,
     project_uid: str,
     pagination: BotLogPagination = Depends(),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2014)
 
-    logs = await service.bot_log.get_api_list_by_scope(ProjectBotLog, bot, project, pagination)
+    logs = service.bot_log.get_api_list_by_scope(ProjectBotLog, bot, project, pagination)
 
     return JsonResponse(content={"logs": logs, "target": project.api_response()})

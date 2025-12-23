@@ -26,13 +26,13 @@ from .forms import ChangeRootOrderForm, ColumnForm
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def create_project_column(
+def create_project_column(
     project_uid: str,
     form: ColumnForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    column = await service.project_column.create(user_or_bot, project_uid, form.name)
+    column = service.project_column.create(user_or_bot, project_uid, form.name)
     if not column:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
@@ -56,14 +56,14 @@ async def create_project_column(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def update_project_column_name(
+def update_project_column_name(
     project_uid: str,
     column_uid: str,
     form: ColumnForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_column.change_name(user_or_bot, project_uid, column_uid, form.name)
+    result = service.project_column.change_name(user_or_bot, project_uid, column_uid, form.name)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2004)
 
@@ -78,13 +78,13 @@ async def update_project_column_name(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def update_project_column_order(
+def update_project_column_order(
     project_uid: str,
     column_uid: str,
     form: ChangeRootOrderForm,
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_column.change_order(project_uid, column_uid, form.order)
+    result = service.project_column.change_order(project_uid, column_uid, form.order)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2004)
 
@@ -100,13 +100,13 @@ async def update_project_column_order(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def delete_project_column(
+def delete_project_column(
     project_uid: str,
     column_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_column.delete(user_or_bot, project_uid, column_uid)
+    result = service.project_column.delete(user_or_bot, project_uid, column_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2004)
 

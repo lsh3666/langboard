@@ -10,7 +10,7 @@ from ..domain.models.InternalBot import InternalBotType
 @staticclass
 class ProjectPublisher(BaseSocketPublisher):
     @staticmethod
-    async def updated(project: Project, model: dict[str, Any]):
+    def updated(project: Project, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -19,10 +19,10 @@ class ProjectPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectPublisher.put_dispather(model, publish_model)
+        ProjectPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def assigned_users_updated(project: Project, model: dict[str, Any]):
+    def assigned_users_updated(project: Project, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_models: list[SocketPublishModel] = []
         for topic in [SocketTopic.Board, SocketTopic.Dashboard, SocketTopic.BoardWiki]:
@@ -37,10 +37,10 @@ class ProjectPublisher(BaseSocketPublisher):
                 )
             )
 
-        await ProjectPublisher.put_dispather(model, publish_models)
+        ProjectPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def user_roles_updated(project: Project, target_user: User, roles: list[str]):
+    def user_roles_updated(project: Project, target_user: User, roles: list[str]):
         topic_id = project.get_uid()
         model = {"user_uid": target_user.get_uid(), "roles": roles}
         publish_models = [
@@ -59,10 +59,10 @@ class ProjectPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await ProjectPublisher.put_dispather(model, publish_models)
+        ProjectPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def deleted(project: Project):
+    def deleted(project: Project):
         topic_id = project.get_uid()
         publish_models: list[SocketPublishModel] = []
         for topic in [SocketTopic.Board, SocketTopic.Dashboard]:
@@ -75,10 +75,10 @@ class ProjectPublisher(BaseSocketPublisher):
                 )
             )
 
-        await ProjectPublisher.put_dispather({}, publish_models)
+        ProjectPublisher.put_dispather({}, publish_models)
 
     @staticmethod
-    async def chat_template_created(project: Project, model: dict[str, Any]):
+    def chat_template_created(project: Project, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -87,10 +87,10 @@ class ProjectPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectPublisher.put_dispather(model, publish_model)
+        ProjectPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def chat_template_updated(project: Project, template: ChatTemplate, model: dict[str, Any]):
+    def chat_template_updated(project: Project, template: ChatTemplate, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -99,10 +99,10 @@ class ProjectPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectPublisher.put_dispather(model, publish_model)
+        ProjectPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def chat_template_deleted(project: Project, template_uid: str):
+    def chat_template_deleted(project: Project, template_uid: str):
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -110,10 +110,10 @@ class ProjectPublisher(BaseSocketPublisher):
             event=f"board:chat:template:deleted:{template_uid}",
         )
 
-        await ProjectPublisher.put_dispather({}, publish_model)
+        ProjectPublisher.put_dispather({}, publish_model)
 
     @staticmethod
-    async def internal_bot_changed(project: Project, internal_bot_id: SnowflakeID):
+    def internal_bot_changed(project: Project, internal_bot_id: SnowflakeID):
         topic_id = project.get_uid()
         model = {"internal_bot_uid": internal_bot_id.to_short_code()}
         publish_model = SocketPublishModel(
@@ -123,10 +123,10 @@ class ProjectPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectPublisher.put_dispather(model, publish_model)
+        ProjectPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def internal_bot_settings_changed(
+    def internal_bot_settings_changed(
         project: Project, bot_type: InternalBotType, assigned_internal_bot: ProjectAssignedInternalBot
     ):
         topic_id = project.get_uid()
@@ -138,4 +138,4 @@ class ProjectPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectPublisher.put_dispather(model, publish_model)
+        ProjectPublisher.put_dispather(model, publish_model)

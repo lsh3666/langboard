@@ -11,20 +11,20 @@ class UserGroupService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "user_group"
 
-    async def get_api_list_by_user(self, user: User) -> list[dict[str, Any]]:
+    def get_api_list_by_user(self, user: User) -> list[dict[str, Any]]:
         if not user.id:
             return []
 
         raw_groups = self.repo.user_group.get_all_by_user(user)
         groups = []
         for group in raw_groups:
-            records = await self.get_api_user_email_list_by_group(group)
+            records = self.get_api_user_email_list_by_group(group)
             api_group = group.api_response()
             api_group["users"] = records
             groups.append(api_group)
         return groups
 
-    async def get_api_user_email_list_by_group(self, user_group: TUserGroupParam | None) -> list[dict[str, Any]]:
+    def get_api_user_email_list_by_group(self, user_group: TUserGroupParam | None) -> list[dict[str, Any]]:
         user_group = InfraHelper.get_by_id_like(UserGroup, user_group)
         if not user_group:
             return []
@@ -39,7 +39,7 @@ class UserGroupService(BaseDomainService):
                 users.append(User.create_email_user_api_response(assigned_email.id, assigned_email.email))
         return users
 
-    async def create(self, user: User, name: str, emails: list[str] | None = None) -> UserGroup:
+    def create(self, user: User, name: str, emails: list[str] | None = None) -> UserGroup:
         emails = emails or []
         user_group = UserGroup(user_id=user.id, name=name, order=self.repo.user_group.get_next_order(user))
 
@@ -51,7 +51,7 @@ class UserGroupService(BaseDomainService):
 
         return user_group
 
-    async def change_name(self, user: User, user_group: TUserGroupParam | None, name: str) -> bool:
+    def change_name(self, user: User, user_group: TUserGroupParam | None, name: str) -> bool:
         user_group = InfraHelper.get_by_id_like(UserGroup, user_group)
         if not user_group or user_group.user_id != user.id:
             return False
@@ -62,7 +62,7 @@ class UserGroupService(BaseDomainService):
 
         return True
 
-    async def update_assigned_emails(self, user: User, user_group: TUserGroupParam | None, emails: list[str]) -> bool:
+    def update_assigned_emails(self, user: User, user_group: TUserGroupParam | None, emails: list[str]) -> bool:
         user_group = InfraHelper.get_by_id_like(UserGroup, user_group)
         if not user_group or user_group.user_id != user.id:
             return False
@@ -92,7 +92,7 @@ class UserGroupService(BaseDomainService):
 
         return True
 
-    async def delete(self, user: User, user_group: TUserGroupParam | None) -> bool:
+    def delete(self, user: User, user_group: TUserGroupParam | None) -> bool:
         user_group = InfraHelper.get_by_id_like(UserGroup, user_group)
         if not user_group or user_group.user_id != user.id:
             return False

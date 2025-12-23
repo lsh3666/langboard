@@ -27,7 +27,7 @@ _OLLAMA_PULLING_MODELS_CACHE_KEY = "ollama:pulling:models"
     ),
 )
 @AuthFilter.add("admin")
-async def get_ollama_models() -> JsonResponse:
+def get_ollama_models() -> JsonResponse:
     if not Env.OLLAMA_API_URL:
         return JsonResponse(content={"models": [], "pulling_models": {}})
 
@@ -37,13 +37,13 @@ async def get_ollama_models() -> JsonResponse:
         data = response.json()
         data["pulling_models"] = []
 
-        pulling_models: dict | None = await Cache.get(_OLLAMA_PULLING_MODELS_CACHE_KEY)
+        pulling_models: dict | None = Cache.get(_OLLAMA_PULLING_MODELS_CACHE_KEY)
         if pulling_models:
             for model in data.get("models", []):
                 if model["name"] in pulling_models:
                     pulling_models.pop(model["name"])
 
-            await Cache.set(_OLLAMA_PULLING_MODELS_CACHE_KEY, pulling_models, ttl=24 * 60 * 60)
+            Cache.set(_OLLAMA_PULLING_MODELS_CACHE_KEY, pulling_models, ttl=24 * 60 * 60)
             data["pulling_models"] = pulling_models
 
         return JsonResponse(content=data)
@@ -64,7 +64,7 @@ async def get_ollama_models() -> JsonResponse:
     ),
 )
 @AuthFilter.add("admin")
-async def get_ollama_model_details(form: OllamaModelForm) -> JsonResponse:
+def get_ollama_model_details(form: OllamaModelForm) -> JsonResponse:
     if not Env.OLLAMA_API_URL:
         raise ApiException.NotFound_404(ApiErrorCode.NF9000)
 
@@ -85,7 +85,7 @@ async def get_ollama_model_details(form: OllamaModelForm) -> JsonResponse:
     ),
 )
 @AuthFilter.add("admin")
-async def get_ollama_running_models() -> JsonResponse:
+def get_ollama_running_models() -> JsonResponse:
     if not Env.OLLAMA_API_URL:
         return JsonResponse(content={"models": []})
 

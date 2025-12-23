@@ -22,7 +22,7 @@ from .Form import CreateInternalBotForm, UpdateInternalBotForm
     ),
 )
 @AuthFilter.add("admin")
-async def create_internal_bot(
+def create_internal_bot(
     form: CreateInternalBotForm = CreateInternalBotForm.scope(),
     avatar: UploadFile | None = File(None),
     service: DomainService = DomainService.scope(),
@@ -31,7 +31,7 @@ async def create_internal_bot(
         raise ApiException.BadRequest_400(ApiErrorCode.VA0000)
 
     file_model = Storage.upload(avatar, StorageName.InternalBot) if avatar else None
-    internal_bot = await service.internal_bot.create(
+    internal_bot = service.internal_bot.create(
         form.bot_type,
         form.display_name,
         form.platform,
@@ -54,13 +54,13 @@ async def create_internal_bot(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).get(),
 )
 @AuthFilter.add("admin")
-async def update_internal_bot(
+def update_internal_bot(
     internal_bot_uid: str,
     form: UpdateInternalBotForm = UpdateInternalBotForm.scope(),
     avatar: UploadFile | None = File(None),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
+    internal_bot = service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
@@ -69,7 +69,7 @@ async def update_internal_bot(
     if file_model:
         form_dict["avatar"] = file_model
 
-    result = await service.internal_bot.update(internal_bot, form_dict)
+    result = service.internal_bot.update(internal_bot, form_dict)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
@@ -82,10 +82,8 @@ async def update_internal_bot(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).get(),
 )
 @AuthFilter.add("admin")
-async def set_internal_bot_default(
-    internal_bot_uid: str, service: DomainService = DomainService.scope()
-) -> JsonResponse:
-    internal_bot = await service.internal_bot.change_default(internal_bot_uid)
+def set_internal_bot_default(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    internal_bot = service.internal_bot.change_default(internal_bot_uid)
     if not internal_bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
@@ -98,13 +96,13 @@ async def set_internal_bot_default(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).err(409, ApiErrorCode.EX3002).get(),
 )
 @AuthFilter.add("admin")
-async def delete_internal_bot(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_id_like(internal_bot_uid)
+def delete_internal_bot(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    internal_bot = service.internal_bot.get_by_id_like(internal_bot_uid)
     if not internal_bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
     if internal_bot.is_default:
         raise ApiException.Conflict_409(ApiErrorCode.EX3002)
 
-    await service.internal_bot.delete(internal_bot)
+    service.internal_bot.delete(internal_bot)
     return JsonResponse()

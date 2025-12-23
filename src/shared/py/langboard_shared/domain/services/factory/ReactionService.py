@@ -14,7 +14,7 @@ class ReactionService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "reaction"
 
-    async def get_api_map(
+    def get_api_map(
         self, model_cls: type[BaseReactionModel], targets: BaseSqlModel | TBaseParam | list[BaseSqlModel | TBaseParam]
     ) -> dict[int, dict[str, list[str]]]:
         records = self.repo.reaction.get_all(model_cls, targets)
@@ -34,7 +34,7 @@ class ReactionService(BaseDomainService):
 
         return reactions
 
-    async def toggle(
+    def toggle(
         self,
         user_or_bot: TUserOrBot,
         model_cls: type[_TReactionModel],

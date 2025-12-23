@@ -23,10 +23,10 @@ class DispatcherQueue(BaseDispatcherQueue):
         self.__instance: BaseDispatcherQueue = instance
 
     @overload
-    async def put(self, event: str, data: dict[str, Any]): ...
+    def put(self, event: str, data: dict[str, Any]): ...
     @overload
-    async def put(self, event: BaseModel): ...
-    async def put(self, event: str | BaseModel, data: dict[str, Any] | None = None):
+    def put(self, event: BaseModel): ...
+    def put(self, event: str | BaseModel, data: dict[str, Any] | None = None):
         if not self.__instance:
             return
-        await self.__instance.put(event, data)
+        self.__instance.put(event, data)

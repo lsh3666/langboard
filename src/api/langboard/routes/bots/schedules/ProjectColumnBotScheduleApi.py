@@ -27,21 +27,21 @@ from ..forms import BotSchedulePagination
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def get_bot_schedules_by_column(
+def get_bot_schedules_by_column(
     bot_uid: str,
     column_uid: str,
     pagination: BotSchedulePagination = Depends(),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2013)
 
-    column = await service.project_column.get_by_id_like(column_uid)
+    column = service.project_column.get_by_id_like(column_uid)
     if not column:
         raise ApiException.NotFound_404(ApiErrorCode.NF2013)
 
-    schedules = await BotScheduleHelper.get_all_by_scope(
+    schedules = BotScheduleHelper.get_all_by_scope(
         ProjectColumnBotSchedule, bot, column, as_api=True, pagination=pagination, status=pagination.status
     )
 

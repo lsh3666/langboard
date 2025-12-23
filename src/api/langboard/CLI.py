@@ -40,7 +40,7 @@ def _run_app(options: RunCommandOptions):
         uds=options.uds,
         lifespan=options.lifespan,
         ssl_options=ssl_options,
-        workers=1,
+        workers=options.workers,
         timeout_keep_alive=options.timeout_keep_alive,
         healthcheck_interval=options.healthcheck_interval,
         watch=options.watch,

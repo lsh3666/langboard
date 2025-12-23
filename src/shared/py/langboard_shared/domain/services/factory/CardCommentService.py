@@ -17,20 +17,18 @@ class CardCommentService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "card_comment"
 
-    async def get_by_id_like(self, comment: TCommentParam | None) -> CardComment | None:
+    def get_by_id_like(self, comment: TCommentParam | None) -> CardComment | None:
         comment = InfraHelper.get_by_id_like(CardComment, comment)
         return comment
 
-    async def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
         card = InfraHelper.get_by_id_like(Card, card)
         if not card:
             return []
         raw_comments = self.repo.card_comment.get_list_by_card(card)
 
         reaction_service = self._get_service(ReactionService)
-        reactions = await reaction_service.get_api_map(
-            CardCommentReaction, [comment.id for comment, _, _ in raw_comments]
-        )
+        reactions = reaction_service.get_api_map(CardCommentReaction, [comment.id for comment, _, _ in raw_comments])
 
         comments = []
         for raw_comment in raw_comments:
@@ -40,7 +38,7 @@ class CardCommentService(BaseDomainService):
 
         return comments
 
-    async def get_as_api(self, card: TCardParam | None, comment: TCommentParam | None) -> dict[str, Any] | None:
+    def get_as_api(self, card: TCardParam | None, comment: TCommentParam | None) -> dict[str, Any] | None:
         if not comment:
             return None
         card = InfraHelper.get_by_id_like(Card, card)
@@ -52,7 +50,7 @@ class CardCommentService(BaseDomainService):
             return None
 
         reaction_service = self._get_service(ReactionService)
-        reactions = await reaction_service.get_api_map(CardCommentReaction, [comment_id])
+        reactions = reaction_service.get_api_map(CardCommentReaction, [comment_id])
 
         return self.convert_to_api_response(raw_comment, reactions.get(raw_comment[0].id))
 
@@ -70,7 +68,7 @@ class CardCommentService(BaseDomainService):
         api_comment["reactions"] = reaction or {}
         return api_comment
 
-    async def create(
+    def create(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -98,17 +96,17 @@ class CardCommentService(BaseDomainService):
         comment = CardComment(**comment_params)
         self.repo.card_comment.insert(comment)
 
-        await CardCommentPublisher.created(user_or_bot, project, card, comment)
+        CardCommentPublisher.created(user_or_bot, project, card, comment)
 
         notification_service = self._get_service(NotificationService)
-        await notification_service.notify_mentioned_in_comment(user_or_bot, project, card, comment)
+        notification_service.notify_mentioned_in_comment(user_or_bot, project, card, comment)
 
         CardCommentActivityTask.card_comment_added(user_or_bot, project, card, comment)
         CardCommentBotTask.card_comment_added(user_or_bot, project, card, comment)
 
         return comment
 
-    async def update(
+    def update(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -130,17 +128,17 @@ class CardCommentService(BaseDomainService):
         comment.content = content
         self.repo.card_comment.update(comment)
 
-        await CardCommentPublisher.updated(project, card, comment)
+        CardCommentPublisher.updated(project, card, comment)
 
         notification_service = self._get_service(NotificationService)
-        await notification_service.notify_mentioned_in_comment(user_or_bot, project, card, comment)
+        notification_service.notify_mentioned_in_comment(user_or_bot, project, card, comment)
 
         CardCommentActivityTask.card_comment_updated(user_or_bot, project, card, old_content, comment)
         CardCommentBotTask.card_comment_updated(user_or_bot, project, card, comment)
 
         return comment
 
-    async def delete(
+    def delete(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -156,13 +154,13 @@ class CardCommentService(BaseDomainService):
 
         self.repo.card_comment.delete(comment)
 
-        await CardCommentPublisher.deleted(project, card, comment)
+        CardCommentPublisher.deleted(project, card, comment)
         CardCommentActivityTask.card_comment_deleted(user_or_bot, project, card, comment)
         CardCommentBotTask.card_comment_deleted(user_or_bot, project, card, comment)
 
         return comment
 
-    async def toggle_reaction(
+    def toggle_reaction(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -178,13 +176,13 @@ class CardCommentService(BaseDomainService):
         project, card, comment = params
 
         reaction_service = self._get_service(ReactionService)
-        is_reacted = await reaction_service.toggle(user_or_bot, CardCommentReaction, comment.id, reaction)
+        is_reacted = reaction_service.toggle(user_or_bot, CardCommentReaction, comment.id, reaction)
 
-        await CardCommentPublisher.reacted(user_or_bot, project, card, comment, reaction, is_reacted)
+        CardCommentPublisher.reacted(user_or_bot, project, card, comment, reaction, is_reacted)
 
         if is_reacted and comment.user_id:
             notification_service = self._get_service(NotificationService)
-            await notification_service.notify_reacted_to_comment(user_or_bot, project, card, comment, reaction)
+            notification_service.notify_reacted_to_comment(user_or_bot, project, card, comment, reaction)
 
         if is_reacted:
             CardCommentActivityTask.card_comment_reacted(user_or_bot, project, card, comment, reaction)

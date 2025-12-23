@@ -38,9 +38,7 @@ class NotificationService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "notification"
 
-    async def get_api_list(
-        self, user: User, time_range: Literal["3d", "7d", "1m", "all"] = "3d"
-    ) -> list[dict[str, Any]]:
+    def get_api_list(self, user: User, time_range: Literal["3d", "7d", "1m", "all"] = "3d") -> list[dict[str, Any]]:
         raw_notifications = self.repo.user_notification.get_list(user, time_range)
 
         references: list[tuple[str, int]] = []
@@ -84,7 +82,7 @@ class NotificationService(BaseDomainService):
 
         return notifications
 
-    async def convert_to_api_response(
+    def convert_to_api_response(
         self,
         notification: UserNotification,
         record_list: list[_TModel] | None = None,
@@ -117,19 +115,15 @@ class NotificationService(BaseDomainService):
                 notifier.api_response(),
             )
         else:
-            notifier_key, api_notifier = await self.get_notifier(notification, as_api=True)
+            notifier_key, api_notifier = self.get_notifier(notification, as_api=True)
         api_notification[notifier_key] = api_notifier
         return api_notification
 
     @overload
-    async def get_notifier(self, notification: UserNotification, as_api: Literal[False]) -> User | Bot: ...
+    def get_notifier(self, notification: UserNotification, as_api: Literal[False]) -> User | Bot: ...
     @overload
-    async def get_notifier(
-        self, notification: UserNotification, as_api: Literal[True]
-    ) -> tuple[str, dict[str, Any]]: ...
-    async def get_notifier(
-        self, notification: UserNotification, as_api: bool
-    ) -> User | Bot | tuple[str, dict[str, Any]]:
+    def get_notifier(self, notification: UserNotification, as_api: Literal[True]) -> tuple[str, dict[str, Any]]: ...
+    def get_notifier(self, notification: UserNotification, as_api: bool) -> User | Bot | tuple[str, dict[str, Any]]:
         if notification.notifier_type == "user":
             notifier = cast(
                 User,
@@ -148,7 +142,7 @@ class NotificationService(BaseDomainService):
             return "notifier_user", notifier.api_response()
         return "notifier_bot", notifier.api_response()
 
-    async def read(self, user: User, notification: TNotificationParam | None) -> bool:
+    def read(self, user: User, notification: TNotificationParam | None) -> bool:
         notification = InfraHelper.get_by_id_like(UserNotification, notification)
         if not notification or notification.receiver_id != user.id:
             return False
@@ -158,10 +152,10 @@ class NotificationService(BaseDomainService):
 
         return True
 
-    async def read_all(self, user: User):
+    def read_all(self, user: User):
         self.repo.user_notification.read_all_by_user(user)
 
-    async def delete(self, user: User, notification: TNotificationParam | None) -> bool:
+    def delete(self, user: User, notification: TNotificationParam | None) -> bool:
         notification = InfraHelper.get_by_id_like(UserNotification, notification)
         if not notification or notification.receiver_id != user.id:
             return False
@@ -170,18 +164,18 @@ class NotificationService(BaseDomainService):
 
         return True
 
-    async def delete_all(self, user: User):
+    def delete_all(self, user: User):
         self.repo.user_notification.delete_all(user)
 
     # from here, notifiable types are added
-    async def notify_project_invited(
+    def notify_project_invited(
         self,
         notifier: TUserOrBot,
         target_user: TUserParam | None,
         project: Project,
         project_invitation: ProjectInvitation,
     ):
-        await self.__notify(
+        self.__notify(
             notifier,
             target_user,
             NotificationType.ProjectInvited,
@@ -189,9 +183,9 @@ class NotificationService(BaseDomainService):
             [project, project_invitation],
         )
 
-    async def notify_mentioned_in_card(self, notifier: TUserOrBot, project: Project, card: Card):
-        column = await self.__get_column_by_card(card)
-        await self.__notify_mentioned(
+    def notify_mentioned_in_card(self, notifier: TUserOrBot, project: Project, card: Card):
+        column = self.__get_column_by_card(card)
+        self.__notify_mentioned(
             notifier,
             card.description,
             NotificationType.MentionedInCard,
@@ -201,11 +195,9 @@ class NotificationService(BaseDomainService):
             {"url": self.__create_redirect_url(project, card)},
         )
 
-    async def notify_mentioned_in_comment(
-        self, notifier: TUserOrBot, project: Project, card: Card, comment: CardComment
-    ):
-        column = await self.__get_column_by_card(card)
-        await self.__notify_mentioned(
+    def notify_mentioned_in_comment(self, notifier: TUserOrBot, project: Project, card: Card, comment: CardComment):
+        column = self.__get_column_by_card(card)
+        self.__notify_mentioned(
             notifier,
             comment.content,
             NotificationType.MentionedInComment,
@@ -215,8 +207,8 @@ class NotificationService(BaseDomainService):
             {"url": self.__create_redirect_url(project, card)},
         )
 
-    async def notify_mentioned_in_wiki(self, notifier: TUserOrBot, project: Project, wiki: ProjectWiki):
-        await self.__notify_mentioned(
+    def notify_mentioned_in_wiki(self, notifier: TUserOrBot, project: Project, wiki: ProjectWiki):
+        self.__notify_mentioned(
             notifier,
             wiki.content,
             NotificationType.MentionedInWiki,
@@ -226,15 +218,15 @@ class NotificationService(BaseDomainService):
             {"url": self.__create_redirect_url(project, wiki)},
         )
 
-    async def notify_assigned_to_card(
+    def notify_assigned_to_card(
         self,
         notifier: TUserOrBot,
         target_user: TUserParam | None,
         project: Project,
         card: Card,
     ):
-        column = await self.__get_column_by_card(card)
-        await self.__notify(
+        column = self.__get_column_by_card(card)
+        self.__notify(
             notifier,
             target_user,
             NotificationType.AssignedToCard,
@@ -245,7 +237,7 @@ class NotificationService(BaseDomainService):
             {"url": self.__create_redirect_url(project, card)},
         )
 
-    async def notify_reacted_to_comment(
+    def notify_reacted_to_comment(
         self,
         notifier: TUserOrBot,
         project: Project,
@@ -253,12 +245,12 @@ class NotificationService(BaseDomainService):
         comment: CardComment,
         reaction_type: str,
     ):
-        column = await self.__get_column_by_card(card)
+        column = self.__get_column_by_card(card)
         first_line = ""
         if comment.content:
             content = change_date_element(comment.content).strip().splitlines()
             first_line = content.pop() if content else ""
-        await self.__notify(
+        self.__notify(
             notifier,
             cast(int, comment.user_id),
             NotificationType.ReactedToComment,
@@ -269,7 +261,7 @@ class NotificationService(BaseDomainService):
             {"url": self.__create_redirect_url(project, card)},
         )
 
-    async def notify_checklist(
+    def notify_checklist(
         self,
         notifier: TUserOrBot,
         target_user: TUserParam | None,
@@ -277,8 +269,8 @@ class NotificationService(BaseDomainService):
         card: Card,
         checklist: Checklist,
     ):
-        column = await self.__get_column_by_card(card)
-        await self.__notify(
+        column = self.__get_column_by_card(card)
+        self.__notify(
             notifier,
             target_user,
             NotificationType.NotifiedFromChecklist,
@@ -294,7 +286,7 @@ class NotificationService(BaseDomainService):
 
     # to here, notifiable types are added
 
-    async def __notify_mentioned(
+    def __notify_mentioned(
         self,
         notifier: TUserOrBot,
         editor: EditorContentModel | None,
@@ -318,7 +310,7 @@ class NotificationService(BaseDomainService):
             mentioned_in = "project_wiki"
 
         for user_or_bot_uid in user_or_bot_uids:
-            result = await self.__notify(
+            result = self.__notify(
                 notifier,
                 user_or_bot_uid,
                 notification_type,
@@ -342,7 +334,7 @@ class NotificationService(BaseDomainService):
                 dumped_models.append((type(model).__tablename__, model.model_dump()))
             BotDefaultTask.bot_mentioned(notifier, target_bot, mentioned_in, dumped_models)
 
-    async def __notify(
+    def __notify(
         self,
         notifier: TUserOrBot,
         target_user: TUserParam | None,
@@ -382,13 +374,13 @@ class NotificationService(BaseDomainService):
 
         model = NotificationPublishModel(
             notification=notification,
-            api_notification=await self.convert_to_api_response(notification, references, notifier),
+            api_notification=self.convert_to_api_response(notification, references, notifier),
             target_user=target_user,
             scope_models=scope_model_tuples,
             email_template_name=email_template_name,
             email_formats=email_formats,
         )
-        await NotificationPublisher.put_dispather(model)
+        NotificationPublisher.put_dispather(model)
         return True
 
     def __create_redirect_url(self, project: Project, card_or_wiki: ProjectWiki | Card | None = None):
@@ -420,6 +412,6 @@ class NotificationService(BaseDomainService):
 
         return url
 
-    async def __get_column_by_card(self, card: Card):
+    def __get_column_by_card(self, card: Card):
         column = InfraHelper.get_by_id_like(ProjectColumn, card.project_column_id)
         return cast(ProjectColumn, column)

@@ -8,7 +8,7 @@ from ..domain.models import Bot
 @staticclass
 class BotPublisher(BaseSocketPublisher):
     @staticmethod
-    async def bot_created(bot: Bot):
+    def bot_created(bot: Bot):
         model = {
             "bot": bot.api_response(),
             "setting_bot": bot.api_response(is_setting=True),
@@ -28,10 +28,10 @@ class BotPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await BotPublisher.put_dispather(model, publish_models)
+        BotPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def bot_updated(uid: str, model: dict[str, Any]):
+    def bot_updated(uid: str, model: dict[str, Any]):
         if not model:
             return
 
@@ -42,10 +42,10 @@ class BotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await BotPublisher.put_dispather(model, publish_model)
+        BotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def bot_setting_updated(uid: str, model: dict[str, Any]):
+    def bot_setting_updated(uid: str, model: dict[str, Any]):
         if not model:
             return
 
@@ -56,14 +56,14 @@ class BotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await BotPublisher.put_dispather(model, publish_model)
+        BotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def bot_deleted(uid: str):
+    def bot_deleted(uid: str):
         publish_model = SocketPublishModel(
             topic=SocketTopic.Global,
             topic_id=GLOBAL_TOPIC_ID,
             event=f"bot:deleted:{uid}",
         )
 
-        await BotPublisher.put_dispather({}, publish_model)
+        BotPublisher.put_dispather({}, publish_model)

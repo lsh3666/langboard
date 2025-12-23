@@ -27,21 +27,21 @@ from ..forms import BotSchedulePagination
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def get_bot_schedules_by_project(
+def get_bot_schedules_by_project(
     bot_uid: str,
     project_uid: str,
     pagination: BotSchedulePagination = Depends(),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2013)
 
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2013)
 
-    schedules = await BotScheduleHelper.get_all_by_scope(
+    schedules = BotScheduleHelper.get_all_by_scope(
         ProjectBotSchedule, bot, project, as_api=True, pagination=pagination, status=pagination.status
     )
 

@@ -11,7 +11,7 @@ from ..helpers import BotHelper
 @staticclass
 class ProjectBotPublisher(BaseSocketPublisher):
     @staticmethod
-    async def scheduled(project: Project, schedule: tuple[BotSchedule, BaseBotScheduleModel]):
+    def scheduled(project: Project, schedule: tuple[BotSchedule, BaseBotScheduleModel]):
         target_table = BotHelper.get_target_table_by_bot_model("schedule", schedule[1].__class__)
         model = {
             "target_table": target_table,
@@ -25,10 +25,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def rescheduled(project: Project, schedule: BaseBotScheduleModel, updated: dict[str, Any]):
+    def rescheduled(project: Project, schedule: BaseBotScheduleModel, updated: dict[str, Any]):
         target_table = BotHelper.get_target_table_by_bot_model("schedule", schedule.__class__)
         model = {
             "target_table": target_table,
@@ -43,10 +43,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def unscheduled(project: Project, schedule: BaseBotScheduleModel):
+    def unscheduled(project: Project, schedule: BaseBotScheduleModel):
         target_table = BotHelper.get_target_table_by_bot_model("schedule", schedule.__class__)
         model = {"target_table": target_table, "uid": schedule.get_uid()}
         topic_id = project.get_uid()
@@ -57,10 +57,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def scope_created(project: Project, bot_scope: BaseBotScopeModel):
+    def scope_created(project: Project, bot_scope: BaseBotScopeModel):
         scope_table = BotHelper.get_target_table_by_bot_model("scope", bot_scope.__class__)
         topic_id = project.get_uid()
         model = {"scope_table": scope_table, "bot_scope": bot_scope.api_response()}
@@ -71,10 +71,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def scope_conditions_updated(project: Project, bot_scope: BaseBotScopeModel):
+    def scope_conditions_updated(project: Project, bot_scope: BaseBotScopeModel):
         scope_table = BotHelper.get_target_table_by_bot_model("scope", bot_scope.__class__)
         model = {
             "scope_table": scope_table,
@@ -89,10 +89,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def scope_deleted(project: Project, bot_scope: BaseBotScopeModel):
+    def scope_deleted(project: Project, bot_scope: BaseBotScopeModel):
         scope_table = BotHelper.get_target_table_by_bot_model("scope", bot_scope.__class__)
         topic_id = project.get_uid()
         model = {"scope_table": scope_table, "uid": bot_scope.get_uid()}
@@ -103,10 +103,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys="uid",
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def log_created(project: Project, bot_log: tuple[BotLog, BaseBotLogModel]):
+    def log_created(project: Project, bot_log: tuple[BotLog, BaseBotLogModel]):
         topic_id = project.get_uid()
         model = {"log": {**bot_log[0].api_response(), **bot_log[1].api_response()}}
         publish_model = SocketPublishModel(
@@ -116,10 +116,10 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def log_stack_added(
+    def log_stack_added(
         project: Project, bot_log: BotLog, stack: BotLogMessage, status: Literal["running", "stopped"] | None = None
     ):
         topic_id = project.get_uid()
@@ -137,4 +137,4 @@ class ProjectBotPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectBotPublisher.put_dispather(model, publish_model)
+        ProjectBotPublisher.put_dispather(model, publish_model)

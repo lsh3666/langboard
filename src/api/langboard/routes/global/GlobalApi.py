@@ -7,7 +7,7 @@ from langboard_shared.security import Auth
 
 
 @AppRouter.api.get("/health", tags=["Global"], responses=OpenApiSchema().get())
-async def health_check() -> JsonResponse:
+def health_check() -> JsonResponse:
     return JsonResponse(content={"status": "ok"})
 
 
@@ -19,10 +19,10 @@ async def health_check() -> JsonResponse:
     ),
 )
 @AuthFilter.add("user")
-async def get_internal_bot(
+def get_internal_bot(
     bot_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    internal_bot = await service.internal_bot.get_by_id_like(bot_uid)
+    internal_bot = service.internal_bot.get_by_id_like(bot_uid)
     if not internal_bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3004)
 
@@ -36,7 +36,7 @@ async def get_internal_bot(
     responses=OpenApiSchema().suc({"bots": [Bot]}).auth().forbidden().get(),
 )
 @AuthFilter.add()
-async def get_bots(service: DomainService = DomainService.scope()) -> JsonResponse:
-    bots = await service.bot.get_api_list(False)
+def get_bots(service: DomainService = DomainService.scope()) -> JsonResponse:
+    bots = service.bot.get_api_list(False)
 
     return JsonResponse(content={"bots": bots})

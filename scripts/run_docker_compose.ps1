@@ -35,8 +35,6 @@ if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env" -Force | Out-Null
 }
 
-& ".\dockerutils\scale-docker-api.ps1"
-
 docker compose -f "$COMPOSE_PREFIX.yaml" $COMPOSE_ARGS up -d --build
 
 Write-Host ""

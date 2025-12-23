@@ -20,14 +20,14 @@ from .forms import ToggleCardCommentReactionForm
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def add_card_comment(
+def add_card_comment(
     project_uid: str,
     card_uid: str,
     comment: EditorContentModel,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
+    result = service.card_comment.create(user_or_bot, project_uid, card_uid, comment)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -62,10 +62,8 @@ async def add_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_comment(
-    card_uid: str, comment_uid: str, service: DomainService = DomainService.scope()
-) -> JsonResponse:
-    result = await service.card_comment.get_as_api(card_uid, comment_uid)
+def get_card_comment(card_uid: str, comment_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    result = service.card_comment.get_as_api(card_uid, comment_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -81,7 +79,7 @@ async def get_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def update_card_comment(
+def update_card_comment(
     project_uid: str,
     card_uid: str,
     comment_uid: str,
@@ -89,12 +87,12 @@ async def update_card_comment(
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_id_like(comment_uid)
+    card_comment = service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
     if not _is_owner(user_or_bot, card_comment):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2004)
-    result = await service.card_comment.update(user_or_bot, project_uid, card_uid, card_comment, comment)
+    result = service.card_comment.update(user_or_bot, project_uid, card_uid, card_comment, comment)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 
@@ -110,19 +108,19 @@ async def update_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def delete_card_comment(
+def delete_card_comment(
     project_uid: str,
     card_uid: str,
     comment_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_id_like(comment_uid)
+    card_comment = service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
     if not _is_owner(user_or_bot, card_comment):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2004)
-    result = await service.card_comment.delete(user_or_bot, project_uid, card_uid, card_comment)
+    result = service.card_comment.delete(user_or_bot, project_uid, card_uid, card_comment)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 
@@ -138,7 +136,7 @@ async def delete_card_comment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def toggle_reaction_card_comment(
+def toggle_reaction_card_comment(
     project_uid: str,
     card_uid: str,
     comment_uid: str,
@@ -146,10 +144,10 @@ async def toggle_reaction_card_comment(
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_comment = await service.card_comment.get_by_id_like(comment_uid)
+    card_comment = service.card_comment.get_by_id_like(comment_uid)
     if not card_comment:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
-    result = await service.card_comment.toggle_reaction(user_or_bot, project_uid, card_uid, card_comment, form.reaction)
+    result = service.card_comment.toggle_reaction(user_or_bot, project_uid, card_uid, card_comment, form.reaction)
     if result is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2012)
 

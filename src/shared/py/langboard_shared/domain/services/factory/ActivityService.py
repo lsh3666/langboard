@@ -25,14 +25,14 @@ class ActivityService(BaseDomainService):
         return "activity"
 
     @overload
-    async def get_api_list_by_user(
+    def get_api_list_by_user(
         self, user: TUserParam | None, pagination: TimeBasedPagination
     ) -> tuple[list[dict[str, Any]], int, User] | None: ...
     @overload
-    async def get_api_list_by_user(
+    def get_api_list_by_user(
         self, user: TUserParam | None, pagination: TimeBasedPagination, only_count: Literal[True]
     ) -> int: ...
-    async def get_api_list_by_user(
+    def get_api_list_by_user(
         self, user: TUserParam | None, pagination: TimeBasedPagination, only_count: bool = False
     ) -> tuple[list[dict[str, Any]], int, User] | int | None:
         user = InfraHelper.get_by_id_like(User, user)
@@ -47,7 +47,7 @@ class ActivityService(BaseDomainService):
         activities, count_new_records = self.repo.activity.get_list_by_user(user, pagination, only_count=False)
 
         api_activties = []
-        cached_dict = await self.__get_cached_references(activities)
+        cached_dict = self.__get_cached_references(activities)
         for activity in activities:
             if not activity.refer_activity_id or not activity.refer_activity_table:
                 continue
@@ -64,7 +64,7 @@ class ActivityService(BaseDomainService):
         return api_activties, count_new_records, user
 
     @overload
-    async def get_api_list_by_project(
+    def get_api_list_by_project(
         self,
         project: TProjectParam | None,
         pagination: TimeBasedPagination,
@@ -72,14 +72,14 @@ class ActivityService(BaseDomainService):
         assignee: TUserOrBotParam | None = None,
     ) -> tuple[list[dict[str, Any]], int, Project] | None: ...
     @overload
-    async def get_api_list_by_project(
+    def get_api_list_by_project(
         self,
         project: TProjectParam | None,
         pagination: TimeBasedPagination,
         only_count: Literal[True],
         assignee: TUserOrBotParam | None = None,
     ) -> int: ...
-    async def get_api_list_by_project(
+    def get_api_list_by_project(
         self,
         project: TProjectParam | None,
         pagination: TimeBasedPagination,
@@ -100,14 +100,14 @@ class ActivityService(BaseDomainService):
         )
 
         if assignee:
-            api_activities = await self.__convert_api_response(cast(Any, activities))
+            api_activities = self.__convert_api_response(cast(Any, activities))
         else:
             api_activities = [activity.api_response() for activity in activities]
 
         return api_activities, count_new_records, project
 
     @overload
-    async def get_api_list_by_column(
+    def get_api_list_by_column(
         self,
         project: TProjectParam | None,
         column: TColumnParam | None,
@@ -116,7 +116,7 @@ class ActivityService(BaseDomainService):
         assignee: TUserOrBotParam | None = None,
     ) -> tuple[list[dict[str, Any]], int, Project, ProjectColumn] | None: ...
     @overload
-    async def get_api_list_by_column(
+    def get_api_list_by_column(
         self,
         project: TProjectParam | None,
         column: TColumnParam | None,
@@ -124,7 +124,7 @@ class ActivityService(BaseDomainService):
         only_count: Literal[True],
         assignee: TUserOrBotParam | None = None,
     ) -> int: ...
-    async def get_api_list_by_column(
+    def get_api_list_by_column(
         self,
         project: TProjectParam | None,
         column: TColumnParam | None,
@@ -149,14 +149,14 @@ class ActivityService(BaseDomainService):
         )
 
         if assignee:
-            api_activities = await self.__convert_api_response(cast(Any, activities))
+            api_activities = self.__convert_api_response(cast(Any, activities))
         else:
             api_activities = [activity.api_response() for activity in activities]
 
         return api_activities, count_new_records, project, column
 
     @overload
-    async def get_api_list_by_card(
+    def get_api_list_by_card(
         self,
         project: TProjectParam | None,
         card: TCardParam | None,
@@ -165,7 +165,7 @@ class ActivityService(BaseDomainService):
         assignee: TUserOrBotParam | None = None,
     ) -> tuple[list[dict[str, Any]], int, Project, Card] | None: ...
     @overload
-    async def get_api_list_by_card(
+    def get_api_list_by_card(
         self,
         project: TProjectParam | None,
         card: TCardParam | None,
@@ -173,7 +173,7 @@ class ActivityService(BaseDomainService):
         only_count: Literal[True],
         assignee: TUserOrBotParam | None = None,
     ) -> int: ...
-    async def get_api_list_by_card(
+    def get_api_list_by_card(
         self,
         project: TProjectParam | None,
         card: TCardParam | None,
@@ -196,14 +196,14 @@ class ActivityService(BaseDomainService):
         )
 
         if assignee:
-            api_activities = await self.__convert_api_response(cast(Any, activities))
+            api_activities = self.__convert_api_response(cast(Any, activities))
         else:
             api_activities = [activity.api_response() for activity in activities]
 
         return api_activities, count_new_records, project, card
 
     @overload
-    async def get_api_list_by_wiki(
+    def get_api_list_by_wiki(
         self,
         project: TProjectParam | None,
         wiki: TWikiParam | None,
@@ -212,7 +212,7 @@ class ActivityService(BaseDomainService):
         assignee: TUserOrBotParam | None = None,
     ) -> tuple[list[dict[str, Any]], int, Project, ProjectWiki] | None: ...
     @overload
-    async def get_api_list_by_wiki(
+    def get_api_list_by_wiki(
         self,
         project: TProjectParam | None,
         wiki: TWikiParam | None,
@@ -220,7 +220,7 @@ class ActivityService(BaseDomainService):
         only_count: Literal[True],
         assignee: TUserOrBotParam | None = None,
     ) -> int | None: ...
-    async def get_api_list_by_wiki(
+    def get_api_list_by_wiki(
         self,
         project: TProjectParam | None,
         wiki: TWikiParam | None,
@@ -243,7 +243,7 @@ class ActivityService(BaseDomainService):
         )
 
         if assignee:
-            api_activities = await self.__convert_api_response(cast(Any, activities))
+            api_activities = self.__convert_api_response(cast(Any, activities))
         else:
             api_activities = [activity.api_response() for activity in activities]
 
@@ -252,9 +252,9 @@ class ActivityService(BaseDomainService):
     def get_user_or_bot(self, user_or_bot_param: TUserOrBotParam) -> User | Bot | None:
         return self.repo.activity.get_user_or_bot(user_or_bot_param)
 
-    async def __convert_api_response(self, activities: list[UserActivity]) -> list[dict[str, Any]]:
+    def __convert_api_response(self, activities: list[UserActivity]) -> list[dict[str, Any]]:
         api_activties = []
-        cached_dict = await self.__get_cached_references(activities)
+        cached_dict = self.__get_cached_references(activities)
         for activity in activities:
             if not activity.refer_activity_id or not activity.refer_activity_table:
                 continue
@@ -269,7 +269,7 @@ class ActivityService(BaseDomainService):
             api_activties.append(api_activity)
         return api_activties
 
-    async def __get_cached_references(self, activities: list[UserActivity]):
+    def __get_cached_references(self, activities: list[UserActivity]):
         refer_activities = InfraHelper.get_references(
             [
                 (activity.refer_activity_table, activity.refer_activity_id)

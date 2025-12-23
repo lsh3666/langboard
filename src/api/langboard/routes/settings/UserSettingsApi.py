@@ -24,12 +24,10 @@ from .Form import CreateUserForm, DeleteSelectedUsersForm, UpdateUserForm, Users
     ),
 )
 @AuthFilter.add("admin")
-async def get_users_in_settings(
+def get_users_in_settings(
     pagination: UsersPagination = Depends(), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.user.get_api_list_in_settings(
-        refer_time=pagination.refer_time, only_count=pagination.only_count
-    )
+    result = service.user.get_api_list_in_settings(refer_time=pagination.refer_time, only_count=pagination.only_count)
     if pagination.only_count:
         count_new_records = cast(int, result)
         return JsonResponse(content=PaginatedList(count_new_records=count_new_records))
@@ -58,8 +56,8 @@ async def get_users_in_settings(
     responses=OpenApiSchema(201).auth().err(409, ApiErrorCode.EX1003).forbidden().get(),
 )
 @AuthFilter.add("admin")
-async def create_user_in_settings(form: CreateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
-    user, _ = await service.user.get_by_email(form.email)
+def create_user_in_settings(form: CreateUserForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    user, _ = service.user.get_by_email(form.email)
     if user:
         raise ApiException.Conflict_409(ApiErrorCode.EX1003)
 
@@ -70,7 +68,7 @@ async def create_user_in_settings(form: CreateUserForm, service: DomainService =
         form_dict["updated_at"] = now
         form_dict["activated_at"] = now
 
-    user, _ = await service.user.create(form_dict)
+    user, _ = service.user.create(form_dict)
 
     return JsonResponse(status_code=status.HTTP_201_CREATED)
 
@@ -81,10 +79,10 @@ async def create_user_in_settings(form: CreateUserForm, service: DomainService =
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF1004).get(),
 )
 @AuthFilter.add("admin")
-async def update_user_in_settings(
+def update_user_in_settings(
     user_uid: str, form: UpdateUserForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    target_user = await service.user.get_by_id_like(user_uid)
+    target_user = service.user.get_by_id_like(user_uid)
     if not target_user:
         raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
@@ -95,10 +93,10 @@ async def update_user_in_settings(
         elif form.activate is False:
             form_dict["activated_at"] = None
 
-    await service.user.update(target_user, form_dict, from_setting=True)
+    service.user.update(target_user, form_dict, from_setting=True)
 
     if form.password:
-        await service.user.change_password(target_user, form.password)
+        service.user.change_password(target_user, form.password)
 
     return JsonResponse()
 
@@ -109,29 +107,29 @@ async def update_user_in_settings(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF1004).err(409, ApiErrorCode.OP1003).get(),
 )
 @AuthFilter.add("admin")
-async def delete_user_in_settings(
+def delete_user_in_settings(
     user_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    target_user = await service.user.get_by_id_like(user_uid)
+    target_user = service.user.get_by_id_like(user_uid)
     if not target_user:
         raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
     if target_user.id == user.id:
         raise ApiException.Conflict_409(ApiErrorCode.OP1003)
 
-    await service.user.delete(target_user)
+    service.user.delete(target_user)
 
     return JsonResponse()
 
 
 @AppRouter.api.delete("/settings/users", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get())
 @AuthFilter.add("admin")
-async def delete_selected_users_in_settings(
+def delete_selected_users_in_settings(
     form: DeleteSelectedUsersForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     user_uid = user.get_uid()
     form.user_uids = [uid for uid in form.user_uids if uid != user_uid]
 
-    await service.user.delete_selected(form.user_uids)
+    service.user.delete_selected(form.user_uids)
 
     return JsonResponse()

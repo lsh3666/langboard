@@ -17,23 +17,23 @@ class AppSettingService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "app_setting"
 
-    async def get_by_id_like(self, setting: TSettingParam | None) -> AppSetting | None:
+    def get_by_id_like(self, setting: TSettingParam | None) -> AppSetting | None:
         setting = InfraHelper.get_by_id_like(AppSetting, setting)
         return setting
 
-    async def get_api_list_by_type(self, setting_type: AppSettingType) -> list[dict[str, Any]]:
+    def get_api_list_by_type(self, setting_type: AppSettingType) -> list[dict[str, Any]]:
         settings = InfraHelper.get_all_by(AppSetting, "setting_type", setting_type)
         return [setting.api_response() for setting in settings]
 
-    async def get_api_list(self) -> list[dict[str, Any]]:
+    def get_api_list(self) -> list[dict[str, Any]]:
         settings = InfraHelper.get_all(AppSetting)
         return [setting.api_response() for setting in settings]
 
-    async def get_api_global_relationship_list(self) -> list[dict[str, Any]]:
+    def get_api_global_relationship_list(self) -> list[dict[str, Any]]:
         global_relationships = InfraHelper.get_all(GlobalCardRelationshipType)
         return [relationship.api_response() for relationship in global_relationships]
 
-    async def generate_api_key(self) -> str:
+    def generate_api_key(self) -> str:
         api_key = f"sk-{generate_random_string(53)}"
         while True:
             is_existed = InfraHelper.get_by(AppSetting, "setting_value", json_dumps(api_key))
@@ -42,17 +42,17 @@ class AppSettingService(BaseDomainService):
             api_key = f"sk-{generate_random_string(53)}"
         return api_key
 
-    async def create(self, setting_type: AppSettingType, setting_name: str, setting_value: Any) -> AppSetting:
+    def create(self, setting_type: AppSettingType, setting_name: str, setting_value: Any) -> AppSetting:
         setting = AppSetting(setting_type=setting_type, setting_name=setting_name)
         setting.set_value(setting_value)
 
         self.repo.app_setting.insert(setting)
 
-        await AppSettingPublisher.setting_created(setting)
+        AppSettingPublisher.setting_created(setting)
 
         return setting
 
-    async def update(
+    def update(
         self,
         setting: TSettingParam | None,
         setting_name: str | None = None,
@@ -74,30 +74,30 @@ class AppSettingService(BaseDomainService):
 
         self.repo.app_setting.update(setting)
 
-        await AppSettingPublisher.setting_updated(setting.get_uid(), model)
+        AppSettingPublisher.setting_updated(setting.get_uid(), model)
 
         return setting
 
-    async def delete(self, setting: TSettingParam | None) -> bool:
+    def delete(self, setting: TSettingParam | None) -> bool:
         setting = InfraHelper.get_by_id_like(AppSetting, setting)
         if not setting:
             return False
 
         self.repo.app_setting.delete(setting)
 
-        await AppSettingPublisher.setting_deleted(setting.get_uid())
+        AppSettingPublisher.setting_deleted(setting.get_uid())
 
         return True
 
-    async def delete_selected(self, settings: Sequence[TSettingParam]) -> bool:
+    def delete_selected(self, settings: Sequence[TSettingParam]) -> bool:
         self.repo.app_setting.delete(settings)
 
         uids = [InfraHelper.convert_uid(s) for s in settings]
-        await AppSettingPublisher.selected_setting_deleted(uids)
+        AppSettingPublisher.selected_setting_deleted(uids)
 
         return True
 
-    async def create_global_relationship(
+    def create_global_relationship(
         self, parent_name: str, child_name: str, description: str = ""
     ) -> GlobalCardRelationshipType:
         global_relationship = GlobalCardRelationshipType(
@@ -109,11 +109,11 @@ class AppSettingService(BaseDomainService):
         self.repo.global_card_relationship_type.insert(global_relationship)
 
         model = {"global_relationships": [global_relationship.api_response()]}
-        await AppSettingPublisher.global_relationship_created(model)
+        AppSettingPublisher.global_relationship_created(model)
 
         return global_relationship
 
-    async def import_global_relationship(
+    def import_global_relationship(
         self, relationships: list[tuple[str, str, str | None]]
     ) -> list[GlobalCardRelationshipType]:
         global_relationships: list[GlobalCardRelationshipType] = []
@@ -128,11 +128,11 @@ class AppSettingService(BaseDomainService):
         self.repo.global_card_relationship_type.insert(global_relationships)
 
         model = {"global_relationships": [gr.api_response() for gr in global_relationships]}
-        await AppSettingPublisher.global_relationship_created(model)
+        AppSettingPublisher.global_relationship_created(model)
 
         return global_relationships
 
-    async def update_global_relationship(
+    def update_global_relationship(
         self, global_relationship: TGlobalCardRelationshipTypeParam | None, form: dict
     ) -> bool | tuple[GlobalCardRelationshipType, dict[str, Any]] | None:
         global_relationship = InfraHelper.get_by_id_like(GlobalCardRelationshipType, global_relationship)
@@ -156,27 +156,25 @@ class AppSettingService(BaseDomainService):
                 continue
             model[key] = convert_python_data(getattr(global_relationship, key))
 
-        await AppSettingPublisher.global_relationship_updated(global_relationship.get_uid(), model)
+        AppSettingPublisher.global_relationship_updated(global_relationship.get_uid(), model)
 
         return global_relationship, model
 
-    async def delete_global_relationship(self, global_relationship: TGlobalCardRelationshipTypeParam | None) -> bool:
+    def delete_global_relationship(self, global_relationship: TGlobalCardRelationshipTypeParam | None) -> bool:
         global_relationship = InfraHelper.get_by_id_like(GlobalCardRelationshipType, global_relationship)
         if not global_relationship:
             return False
 
         self.repo.global_card_relationship_type.delete(global_relationship)
 
-        await AppSettingPublisher.global_relationship_deleted(global_relationship.get_uid())
+        AppSettingPublisher.global_relationship_deleted(global_relationship.get_uid())
 
         return True
 
-    async def delete_selected_global_relationships(
-        self, relationships: Sequence[TGlobalCardRelationshipTypeParam]
-    ) -> bool:
+    def delete_selected_global_relationships(self, relationships: Sequence[TGlobalCardRelationshipTypeParam]) -> bool:
         self.repo.global_card_relationship_type.delete(relationships)
 
         uids = [InfraHelper.convert_uid(r) for r in relationships]
-        await AppSettingPublisher.selected_global_relationships_deleted(uids)
+        AppSettingPublisher.selected_global_relationships_deleted(uids)
 
         return True

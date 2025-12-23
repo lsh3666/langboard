@@ -9,7 +9,7 @@ from ..domain.models import Project, ProjectColumn
 @staticclass
 class ProjectColumnPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(project: Project, column: ProjectColumn):
+    def created(project: Project, column: ProjectColumn):
         model = {
             "column": {
                 **column.api_response(),
@@ -33,10 +33,10 @@ class ProjectColumnPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await ProjectColumnPublisher.put_dispather(model, publish_models)
+        ProjectColumnPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def name_changed(project: Project, column: ProjectColumn, name: str):
+    def name_changed(project: Project, column: ProjectColumn, name: str):
         model = {
             "uid": column.get_uid(),
             "name": name,
@@ -58,10 +58,10 @@ class ProjectColumnPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await ProjectColumnPublisher.put_dispather(model, publish_models)
+        ProjectColumnPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def order_changed(project: Project, column: ProjectColumn):
+    def order_changed(project: Project, column: ProjectColumn):
         model = {
             "uid": column.get_uid(),
             "order": column.order,
@@ -83,10 +83,10 @@ class ProjectColumnPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await ProjectColumnPublisher.put_dispather(model, publish_models)
+        ProjectColumnPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def deleted(
+    def deleted(
         project: Project,
         column: ProjectColumn,
         archive_column: ProjectColumn,
@@ -118,12 +118,10 @@ class ProjectColumnPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await ProjectColumnPublisher.put_dispather(model, publish_models)
+        ProjectColumnPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def bot_status_changed(
-        project_uid: str, bot_uid: str, column_uid: str, status: Literal["running", "stopped"]
-    ):
+    def bot_status_changed(project_uid: str, bot_uid: str, column_uid: str, status: Literal["running", "stopped"]):
         data = {
             "bot_uid": bot_uid,
             "project_column_uid": column_uid,
@@ -137,4 +135,4 @@ class ProjectColumnPublisher(BaseSocketPublisher):
             data_keys=list(data.keys()),
         )
 
-        await ProjectColumnPublisher.put_dispather(data, publish_model)
+        ProjectColumnPublisher.put_dispather(data, publish_model)

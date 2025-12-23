@@ -51,16 +51,16 @@ from .forms import (
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_wikis(
+def get_project_wikis(
     project_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
-    wikis = await service.project_wiki.get_api_list(user_or_bot, project_uid)
-    project_members = await service.project.get_api_assigned_user_list(project)
+    wikis = service.project_wiki.get_api_list(user_or_bot, project_uid)
+    project_members = service.project.get_api_assigned_user_list(project)
     return JsonResponse(content={"wikis": wikis, "project_members": project_members})
 
 
@@ -91,7 +91,7 @@ async def get_project_wikis(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_wiki_details(
+def get_project_wiki_details(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
@@ -102,7 +102,7 @@ async def get_project_wiki_details(
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
     project, project_wiki = params
 
-    api_wiki = await service.project_wiki.convert_to_api_response(user_or_bot, project, project_wiki)
+    api_wiki = service.project_wiki.convert_to_api_response(user_or_bot, project, project_wiki)
     if not api_wiki:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -137,13 +137,13 @@ async def get_project_wiki_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def create_project_wiki(
+def create_project_wiki(
     project_uid: str,
     form: WikiForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_wiki.create(user_or_bot, project_uid, form.title, form.content)
+    result = service.project_wiki.create(user_or_bot, project_uid, form.title, form.content)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     _, api_wiki = result
@@ -168,18 +168,18 @@ async def create_project_wiki(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def change_project_wiki_details(
+def change_project_wiki_details(
     project_uid: str,
     wiki_uid: str,
     form: ChangeWikiDetailsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
+    project_wiki = service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
-    if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
+    if isinstance(user_or_bot, User) and not service.project_wiki.is_assigned(user_or_bot, project_wiki):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     form_dict = {}
@@ -189,7 +189,7 @@ async def change_project_wiki_details(
             continue
         form_dict[key] = value
 
-    result = await service.project_wiki.update(user_or_bot, project_uid, wiki_uid, form_dict)
+    result = service.project_wiki.update(user_or_bot, project_uid, wiki_uid, form_dict)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -214,21 +214,21 @@ async def change_project_wiki_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def change_project_wiki_public(
+def change_project_wiki_public(
     project_uid: str,
     wiki_uid: str,
     form: ChangeWikiPublicForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
+    project_wiki = service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
-    if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
+    if isinstance(user_or_bot, User) and not service.project_wiki.is_assigned(user_or_bot, project_wiki):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
-    result = await service.project_wiki.change_public(user_or_bot, project_uid, project_wiki, form.is_public)
+    result = service.project_wiki.change_public(user_or_bot, project_uid, project_wiki, form.is_public)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -244,24 +244,24 @@ async def change_project_wiki_public(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def update_project_wiki_assignees(
+def update_project_wiki_assignees(
     project_uid: str,
     wiki_uid: str,
     form: AssigneesForm,
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
+    project_wiki = service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
-    if not await service.project_wiki.is_assigned(user, project_wiki):
+    if not service.project_wiki.is_assigned(user, project_wiki):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
     if not form.assignees:
         raise MissingException("body", "assignees")
 
-    result = await service.project_wiki.update_assignees(user, project_uid, project_wiki, form.assignees)
+    result = service.project_wiki.update_assignees(user, project_uid, project_wiki, form.assignees)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -277,13 +277,13 @@ async def update_project_wiki_assignees(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def change_project_wiki_order(
+def change_project_wiki_order(
     project_uid: str,
     wiki_uid: str,
     form: ChangeChildOrderForm,
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project_wiki.change_order(project_uid, wiki_uid, form.order)
+    result = service.project_wiki.change_order(project_uid, wiki_uid, form.order)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -305,7 +305,7 @@ async def change_project_wiki_order(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def upload_wiki_attachment(
+def upload_wiki_attachment(
     project_uid: str,
     wiki_uid: str,
     attachment: UploadFile = File(),
@@ -319,7 +319,7 @@ async def upload_wiki_attachment(
     if not file_model:
         raise ApiException.InternalServerError_500(ApiErrorCode.OP1002)
 
-    result = await service.project_wiki.upload_attachment(user, project_uid, wiki_uid, file_model)
+    result = service.project_wiki.upload_attachment(user, project_uid, wiki_uid, file_model)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
@@ -338,20 +338,20 @@ async def upload_wiki_attachment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def delete_project_wiki(
+def delete_project_wiki(
     project_uid: str,
     wiki_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project_wiki = await service.project_wiki.get_by_id_like(wiki_uid)
+    project_wiki = service.project_wiki.get_by_id_like(wiki_uid)
     if not project_wiki:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 
-    if isinstance(user_or_bot, User) and not await service.project_wiki.is_assigned(user_or_bot, project_wiki):
+    if isinstance(user_or_bot, User) and not service.project_wiki.is_assigned(user_or_bot, project_wiki):
         raise ApiException.Forbidden_403(ApiErrorCode.PE2005)
 
-    result = await service.project_wiki.delete(user_or_bot, project_uid, project_wiki)
+    result = service.project_wiki.delete(user_or_bot, project_uid, project_wiki)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2008)
 

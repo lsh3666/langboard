@@ -39,7 +39,7 @@ class Auth:
         return Depends(get_user_or_bot)
 
     @staticmethod
-    async def get_user_by_token(token: str) -> User | InvalidTokenError | ExpiredSignatureError | None:
+    def get_user_by_token(token: str) -> User | InvalidTokenError | ExpiredSignatureError | None:
         """Gets the user from the given token.
 
         :param token: The token to get the user from.
@@ -63,10 +63,10 @@ class Auth:
         except Exception:
             return InvalidTokenError("Invalid token")
 
-        return await Auth.get_user_by_id(user_id)
+        return Auth.get_user_by_id(user_id)
 
     @staticmethod
-    async def get_user_by_id(user_id: int) -> User | InvalidTokenError | None:
+    def get_user_by_id(user_id: int) -> User | InvalidTokenError | None:
         """Gets the user from the given ID.
 
         If the user is cached, it will return the cached user.
@@ -80,10 +80,11 @@ class Auth:
         """
         cache_key = f"auth-user-{user_id}"
         try:
-            cached_user = await Cache.get(cache_key, User.model_validate)
+            cached_user = Cache.get(cache_key, User.model_validate)
             if cached_user:
                 return cached_user
-        except Exception:
+        except Exception as e:
+            print(e)
             pass
 
         try:
@@ -94,14 +95,14 @@ class Auth:
             if not user:
                 return InvalidTokenError("Invalid token")
 
-            await Cache.set(cache_key, user, 60 * 5)
+            Cache.set(cache_key, user, 60 * 5)
 
             return user
         except Exception:
             return None
 
     @staticmethod
-    async def get_bot_by_api_token(api_token: str) -> Bot | None:
+    def get_bot_by_api_token(api_token: str) -> Bot | None:
         """Gets the bot from the given API token.
 
         If the bot is cached, it will return the cached bot.
@@ -115,7 +116,7 @@ class Auth:
         """
         cache_key = f"auth-bot-{api_token}"
         try:
-            cached_bot = await Cache.get(cache_key, Bot.model_validate)
+            cached_bot = Cache.get(cache_key, Bot.model_validate)
             if cached_bot:
                 return cached_bot
         except Exception:
@@ -129,14 +130,14 @@ class Auth:
             if not bot:
                 return None
 
-            await Cache.set(cache_key, bot, 60 * 5)
+            Cache.set(cache_key, bot, 60 * 5)
 
             return bot
         except Exception:
             return None
 
     @staticmethod
-    async def reset_user(user: User) -> None:
+    def reset_user(user: User) -> None:
         """Resets the user cache.
 
         :param user: The user to reset.
@@ -145,12 +146,12 @@ class Auth:
             return
 
         cache_key = f"auth-user-{user.id}"
-        await Cache.delete(cache_key)
+        Cache.delete(cache_key)
 
-        await Cache.set(cache_key, user, 60 * 5)
+        Cache.set(cache_key, user, 60 * 5)
 
     @staticmethod
-    async def validate(queries_headers: dict[Any, Any] | Headers) -> User | Literal[401, 422]:
+    def validate(queries_headers: dict[Any, Any] | Headers) -> User | Literal[401, 422]:
         """Validates the given headers or queries and returns the user if the token is valid.
 
         :param headers: The headers to validate.
@@ -194,7 +195,7 @@ class Auth:
         if not access_token:
             return status.HTTP_401_UNAUTHORIZED
 
-        user = await Auth.get_user_by_token(access_token)
+        user = Auth.get_user_by_token(access_token)
         if isinstance(user, User):
             return user
         elif isinstance(user, ExpiredSignatureError):
@@ -203,7 +204,7 @@ class Auth:
             return status.HTTP_401_UNAUTHORIZED
 
     @staticmethod
-    async def validate_bot(headers: Headers) -> Bot | Literal[401]:
+    def validate_bot(headers: Headers) -> Bot | Literal[401]:
         ip = headers.get(AuthSecurity.IP_HEADER, headers.get(AuthSecurity.IP_HEADER.lower(), None))
         api_token = headers.get(AuthSecurity.API_TOKEN_HEADER, headers.get(AuthSecurity.API_TOKEN_HEADER.lower(), None))
         if not api_token:
@@ -219,7 +220,7 @@ class Auth:
             if not is_valid_ipv4_address_or_range(ip):
                 return status.HTTP_401_UNAUTHORIZED
 
-        bot = await Auth.get_bot_by_api_token(api_token)
+        bot = Auth.get_bot_by_api_token(api_token)
         if not bot:
             return status.HTTP_401_UNAUTHORIZED
 
@@ -248,7 +249,7 @@ class Auth:
         return status.HTTP_401_UNAUTHORIZED
 
     @staticmethod
-    async def validate_user_by_api_token(headers: Headers) -> User | Literal[401]:
+    def validate_user_by_api_token(headers: Headers) -> User | Literal[401]:
         api_token = headers.get(AuthSecurity.API_TOKEN_HEADER, headers.get(AuthSecurity.API_TOKEN_HEADER.lower(), None))
         if not api_token:
             return status.HTTP_401_UNAUTHORIZED

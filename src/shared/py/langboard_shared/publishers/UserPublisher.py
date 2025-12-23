@@ -9,7 +9,7 @@ from ..domain.models import User
 @staticclass
 class UserPublisher(BaseSocketPublisher):
     @staticmethod
-    async def updated(user: User, model: dict[str, Any]):
+    def updated(user: User, model: dict[str, Any]):
         topic_id = user.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.User,
@@ -18,10 +18,10 @@ class UserPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await UserPublisher.put_dispather(model, publish_model)
+        UserPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deactivated(user: User):
+    def deactivated(user: User):
         topic_id = user.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.UserPrivate,
@@ -30,10 +30,10 @@ class UserPublisher(BaseSocketPublisher):
             data_keys=[],
         )
 
-        await UserPublisher.put_dispather({}, publish_model)
+        UserPublisher.put_dispather({}, publish_model)
 
     @staticmethod
-    async def deleted(user: User | SnowflakeID):
+    def deleted(user: User | SnowflakeID):
         if isinstance(user, User):
             topic_id = user.get_uid()
         else:
@@ -53,4 +53,4 @@ class UserPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await UserPublisher.put_dispather({}, publish_models)
+        UserPublisher.put_dispather({}, publish_models)

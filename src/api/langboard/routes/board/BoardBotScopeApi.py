@@ -27,7 +27,7 @@ from .forms import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerCondi
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def create_bot_scope_in_project(
+def create_bot_scope_in_project(
     project_uid: str, bot_uid: str, form: CreateBotScopeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = BotHelper.get_target_model_by_param("scope", form.target_table, form.target_uid)
@@ -35,10 +35,10 @@ async def create_bot_scope_in_project(
         raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
     scope_model_class, target_scope = result
 
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
@@ -46,7 +46,7 @@ async def create_bot_scope_in_project(
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
-    await ProjectBotPublisher.scope_created(project, result)
+    ProjectBotPublisher.scope_created(project, result)
     return JsonResponse()
 
 
@@ -65,7 +65,7 @@ async def create_bot_scope_in_project(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def toggle_bot_trigger_condition(
+def toggle_bot_trigger_condition(
     project_uid: str,
     bot_scope_uid: str,
     form: ToggleBotTriggerConditionForm,
@@ -79,7 +79,7 @@ async def toggle_bot_trigger_condition(
     if not bot_scope:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
@@ -87,7 +87,7 @@ async def toggle_bot_trigger_condition(
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
-    await ProjectBotPublisher.scope_conditions_updated(project, bot_scope)
+    ProjectBotPublisher.scope_conditions_updated(project, bot_scope)
     return JsonResponse()
 
 
@@ -106,7 +106,7 @@ async def toggle_bot_trigger_condition(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def delete_bot_scope(
+def delete_bot_scope(
     project_uid: str, bot_scope_uid: str, form: DeleteBotScopeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     scope_model_class = BotHelper.get_bot_model_class("scope", form.target_table)
@@ -117,10 +117,10 @@ async def delete_bot_scope(
     if not bot_scope:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
     BotScopeHelper.delete(scope_model_class, bot_scope)
-    await ProjectBotPublisher.scope_deleted(project, bot_scope)
+    ProjectBotPublisher.scope_deleted(project, bot_scope)
     return JsonResponse()

@@ -19,11 +19,11 @@ class ChatService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "chat"
 
-    async def get_session_by_id_like(self, session: TChatSessionParam | None) -> ChatSession | None:
+    def get_session_by_id_like(self, session: TChatSessionParam | None) -> ChatSession | None:
         session = InfraHelper.get_by_id_like(ChatSession, session)
         return session
 
-    async def get_session_by_filterable(
+    def get_session_by_filterable(
         self,
         session_model: type[_TForeignSessionModel],
         session: TForeignSessionParam | None,
@@ -34,7 +34,7 @@ class ChatService(BaseDomainService):
         result = self.repo.chat_session.get_by_filterable(session_model, session, filterable)
         return result
 
-    async def get_api_session_list(
+    def get_api_session_list(
         self, user: User, session_model: type[_TForeignSessionModel], filterable: TFilterableParam
     ) -> list[dict[str, Any]]:
         if not filterable:
@@ -48,7 +48,7 @@ class ChatService(BaseDomainService):
 
         return chat_sessions
 
-    async def update_session(self, chat_session: TChatSessionParam | None, title: str):
+    def update_session(self, chat_session: TChatSessionParam | None, title: str):
         chat_session = InfraHelper.get_by_id_like(ChatSession, chat_session)
         if not chat_session:
             return None
@@ -59,18 +59,18 @@ class ChatService(BaseDomainService):
 
         return chat_session
 
-    async def delete_session(self, chat_session: TChatSessionParam | None):
+    def delete_session(self, chat_session: TChatSessionParam | None):
         chat_session = InfraHelper.get_by_id_like(ChatSession, chat_session)
         if not chat_session:
             return None
 
         self.repo.chat_session.delete(chat_session)
 
-    async def get_history_by_id_like(self, chat_history: TChatHistoryParam | None) -> ChatHistory | None:
+    def get_history_by_id_like(self, chat_history: TChatHistoryParam | None) -> ChatHistory | None:
         chat_history = InfraHelper.get_by_id_like(ChatHistory, chat_history)
         return chat_history
 
-    async def get_api_history_list(
+    def get_api_history_list(
         self,
         user: User,
         chat_session: TChatSessionParam | None,
@@ -94,23 +94,23 @@ class ChatService(BaseDomainService):
 
         return chat_histories
 
-    async def delete_history(self, chat_history: TChatHistoryParam | None):
+    def delete_history(self, chat_history: TChatHistoryParam | None):
         chat_history = InfraHelper.get_by_id_like(ChatHistory, chat_history)
         if not chat_history:
             return None
 
         self.repo.chat_history.delete(chat_history)
 
-    async def get_template_by_id_like(self, chat_template: TChatTemplateParam | None) -> ChatTemplate | None:
+    def get_template_by_id_like(self, chat_template: TChatTemplateParam | None) -> ChatTemplate | None:
         chat_template = InfraHelper.get_by_id_like(ChatTemplate, chat_template)
         return chat_template
 
-    async def get_api_template_list(self, filterable_table: str, filterable_id: int | str) -> list[dict[str, Any]]:
+    def get_api_template_list(self, filterable_table: str, filterable_id: int | str) -> list[dict[str, Any]]:
         templates = self.repo.chat_template.get_all_by_filterable(filterable_table, filterable_id)
 
         return [template.api_response() for template in templates]
 
-    async def create_template(self, filterable: BaseSqlModel, name: str, template: str) -> ChatTemplate:
+    def create_template(self, filterable: BaseSqlModel, name: str, template: str) -> ChatTemplate:
         chat_template = ChatTemplate(
             filterable_table=filterable.__tablename__,
             filterable_id=filterable.id,
@@ -122,7 +122,7 @@ class ChatService(BaseDomainService):
 
         return chat_template
 
-    async def update_template(
+    def update_template(
         self, chat_template: TChatTemplateParam | None, name: str | None, template: str | None
     ) -> tuple[ChatTemplate, dict[str, Any]] | None | Literal[True]:
         chat_template = InfraHelper.get_by_id_like(ChatTemplate, chat_template)
@@ -145,7 +145,7 @@ class ChatService(BaseDomainService):
 
         return chat_template, model
 
-    async def delete_template(self, chat_template: TChatTemplateParam | None) -> bool:
+    def delete_template(self, chat_template: TChatTemplateParam | None) -> bool:
         chat_template = InfraHelper.get_by_id_like(ChatTemplate, chat_template)
         if not chat_template:
             return False

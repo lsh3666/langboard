@@ -8,7 +8,7 @@ from ..domain.models import Project, ProjectLabel
 @staticclass
 class ProjectLabelPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(project: Project, label: ProjectLabel):
+    def created(project: Project, label: ProjectLabel):
         model = {"label": label.api_response()}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -17,10 +17,10 @@ class ProjectLabelPublisher(BaseSocketPublisher):
             data_keys="label",
         )
 
-        await ProjectLabelPublisher.put_dispather(model, publish_model)
+        ProjectLabelPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def updated(project: Project, label: ProjectLabel, model: dict[str, Any]):
+    def updated(project: Project, label: ProjectLabel, model: dict[str, Any]):
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -29,10 +29,10 @@ class ProjectLabelPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await ProjectLabelPublisher.put_dispather(model, publish_model)
+        ProjectLabelPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def order_changed(project: Project, label: ProjectLabel):
+    def order_changed(project: Project, label: ProjectLabel):
         topic_id = project.get_uid()
         model = {"uid": label.get_uid(), "order": label.order}
         publish_model = SocketPublishModel(
@@ -42,10 +42,10 @@ class ProjectLabelPublisher(BaseSocketPublisher):
             data_keys=["uid", "order"],
         )
 
-        await ProjectLabelPublisher.put_dispather(model, publish_model)
+        ProjectLabelPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deleted(project: Project, label: ProjectLabel):
+    def deleted(project: Project, label: ProjectLabel):
         topic_id = project.get_uid()
         model = {"uid": label.get_uid()}
         publish_model = SocketPublishModel(
@@ -55,4 +55,4 @@ class ProjectLabelPublisher(BaseSocketPublisher):
             data_keys="uid",
         )
 
-        await ProjectLabelPublisher.put_dispather(model, publish_model)
+        ProjectLabelPublisher.put_dispather(model, publish_model)

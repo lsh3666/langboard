@@ -19,23 +19,21 @@ class ProjectWikiService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "project_wiki"
 
-    async def get_by_id_like(self, wiki: TWikiParam | None) -> ProjectWiki | None:
+    def get_by_id_like(self, wiki: TWikiParam | None) -> ProjectWiki | None:
         wiki = InfraHelper.get_by_id_like(ProjectWiki, wiki)
         return wiki
 
-    async def get_api_list(self, user_or_bot: TUserOrBot, project: TProjectParam | None) -> list[dict[str, Any]]:
+    def get_api_list(self, user_or_bot: TUserOrBot, project: TProjectParam | None) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return []
 
         raw_wikis = self.repo.project_wiki.get_all_by_project(project)
-        wikis = [await self.convert_to_api_response(user_or_bot, project, raw_wiki) for raw_wiki in raw_wikis]
+        wikis = [self.convert_to_api_response(user_or_bot, project, raw_wiki) for raw_wiki in raw_wikis]
 
         return wikis
 
-    async def convert_to_api_response(
-        self, user_or_bot: TUserOrBot, project: Project, wiki: ProjectWiki
-    ) -> dict[str, Any]:
+    def convert_to_api_response(self, user_or_bot: TUserOrBot, project: Project, wiki: ProjectWiki) -> dict[str, Any]:
         api_wiki = wiki.api_response()
         api_wiki["assigned_members"] = []
         if wiki.is_public:
@@ -60,7 +58,7 @@ class ProjectWikiService(BaseDomainService):
 
         return api_wiki
 
-    async def get_api_assigned_user_list(self, wiki: TWikiParam | None) -> list[dict[str, Any]]:
+    def get_api_assigned_user_list(self, wiki: TWikiParam | None) -> list[dict[str, Any]]:
         wiki = InfraHelper.get_by_id_like(ProjectWiki, wiki)
         if not wiki:
             return []
@@ -69,7 +67,7 @@ class ProjectWikiService(BaseDomainService):
         users = [user.api_response() for user, _ in raw_users]
         return users
 
-    async def is_assigned(self, user: User, wiki: TWikiParam | None) -> bool:
+    def is_assigned(self, user: User, wiki: TWikiParam | None) -> bool:
         if user.is_admin:
             return True
 
@@ -83,7 +81,7 @@ class ProjectWikiService(BaseDomainService):
         record = self.repo.project_wiki_assigned_user.find_by_user_and_wiki(user, wiki)
         return bool(record)
 
-    async def create(
+    def create(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -106,13 +104,13 @@ class ProjectWikiService(BaseDomainService):
 
         api_wiki = wiki.api_response()
         api_wiki["assigned_members"] = []
-        await ProjectWikiPublisher.created(project, wiki)
+        ProjectWikiPublisher.created(project, wiki)
         ProjectWikiActivityTask.project_wiki_created(user_or_bot, project, wiki)
         ProjectWikiBotTask.project_wiki_created(user_or_bot, project, wiki)
 
         return wiki, api_wiki
 
-    async def update(
+    def update(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -138,18 +136,18 @@ class ProjectWikiService(BaseDomainService):
                 continue
             model[key] = convert_python_data(getattr(wiki, key))
 
-        await ProjectWikiPublisher.updated(project, wiki, model)
+        ProjectWikiPublisher.updated(project, wiki, model)
 
         notification_service = self._get_service(NotificationService)
         if "content" in model:
-            await notification_service.notify_mentioned_in_wiki(user_or_bot, project, wiki)
+            notification_service.notify_mentioned_in_wiki(user_or_bot, project, wiki)
 
         ProjectWikiActivityTask.project_wiki_updated(user_or_bot, project, old_record, wiki)
         ProjectWikiBotTask.project_wiki_updated(user_or_bot, project, wiki)
 
         return model
 
-    async def change_public(
+    def change_public(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -184,13 +182,13 @@ class ProjectWikiService(BaseDomainService):
 
         self.repo.project_wiki.update(wiki)
 
-        await ProjectWikiPublisher.publicity_changed(user_or_bot, project, wiki)
+        ProjectWikiPublisher.publicity_changed(user_or_bot, project, wiki)
         ProjectWikiActivityTask.project_wiki_publicity_changed(user_or_bot, project, was_public, wiki)
         ProjectWikiBotTask.project_wiki_publicity_changed(user_or_bot, project, wiki)
 
         return wiki, project
 
-    async def update_assignees(
+    def update_assignees(
         self,
         user: User,
         project: TProjectParam | None,
@@ -223,7 +221,7 @@ class ProjectWikiService(BaseDomainService):
                 self.repo.project_wiki_assigned_user.insert(assigned_user)
                 target_users.append(target_user)
 
-        await ProjectWikiPublisher.assignees_updated(project, wiki, target_users)
+        ProjectWikiPublisher.assignees_updated(project, wiki, target_users)
         ProjectWikiActivityTask.project_wiki_assignees_updated(
             user,
             project,
@@ -234,7 +232,7 @@ class ProjectWikiService(BaseDomainService):
 
         return wiki, project
 
-    async def change_order(
+    def change_order(
         self, project: TProjectParam | None, wiki: TWikiParam | None, order: int
     ) -> tuple[Project, ProjectWiki] | None:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (ProjectWiki, wiki))
@@ -246,11 +244,11 @@ class ProjectWikiService(BaseDomainService):
         wiki.order = order
         self.repo.project_wiki.update_column_order(wiki, project, old_order, order)
 
-        await ProjectWikiPublisher.order_changed(project, wiki)
+        ProjectWikiPublisher.order_changed(project, wiki)
 
         return project, wiki
 
-    async def upload_attachment(
+    def upload_attachment(
         self,
         user: User,
         project: TProjectParam | None,
@@ -274,7 +272,7 @@ class ProjectWikiService(BaseDomainService):
 
         return wiki_attachment
 
-    async def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, wiki: TWikiParam | None) -> bool:
+    def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, wiki: TWikiParam | None) -> bool:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (ProjectWiki, wiki))
         if not params:
             return False
@@ -282,7 +280,7 @@ class ProjectWikiService(BaseDomainService):
 
         self.repo.project_wiki.delete(wiki)
 
-        await ProjectWikiPublisher.deleted(project, wiki)
+        ProjectWikiPublisher.deleted(project, wiki)
         ProjectWikiActivityTask.project_wiki_deleted(user_or_bot, project, wiki)
         ProjectWikiBotTask.project_wiki_deleted(user_or_bot, project, wiki)
 

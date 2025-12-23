@@ -22,8 +22,8 @@ COPY ./src/api ./src/api
 COPY ./src/shared/py ./src/shared/py
 COPY pyproject.toml uv.lock README.md alembic.ini ./
 
-RUN cd /app/src/shared/py && uv venv && uv pip install .
-RUN cd /app && uv venv && uv pip install .
+RUN cd /app/src/shared/py && uv venv && uv pip install . && uv sync
+RUN cd /app && uv venv && uv pip install . && uv sync
 
 FROM base AS with-cron
 ARG CRON_TAB_FILE

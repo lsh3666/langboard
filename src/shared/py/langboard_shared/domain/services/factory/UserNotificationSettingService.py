@@ -15,8 +15,8 @@ class UserNotificationSettingService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "user_notification_setting"
 
-    async def get_api_map_by_user(self, user: User):
-        notification_unsubs = await self.repo.user_notification_setting.get_unsubscriptions_query_builder(user).all()
+    def get_api_map_by_user(self, user: User):
+        notification_unsubs = self.repo.user_notification_setting.get_unsubscriptions_query_builder(user).all()
         unsubs: dict[str, dict[str, dict[str, bool | list[str]]]] = {}
         for unsub in notification_unsubs:
             if unsub.scope_type.value not in unsubs:
@@ -39,7 +39,7 @@ class UserNotificationSettingService(BaseDomainService):
         return unsubs
 
     @overload
-    async def subscribe(
+    def subscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -47,7 +47,7 @@ class UserNotificationSettingService(BaseDomainService):
         scope: Literal[NotificationScope.All],
     ) -> list[NotificationType]: ...
     @overload
-    async def subscribe(
+    def subscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -55,7 +55,7 @@ class UserNotificationSettingService(BaseDomainService):
         scope: Literal[NotificationScope.Specific],
         model: BaseSqlModel,
     ) -> list[NotificationType]: ...
-    async def subscribe(
+    def subscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -79,7 +79,7 @@ class UserNotificationSettingService(BaseDomainService):
         else:
             query = query.where_scope(scope)
 
-        unsubscriptions = await query.all()
+        unsubscriptions = query.all()
 
         for unsubscription in unsubscriptions:
             self.repo.user_notification_setting.delete(unsubscription)
@@ -87,7 +87,7 @@ class UserNotificationSettingService(BaseDomainService):
         return notification_types
 
     @overload
-    async def unsubscribe(
+    def unsubscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -95,7 +95,7 @@ class UserNotificationSettingService(BaseDomainService):
         scope: Literal[NotificationScope.All],
     ) -> list[NotificationType]: ...
     @overload
-    async def unsubscribe(
+    def unsubscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -103,7 +103,7 @@ class UserNotificationSettingService(BaseDomainService):
         scope: Literal[NotificationScope.Specific],
         model: BaseSqlModel,
     ) -> list[NotificationType]: ...
-    async def unsubscribe(
+    def unsubscribe(
         self,
         user: User,
         channel: NotificationChannel,
@@ -127,7 +127,7 @@ class UserNotificationSettingService(BaseDomainService):
         else:
             query = query.where_scope(scope)
 
-        unsubscriptions = await query.all()
+        unsubscriptions = query.all()
         already_unsubscribed_types = [unsubscription.notification_type for unsubscription in unsubscriptions]
 
         for notification_type in notification_types:
@@ -147,13 +147,13 @@ class UserNotificationSettingService(BaseDomainService):
 
         return notification_types
 
-    async def has_unsubscription(self, model: NotificationPublishModel, channel: NotificationChannel) -> bool:
+    def has_unsubscription(self, model: NotificationPublishModel, channel: NotificationChannel) -> bool:
         query = (
             self.repo.user_notification_setting.get_unsubscriptions_query_builder(model.target_user)
             .where_channel(channel)
             .where_notification_type(model.notification.notification_type)
         )
-        unsubscription = await query.where_scope(NotificationScope.All).first()
+        unsubscription = query.where_scope(NotificationScope.All).first()
         if unsubscription:
             return True
 
@@ -169,15 +169,13 @@ class UserNotificationSettingService(BaseDomainService):
             ):
                 continue
 
-            unsubscription = await query.where_scope(NotificationScope.Specific, (table_name, record_id)).first()
+            unsubscription = query.where_scope(NotificationScope.Specific, (table_name, record_id)).first()
             if unsubscription:
                 return True
 
         return False
 
-    async def toggle_all(
-        self, user: User, channel: NotificationChannel, is_unsubscribed: bool
-    ) -> list[NotificationType]:
+    def toggle_all(self, user: User, channel: NotificationChannel, is_unsubscribed: bool) -> list[NotificationType]:
         params = {
             "user": user,
             "channel": channel,
@@ -186,10 +184,10 @@ class UserNotificationSettingService(BaseDomainService):
         }
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)
 
-    async def toggle_type(
+    def toggle_type(
         self,
         user: User,
         channel: NotificationChannel,
@@ -204,22 +202,22 @@ class UserNotificationSettingService(BaseDomainService):
         }
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)
 
     @overload
-    async def toggle_project(
+    def toggle_project(
         self, user: User, channel: NotificationChannel, is_unsubscribed: bool
     ) -> list[NotificationType]: ...
     @overload
-    async def toggle_project(
+    def toggle_project(
         self,
         user: User,
         channel: NotificationChannel,
         is_unsubscribed: bool,
         project: TProjectParam,
     ) -> list[NotificationType]: ...
-    async def toggle_project(
+    def toggle_project(
         self,
         user: User,
         channel: NotificationChannel,
@@ -249,15 +247,15 @@ class UserNotificationSettingService(BaseDomainService):
             params["scope"] = NotificationScope.All
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)
 
     @overload
-    async def toggle_column(
+    def toggle_column(
         self, user: User, channel: NotificationChannel, is_unsubscribed: bool
     ) -> list[NotificationType]: ...
     @overload
-    async def toggle_column(
+    def toggle_column(
         self,
         user: User,
         channel: NotificationChannel,
@@ -265,7 +263,7 @@ class UserNotificationSettingService(BaseDomainService):
         project: TProjectParam,
         column: TColumnParam,
     ) -> list[NotificationType]: ...
-    async def toggle_column(
+    def toggle_column(
         self,
         user: User,
         channel: NotificationChannel,
@@ -296,15 +294,15 @@ class UserNotificationSettingService(BaseDomainService):
             params["scope"] = NotificationScope.All
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)
 
     @overload
-    async def toggle_card(
+    def toggle_card(
         self, user: User, channel: NotificationChannel, is_unsubscribed: bool
     ) -> list[NotificationType]: ...
     @overload
-    async def toggle_card(
+    def toggle_card(
         self,
         user: User,
         channel: NotificationChannel,
@@ -312,7 +310,7 @@ class UserNotificationSettingService(BaseDomainService):
         project: TProjectParam,
         card: TCardParam,
     ) -> list[NotificationType]: ...
-    async def toggle_card(
+    def toggle_card(
         self,
         user: User,
         channel: NotificationChannel,
@@ -343,15 +341,15 @@ class UserNotificationSettingService(BaseDomainService):
             params["scope"] = NotificationScope.All
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)
 
     @overload
-    async def toggle_wiki(
+    def toggle_wiki(
         self, user: User, channel: NotificationChannel, is_unsubscribed: bool
     ) -> list[NotificationType]: ...
     @overload
-    async def toggle_wiki(
+    def toggle_wiki(
         self,
         user: User,
         channel: NotificationChannel,
@@ -359,7 +357,7 @@ class UserNotificationSettingService(BaseDomainService):
         project: TProjectParam,
         wiki: TWikiParam,
     ) -> list[NotificationType]: ...
-    async def toggle_wiki(
+    def toggle_wiki(
         self,
         user: User,
         channel: NotificationChannel,
@@ -384,5 +382,5 @@ class UserNotificationSettingService(BaseDomainService):
             params["scope"] = NotificationScope.All
 
         if is_unsubscribed:
-            return await self.unsubscribe(**params)
-        return await self.subscribe(**params)
+            return self.unsubscribe(**params)
+        return self.subscribe(**params)

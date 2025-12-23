@@ -33,7 +33,7 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
         if should_filter:
             headers = Headers(scope=scope)
 
-            validation_result = await self._validate(headers)
+            validation_result = self._validate(headers)
             if isinstance(validation_result, int):
                 response = JsonResponse(status_code=validation_result)
                 if validation_result != status.HTTP_422_UNPROCESSABLE_CONTENT:
@@ -66,12 +66,12 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
 
         await self.app(scope, receive, send)
 
-    async def _validate(self, headers: Headers) -> User | Bot | int:
+    def _validate(self, headers: Headers) -> User | Bot | int:
         if headers.get(AuthSecurity.API_TOKEN_HEADER, headers.get(AuthSecurity.API_TOKEN_HEADER.lower())):
-            validation_result = await Auth.validate_user_by_api_token(headers)
+            validation_result = Auth.validate_user_by_api_token(headers)
             if isinstance(validation_result, User):
                 return validation_result
 
-            return await Auth.validate_bot(headers)
+            return Auth.validate_bot(headers)
 
-        return await Auth.validate(headers)
+        return Auth.validate(headers)

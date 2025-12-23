@@ -21,7 +21,7 @@ from ..forms import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerCond
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def create_bot_scope_in_project(
+def create_bot_scope_in_project(
     bot_uid: str, form: CreateBotScopeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     result = BotHelper.get_target_model_by_param("scope", form.target_table, form.target_uid)
@@ -29,7 +29,7 @@ async def create_bot_scope_in_project(
         raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
     scope_model_class, target_scope = result
 
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
@@ -41,10 +41,10 @@ async def create_bot_scope_in_project(
         if isinstance(target_scope, Project):
             project = target_scope
         else:
-            project = await service.project.get_by_id_like(target_scope.project_id)
+            project = service.project.get_by_id_like(target_scope.project_id)
 
         if project:
-            await ProjectBotPublisher.scope_created(project, bot_scope)
+            ProjectBotPublisher.scope_created(project, bot_scope)
 
     return JsonResponse()
 
@@ -57,7 +57,7 @@ async def create_bot_scope_in_project(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def toggle_bot_trigger_condition(
+def toggle_bot_trigger_condition(
     bot_uid: str,
     bot_scope_uid: str,
     form: ToggleBotTriggerConditionForm,
@@ -81,10 +81,10 @@ async def toggle_bot_trigger_condition(
         if isinstance(target_scope, Project):
             project = target_scope
         else:
-            project = await service.project.get_by_id_like(target_scope.project_id)
+            project = service.project.get_by_id_like(target_scope.project_id)
 
         if project:
-            await ProjectBotPublisher.scope_conditions_updated(project, bot_scope)
+            ProjectBotPublisher.scope_conditions_updated(project, bot_scope)
 
     return JsonResponse()
 
@@ -97,7 +97,7 @@ async def toggle_bot_trigger_condition(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def delete_bot_scope(
+def delete_bot_scope(
     bot_uid: str,
     bot_scope_uid: str,
     form: DeleteBotScopeForm,
@@ -119,10 +119,10 @@ async def delete_bot_scope(
         if isinstance(target_scope, Project):
             project = target_scope
         else:
-            project = await service.project.get_by_id_like(target_scope.project_id)
+            project = service.project.get_by_id_like(target_scope.project_id)
 
         if project:
-            await ProjectBotPublisher.scope_deleted(project, bot_scope)
+            ProjectBotPublisher.scope_deleted(project, bot_scope)
 
     return JsonResponse()
 

@@ -13,7 +13,7 @@ class User(SoftDeleteModel, table=True):
     GROUP_EMAIL_TYPE: ClassVar[str] = "group_email"
     firstname: str = Field(nullable=False, api_field=ApiField())
     lastname: str = Field(nullable=False, api_field=ApiField())
-    email: str = Field(nullable=False, api_field=ApiField())
+    email: str = Field(nullable=False, index=True, api_field=ApiField())
     username: str = Field(
         default_factory=lambda: f"user-{generate_random_string(8)}", unique=True, nullable=False, api_field=ApiField()
     )

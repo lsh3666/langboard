@@ -18,7 +18,6 @@ services:
     depends_on:
       - ui
       - api
-{{API_WORKER_CONTAINER_NAMES}}
       - socket
     networks:
       - net
@@ -55,13 +54,13 @@ services:
     environment:
       WORKER: main
     working_dir: /app
-    command: ${PROJECT_NAME} run
+    command: uv run ${PROJECT_NAME} run --workers ${API_WORKERS_COUNT:-1}
     volumes:
       - ../src/api/${PROJECT_NAME}:/app/src/api/${PROJECT_NAME}
       - ../src/shared/py:/app/src/shared/py
       - ../src/resources:/app/src/resources
       - ../pyproject.toml:/app/pyproject.toml
-      - ../uv.lock:/app/uv.lock
+      - ../poetry.lock:/app/poetry.lock
       - ../README.md:/app/README.md
       - ../LICENSE:/app/LICENSE
       - ../alembic.ini:/app/alembic.ini
@@ -75,7 +74,7 @@ services:
     networks:
       - net
     restart: always
-{{API_WORKER_CONTAINERS}}
+
   celeryworker:
     <<: *api
     init: true
@@ -83,7 +82,7 @@ services:
     build:
       context: ../
       target: base
-    command: langboard run:broker --concurrency ${BROKER_CONCURRENCY}
+    command: uv run ${PROJECT_NAME} run:broker --concurrency ${BROKER_CONCURRENCY}
 
   socket:
     init: true

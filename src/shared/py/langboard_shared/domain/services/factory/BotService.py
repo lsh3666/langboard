@@ -20,11 +20,11 @@ class BotService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "bot"
 
-    async def get_by_id_like(self, bot: TBotParam | None) -> Bot | None:
+    def get_by_id_like(self, bot: TBotParam | None) -> Bot | None:
         bot = InfraHelper.get_by_id_like(Bot, bot)
         return bot
 
-    async def get_api_list(self, is_setting: bool = False) -> list[dict[str, Any]]:
+    def get_api_list(self, is_setting: bool = False) -> list[dict[str, Any]]:
         bots = InfraHelper.get_all(Bot)
         api_bots = []
         for bot in bots:
@@ -32,7 +32,7 @@ class BotService(BaseDomainService):
             api_bots.append(api_bot)
         return api_bots
 
-    async def create(
+    def create(
         self,
         name: str,
         bot_uname: str,
@@ -56,19 +56,19 @@ class BotService(BaseDomainService):
             avatar=avatar,
             api_url=api_url,
             api_key=api_key,
-            app_api_token=await self.generate_api_key(),
+            app_api_token=self.generate_api_key(),
             ip_whitelist=self.filter_valid_ip_whitelist(ip_whitelist),
             value=value or "",
         )
 
         self.repo.bot.insert(bot)
 
-        await BotPublisher.bot_created(bot)
+        BotPublisher.bot_created(bot)
         BotDefaultTask.bot_created(bot)
 
         return bot
 
-    async def update(self, bot: TBotParam | None, form: dict) -> bool | tuple[Bot, dict[str, Any]] | None:
+    def update(self, bot: TBotParam | None, form: dict) -> bool | tuple[Bot, dict[str, Any]] | None:
         bot = InfraHelper.get_by_id_like(Bot, bot)
         if not bot:
             return None
@@ -143,8 +143,8 @@ class BotService(BaseDomainService):
             else:
                 model[key] = convert_python_data(getattr(bot, key))
 
-        await BotPublisher.bot_updated(bot.get_uid(), model)
-        await BotPublisher.bot_setting_updated(bot.get_uid(), unpublishable_model)
+        BotPublisher.bot_updated(bot.get_uid(), model)
+        BotPublisher.bot_setting_updated(bot.get_uid(), unpublishable_model)
 
         model = {**model}
         for key in unpublishable_keys:
@@ -153,9 +153,7 @@ class BotService(BaseDomainService):
 
         return bot, model
 
-    async def update_ip_whitelist(
-        self, bot: TBotParam | None, ip_whitelist: list[str]
-    ) -> bool | tuple[Bot, dict[str, Any]]:
+    def update_ip_whitelist(self, bot: TBotParam | None, ip_whitelist: list[str]) -> bool | tuple[Bot, dict[str, Any]]:
         bot = InfraHelper.get_by_id_like(Bot, bot)
         if not bot:
             return False
@@ -165,34 +163,34 @@ class BotService(BaseDomainService):
         bot.ip_whitelist = valid_ip_whitelist
         self.repo.bot.update(bot)
 
-        await BotPublisher.bot_setting_updated(bot.get_uid(), {"ip_whitelist": valid_ip_whitelist})
+        BotPublisher.bot_setting_updated(bot.get_uid(), {"ip_whitelist": valid_ip_whitelist})
 
         return bot, {"ip_whitelist": valid_ip_whitelist}
 
-    async def generate_new_api_token(self, bot: TBotParam | None) -> Bot | None:
+    def generate_new_api_token(self, bot: TBotParam | None) -> Bot | None:
         bot = InfraHelper.get_by_id_like(Bot, bot)
         if not bot:
             return None
 
-        bot.app_api_token = await self.generate_api_key()
+        bot.app_api_token = self.generate_api_key()
         self.repo.bot.update(bot)
 
-        await BotPublisher.bot_setting_updated(bot.get_uid(), {"app_api_token": bot.app_api_token})
+        BotPublisher.bot_setting_updated(bot.get_uid(), {"app_api_token": bot.app_api_token})
 
         return bot
 
-    async def delete(self, bot: TBotParam | None) -> bool:
+    def delete(self, bot: TBotParam | None) -> bool:
         bot = InfraHelper.get_by_id_like(Bot, bot)
         if not bot:
             return False
 
         self.repo.bot.delete(bot)
 
-        await BotPublisher.bot_deleted(bot.get_uid())
+        BotPublisher.bot_deleted(bot.get_uid())
 
         return True
 
-    async def generate_api_key(self) -> str:
+    def generate_api_key(self) -> str:
         api_key = f"sk-{generate_random_string(53)}"
         while True:
             is_existed = InfraHelper.get_by(Bot, "api_key", api_key)

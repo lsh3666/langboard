@@ -6,7 +6,7 @@ from ..core.utils.decorators import staticclass
 @staticclass
 class MetadataPublisher(BaseSocketPublisher):
     @staticmethod
-    async def updated_metadata(
+    def updated_metadata(
         topic: SocketTopic,
         topic_uid: str,
         key: str,
@@ -21,10 +21,10 @@ class MetadataPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await MetadataPublisher.put_dispather(model, publish_model)
+        MetadataPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deleted_metadata(topic: SocketTopic, topic_uid: str, keys: list[str]):
+    def deleted_metadata(topic: SocketTopic, topic_uid: str, keys: list[str]):
         model = {"keys": keys}
         publish_model = SocketPublishModel(
             topic=topic,
@@ -33,4 +33,4 @@ class MetadataPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await MetadataPublisher.put_dispather(model, publish_model)
+        MetadataPublisher.put_dispather(model, publish_model)

@@ -11,6 +11,7 @@ UI_DIR := src/ui
 PY_CORE_DIR := src/shared/py
 API_DIR := src/api
 FLOWS_DIR := src/flows
+GRAPH_DIR := src/graph
 SOCKET_DIR := src/socket
 TS_SHARED_DIR := src/shared/ts
 GREEN := \033[0;32m
@@ -128,6 +129,9 @@ dev_ui: ## run the UI in development environment
 dev_flows: ## run the Flows in development environment
 	cd $(FLOWS_DIR) && uv run flows run -w
 
+dev_graph: ## run the API in development environment
+	cd $(GRAPH_DIR) && uv run graph
+
 dev_socket: ## run the Socket in development environment
 	cd $(SOCKET_DIR) && nodemon dist/index.js
 
@@ -172,7 +176,6 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 	fi
 
 update_docker_settings: ## update Docker settings
-	bash ./scripts/dockerutils/scale-docker-api.sh
 	bash ./scripts/dockerutils/update-docker-envs.sh
 
 clean_python_cache: ## clean Python cache
@@ -181,6 +184,7 @@ clean_python_cache: ## clean Python cache
 	find . -not -path "*/.venv/*" -type f -name '*.py[cod]' -exec rm -f {} +
 	find . -not -path "*/.venv/*" -type f -name '*~' -exec rm -f {} +
 	find . -not -path "*/.venv/*" -type f -name '.*~' -exec rm -f {} +
+	rm -rf ./.venv $(PY_CORE_DIR)/.venv $(API_DIR)/.venv $(FLOWS_DIR)/.venv
 	@printf "$(GREEN)Python cache cleaned.$(NC)"
 
 clean_ts_core_cache: ## clean Yarn cache

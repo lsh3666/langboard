@@ -7,7 +7,7 @@ from ..domain.models import Bot, Card, CardComment, Project, User
 @staticclass
 class CardCommentPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(user_or_bot: User | Bot, project: Project, card: Card, comment: CardComment):
+    def created(user_or_bot: User | Bot, project: Project, card: Card, comment: CardComment):
         api_comment = comment.api_response()
         author_key = "user" if isinstance(user_or_bot, User) else "bot"
         api_comment[author_key] = user_or_bot.api_response()
@@ -21,10 +21,10 @@ class CardCommentPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await CardCommentPublisher.put_dispather(model, publish_model)
+        CardCommentPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def updated(project: Project, card: Card, comment: CardComment):
+    def updated(project: Project, card: Card, comment: CardComment):
         model = {
             "content": comment.content.model_dump() if comment.content else {"content": ""},
             "card_uid": card.get_uid(),
@@ -38,10 +38,10 @@ class CardCommentPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await CardCommentPublisher.put_dispather(model, publish_model)
+        CardCommentPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def deleted(project: Project, card: Card, comment: CardComment):
+    def deleted(project: Project, card: Card, comment: CardComment):
         model = {"card_uid": card.get_uid(), "comment_uid": comment.get_uid()}
         publish_model = SocketPublishModel(
             topic=SocketTopic.Board,
@@ -50,10 +50,10 @@ class CardCommentPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await CardCommentPublisher.put_dispather(model, publish_model)
+        CardCommentPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def reacted(
+    def reacted(
         user_or_bot: User | Bot,
         project: Project,
         card: Card,
@@ -76,4 +76,4 @@ class CardCommentPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await CardCommentPublisher.put_dispather(model, publish_model)
+        CardCommentPublisher.put_dispather(model, publish_model)

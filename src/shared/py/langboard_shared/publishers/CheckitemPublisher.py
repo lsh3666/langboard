@@ -17,7 +17,7 @@ from ..domain.models.Checkitem import CheckitemStatus
 @staticclass
 class CheckitemPublisher(BaseSocketPublisher):
     @staticmethod
-    async def created(card: Card, checklist: Checklist, checkitem: Checkitem):
+    def created(card: Card, checklist: Checklist, checkitem: Checkitem):
         topic_id = card.get_uid()
         model = {
             "checkitem": {
@@ -32,10 +32,10 @@ class CheckitemPublisher(BaseSocketPublisher):
             data_keys=list(model.keys()),
         )
 
-        await CheckitemPublisher.put_dispather(model, publish_model)
+        CheckitemPublisher.put_dispather(model, publish_model)
 
     @staticmethod
-    async def title_changed(
+    def title_changed(
         project: Project,
         card: Card,
         checkitem: Checkitem,
@@ -81,10 +81,10 @@ class CheckitemPublisher(BaseSocketPublisher):
                 ]
             )
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def order_changed(
+    def order_changed(
         card: Card,
         checkitem: Checkitem,
         old_checklist: Checklist | None,
@@ -130,10 +130,10 @@ class CheckitemPublisher(BaseSocketPublisher):
                 )
             )
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def status_changed(
+    def status_changed(
         project: Project,
         card: Card,
         checkitem: Checkitem,
@@ -166,10 +166,10 @@ class CheckitemPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def checked_changed(project: Project, card: Card, checkitem: Checkitem):
+    def checked_changed(project: Project, card: Card, checkitem: Checkitem):
         model = {"is_checked": checkitem.is_checked}
         project_uid = project.get_uid()
         checkitem_uid = checkitem.get_uid()
@@ -189,10 +189,10 @@ class CheckitemPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def cardified(
+    def cardified(
         card: Card,
         checkitem: Checkitem,
         target_column: ProjectColumn,
@@ -221,10 +221,10 @@ class CheckitemPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)
 
     @staticmethod
-    async def deleted(project: Project, card: Card, checkitem: Checkitem):
+    def deleted(project: Project, card: Card, checkitem: Checkitem):
         project_uid = project.get_uid()
         model = {"uid": checkitem.get_uid()}
         topic_id = card.get_uid()
@@ -243,4 +243,4 @@ class CheckitemPublisher(BaseSocketPublisher):
             ),
         ]
 
-        await CheckitemPublisher.put_dispather(model, publish_models)
+        CheckitemPublisher.put_dispather(model, publish_models)

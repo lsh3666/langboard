@@ -34,8 +34,8 @@ from .forms import InviteProjectMemberForm, ProjectInvitationForm
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def is_project_available(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+def is_project_available(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     return JsonResponse(content={"title": project.title})
@@ -73,17 +73,17 @@ async def is_project_available(project_uid: str, service: DomainService = Domain
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project(
+def get_project(
     project_uid: str, user_or_bot: User | Bot = Auth.scope("all"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.get_details(user_or_bot, project_uid, is_setting=False)
+    result = service.project.get_details(user_or_bot, project_uid, is_setting=False)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
     project, response = result
-    project_bot_scopes = await service.project.get_api_bot_scope_list(project)
-    project_bot_schedules = await service.project.get_api_bot_schedule_list(project)
+    project_bot_scopes = service.project.get_api_bot_scope_list(project)
+    project_bot_schedules = service.project.get_api_bot_schedule_list(project)
     if isinstance(user_or_bot, User):
-        await service.project.set_last_view(user_or_bot, project)
+        service.project.set_last_view(user_or_bot, project)
     return JsonResponse(
         content={
             "project": response,
@@ -102,12 +102,12 @@ async def get_project(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_assigned_users(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+def get_project_assigned_users(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    project = service.project.get_by_id_like(project_uid)
     if not project:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
-    users = await service.project.get_api_assigned_user_list(project)
+    users = service.project.get_api_assigned_user_list(project)
 
     return JsonResponse(content={"users": users})
 
@@ -128,11 +128,11 @@ async def get_project_assigned_users(project_uid: str, service: DomainService = 
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_columns(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+def get_project_columns(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
-    columns = await service.project_column.get_api_list_by_project(project)
+    columns = service.project_column.get_api_list_by_project(project)
     return JsonResponse(content={"columns": columns})
 
 
@@ -145,11 +145,11 @@ async def get_project_columns(project_uid: str, service: DomainService = DomainS
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_labels(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+def get_project_labels(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
-    labels = await service.project_label.get_api_list_by_project(project)
+    labels = service.project_label.get_api_list_by_project(project)
     return JsonResponse(content={"labels": labels})
 
 
@@ -191,16 +191,16 @@ async def get_project_labels(project_uid: str, service: DomainService = DomainSe
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_project_cards(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+def get_project_cards(project_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
-    global_relationships = await service.app_setting.get_api_global_relationship_list()
-    columns = await service.project_column.get_api_list_by_project(project)
-    cards = await service.card.get_board_list(project)
-    checklists = await service.checklist.get_api_list_only_by_project(project)
-    column_bot_scopes = await service.project_column.get_api_bot_scopes_by_project(project)
-    column_bot_schedules = await service.project_column.get_api_bot_schedule_list_by_project(project, columns)
+    global_relationships = service.app_setting.get_api_global_relationship_list()
+    columns = service.project_column.get_api_list_by_project(project)
+    cards = service.card.get_board_list(project)
+    checklists = service.checklist.get_api_list_only_by_project(project)
+    column_bot_scopes = service.project_column.get_api_bot_scopes_by_project(project)
+    column_bot_schedules = service.project_column.get_api_bot_schedule_list_by_project(project, columns)
 
     for card in cards:
         card["project_column_name"] = next(
@@ -226,13 +226,13 @@ async def get_project_cards(project_uid: str, service: DomainService = DomainSer
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def update_project_member(
+def update_project_member(
     project_uid: str,
     form: InviteProjectMemberForm,
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.project.update_assigned_users(user, project_uid, form.emails)
+    result = service.project.update_assigned_users(user, project_uid, form.emails)
     if result is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2001)
 
@@ -246,10 +246,10 @@ async def update_project_member(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add("user")
-async def unassign_project_assignee(
+def unassign_project_assignee(
     project_uid: str, assignee_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project.unassign_assignee(user, project_uid, assignee_uid)
+    result = service.project.unassign_assignee(user, project_uid, assignee_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2005)
 
@@ -265,14 +265,14 @@ async def unassign_project_assignee(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def is_project_assignee(
+def is_project_assignee(
     project_uid: str, assignee_uid: str, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    target = await service.user.get_by_id_like(assignee_uid)
+    target = service.user.get_by_id_like(assignee_uid)
     if not target:
         raise ApiException.NotFound_404(ApiErrorCode.NF1004)
 
-    result, _ = await service.project.is_assigned(target, project_uid)
+    result, _ = service.project.is_assigned(target, project_uid)
     return JsonResponse(content={"result": result})
 
 
@@ -280,16 +280,16 @@ async def is_project_assignee(
     "/project/invite/details/{token}",
     tags=["Board"],
     responses=(
-        OpenApiSchema().suc({"project": {"title": "string"}}).auth().forbidden().err(404, ApiErrorCode.NF2001).get()
+        OpenApiSchema().suc({"project": {"title": "string"}}).auth().forbidden().err(404, ApiErrorCode.NF2002).get()
     ),
 )
 @AuthFilter.add("user")
-async def get_invited_project_title(
+def get_invited_project_title(
     token: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    project = await service.project_invitation.get_project_by_token(user, token)
+    project = service.project_invitation.get_project_by_token(user, token)
     if not project:
-        raise ApiException.NotFound_404(ApiErrorCode.NF2001)
+        raise ApiException.NotFound_404(ApiErrorCode.NF2002)
 
     return JsonResponse(content={"project": {"title": project.title}})
 
@@ -300,10 +300,10 @@ async def get_invited_project_title(
     responses=OpenApiSchema().suc({"project_uid": "string"}).auth().forbidden().err(406, ApiErrorCode.NF2002).get(),
 )
 @AuthFilter.add("user")
-async def accept_project_invitation(
+def accept_project_invitation(
     form: ProjectInvitationForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project_invitation.accept(user, form.invitation_token)
+    result = service.project_invitation.accept(user, form.invitation_token)
     if not result:
         raise ApiException.NotAcceptable_406(ApiErrorCode.NF2002)
 
@@ -316,10 +316,10 @@ async def accept_project_invitation(
     responses=OpenApiSchema().auth().forbidden().err(406, ApiErrorCode.NF2002).get(),
 )
 @AuthFilter.add("user")
-async def decline_project_invitation(
+def decline_project_invitation(
     form: ProjectInvitationForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.project_invitation.decline(user, form.invitation_token)
+    result = service.project_invitation.decline(user, form.invitation_token)
     if not result:
         raise ApiException.NotAcceptable_406(ApiErrorCode.NF2002)
 

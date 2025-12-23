@@ -9,6 +9,7 @@ from uvicorn.config import SSL_PROTOCOL_VERSION, LifespanType
 class RunCommandOptions(BaseCommandOptions):
     uds: str = cast(str, Field(default=None, description="Bind to a UNIX domain socket"))
     lifespan: LifespanType = Field(default="auto", description="Lifespan type [auto, on, off]", short="lfsp")  # type: ignore
+    workers: int = Field(default=1, description="Number of worker processes")
     ssl_keyfile: str = Field(default=None, description="SSL key file", short="ssl-key")  # type: ignore
     ssl_certfile: str = Field(default=None, description="SSL certificate file", short="ssl-cert")  # type: ignore
     ssl_keyfile_password: str = Field(default=None, description="SSL keyfile password", short="ssl-pass")  # type: ignore

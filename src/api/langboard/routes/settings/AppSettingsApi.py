@@ -10,7 +10,7 @@ from .Form import CreateSettingForm, DeleteSelectedSettingsForm, UpdateSettingFo
 
 @AppRouter.api.post("/settings/available", tags=["AppSettings"], responses=OpenApiSchema().auth().forbidden().get())
 @AuthFilter.add("admin")
-async def is_settings_available() -> JsonResponse:
+def is_settings_available() -> JsonResponse:
     return JsonResponse()
 
 
@@ -33,11 +33,11 @@ async def is_settings_available() -> JsonResponse:
     ),
 )
 @AuthFilter.add("admin")
-async def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
-    settings = await service.app_setting.get_api_list()
-    bots = await service.bot.get_api_list(is_setting=True)
-    global_relationships = await service.app_setting.get_api_global_relationship_list()
-    internal_bots = await service.internal_bot.get_api_list(is_setting=True)
+def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+    settings = service.app_setting.get_api_list()
+    bots = service.bot.get_api_list(is_setting=True)
+    global_relationships = service.app_setting.get_api_global_relationship_list()
+    internal_bots = service.internal_bot.get_api_list(is_setting=True)
 
     return JsonResponse(
         content={
@@ -55,8 +55,8 @@ async def get_all_settings(service: DomainService = DomainService.scope()) -> Js
     responses=OpenApiSchema().suc({"setting": AppSetting}, 200).auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
 )
 @AuthFilter.add("admin")
-async def get_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    setting = await service.app_setting.get_by_id_like(setting_uid)
+def get_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    setting = service.app_setting.get_by_id_like(setting_uid)
     if not setting:
         raise ApiException.NotFound_404(ApiErrorCode.NF3002)
     return JsonResponse(content={"setting": setting.api_response()})
@@ -68,11 +68,11 @@ async def get_setting(setting_uid: str, service: DomainService = DomainService.s
     responses=OpenApiSchema().suc({"setting": AppSetting, "revealed_value": "string"}, 201).auth().forbidden().get(),
 )
 @AuthFilter.add("admin")
-async def create_setting(form: CreateSettingForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+def create_setting(form: CreateSettingForm, service: DomainService = DomainService.scope()) -> JsonResponse:
     if form.setting_type == AppSettingType.ApiKey:
-        form.setting_value = await service.app_setting.generate_api_key()
+        form.setting_value = service.app_setting.generate_api_key()
 
-    setting = await service.app_setting.create(form.setting_type, form.setting_name, form.setting_value)
+    setting = service.app_setting.create(form.setting_type, form.setting_name, form.setting_value)
     revealed_value = setting.get_value()
 
     return JsonResponse(
@@ -87,10 +87,10 @@ async def create_setting(form: CreateSettingForm, service: DomainService = Domai
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
 )
 @AuthFilter.add("admin")
-async def update_setting(
+def update_setting(
     setting_uid: str, form: UpdateSettingForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.app_setting.update(setting_uid, form.setting_name, form.setting_value)
+    result = service.app_setting.update(setting_uid, form.setting_name, form.setting_value)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 
@@ -103,8 +103,8 @@ async def update_setting(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
 )
 @AuthFilter.add("admin")
-async def delete_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    result = await service.app_setting.delete(setting_uid)
+def delete_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    result = service.app_setting.delete(setting_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 
@@ -117,10 +117,10 @@ async def delete_setting(setting_uid: str, service: DomainService = DomainServic
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
 )
 @AuthFilter.add("admin")
-async def delete_selected_settings(
+def delete_selected_settings(
     form: DeleteSelectedSettingsForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.app_setting.delete_selected(form.setting_uids)
+    result = service.app_setting.delete_selected(form.setting_uids)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3002)
 

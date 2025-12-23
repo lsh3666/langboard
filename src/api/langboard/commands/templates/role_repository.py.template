@@ -14,21 +14,21 @@ class {class_name}Repository(BaseRoleRepository[{class_name}]):
         return "{snake_name}"
 
     @extract_func_param(4)({class_name}Role)  # type: ignore
-    async def get_list(self, **kwargs):
-        return await super().get_list(**kwargs)
+    def get_list(self, **kwargs):
+        return super().get_list(**kwargs)
 
     @extract_func_param(3)({class_name}Role)  # type: ignore
-    async def grant(self, **kwargs):
-        return await super().grant(**kwargs)
+    def grant(self, **kwargs):
+        return super().grant(**kwargs)
 
     @extract_func_param(4)({class_name}Role)  # type: ignore
-    async def grant_all(self, **kwargs):
-        return await super().grant_all(**kwargs)
+    def grant_all(self, **kwargs):
+        return super().grant_all(**kwargs)
 
     @extract_func_param(4)({class_name}Role)  # type: ignore
-    async def grant_default(self, **kwargs):
-        return await super().grant_default(**kwargs)
+    def grant_default(self, **kwargs):
+        return super().grant_default(**kwargs)
 
     @extract_func_param(4)({class_name}Role)  # type: ignore
-    async def withdraw(self, **kwargs):
-        return await super().withdraw(**kwargs)
+    def withdraw(self, **kwargs):
+        return super().withdraw(**kwargs)

@@ -202,7 +202,7 @@ class FlowRunner:
 
         if self.raw_project and scope_log:
             project = Project(**self.raw_project)
-            await ProjectBotPublisher.log_stack_added(project, log, log_stack, status)
+            ProjectBotPublisher.log_stack_added(project, log, log_stack, status)
 
     async def _publish_status(self, status: Literal["running", "stopped"]) -> None:
         if not self.raw_project or not self.input_request.tweaks or not self.raw_bot:
@@ -234,7 +234,7 @@ class FlowRunner:
         else:
             return
 
-        status_map: dict = await Cache.get("bot.status.map") or {}
+        status_map: dict = Cache.get("bot.status.map") or {}
         if project_uid not in status_map:
             status_map[project_uid] = {}
         if target_type not in status_map[project_uid]:
@@ -243,5 +243,5 @@ class FlowRunner:
             status_map[project_uid][target_type][target_uid] = []
         status_map[project_uid][target_type][target_uid].append(bot_uid)
 
-        await Cache.set("bot.status.map", status_map, ttl=24 * 60 * 60)
-        await publisher.bot_status_changed(project_uid, bot_uid, target_uid, status)
+        Cache.set("bot.status.map", status_map, ttl=24 * 60 * 60)
+        publisher.bot_status_changed(project_uid, bot_uid, target_uid, status)

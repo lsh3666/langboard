@@ -15,7 +15,7 @@ class CardRelationshipService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "card_relationship"
 
-    async def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_card(self, card: TCardParam | None) -> list[dict[str, Any]]:
         card = InfraHelper.get_by_id_like(Card, card)
         if not card:
             return []
@@ -24,7 +24,7 @@ class CardRelationshipService(BaseDomainService):
         relationships = [relationship.api_response() for relationship, _ in raw_relationships]
         return relationships
 
-    async def get_api_list_by_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return []
@@ -33,7 +33,7 @@ class CardRelationshipService(BaseDomainService):
         relationships = [relationship.api_response() for relationship, _ in raw_relationships]
         return relationships
 
-    async def update(
+    def update(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -94,9 +94,9 @@ class CardRelationshipService(BaseDomainService):
             api_relationship.pop("uid")
             new_relationships_dict[related_card_id] = True
 
-        new_relationships = await self.get_api_list_by_card(card)
+        new_relationships = self.get_api_list_by_card(card)
 
-        await CardRelationshipPublisher.updated(project, card, new_relationships)
+        CardRelationshipPublisher.updated(project, card, new_relationships)
         CardRelationshipActivityTask.card_relationship_updated(
             user_or_bot,
             project,

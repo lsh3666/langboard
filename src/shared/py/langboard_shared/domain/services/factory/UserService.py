@@ -25,7 +25,7 @@ class UserService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "user"
 
-    async def get_by_id_like(self, user: TUserParam | None) -> User | None:
+    def get_by_id_like(self, user: TUserParam | None) -> User | None:
         project = InfraHelper.get_by_id_like(User, user)
         return project
 
@@ -33,12 +33,12 @@ class UserService(BaseDomainService):
         return f"{cache_type}:{email}"
 
     @overload
-    async def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: Literal[True]) -> int: ...
+    def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: Literal[True]) -> int: ...
     @overload
-    async def get_api_list_in_settings(
+    def get_api_list_in_settings(
         self, refer_time: SafeDateTime, only_count: Literal[False]
     ) -> tuple[list[dict[str, Any]], int]: ...
-    async def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: bool = False):
+    def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: bool = False):
         count = self.repo.user.count_users_scroller(refer_time)
         if only_count:
             return count
@@ -56,26 +56,24 @@ class UserService(BaseDomainService):
 
         return api_list, count
 
-    async def get_by_email(self, email: str | None):
+    def get_by_email(self, email: str | None):
         if not email:
             return None, None
         return self.repo.user.get_by_email(email)
 
-    async def get_by_token(
-        self, token: str | None, key: str | None
-    ) -> tuple[User, UserEmail | None] | tuple[None, None]:
+    def get_by_token(self, token: str | None, key: str | None) -> tuple[User, UserEmail | None] | tuple[None, None]:
         if not token or not key:
             return None, None
         email = Encryptor.decrypt(token, key)
         return self.repo.user.get_by_email(email)
 
-    async def get_api_profile(self, user: TUserParam) -> dict[str, Any]:
+    def get_api_profile(self, user: TUserParam) -> dict[str, Any]:
         profile = self.repo.user_profile.get_by_user(user)
         if not profile:
             return {}
         return profile.api_response()
 
-    async def create(self, form: dict, avatar: FileModel | None = None) -> tuple[User, UserProfile]:
+    def create(self, form: dict, avatar: FileModel | None = None) -> tuple[User, UserProfile]:
         user = User(**form)
         user.avatar = avatar
 
@@ -86,21 +84,21 @@ class UserService(BaseDomainService):
 
         return user, user_profile
 
-    async def create_subemail(self, user: TUserParam, email: str) -> UserEmail:
+    def create_subemail(self, user: TUserParam, email: str) -> UserEmail:
         user_id = InfraHelper.convert_id(user)
         user_email = UserEmail(user_id=user_id, email=email)
         self.repo.user_email.insert(user_email)
 
         return user_email
 
-    async def get_subemails(self, user: User) -> list[dict[str, Any]]:
+    def get_subemails(self, user: User) -> list[dict[str, Any]]:
         if not user.id:
             return []
         raw_subemails = self.repo.user_email.get_all_by_user(user.id)
         subemails = [subemail.api_response() for subemail in raw_subemails]
         return subemails
 
-    async def create_token_url(
+    def create_token_url(
         self,
         user: User,
         cache_key: str,
@@ -127,11 +125,11 @@ class UserService(BaseDomainService):
         if extra_token_data:
             cache_token_Data["extra"] = extra_token_data
 
-        await Cache.set(cache_key, cache_token_Data, 60 * 60 * token_expire_hours)
+        Cache.set(cache_key, cache_token_Data, 60 * 60 * token_expire_hours)
 
         return token_url
 
-    async def validate_token_from_url(
+    def validate_token_from_url(
         self, token_type: str, token: str
     ) -> tuple[User, str, dict | None] | tuple[None, None, None]:
         try:
@@ -147,7 +145,7 @@ class UserService(BaseDomainService):
 
         cache_key = self.create_cache_name(token_type, user.email)
 
-        cached_token_info: dict | None = await Cache.get(cache_key)
+        cached_token_info: dict | None = Cache.get(cache_key)
         if (
             not cached_token_info
             or cached_token_info["id"] != user.id
@@ -157,15 +155,15 @@ class UserService(BaseDomainService):
 
         return user, cache_key, cached_token_info.get("extra")
 
-    async def activate(self, user: User) -> None:
+    def activate(self, user: User) -> None:
         user.activated_at = SafeDateTime.now()
         self.repo.user.update(user)
 
-    async def verify_subemail(self, subemail: UserEmail) -> None:
+    def verify_subemail(self, subemail: UserEmail) -> None:
         subemail.verified_at = SafeDateTime.now()
         self.repo.user_email.update(subemail)
 
-    async def update(self, user: User, form: dict, from_setting: bool = False) -> bool:
+    def update(self, user: User, form: dict, from_setting: bool = False) -> bool:
         profile = self.repo.user_profile.get_by_user(user)
         if not profile:
             return False
@@ -205,7 +203,7 @@ class UserService(BaseDomainService):
 
         self.repo.user.update([user, profile])
 
-        await Auth.reset_user(user)
+        Auth.reset_user(user)
 
         model: dict[str, Any] = {}
         for key in form:
@@ -216,14 +214,14 @@ class UserService(BaseDomainService):
             else:
                 model[key] = convert_python_data(getattr(user, key))
 
-        await UserPublisher.updated(user, model)
+        UserPublisher.updated(user, model)
         if from_setting:
             if "activated_at" in form and not user.activated_at:
-                await UserPublisher.deactivated(user)
+                UserPublisher.deactivated(user)
 
         return True
 
-    async def update_preferred_lang(self, user: User, lang: str):
+    def update_preferred_lang(self, user: User, lang: str):
         if lang in LangEnum.__members__:
             lang = LangEnum[lang].value
         elif lang in LangEnum._value2member_map_:
@@ -236,36 +234,36 @@ class UserService(BaseDomainService):
 
         return True
 
-    async def change_primary_email(self, user: User, subemail: UserEmail) -> bool:
+    def change_primary_email(self, user: User, subemail: UserEmail) -> bool:
         user_email = user.email
         user.email = subemail.email
         subemail.email = user_email
 
         self.repo.user.update([user, subemail])
 
-        await Auth.reset_user(user)
+        Auth.reset_user(user)
 
         model = {"email": user.email}
-        await UserPublisher.updated(user, model)
+        UserPublisher.updated(user, model)
 
         return True
 
-    async def delete_email(self, subemail: UserEmail) -> bool:
+    def delete_email(self, subemail: UserEmail) -> bool:
         self.repo.user_email.delete(subemail)
 
         return True
 
-    async def change_password(self, user: User, password: str) -> None:
+    def change_password(self, user: User, password: str) -> None:
         user.set_password(password)
         self.repo.user.update(user)
 
-    async def delete(self, user: User) -> None:
+    def delete(self, user: User) -> None:
         self.repo.user.delete(user)
 
-        await Auth.reset_user(user)
-        await UserPublisher.deleted(user)
+        Auth.reset_user(user)
+        UserPublisher.deleted(user)
 
-    async def delete_selected(self, users: Sequence[TUserParam]) -> None:
+    def delete_selected(self, users: Sequence[TUserParam]) -> None:
         if not isinstance(users, Sequence) or isinstance(users, str):
             users = [users]
 
@@ -273,6 +271,6 @@ class UserService(BaseDomainService):
 
         ids = [InfraHelper.convert_id(user) for user in users]
         uids = [InfraHelper.convert_uid(user) for user in users]
-        await AppSettingPublisher.selected_users_deleted(uids)
+        AppSettingPublisher.selected_users_deleted(uids)
         for user_id in ids:
-            await UserPublisher.deleted(user_id)
+            UserPublisher.deleted(user_id)

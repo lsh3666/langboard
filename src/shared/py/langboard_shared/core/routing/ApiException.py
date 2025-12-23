@@ -4,8 +4,8 @@ from .ApiErrorCode import ApiErrorCode
 
 
 class ApiErrorCodeException(ABC, HTTPException):
-    def __init__(self, error_code: ApiErrorCode):
-        super().__init__(status_code=self.code(), detail=error_code.to_dict())
+    def __init__(self, error_code: ApiErrorCode | None = None):
+        super().__init__(status_code=self.code(), detail=error_code.to_dict() if error_code else {})
 
     @classmethod
     @abstractmethod

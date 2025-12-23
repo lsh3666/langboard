@@ -10,12 +10,12 @@ from langboard_shared.Env import Env
 
 
 @AppRouter.api.get("/schema/webhook", response_class=HTMLResponse)
-async def webhook_docs():
+def webhook_docs():
     return get_swagger_ui_html(openapi_url="/schema/webhook.json", title=Env.PROJECT_NAME.capitalize())
 
 
 @AppRouter.api.get("/schema/webhook.json", include_in_schema=False)
-async def webhook_openapi():
+def webhook_openapi():
     schemas = Broker.get_schema("webhook")
     bot_schema = {
         **Bot.api_schema(),
@@ -58,7 +58,7 @@ async def webhook_openapi():
     tags=["Schema"],
     responses=OpenApiSchema().suc({"conditions": BotTriggerCondition}).get(),
 )
-async def get_bot_trigger_conditions():
+def get_bot_trigger_conditions():
     return JsonResponse(content={"conditions": [condition.value for condition in BotTriggerCondition]})
 
 

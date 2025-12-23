@@ -17,11 +17,11 @@ class CheckitemService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "checkitem"
 
-    async def get_by_id_like(self, checkitem: TCheckitemParam | None) -> Checkitem | None:
+    def get_by_id_like(self, checkitem: TCheckitemParam | None) -> Checkitem | None:
         checkitem = InfraHelper.get_by_id_like(Checkitem, checkitem)
         return checkitem
 
-    async def get_api_list_by_checklist(self, card: TCardParam, checklist: TChecklistParam) -> list[dict[str, Any]]:
+    def get_api_list_by_checklist(self, card: TCardParam, checklist: TChecklistParam) -> list[dict[str, Any]]:
         params = InfraHelper.get_records_with_foreign_by_params((Card, card), (Checklist, checklist))
         if not params:
             return []
@@ -32,7 +32,7 @@ class CheckitemService(BaseDomainService):
         checkitems = [self.__convert_api_response(card, record) for record in records]
         return checkitems
 
-    async def get_api_map_by_card(self, card: TCardParam | None) -> dict[int, list[dict[str, Any]]]:
+    def get_api_map_by_card(self, card: TCardParam | None) -> dict[int, list[dict[str, Any]]]:
         card = InfraHelper.get_by_id_like(Card, card)
         if not card:
             return {}
@@ -46,7 +46,7 @@ class CheckitemService(BaseDomainService):
             checkitems_map[checkitem.checklist_id].append(api_checkitem)
         return checkitems_map
 
-    async def get_tracking_list(
+    def get_tracking_list(
         self, user: User, pagination: TimeBasedPagination
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
         records = self.repo.checkitem.get_all_tracking_scroller(user, pagination)
@@ -73,7 +73,7 @@ class CheckitemService(BaseDomainService):
 
         return api_checkitems, list(api_cards.values()), list(api_projects.values())
 
-    async def create(
+    def create(
         self, user_or_bot: TUserOrBot, project: TProjectParam, card: TCardParam, checklist: TChecklistParam, title: str
     ) -> Checkitem | None:
         params = InfraHelper.get_records_with_foreign_by_params(
@@ -88,13 +88,13 @@ class CheckitemService(BaseDomainService):
         )
         self.repo.checkitem.insert(checkitem)
 
-        await CheckitemPublisher.created(card, checklist, checkitem)
+        CheckitemPublisher.created(card, checklist, checkitem)
         CardCheckitemActivityTask.card_checkitem_created(user_or_bot, project, card, checkitem)
         CardCheckitemBotTask.card_checkitem_created(user_or_bot, project, card, checkitem)
 
         return checkitem
 
-    async def change_title(
+    def change_title(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam,
@@ -102,7 +102,7 @@ class CheckitemService(BaseDomainService):
         checkitem: TCheckitemParam,
         title: str,
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
@@ -120,13 +120,13 @@ class CheckitemService(BaseDomainService):
 
         self.repo.checkitem.update(checkitem)
 
-        await CheckitemPublisher.title_changed(project, card, checkitem, cardified_card)
+        CheckitemPublisher.title_changed(project, card, checkitem, cardified_card)
         CardCheckitemActivityTask.card_checkitem_title_changed(user_or_bot, project, card, old_title, checkitem)
         CardCheckitemBotTask.card_checkitem_title_changed(user_or_bot, project, card, checkitem)
 
         return True
 
-    async def change_order(
+    def change_order(
         self,
         project: TProjectParam,
         card: TCardParam,
@@ -134,7 +134,7 @@ class CheckitemService(BaseDomainService):
         order: int,
         checklist_uid: str = "",
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
@@ -153,11 +153,11 @@ class CheckitemService(BaseDomainService):
         checkitem.order = order
         self.repo.checkitem.update_row_order(checkitem, old_checklist, old_order, order, new_checklist)
 
-        await CheckitemPublisher.order_changed(card, checkitem, old_checklist, new_checklist)
+        CheckitemPublisher.order_changed(card, checkitem, old_checklist, new_checklist)
 
         return True
 
-    async def change_status(
+    def change_status(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam,
@@ -168,7 +168,7 @@ class CheckitemService(BaseDomainService):
         should_publish: bool = True,
         from_api: bool = False,
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
@@ -201,7 +201,7 @@ class CheckitemService(BaseDomainService):
             if isinstance(user_or_bot, User):
                 started_checkitem = self.repo.checkitem.find_started_checkitem_by_user(user_or_bot)
                 if started_checkitem:
-                    await self.change_status(
+                    self.change_status(
                         user_or_bot,
                         project,
                         card,
@@ -225,7 +225,7 @@ class CheckitemService(BaseDomainService):
             target_user = InfraHelper.get_by(User, "id", checkitem.user_id)
 
         if should_publish:
-            await CheckitemPublisher.status_changed(project, card, checkitem, timer_record, target_user)
+            CheckitemPublisher.status_changed(project, card, checkitem, timer_record, target_user)
 
         if status == CheckitemStatus.Started:
             CardCheckitemActivityTask.card_checkitem_timer_started(user_or_bot, project, card, checkitem)
@@ -239,10 +239,10 @@ class CheckitemService(BaseDomainService):
 
         return True
 
-    async def toggle_checked(
+    def toggle_checked(
         self, user_or_bot: TUserOrBot, project: TProjectParam, card: TCardParam, checkitem: TCheckitemParam
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
@@ -250,11 +250,11 @@ class CheckitemService(BaseDomainService):
         checkitem.is_checked = not checkitem.is_checked
 
         if checkitem.status != CheckitemStatus.Stopped:
-            await self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
+            self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
         else:
             self.repo.checkitem.update(checkitem)
 
-            await CheckitemPublisher.checked_changed(project, card, checkitem)
+            CheckitemPublisher.checked_changed(project, card, checkitem)
 
         if checkitem.is_checked:
             CardCheckitemActivityTask.card_checkitem_checked(user_or_bot, project, card, checkitem)
@@ -265,7 +265,7 @@ class CheckitemService(BaseDomainService):
 
         return True
 
-    async def cardify(
+    def cardify(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam,
@@ -273,7 +273,7 @@ class CheckitemService(BaseDomainService):
         checkitem: TCheckitemParam,
         column_uid: str | None = None,
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
@@ -286,7 +286,7 @@ class CheckitemService(BaseDomainService):
             return False
 
         if checkitem.status != CheckitemStatus.Stopped:
-            await self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
+            self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
 
         new_card = Card(
             project_id=card.project_id,
@@ -300,31 +300,31 @@ class CheckitemService(BaseDomainService):
         self.repo.checkitem.update(checkitem)
 
         api_card = new_card.board_api_response(0, [], [], [])
-        await CheckitemPublisher.cardified(card, checkitem, target_column, api_card)
+        CheckitemPublisher.cardified(card, checkitem, target_column, api_card)
         CardCheckitemActivityTask.card_checkitem_cardified(user_or_bot, project, card, checkitem)
         CardCheckitemBotTask.card_checkitem_cardified(user_or_bot, project, card, checkitem, new_card)
         CardBotTask.card_created(user_or_bot, project, new_card)
 
         return True
 
-    async def delete(
+    def delete(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam,
         card: TCardParam,
         checkitem: TCheckitemParam,
     ) -> bool | None:
-        params = await self.__get_records_by_params(project, card, checkitem)
+        params = self.__get_records_by_params(project, card, checkitem)
         if not params:
             return None
         project, card, checkitem = params
 
         if checkitem.status != CheckitemStatus.Stopped:
-            await self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
+            self.change_status(user_or_bot, project, card, checkitem, CheckitemStatus.Stopped)
 
         self.repo.checkitem.delete(checkitem)
 
-        await CheckitemPublisher.deleted(project, card, checkitem)
+        CheckitemPublisher.deleted(project, card, checkitem)
         CardCheckitemActivityTask.card_checkitem_deleted(user_or_bot, project, card, checkitem)
         CardCheckitemBotTask.card_checkitem_deleted(user_or_bot, project, card, checkitem)
 
@@ -345,14 +345,14 @@ class CheckitemService(BaseDomainService):
         return api_checkitem
 
     @overload
-    async def __get_records_by_params(
+    def __get_records_by_params(
         self, project: TProjectParam, card: TCardParam
     ) -> tuple[Project, Card, None] | None: ...
     @overload
-    async def __get_records_by_params(
+    def __get_records_by_params(
         self, project: TProjectParam, card: TCardParam, checkitem: TCheckitemParam
     ) -> tuple[Project, Card, Checkitem] | None: ...
-    async def __get_records_by_params(
+    def __get_records_by_params(
         self,
         project: TProjectParam,
         card: TCardParam,

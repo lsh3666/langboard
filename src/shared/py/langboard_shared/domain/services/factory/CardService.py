@@ -36,11 +36,11 @@ class CardService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "card"
 
-    async def get_by_id_like(self, card: TCardParam | None) -> Card | None:
+    def get_by_id_like(self, card: TCardParam | None) -> Card | None:
         card = InfraHelper.get_by_id_like(Card, card)
         return card
 
-    async def get_details(self, project: TProjectParam | None, card: TCardParam | None) -> dict[str, Any] | None:
+    def get_details(self, project: TProjectParam | None, card: TCardParam | None) -> dict[str, Any] | None:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
         if not params:
             return None
@@ -54,18 +54,18 @@ class CardService(BaseDomainService):
         api_card["project_column_name"] = column.name
 
         project_service = self._get_service(ProjectService)
-        api_card["project_members"] = await project_service.get_api_assigned_user_list(card.project_id)
+        api_card["project_members"] = project_service.get_api_assigned_user_list(card.project_id)
 
         project_label_service = self._get_service(ProjectLabelService)
-        api_card["labels"] = await project_label_service.get_api_list_by_card(card)
+        api_card["labels"] = project_label_service.get_api_list_by_card(card)
 
-        api_card["member_uids"] = await self.get_api_assigned_user_list(card, only_uids=True)
+        api_card["member_uids"] = self.get_api_assigned_user_list(card, only_uids=True)
 
         card_relationship_service = self._get_service(CardRelationshipService)
-        api_card["relationships"] = await card_relationship_service.get_api_list_by_card(card)
+        api_card["relationships"] = card_relationship_service.get_api_list_by_card(card)
         return api_card
 
-    async def get_board_list(self, project: TProjectParam | None) -> list[dict[str, Any]]:
+    def get_board_list(self, project: TProjectParam | None) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return []
@@ -107,7 +107,7 @@ class CardService(BaseDomainService):
 
         return cards
 
-    async def get_dashboard_list(
+    def get_dashboard_list(
         self, user: User, pagination: TimeBasedPagination
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         records = self.repo.card.get_dashboard_list_scroller(user, pagination)
@@ -122,7 +122,7 @@ class CardService(BaseDomainService):
             api_cards.append(api_card)
         return api_cards, list(api_projects.values())
 
-    async def get_api_list_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return []
@@ -135,7 +135,7 @@ class CardService(BaseDomainService):
             cards.append(api_card)
         return cards
 
-    async def get_api_list_by_column(self, column: TColumnParam | None) -> list[dict[str, Any]]:
+    def get_api_list_by_column(self, column: TColumnParam | None) -> list[dict[str, Any]]:
         column = InfraHelper.get_by_id_like(ProjectColumn, column)
         if not column:
             return []
@@ -144,12 +144,12 @@ class CardService(BaseDomainService):
         return [card.api_response() for card in records]
 
     @overload
-    async def get_api_assigned_user_list(
+    def get_api_assigned_user_list(
         self, card: TCardParam | None, only_uids: Literal[False] = False
     ) -> list[dict[str, Any]]: ...
     @overload
-    async def get_api_assigned_user_list(self, card: TCardParam | None, only_uids: Literal[True]) -> list[str]: ...
-    async def get_api_assigned_user_list(
+    def get_api_assigned_user_list(self, card: TCardParam | None, only_uids: Literal[True]) -> list[str]: ...
+    def get_api_assigned_user_list(
         self, card: TCardParam | None, only_uids: bool = False
     ) -> list[dict[str, Any]] | list[str]:
         card = InfraHelper.get_by_id_like(Card, card)
@@ -163,9 +163,7 @@ class CardService(BaseDomainService):
             users = [cast(User, user).api_response() for user, _ in raw_users]
         return users
 
-    async def get_api_bot_scope_list(
-        self, project: TProjectParam | None, card: TCardParam | None
-    ) -> list[dict[str, Any]]:
+    def get_api_bot_scope_list(self, project: TProjectParam | None, card: TCardParam | None) -> list[dict[str, Any]]:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
         if not params:
             return []
@@ -174,19 +172,17 @@ class CardService(BaseDomainService):
         scopes = BotScopeHelper.get_list(CardBotScope, card_id=card.id)
         return [scope.api_response() for scope in scopes]
 
-    async def get_api_bot_schedule_list(
-        self, project: TProjectParam | None, card: TCardParam | None
-    ) -> list[dict[str, Any]]:
+    def get_api_bot_schedule_list(self, project: TProjectParam | None, card: TCardParam | None) -> list[dict[str, Any]]:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
         if not params:
             return []
         project, card = params
 
-        schedules = await BotScheduleHelper.get_all_by_scope(CardBotSchedule, None, card, as_api=True)
+        schedules = BotScheduleHelper.get_all_by_scope(CardBotSchedule, None, card, as_api=True)
 
         return schedules
 
-    async def create(
+    def create(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -226,17 +222,17 @@ class CardService(BaseDomainService):
         api_card = card.board_api_response(0, [user.get_uid() for user in users], [], [])
         model = {"card": api_card}
 
-        await CardPublisher.created(project, column, model)
+        CardPublisher.created(project, column, model)
         CardActivityTask.card_created(user_or_bot, project, card)
         CardBotTask.card_created(user_or_bot, project, card)
 
         notification_service = self._get_service(NotificationService)
         for user in users:
-            await notification_service.notify_assigned_to_card(user_or_bot, user, project, card)
+            notification_service.notify_assigned_to_card(user_or_bot, user, project, card)
 
         return card, api_card
 
-    async def update(
+    def update(
         self, user_or_bot: TUserOrBot, project: TProjectParam | None, card: TCardParam | None, form: dict
     ) -> dict[str, Any] | Literal[True] | None:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
@@ -268,18 +264,18 @@ class CardService(BaseDomainService):
                 continue
             model[key] = convert_python_data(getattr(card, key))
 
-        await CardPublisher.updated(project, card, checkitem_cardified_from, model)
+        CardPublisher.updated(project, card, checkitem_cardified_from, model)
 
         if "description" in model and card.description:
             notification_service = self._get_service(NotificationService)
-            await notification_service.notify_mentioned_in_card(user_or_bot, project, card)
+            notification_service.notify_mentioned_in_card(user_or_bot, project, card)
 
         CardActivityTask.card_updated(user_or_bot, project, old_record, card)
         CardBotTask.card_updated(user_or_bot, project, card)
 
         return model
 
-    async def change_order(
+    def change_order(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -310,7 +306,7 @@ class CardService(BaseDomainService):
         self.repo.card.update_row_order(card, old_column, old_order, order, new_column)
         self.repo.card.update(card)
 
-        await CardPublisher.order_changed(project, card, old_column, cast(ProjectColumn, new_column))
+        CardPublisher.order_changed(project, card, old_column, cast(ProjectColumn, new_column))
 
         if new_column:
             CardActivityTask.card_moved(user_or_bot, project, card, old_column)
@@ -318,7 +314,7 @@ class CardService(BaseDomainService):
 
         return True
 
-    async def update_assigned_users(
+    def update_assigned_users(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -351,13 +347,13 @@ class CardService(BaseDomainService):
                 self.repo.card_assigned_user.insert(card_assigned_user)
                 new_users.append(user)
 
-        await CardPublisher.assigned_users_updated(project, card, new_users)
+        CardPublisher.assigned_users_updated(project, card, new_users)
 
         notification_service = self._get_service(NotificationService)
         for user in new_users:
             if user.id in old_assigned_user_ids:
                 continue
-            await notification_service.notify_assigned_to_card(user_or_bot, user, project, card)
+            notification_service.notify_assigned_to_card(user_or_bot, user, project, card)
 
         CardActivityTask.card_assigned_users_updated(
             user_or_bot,
@@ -368,7 +364,7 @@ class CardService(BaseDomainService):
         )
         return new_users
 
-    async def update_labels(
+    def update_labels(
         self,
         user_or_bot: TUserOrBot,
         project: TProjectParam | None,
@@ -391,7 +387,7 @@ class CardService(BaseDomainService):
 
         new_labels = self.repo.project_label.get_all_by_card(card)
 
-        await CardPublisher.labels_updated(project, card, new_labels)
+        CardPublisher.labels_updated(project, card, new_labels)
         CardActivityTask.card_labels_updated(
             user_or_bot,
             project,
@@ -403,9 +399,7 @@ class CardService(BaseDomainService):
 
         return True
 
-    async def archive(
-        self, user_or_bot: TUserOrBot, project: TProjectParam | None, card: TCardParam | None
-    ) -> bool | None:
+    def archive(self, user_or_bot: TUserOrBot, project: TProjectParam | None, card: TCardParam | None) -> bool | None:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
         if not params:
             return None
@@ -416,11 +410,11 @@ class CardService(BaseDomainService):
 
         column_archive = self.repo.project_column.get_or_create_archive_if_not_exists(project.id)
 
-        await self.change_order(user_or_bot, project, card, 0, column_archive)
+        self.change_order(user_or_bot, project, card, 0, column_archive)
 
         return True
 
-    async def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, card: TCardParam | None) -> bool:
+    def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, card: TCardParam | None) -> bool:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (Card, card))
         if not params:
             return False
@@ -434,7 +428,7 @@ class CardService(BaseDomainService):
         checkitem_service = self._get_service(CheckitemService)
         current_time = SafeDateTime.now()
         for checkitem in started_checkitems:
-            await checkitem_service.change_status(
+            checkitem_service.change_status(
                 user_or_bot,
                 project,
                 card,
@@ -448,12 +442,12 @@ class CardService(BaseDomainService):
         self.repo.card_relationship.delete_all_by_card(card)
 
         BotScopeHelper.delete_by_scope(CardBotScope, card)
-        await BotScheduleHelper.unschedule_by_scope(CardBotSchedule, card)
+        BotScheduleHelper.unschedule_by_scope(CardBotSchedule, card)
 
         self.repo.card.delete(card)
         self.repo.card.reoder_after_delete(card.project_column_id, card.order)
 
-        await CardPublisher.deleted(project, card)
+        CardPublisher.deleted(project, card)
         CardActivityTask.card_deleted(user_or_bot, project, card)
         CardBotTask.card_deleted(user_or_bot, project, card)
 

@@ -18,10 +18,10 @@ from .Form import (
     responses=OpenApiSchema().suc({"global_relationship": GlobalCardRelationshipType}, 201).auth().forbidden().get(),
 )
 @AuthFilter.add("admin")
-async def create_global_relationship(
+def create_global_relationship(
     form: CreateGlobalRelationshipTypeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    global_relationship = await service.app_setting.create_global_relationship(
+    global_relationship = service.app_setting.create_global_relationship(
         form.parent_name, form.child_name, form.description
     )
 
@@ -38,10 +38,10 @@ async def create_global_relationship(
     ),
 )
 @AuthFilter.add("admin")
-async def import_global_relationships(
+def import_global_relationships(
     form: ImportGlobalRelationshipTypesForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    global_relationships = await service.app_setting.import_global_relationship(
+    global_relationships = service.app_setting.import_global_relationship(
         [(rel.parent_name, rel.child_name, rel.description) for rel in form.relationships]
     )
 
@@ -70,12 +70,12 @@ async def import_global_relationships(
     ),
 )
 @AuthFilter.add("admin")
-async def update_global_relationship(
+def update_global_relationship(
     global_relationship_uid: str, form: UpdateGlobalRelationshipTypeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     form_dict = form.model_dump()
 
-    result = await service.app_setting.update_global_relationship(global_relationship_uid, form_dict)
+    result = service.app_setting.update_global_relationship(global_relationship_uid, form_dict)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 
@@ -93,10 +93,10 @@ async def update_global_relationship(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3003).get(),
 )
 @AuthFilter.add("admin")
-async def delete_global_relationship(
+def delete_global_relationship(
     global_relationship_uid: str, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.app_setting.delete_global_relationship(global_relationship_uid)
+    result = service.app_setting.delete_global_relationship(global_relationship_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 
@@ -109,10 +109,10 @@ async def delete_global_relationship(
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3003).get(),
 )
 @AuthFilter.add("admin")
-async def delete_selected_global_relationship(
+def delete_selected_global_relationship(
     form: DeleteSelectedGlobalRelationshipTypesForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    result = await service.app_setting.delete_selected_global_relationships(form.relationship_type_uids)
+    result = service.app_setting.delete_selected_global_relationships(form.relationship_type_uids)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3003)
 

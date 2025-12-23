@@ -15,12 +15,10 @@ from .NotificationForm import NotificationForm
     responses=OpenApiSchema().suc({"notifications": [UserNotification]}).auth().forbidden().get(),
 )
 @AuthFilter.add("user")
-async def toggle_all_notification_subscription(
+def toggle_all_notification_subscription(
     form: NotificationForm = Depends(), user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     if form.time_range not in ["3d", "7d", "1m", "all"]:
         form.time_range = "3d"
-    notifications = await service.notification.get_api_list(
-        user, cast(Literal["3d", "7d", "1m", "all"], form.time_range)
-    )
+    notifications = service.notification.get_api_list(user, cast(Literal["3d", "7d", "1m", "all"], form.time_range))
     return JsonResponse(content={"notifications": notifications})

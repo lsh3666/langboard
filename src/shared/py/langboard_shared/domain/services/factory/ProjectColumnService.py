@@ -16,11 +16,11 @@ class ProjectColumnService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "project_column"
 
-    async def get_by_id_like(self, column: TColumnParam | None) -> ProjectColumn | None:
+    def get_by_id_like(self, column: TColumnParam | None) -> ProjectColumn | None:
         column = InfraHelper.get_by_id_like(ProjectColumn, column)
         return column
 
-    async def get_api_list_by_project(self, projects: TProjectParam | list[TProjectParam]) -> list[dict[str, Any]]:
+    def get_api_list_by_project(self, projects: TProjectParam | list[TProjectParam]) -> list[dict[str, Any]]:
         raw_columns = self.repo.project_column.get_all_by_project(projects)
 
         columns = []
@@ -29,7 +29,7 @@ class ProjectColumnService(BaseDomainService):
 
         return columns
 
-    async def get_api_bot_scopes_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
+    def get_api_bot_scopes_by_project(self, project: TProjectParam | None) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return []
@@ -43,7 +43,7 @@ class ProjectColumnService(BaseDomainService):
         )
         return [scope.api_response() for scope in scopes]
 
-    async def get_api_bot_schedule_list_by_project(
+    def get_api_bot_schedule_list_by_project(
         self, project: TProjectParam | None, columns: list[dict] | list[ProjectColumn] | None
     ) -> list[dict[str, Any]]:
         project = InfraHelper.get_by_id_like(Project, project)
@@ -62,7 +62,7 @@ class ProjectColumnService(BaseDomainService):
         if not scope_column_ids:
             return []
 
-        schedules = await BotScheduleHelper.get_all_by_scope(
+        schedules = BotScheduleHelper.get_all_by_scope(
             ProjectColumnBotSchedule,
             None,
             (ProjectColumn, scope_column_ids),
@@ -70,7 +70,7 @@ class ProjectColumnService(BaseDomainService):
         )
         return schedules
 
-    async def create(self, user_or_bot: TUserOrBot, project: TProjectParam | None, name: str) -> ProjectColumn | None:
+    def create(self, user_or_bot: TUserOrBot, project: TProjectParam | None, name: str) -> ProjectColumn | None:
         project = InfraHelper.get_by_id_like(Project, project)
         if not project:
             return None
@@ -83,12 +83,12 @@ class ProjectColumnService(BaseDomainService):
 
         self.repo.project_column.insert(column)
 
-        await ProjectColumnPublisher.created(project, column)
+        ProjectColumnPublisher.created(project, column)
         ProjectColumnActivityTask.project_column_created(user_or_bot, project, column)
 
         return column
 
-    async def change_name(
+    def change_name(
         self, user_or_bot: TUserOrBot, project: TProjectParam | None, column: TColumnParam | None, name: str
     ) -> bool:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (ProjectColumn, column))
@@ -101,13 +101,13 @@ class ProjectColumnService(BaseDomainService):
 
         self.repo.project_column.update(column)
 
-        await ProjectColumnPublisher.name_changed(project, column, name)
+        ProjectColumnPublisher.name_changed(project, column, name)
         ProjectColumnActivityTask.project_column_name_changed(user_or_bot, project, old_name, column)
         ProjectColumnBotTask.project_column_name_changed(user_or_bot, project, column)
 
         return True
 
-    async def change_order(self, project: TProjectParam | None, column: TColumnParam | None, order: int) -> bool:
+    def change_order(self, project: TProjectParam | None, column: TColumnParam | None, order: int) -> bool:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (ProjectColumn, column))
         if not params:
             return False
@@ -117,11 +117,11 @@ class ProjectColumnService(BaseDomainService):
         column.order = order
         self.repo.project_column.update_column_order(column, project, old_order, order)
 
-        await ProjectColumnPublisher.order_changed(project, column)
+        ProjectColumnPublisher.order_changed(project, column)
 
         return True
 
-    async def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, column: TColumnParam | None) -> bool:
+    def delete(self, user_or_bot: TUserOrBot, project: TProjectParam | None, column: TColumnParam | None) -> bool:
         params = InfraHelper.get_records_with_foreign_by_params((Project, project), (ProjectColumn, column))
         if not params:
             return False
@@ -137,13 +137,13 @@ class ProjectColumnService(BaseDomainService):
         self.repo.card.move_all_by_column(column, archive_column, count_cards_in_archive, is_archive=True)
 
         BotScopeHelper.delete_by_scope(ProjectColumnBotScope, column)
-        await BotScheduleHelper.unschedule_by_scope(ProjectColumnBotSchedule, column)
+        BotScheduleHelper.unschedule_by_scope(ProjectColumnBotSchedule, column)
 
         self.repo.project_column.delete(column)
 
         self.repo.project_column.reorder_after_deleted(project, column.order)
 
-        await ProjectColumnPublisher.deleted(project, column, archive_column, current_time, count_cards_in_archive)
+        ProjectColumnPublisher.deleted(project, column, archive_column, current_time, count_cards_in_archive)
         ProjectColumnActivityTask.project_column_deleted(user_or_bot, project, column)
         ProjectColumnBotTask.project_column_deleted(user_or_bot, project, column)
 

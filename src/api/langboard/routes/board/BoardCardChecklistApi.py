@@ -50,8 +50,8 @@ from .forms import CardChecklistNotifyForm, CardCheckRelatedForm, ChangeRootOrde
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_checklists(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    checklists = await service.checklist.get_api_list_by_card(card_uid)
+def get_card_checklists(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    checklists = service.checklist.get_api_list_by_card(card_uid)
     return JsonResponse(content={"checklists": checklists})
 
 
@@ -66,14 +66,14 @@ async def get_card_checklists(card_uid: str, service: DomainService = DomainServ
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def create_checklist(
+def create_checklist(
     project_uid: str,
     card_uid: str,
     form: CardCheckRelatedForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.create(user_or_bot, project_uid, card_uid, form.title)
+    result = service.checklist.create(user_or_bot, project_uid, card_uid, form.title)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -97,7 +97,7 @@ async def create_checklist(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def create_checkitem(
+def create_checkitem(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
@@ -105,7 +105,7 @@ async def create_checkitem(
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checkitem.create(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
+    result = service.checkitem.create(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
@@ -121,7 +121,7 @@ async def create_checkitem(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def notify_checklist(
+def notify_checklist(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
@@ -129,7 +129,7 @@ async def notify_checklist(
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.notify(user_or_bot, project_uid, card_uid, checklist_uid, form.user_uids)
+    result = service.checklist.notify(user_or_bot, project_uid, card_uid, checklist_uid, form.user_uids)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
@@ -145,7 +145,7 @@ async def notify_checklist(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def change_checklist_title(
+def change_checklist_title(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
@@ -153,7 +153,7 @@ async def change_checklist_title(
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.change_title(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
+    result = service.checklist.change_title(user_or_bot, project_uid, card_uid, checklist_uid, form.title)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
@@ -169,14 +169,14 @@ async def change_checklist_title(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def change_checklist_order(
+def change_checklist_order(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
     form: ChangeRootOrderForm,
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.change_order(project_uid, card_uid, checklist_uid, form.order)
+    result = service.checklist.change_order(project_uid, card_uid, checklist_uid, form.order)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
@@ -192,14 +192,14 @@ async def change_checklist_order(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def toggle_checklist_checked(
+def toggle_checklist_checked(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.toggle_checked(user_or_bot, project_uid, card_uid, checklist_uid)
+    result = service.checklist.toggle_checked(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 
@@ -215,14 +215,14 @@ async def toggle_checklist_checked(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def delete_checklist(
+def delete_checklist(
     project_uid: str,
     card_uid: str,
     checklist_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.checklist.delete(user_or_bot, project_uid, card_uid, checklist_uid)
+    result = service.checklist.delete(user_or_bot, project_uid, card_uid, checklist_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2010)
 

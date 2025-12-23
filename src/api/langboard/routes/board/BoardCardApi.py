@@ -96,7 +96,7 @@ from .forms import (
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_details(
+def get_card_details(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
@@ -106,24 +106,24 @@ async def get_card_details(
     if not params:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
     project, card = params
-    api_card = await service.card.get_details(project, card)
+    api_card = service.card.get_details(project, card)
     if api_card is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
-    global_relationships = await service.app_setting.get_api_global_relationship_list()
+    global_relationships = service.app_setting.get_api_global_relationship_list()
     bot_scopes = []
     can_set_scopes = isinstance(user_or_bot, Bot)
     if isinstance(user_or_bot, User):
-        actions = await service.project.get_user_role_actions_by_project(user_or_bot, project)
+        actions = service.project.get_user_role_actions_by_project(user_or_bot, project)
         api_card["current_auth_role_actions"] = actions
         can_set_scopes = ALL_GRANTED in actions or ProjectRoleAction.Update.value in actions
     if can_set_scopes:
-        bot_scopes = await service.card.get_api_bot_scope_list(project, card)
+        bot_scopes = service.card.get_api_bot_scope_list(project, card)
 
-    project_columns = await service.project_column.get_api_list_by_project(project.id)
-    project_labels = await service.project_label.get_api_list_by_project(project)
+    project_columns = service.project_column.get_api_list_by_project(project.id)
+    project_labels = service.project_label.get_api_list_by_project(project)
 
-    checklists = await service.checklist.get_api_list_by_card(card)
-    attachments = await service.card_attachment.get_api_list_by_card(card)
+    checklists = service.checklist.get_api_list_by_card(card)
+    attachments = service.card_attachment.get_api_list_by_card(card)
 
     return JsonResponse(
         content={
@@ -168,8 +168,8 @@ async def get_card_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add()
-async def get_card_comments(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
-    comments = await service.card_comment.get_api_list_by_card(card_uid)
+def get_card_comments(card_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    comments = service.card_comment.get_api_list_by_card(card_uid)
     return JsonResponse(content={"comments": comments})
 
 
@@ -204,13 +204,13 @@ async def get_card_comments(card_uid: str, service: DomainService = DomainServic
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def create_card(
+def create_card(
     project_uid: str,
     form: CreateCardForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card.create(
+    result = service.card.create(
         user_or_bot,
         project_uid,
         form.project_column_uid,
@@ -247,7 +247,7 @@ async def create_card(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def change_card_details(
+def change_card_details(
     project_uid: str,
     card_uid: str,
     form: ChangeCardDetailsForm,
@@ -268,7 +268,7 @@ async def change_card_details(
                 value = None
         form_dict[key] = value
 
-    result = await service.card.update(user_or_bot, project_uid, card_uid, form_dict)
+    result = service.card.update(user_or_bot, project_uid, card_uid, form_dict)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -295,14 +295,14 @@ async def change_card_details(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def update_card_assigned_users(
+def update_card_assigned_users(
     project_uid: str,
     card_uid: str,
     form: AssignUsersForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card.update_assigned_users(user_or_bot, project_uid, card_uid, form.assigned_users)
+    result = service.card.update_assigned_users(user_or_bot, project_uid, card_uid, form.assigned_users)
     if result is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -318,14 +318,14 @@ async def update_card_assigned_users(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def change_card_order_or_move_column(
+def change_card_order_or_move_column(
     project_uid: str,
     card_uid: str,
     form: ChangeChildOrderForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card.change_order(user_or_bot, project_uid, card_uid, form.order, form.parent_uid)
+    result = service.card.change_order(user_or_bot, project_uid, card_uid, form.order, form.parent_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -341,14 +341,14 @@ async def change_card_order_or_move_column(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def update_card_labels(
+def update_card_labels(
     project_uid: str,
     card_uid: str,
     form: UpdateCardLabelsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card.update_labels(user_or_bot, project_uid, card_uid, form.labels)
+    result = service.card.update_labels(user_or_bot, project_uid, card_uid, form.labels)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -364,16 +364,14 @@ async def update_card_labels(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def update_card_relationships(
+def update_card_relationships(
     project_uid: str,
     card_uid: str,
     form: UpdateCardRelationshipsForm,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card_relationship.update(
-        user_or_bot, project_uid, card_uid, form.is_parent, form.relationships
-    )
+    result = service.card_relationship.update(user_or_bot, project_uid, card_uid, form.is_parent, form.relationships)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -389,17 +387,17 @@ async def update_card_relationships(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add()
-async def archive_card(
+def archive_card(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    project = await service.project.get_by_id_like(project_uid)
+    project = service.project.get_by_id_like(project_uid)
     if project is None:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
-    result = await service.card.archive(user_or_bot, project, card_uid)
+    result = service.card.archive(user_or_bot, project, card_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -415,13 +413,13 @@ async def archive_card(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardDelete], RoleFinder.project)
 @AuthFilter.add()
-async def delete_card(
+def delete_card(
     project_uid: str,
     card_uid: str,
     user_or_bot: User | Bot = Auth.scope("all"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card.delete(user_or_bot, project_uid, card_uid)
+    result = service.card.delete(user_or_bot, project_uid, card_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 

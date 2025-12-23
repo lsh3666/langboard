@@ -27,7 +27,7 @@ from .forms import ChangeAttachmentNameForm, ChangeChildOrderForm
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def upload_card_attachment(
+def upload_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment: UploadFile = File(),
@@ -41,7 +41,7 @@ async def upload_card_attachment(
     if not file_model:
         raise ApiException.InternalServerError_500(ApiErrorCode.OP1002)
 
-    result = await service.card_attachment.create(user, project_uid, card_uid, file_model)
+    result = service.card_attachment.create(user, project_uid, card_uid, file_model)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2003)
 
@@ -58,14 +58,14 @@ async def upload_card_attachment(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 @AuthFilter.add("user")
-async def change_attachment_order(
+def change_attachment_order(
     project_uid: str,
     card_uid: str,
     attachment_uid: str,
     form: ChangeChildOrderForm,
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    result = await service.card_attachment.change_order(project_uid, card_uid, attachment_uid, form.order)
+    result = service.card_attachment.change_order(project_uid, card_uid, attachment_uid, form.order)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
@@ -79,7 +79,7 @@ async def change_attachment_order(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def change_card_attachment_name(
+def change_card_attachment_name(
     project_uid: str,
     card_uid: str,
     attachment_uid: str,
@@ -87,20 +87,18 @@ async def change_card_attachment_name(
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
+    card_attachment = service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
         raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     if card_attachment.user_id != user.id and not user.is_admin:
         role_filter = RoleSecurity(ProjectRole)
-        if not await role_filter.is_authorized(
+        if not role_filter.is_authorized(
             user.id, {"project_uid": project_uid}, [ProjectRoleAction.CardUpdate.value], RoleFinder.project
         ):
             raise ApiException.Forbidden_403(ApiErrorCode.PE2002)
 
-    result = await service.card_attachment.change_name(
-        user, project_uid, card_uid, card_attachment, form.attachment_name
-    )
+    result = service.card_attachment.change_name(user, project_uid, card_uid, card_attachment, form.attachment_name)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
@@ -114,25 +112,25 @@ async def change_card_attachment_name(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 @AuthFilter.add("user")
-async def delete_card_attachment(
+def delete_card_attachment(
     project_uid: str,
     card_uid: str,
     attachment_uid: str,
     user: User = Auth.scope("user"),
     service: DomainService = DomainService.scope(),
 ) -> JsonResponse:
-    card_attachment = await service.card_attachment.get_by_id_like(attachment_uid)
+    card_attachment = service.card_attachment.get_by_id_like(attachment_uid)
     if not card_attachment:
         raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 
     if card_attachment.user_id != user.id and not user.is_admin:
         role_filter = RoleSecurity(ProjectRole)
-        if not await role_filter.is_authorized(
+        if not role_filter.is_authorized(
             user.id, {"project_uid": project_uid}, [ProjectRoleAction.CardUpdate.value], RoleFinder.project
         ):
             raise ApiException.Forbidden_403(ApiErrorCode.PE2002)
 
-    result = await service.card_attachment.delete(user, project_uid, card_uid, card_attachment)
+    result = service.card_attachment.delete(user, project_uid, card_uid, card_attachment)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2009)
 

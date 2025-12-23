@@ -30,7 +30,7 @@ from ..forms import CreateBotCronTimeForm, DeleteBotCronTimeForm, UpdateBotCronT
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def schedule_bot_crons(
+def schedule_bot_crons(
     bot_uid: str, form: CreateBotCronTimeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     form.interval_str = BotScheduleHelper.utils.convert_valid_interval_str(form.interval_str)
@@ -50,11 +50,11 @@ async def schedule_bot_crons(
         raise ApiException.BadRequest_400(ApiErrorCode.VA3004)
     target_model_class, target_model = result
 
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
 
-    bot_schedule = await BotScheduleHelper.schedule(
+    bot_schedule = BotScheduleHelper.schedule(
         target_model_class,
         bot,
         form.interval_str,
@@ -71,10 +71,10 @@ async def schedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = await service.project.get_by_id_like(target_model.project_id)
+            project = service.project.get_by_id_like(target_model.project_id)
 
         if project:
-            await ProjectBotPublisher.scheduled(project, bot_schedule)
+            ProjectBotPublisher.scheduled(project, bot_schedule)
 
     return JsonResponse()
 
@@ -97,7 +97,7 @@ async def schedule_bot_crons(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def reschedule_bot_crons(
+def reschedule_bot_crons(
     bot_uid: str, schedule_uid: str, form: UpdateBotCronTimeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
     if form.interval_str:
@@ -110,14 +110,14 @@ async def reschedule_bot_crons(
     ):
         raise ApiException.BadRequest_400(ApiErrorCode.VA3002)
 
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2015)
 
     result = _get_target_model_with_bot_schedule(form.target_table, schedule_uid)
     target_model_class, bot_schedule, target_model = result
 
-    result = await BotScheduleHelper.reschedule(
+    result = BotScheduleHelper.reschedule(
         target_model_class,
         bot_schedule,
         form.interval_str,
@@ -134,10 +134,10 @@ async def reschedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = await service.project.get_by_id_like(target_model.project_id)
+            project = service.project.get_by_id_like(target_model.project_id)
 
         if project:
-            await ProjectBotPublisher.rescheduled(project, schedule_model, model)
+            ProjectBotPublisher.rescheduled(project, schedule_model, model)
 
     return JsonResponse()
 
@@ -158,17 +158,17 @@ async def reschedule_bot_crons(
 )
 @RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 @AuthFilter.add()
-async def unschedule_bot_crons(
+def unschedule_bot_crons(
     bot_uid: str, schedule_uid: str, form: DeleteBotCronTimeForm, service: DomainService = DomainService.scope()
 ) -> JsonResponse:
-    bot = await service.bot.get_by_id_like(bot_uid)
+    bot = service.bot.get_by_id_like(bot_uid)
     if not bot:
         raise ApiException.NotFound_404(ApiErrorCode.NF2015)
 
     result = _get_target_model_with_bot_schedule(form.target_table, schedule_uid)
     target_model_class, bot_schedule, target_model = result
 
-    result = await BotScheduleHelper.unschedule(target_model_class, bot_schedule)
+    result = BotScheduleHelper.unschedule(target_model_class, bot_schedule)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2015)
     _, schedule_model = result
@@ -177,10 +177,10 @@ async def unschedule_bot_crons(
         if isinstance(target_model, Project):
             project = target_model
         else:
-            project = await service.project.get_by_id_like(target_model.project_id)
+            project = service.project.get_by_id_like(target_model.project_id)
 
         if project:
-            await ProjectBotPublisher.unscheduled(project, schedule_model)
+            ProjectBotPublisher.unscheduled(project, schedule_model)
 
     return JsonResponse()
 

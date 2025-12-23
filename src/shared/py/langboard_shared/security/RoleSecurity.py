@@ -12,7 +12,7 @@ class RoleSecurity:
     def __init__(self, model_class: type[_TRoleModel]):
         self._model_class = model_class
 
-    async def is_authorized(
+    def is_authorized(
         self,
         user_id: int,
         path_params: dict[str, Any],

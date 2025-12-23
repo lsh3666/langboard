@@ -204,8 +204,6 @@ local
 docker/volumes
 *.db*
 uploads
-docker-compose.server.yaml
-conf.template
 
 **/tests/**
 !**/tests/**/.gitkeep
@@ -218,3 +216,5 @@ bundler
 # Claude Code and Specify
 .claude
 .specify
+
+graph/

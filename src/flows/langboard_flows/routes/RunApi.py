@@ -171,7 +171,7 @@ async def _get_raw_project(service: DomainService, api_request: FlowRequestModel
     if not api_request.project_uid:
         return None
 
-    project = await service.project.get_by_id_like(api_request.project_uid)
+    project = service.project.get_by_id_like(api_request.project_uid)
     return project.model_dump() if project else None
 
 
