@@ -38,7 +38,10 @@ class Env:
 
     @property
     def PROJECT_VERSION(self) -> str:
-        return version(self.PROJECT_NAME)
+        try:
+            return version(self.PROJECT_NAME)
+        except Exception:
+            return version(cast(str, __package__))
 
     @property
     def ADMIN_EMAIL(self) -> str:
