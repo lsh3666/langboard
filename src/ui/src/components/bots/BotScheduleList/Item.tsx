@@ -60,12 +60,12 @@ function BotScheduleListItem({ schedule }: IBotScheduleListItemProps): JSX.Eleme
                                 `bot.schedules.cronHeaders.${runningType === BaseBotScheduleModel.ERunningType.Onetime ? "Execute at" : "Start at"}`
                             )}
                         >
-                            {startAt.toLocaleString()}
+                            {Utils.String.formatDateLocale(startAt)}
                         </BotScheduleListItemSection>
                     )}
                     {BaseBotScheduleModel.RUNNING_TYPES_WITH_END_AT.includes(runningType) && !!endAt && (
                         <BotScheduleListItemSection title={t("bot.schedules.cronHeaders.End at")}>
-                            {endAt.toLocaleString()}
+                            {Utils.String.formatDateLocale(endAt)}
                         </BotScheduleListItemSection>
                     )}
                 </Flex>

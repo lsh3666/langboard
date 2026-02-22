@@ -2,6 +2,9 @@ from ipaddress import ip_address, ip_network
 from socket import error, inet_aton
 
 
+ALLOWED_ALL_IPS = "*"
+
+
 def is_valid_ipv4_address_or_range(ip: str):
     try:
         inet_aton(ip)
@@ -28,3 +31,36 @@ def make_valid_ipv4_range(ip: str) -> str:
     if octets[-1] != "0/24":
         octets[-1] = "0/24"
     return ".".join(octets)
+
+
+def has_allowed_ips(whitelist: list[str] | str | None, ips: list[str] | str | None) -> bool:
+    if not whitelist or not ips:
+        return False
+
+    if isinstance(whitelist, str):
+        whitelist = whitelist.split(",")
+
+    if ALLOWED_ALL_IPS in whitelist:
+        return True
+
+    if isinstance(ips, str):
+        ips = ips.split(",")
+
+    has_valid_ips = False
+    for ip in ips:
+        if not is_valid_ipv4_address_or_range(ip):
+            continue
+        has_valid_ips = True
+        break
+
+    if not has_valid_ips:
+        return False
+
+    for ip_range in whitelist:
+        for ip in ips:
+            if ip_range.endswith(".0/24") and is_ipv4_in_range(ip, ip_range):
+                return True
+            elif ip == ip_range:
+                return True
+
+    return False

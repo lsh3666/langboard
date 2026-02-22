@@ -1,9 +1,11 @@
 export * as ActivityModel from "@/core/models/ActivityModel";
+export * as ApiKeySettingModel from "@/core/models/ApiKeySettingModel";
 export * as AppSettingModel from "@/core/models/AppSettingModel";
 export * as AuthUser from "@/core/models/AuthUser";
 export * as BotLogModel from "@/core/models/BotLogModel";
 export * as BotModel from "@/core/models/BotModel";
 export * as InternalBotModel from "@/core/models/InternalBotModel";
+export * as McpToolGroup from "@/core/models/McpToolGroup";
 export * as ChatMessageModel from "@/core/models/ChatMessageModel";
 export * as ChatSessionModel from "@/core/models/ChatSessionModel";
 export * as ChatTemplateModel from "@/core/models/ChatTemplateModel";

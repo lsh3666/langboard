@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Box, Flex, IconComponent, Skeleton, Tooltip } from "@/components/base";
+import DateDistance from "@/components/DateDistance";
 import { CollapsibleVersionHistoryPlate } from "@/components/Editor/version-history-plate";
 import UserAvatar from "@/components/UserAvatar";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { ActivityModel, AuthUser, ProjectCard } from "@/core/models";
 import { IBotInActivityHistory, IChangesInActivityHistory, IUserInActivityHistory } from "@/core/models/activities/base.type";
 import { IProjectActivityHistory } from "@/core/models/activities/project.activity.type";
@@ -52,7 +52,6 @@ const useCreateActivityTimeline = (currentUser: AuthUser.TModel, viewType: TActi
     const ActivityTimeline = React.memo(({ activity, references }: IActivityTimelineProps) => {
         const activityType = activity.activity_type;
         const activityHistory = activity.activity_history;
-        const activityCreatedAt = useUpdateDateDistance(activity.created_at);
         const refer = activity.refer;
 
         if (refer) {
@@ -89,7 +88,7 @@ const useCreateActivityTimeline = (currentUser: AuthUser.TModel, viewType: TActi
                 </Flex>
                 <DiffView history={activityHistory} />
                 <Box textSize="sm" className="text-right text-muted-foreground">
-                    {activityCreatedAt}
+                    <DateDistance date={activity.created_at} />
                 </Box>
             </Flex>
         );

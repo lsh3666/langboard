@@ -52,7 +52,7 @@ def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResp
 @AppRouter.api.get(
     "/settings/app/{setting_uid}",
     tags=["AppSettings"],
-    responses=OpenApiSchema().suc({"setting": AppSetting}, 200).auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
+    responses=OpenApiSchema().suc({"setting": AppSetting}).auth().forbidden().err(404, ApiErrorCode.NF3002).get(),
 )
 @AuthFilter.add("admin")
 def get_setting(setting_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:

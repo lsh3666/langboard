@@ -2,7 +2,7 @@ import { Button } from "@/components/base";
 import { ILucideIconProps } from "@/components/base/IconComponent";
 import { TToggleSpecificScopedNotificationSettingsForm } from "@/controllers/api/notification/settings/types";
 import { AuthUser } from "@/core/models";
-import { TNotificationSpecificType } from "@/core/models/notification.type";
+import { TNotificationSpecificType } from "@/core/models/types/notification.type";
 
 export interface IBaseNotificationSettingPopoverProps {
     modal?: bool;

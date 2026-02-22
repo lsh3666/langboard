@@ -1,6 +1,8 @@
 from asyncio import run as run_async
 from json import dumps as json_dumps
 from json import loads as json_loads
+from os.path import dirname
+from pathlib import Path
 from threading import Thread
 from typing import Any, Callable, Concatenate, Coroutine, Generic, ParamSpec, Protocol, TypeVar, cast, overload
 from celery import Celery
@@ -9,6 +11,7 @@ from celery.apps import worker
 from celery.apps.worker import Worker
 from celery.signals import celeryd_after_setup, setup_logging, worker_process_init
 from ...Env import Env
+from ...ModuleLoader import ModuleLoader
 from ..logger import Logger
 from ..utils.decorators import class_instance
 from .TaskParameters import TaskParameters
@@ -160,6 +163,8 @@ class Broker:
             return wrapped_task(param)
 
     def start(self, argv: list[str] | None = None):
+        module_loader = ModuleLoader(Path(dirname(__file__)).parent.parent, cast(str, __package__))
+        module_loader.load("tasks", "Task")
         if argv is None:
             argv = ["worker", "--loglevel=info", "--pool=solo"]
         self._schemas.clear()

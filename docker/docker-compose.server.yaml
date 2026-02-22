@@ -66,6 +66,7 @@ services:
       - ../alembic.ini:/app/alembic.ini
       - ../local:/app/local
       - ../scripts/run_bot_cron.sh:/app/scripts/run_bot_cron.sh:x
+      - ./volumes/.vault-credentials:/app/.vault-credentials:ro
     depends_on:
       - db-bouncer
       - kafka0
@@ -99,6 +100,7 @@ services:
       - ../src/shared/ts:/shared/ts
       - ../src/resources:/app/resources
       - ../.env:/app/.env
+      - ./volumes/.vault-credentials:/app/.vault-credentials:ro
     depends_on:
       - db-bouncer
       - kafka0
@@ -125,6 +127,7 @@ services:
       - ../src/flows/pyproject.toml:/app/src/flows/pyproject.toml
       - ../src/flows/uv.lock:/app/src/flows/uv.lock
       - ../local:/app/local
+      - ./volumes/.vault-credentials:/app/.vault-credentials:ro
     depends_on:
       - db-bouncer
       - kafka0

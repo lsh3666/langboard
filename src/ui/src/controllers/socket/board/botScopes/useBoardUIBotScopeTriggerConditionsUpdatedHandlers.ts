@@ -1,6 +1,6 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 import { ESocketTopic } from "@langboard/core/enums";
 
 export interface IBoardUIBotScopeConditionsUpdatedRawResponse {

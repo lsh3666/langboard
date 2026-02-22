@@ -2,5 +2,6 @@
 **/dist
 **/.rollup.cache
 
+**/.venv
 .ruff_cache
 **/**pycache**

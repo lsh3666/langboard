@@ -32,7 +32,7 @@ class BotTaskHelper:
 
                 target_table_class = BotHelper.AVAILABLE_TARGET_TABLES[target_table]
 
-                result = db.exec(
+                query = (
                     SqlBuilder.select.tables(Bot, model_class, target_table_class)
                     .join(model_class, model_class.column("bot_id") == Bot.column("id"))
                     .join(
@@ -44,6 +44,12 @@ class BotTaskHelper:
                         & (model_class.column(column_name) == where_clauses[column_name])
                     )
                 )
+
+                for clause_name in where_clauses:
+                    if target_table_class.model_fields.get(clause_name):
+                        query = query.where(target_table_class.column(clause_name) == where_clauses[clause_name])
+
+                result = db.exec(query)
                 records.extend([(bot, scope_model) for bot, _, scope_model in result.all()])
         return records
 

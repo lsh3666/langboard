@@ -1,6 +1,6 @@
 import { Button, Table } from "@/components/base";
+import DateDistance from "@/components/DateDistance";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { ProjectCard, ProjectCheckitem } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { ROUTES } from "@/core/routing/constants";
@@ -20,8 +20,7 @@ function TrackingRow({ checkitem, className, ...props }: ITrackingRowProps): JSX
     const projectUIDRef = useRef("");
     const title = checkitem.useField("title");
     const rawStatus = checkitem.useField("status");
-    const rawStartedAt = checkitem.useField("initial_timer_started_at");
-    const startedAt = useUpdateDateDistance(rawStartedAt);
+    const startedAt = checkitem.useField("initial_timer_started_at");
     const isChecked = checkitem.useField("is_checked");
     let status;
     switch (rawStatus) {
@@ -63,7 +62,7 @@ function TrackingRow({ checkitem, className, ...props }: ITrackingRowProps): JSX
                     <TrackingRowCardTitle projectUIDRef={projectUIDRef} />
                 </Table.FlexCell>
                 <Table.FlexCell className="w-1/6 text-center">{status}</Table.FlexCell>
-                <Table.FlexCell className="w-1/6 text-center">{startedAt}</Table.FlexCell>
+                <Table.FlexCell className="w-1/6 text-center">{startedAt && <DateDistance date={startedAt} />}</Table.FlexCell>
                 <Table.FlexCell className="w-1/6 text-center">
                     <TrackingRowTimeTaken />
                 </Table.FlexCell>

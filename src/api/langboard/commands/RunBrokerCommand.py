@@ -1,7 +1,6 @@
 from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
 from langboard_shared.core.broker import Broker
 from pydantic import Field
-from ..Loader import ModuleLoader
 
 
 class RunBrokerCommandOptions(BaseCommandOptions):
@@ -38,5 +37,4 @@ class RunBrokerCommand(BaseCommand):
         return bool
 
     def execute(self, options: RunBrokerCommandOptions) -> None:
-        ModuleLoader.load("tasks", "Task")
-        Broker.start(argv=["worker", "--loglevel=info", f"--concurrency={options.concurrency}"])
+        Broker.start(argv=["worker", "--loglevel=info", "--concurrency=1", "--pool=solo"])

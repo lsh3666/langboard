@@ -182,7 +182,7 @@ const DragHandle = React.memo(function DragHandle({
     resetPreview,
     setPreviewTop,
 }: {
-    isDragging: boolean;
+    isDragging: bool;
     previewRef: React.RefObject<HTMLDivElement | null>;
     resetPreview: () => void;
     setPreviewTop: (top: number) => void;

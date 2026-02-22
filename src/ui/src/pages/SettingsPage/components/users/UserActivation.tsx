@@ -13,7 +13,7 @@ function UserActivation({ user }: { user: User.TModel }) {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const rawActivatedAt = user.useField("activated_at");
-    const activtedAt = useUpdateDateDistance(rawActivatedAt);
+    const activatedAt = useUpdateDateDistance(rawActivatedAt);
     const { mutateAsync } = useUpdateUserInSettings(user, { interceptToast: true });
     const [isValidating, setIsValidating] = useState(false);
 
@@ -63,7 +63,7 @@ function UserActivation({ user }: { user: User.TModel }) {
                 </Flex>
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" align="center">
-                {rawActivatedAt ? activtedAt : t("settings.Activate")}
+                {rawActivatedAt ? activatedAt : t("settings.Activate")}
             </Tooltip.Content>
         </Tooltip.Root>
     );

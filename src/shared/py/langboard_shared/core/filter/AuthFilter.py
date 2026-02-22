@@ -14,7 +14,7 @@ class AuthFilter(BaseFilter, Generic[_TMethod]):
         self._filtered: dict[_TMethod, _TAccessibleType] = {}
 
     def add(self, accessible_type: _TAccessibleType = "all") -> Callable[[_TMethod], _TMethod]:
-        """Adds a method to be filtered in :class:`AuthMiddleware`.
+        """Adds a method to be filtered in :class:`ApiAuthMiddleware`.
 
         You can use as a decorator.
 

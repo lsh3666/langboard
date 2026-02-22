@@ -1,6 +1,6 @@
 import { TGetListForm } from "@/controllers/api/shared/types";
 import { Routing } from "@langboard/core/constants";
-import { ActivityModel, User } from "@/core/models";
+import { ActivityModel, ApiKeySettingModel, User } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
 export const getListRequestData = (form: TGetListForm) => {
@@ -35,6 +35,10 @@ export const getListRequestData = (form: TGetListForm) => {
         case "User":
             model = User.Model;
             url = Routing.API.SETTINGS.USERS.GET_LIST;
+            break;
+        case "ApiKeySettingModel":
+            model = ApiKeySettingModel.Model;
+            url = Routing.API.SETTINGS.API_KEYS.GET_LIST;
             break;
         default:
             throw new Error("Invalid list type");

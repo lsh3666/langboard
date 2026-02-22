@@ -1,4 +1,5 @@
 from .ActivityService import ActivityService
+from .ApiKeyService import ApiKeyService
 from .AppSettingService import AppSettingService
 from .BotLogService import BotLogService
 from .BotService import BotService
@@ -11,6 +12,7 @@ from .CheckitemService import CheckitemService
 from .ChecklistService import ChecklistService
 from .EmailService import EmailService
 from .InternalBotService import InternalBotService
+from .McpToolGroupService import McpToolGroupService
 from .MetadataService import MetadataService
 from .NotificationService import NotificationService
 from .ProjectColumnService import ProjectColumnService
@@ -26,6 +28,7 @@ from .UserService import UserService
 
 __all__ = [
     "ActivityService",
+    "ApiKeyService",
     "AppSettingService",
     "BotLogService",
     "BotService",
@@ -38,6 +41,7 @@ __all__ = [
     "ChecklistService",
     "EmailService",
     "InternalBotService",
+    "McpToolGroupService",
     "MetadataService",
     "NotificationService",
     "ProjectColumnService",

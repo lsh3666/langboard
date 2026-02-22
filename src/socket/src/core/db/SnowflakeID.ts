@@ -88,7 +88,6 @@ class SnowflakeID extends Number {
         return (left << 32n) | right;
     }
 
-    // Base62 인코딩
     static #base62Encode(n: bigint) {
         const s = [];
         while (n > 0n) {

@@ -4,6 +4,7 @@ import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { Project } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
+import { Utils } from "@langboard/core/utils";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -65,7 +66,7 @@ const BoardCardDeadline = memo(() => {
                         deadline ? "bg-primary text-primary-foreground shadow" : "border border-input bg-background shadow-sm"
                     )}
                 >
-                    {deadline?.toLocaleString() ?? t("card.No deadline")}
+                    {deadline ? Utils.String.formatDateLocale(deadline) : t("card.No deadline")}
                 </span>
             ) : (
                 <Flex items="center">
@@ -89,7 +90,7 @@ const BoardCardDeadline = memo(() => {
                                 isValidating={isSaving}
                             >
                                 <IconComponent icon="calendar" size="4" />
-                                {deadline?.toLocaleString() ?? t("card.Set deadline")}
+                                {deadline ? Utils.String.formatDateLocale(deadline) : t("card.Set deadline")}
                             </SubmitButton>
                         )}
                     />

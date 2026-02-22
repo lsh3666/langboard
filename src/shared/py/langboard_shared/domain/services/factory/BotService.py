@@ -4,10 +4,9 @@ from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.storage import FileModel
 from ....core.types.ParamTypes import TBotParam
 from ....core.utils.Converter import convert_python_data
-from ....core.utils.IpAddress import is_valid_ipv4_address_or_range, make_valid_ipv4_range
+from ....core.utils.IpAddress import ALLOWED_ALL_IPS, is_valid_ipv4_address_or_range, make_valid_ipv4_range
 from ....core.utils.String import generate_random_string
 from ....domain.models import Bot
-from ....domain.models.Bot import ALLOWED_ALL_IPS
 from ....helpers import InfraHelper
 from ....publishers import BotPublisher
 from ....tasks.bots import BotDefaultTask

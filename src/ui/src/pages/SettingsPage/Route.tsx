@@ -57,6 +57,10 @@ const routes: RouteObject[] = [
                 element: <></>,
             },
             {
+                path: ROUTES.SETTINGS.MCP_TOOL_GROUPS,
+                element: <></>,
+            },
+            {
                 path: ROUTES.SETTINGS.CREATE_API_KEY,
                 element: <ModalPage />,
             },
@@ -78,6 +82,10 @@ const routes: RouteObject[] = [
             },
             {
                 path: ROUTES.SETTINGS.CREATE_WEBHOOK,
+                element: <ModalPage />,
+            },
+            {
+                path: ROUTES.SETTINGS.CREATE_MCP_TOOL_GROUP(":groupType"),
                 element: <ModalPage />,
             },
         ],

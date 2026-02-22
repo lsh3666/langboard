@@ -15,6 +15,12 @@ cd ../
 
 source .env
 
+# Set Vault URL if using hashicorp-local
+if [[ "$KEY_PROVIDER_TYPE" == "hashicorp-local" ]]; then
+    export KEY_PROVIDER_HASHICORP_URL="http://${PROJECT_NAME}_vault:8200"
+    echo "Vault URL set to: $KEY_PROVIDER_HASHICORP_URL"
+fi
+
 declare -A service_envs=(
   [nginx]="server-common"
   [api]="server-common server"

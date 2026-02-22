@@ -4,7 +4,7 @@ import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
 import { AuthUser } from "@/core/models";
-import { ENotificationChannel, TNotificationSpecificType } from "@/core/models/notification.type";
+import { ENotificationChannel, TNotificationSpecificType } from "@/core/models/types/notification.type";
 
 export interface IToggleAllScopedNotificationSettingsForm {
     channel: ENotificationChannel;

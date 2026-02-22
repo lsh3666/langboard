@@ -1,6 +1,6 @@
 export function getPercentageInRange({ startOfRange, endOfRange, value }: { startOfRange: number; endOfRange: number; value: number }): number {
     // checking inputs
-    const isValid: boolean = startOfRange < endOfRange;
+    const isValid: bool = startOfRange < endOfRange;
 
     if (!isValid) {
         return 0;

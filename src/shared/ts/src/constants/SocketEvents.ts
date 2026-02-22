@@ -164,7 +164,7 @@ const SERVER = {
         DELETED: "settings:deleted:{uid}",
         SELECTIONS_DELETED: "settings:deleted",
         USERS: {
-            SELECTION_DELETED: "user:deleted",
+            SELECTIONS_DELETED: "user:deleted",
         },
         BOTS: {
             CREATED: "settings:bot:created",
@@ -178,6 +178,12 @@ const SERVER = {
             MODEL_COPIED: "settings:ollama:model:copied",
             MODEL_DELETED: "settings:ollama:model:deleted",
             MODEL_PULLING_STATUS: "settings:ollama:model:pull:status",
+        },
+        MCP_TOOL_GROUP: {
+            CREATED: "mcp-tool-group:created",
+            UPDATED: "mcp-tool-group:updated:{uid}",
+            DELETED: "mcp-tool-group:deleted:{uid}",
+            SELECTIONS_DELETED: "mcp-tool-group:deleted",
         },
     },
 } as const;

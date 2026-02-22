@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Flex, IconComponent, Popover, SubmitButton, Toast } from "@/components/base";
+import { Avatar, Box, Button, Flex, IconComponent, PillList, Popover, SubmitButton, Toast } from "@/components/base";
 import useDeleteBot from "@/controllers/api/settings/bots/useDeleteBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
@@ -73,19 +73,8 @@ const Bot = memo(({ bot }: IBotProps) => {
     };
 
     return (
-        <Flex
-            items="center"
-            justify="between"
-            border
-            rounded="md"
-            py="2"
-            px="3"
-            gap="4"
-            cursor="pointer"
-            className="transition-all duration-200 hover:bg-accent"
-            onClick={toBotDetails}
-        >
-            <Flex items="center" gap="2" w="full">
+        <PillList.ItemRoot size="sm" className="cursor-pointer" onClick={toBotDetails}>
+            <PillList.ItemTitle>
                 <Avatar.Root>
                     <Avatar.Image src={avatar} />
                     <Avatar.Fallback>
@@ -94,12 +83,12 @@ const Bot = memo(({ bot }: IBotProps) => {
                 </Avatar.Root>
                 <Box w="full">
                     <Box>{name}</Box>
-                    <Box w="full" textSize="sm">
-                        {uname}
+                    <Box w="full" textSize="xs" className="text-muted-foreground/70">
+                        @{uname}
                     </Box>
                 </Box>
-            </Flex>
-            <Box
+            </PillList.ItemTitle>
+            <PillList.ItemContent
                 onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -131,8 +120,8 @@ const Bot = memo(({ bot }: IBotProps) => {
                         </Flex>
                     </Popover.Content>
                 </Popover.Root>
-            </Box>
-        </Flex>
+            </PillList.ItemContent>
+        </PillList.ItemRoot>
     );
 });
 

@@ -1,3 +1,4 @@
+import { McpToolGroup } from "@/core/models";
 import { EHttpStatus } from "@langboard/core/enums";
 
 export const ROUTES = {
@@ -75,6 +76,8 @@ export const ROUTES = {
         CREATE_WEBHOOK: "/settings/webhooks/create",
         OLLAMA: "/settings/ollama",
         PULL_OLLAMA: "/settings/ollama/pull",
+        MCP_TOOL_GROUPS: "/settings/mcp",
+        CREATE_MCP_TOOL_GROUP: (groupType: (string & {}) | McpToolGroup.TGroupType) => `/settings/mcp/create/${groupType}`,
     },
     ERROR: (code: EHttpStatus | "*") => `/error/${code}`,
 } as const;

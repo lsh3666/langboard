@@ -1,16 +1,15 @@
-from typing import Any, Literal, cast, overload
+from typing import Any, Literal, overload
 from fastapi import Depends, Request, status
 from jwt import ExpiredSignatureError, InvalidTokenError
 from starlette.datastructures import Headers
 from starlette.requests import cookie_parser
 from ..core.caching import Cache
 from ..core.db import DbSession, SqlBuilder
-from ..core.security import AuthSecurity
+from ..core.security import AuthSecurity, KeyVault
 from ..core.utils.decorators import staticclass
-from ..core.utils.IpAddress import is_ipv4_in_range, is_valid_ipv4_address_or_range
-from ..domain.models import Bot, User
+from ..core.utils.IpAddress import has_allowed_ips
+from ..domain.models import ApiKeySetting, Bot, User
 from ..domain.models.BaseBotModel import BaseBotModel, BotPlatform
-from ..domain.models.Bot import ALLOWED_ALL_IPS
 from ..Env import Env
 
 
@@ -83,8 +82,7 @@ class Auth:
             cached_user = Cache.get(cache_key, User.model_validate)
             if cached_user:
                 return cached_user
-        except Exception as e:
-            print(e)
+        except Exception:
             pass
 
         try:
@@ -182,9 +180,6 @@ class Auth:
             if not compared_result:
                 return status.HTTP_401_UNAUTHORIZED
         else:
-            if not authorization:
-                return status.HTTP_401_UNAUTHORIZED
-
             if authorization.startswith("Bearer "):
                 access_token = authorization.split("Bearer ", maxsplit=1)[1]
             elif authorization.startswith("bearer "):
@@ -205,47 +200,21 @@ class Auth:
 
     @staticmethod
     def validate_bot(headers: Headers) -> Bot | Literal[401]:
-        ip = headers.get(AuthSecurity.IP_HEADER, headers.get(AuthSecurity.IP_HEADER.lower(), None))
+        ips = AuthSecurity.get_all_client_ips(headers)
         api_token = headers.get(AuthSecurity.API_TOKEN_HEADER, headers.get(AuthSecurity.API_TOKEN_HEADER.lower(), None))
         if not api_token:
             return status.HTTP_401_UNAUTHORIZED
-
-        if Env.ENVIRONMENT != "development":
-            if not ip:
-                return status.HTTP_401_UNAUTHORIZED
-
-            if "," in ip:
-                ip = ip.split(",", maxsplit=1)[0]
-
-            if not is_valid_ipv4_address_or_range(ip):
-                return status.HTTP_401_UNAUTHORIZED
 
         bot = Auth.get_bot_by_api_token(api_token)
         if not bot:
             return status.HTTP_401_UNAUTHORIZED
 
-        if Env.ENVIRONMENT == "development":
-            return bot
-
         allowed_all_ips = BaseBotModel.ALLOWED_ALL_IPS_BY_PLATFORMS.get(BotPlatform(bot.platform), [])
-        if bot.platform_running_type in allowed_all_ips:
+        if Env.ENVIRONMENT == "development" or bot.platform_running_type in allowed_all_ips:
             return bot
 
-        ip = cast(str, ip)
-        if isinstance(bot.ip_whitelist, str):
-            bot.ip_whitelist = bot.ip_whitelist.split(",")
-
-        if ALLOWED_ALL_IPS in bot.ip_whitelist:
+        if has_allowed_ips(bot.ip_whitelist, ips):
             return bot
-
-        for ip_range in bot.ip_whitelist:
-            if ip_range.endswith(".0/24"):
-                if is_ipv4_in_range(ip, ip_range):
-                    return bot
-            else:
-                if ip == ip_range:
-                    return bot
-
         return status.HTTP_401_UNAUTHORIZED
 
     @staticmethod
@@ -273,3 +242,51 @@ class Auth:
             return status.HTTP_401_UNAUTHORIZED
 
         return user
+
+    @staticmethod
+    def validate_user_by_api_key(headers: Headers) -> tuple[User, ApiKeySetting] | Literal[401]:
+        ips = AuthSecurity.get_all_client_ips(headers)
+        key_material = headers.get(AuthSecurity.API_KEY_HEADER, headers.get(AuthSecurity.API_KEY_HEADER.lower(), None))
+        if not key_material:
+            return status.HTTP_401_UNAUTHORIZED
+
+        # Validate API key format
+        if not key_material.startswith("sk-"):
+            return status.HTTP_401_UNAUTHORIZED
+
+        actual_key = key_material[3:]
+
+        try:
+            with DbSession.use(readonly=True) as db:
+                result = db.exec(
+                    SqlBuilder.select.table(ApiKeySetting).where(ApiKeySetting.column("activated_at").is_not(None))
+                )
+                api_keys = result.all()
+
+                api_key_setting = None
+                for api_key in api_keys:
+                    try:
+                        stored_key = KeyVault.get_key(api_key.value)
+                        if stored_key != actual_key:
+                            continue
+                        if api_key.is_expired():
+                            return status.HTTP_401_UNAUTHORIZED
+                        api_key_setting = api_key
+                        break
+                    except Exception:
+                        continue
+
+                if not api_key_setting:
+                    return status.HTTP_401_UNAUTHORIZED
+        except Exception:
+            return status.HTTP_401_UNAUTHORIZED
+
+        # Check IP whitelist
+        if Env.ENVIRONMENT != "development" and not has_allowed_ips(api_key_setting.ip_whitelist, ips):
+            return status.HTTP_401_UNAUTHORIZED
+
+        # Get user
+        result = Auth.get_user_by_id(api_key_setting.user_id)
+        if not result or isinstance(result, InvalidTokenError):
+            return status.HTTP_401_UNAUTHORIZED
+        return result, api_key_setting

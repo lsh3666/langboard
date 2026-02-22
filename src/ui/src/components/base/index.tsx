@@ -32,6 +32,7 @@ export { default as Label } from "@/components/base/Label";
 export { default as Loading } from "@/components/base/Loading";
 export * as Menubar from "@/components/base/Menubar";
 export * as NavigationMenu from "@/components/base/NavigationMenu";
+export * as PillList from "@/components/base/PillList";
 export * as Popover from "@/components/base/Popover";
 export { default as Progress } from "@/components/base/Progress";
 export * as ScrollArea from "@/components/base/ScrollArea";

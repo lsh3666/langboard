@@ -1,4 +1,6 @@
 from .ActivityRepository import ActivityRepository
+from .ApiKeyRepository import ApiKeyRepository
+from .ApiKeyUsageRepository import ApiKeyUsageRepository
 from .AppSettingRepository import AppSettingRepository
 from .BotLogRepository import BotLogRepository
 from .BotRepository import BotRepository
@@ -16,6 +18,8 @@ from .CheckitemTimerRecordRepository import CheckitemTimerRecordRepository
 from .ChecklistRepository import ChecklistRepository
 from .GlobalCardRelationshipTypeRepository import GlobalCardRelationshipTypeRepository
 from .InternalBotRepository import InternalBotRepository
+from .McpToolGroupRepository import McpToolGroupRepository
+from .McpToolGroupUsageRepository import McpToolGroupUsageRepository
 from .MetadataRepository import MetadataRepository
 from .ProjectAssignedInternalBotRepository import ProjectAssignedInternalBotRepository
 from .ProjectAssignedUserRepository import ProjectAssignedUserRepository
@@ -35,10 +39,13 @@ from .UserNotificationRepository import UserNotificationRepository
 from .UserNotificationSettingRepository import UserNotificationSettingRepository
 from .UserProfileRepository import UserProfileRepository
 from .UserRepository import UserRepository
+from .UserSignInHistoryRepository import UserSignInHistoryRepository
 
 
 __all__ = [
     "ActivityRepository",
+    "ApiKeyRepository",
+    "ApiKeyUsageRepository",
     "AppSettingRepository",
     "BotLogRepository",
     "BotRepository",
@@ -56,6 +63,8 @@ __all__ = [
     "ChecklistRepository",
     "GlobalCardRelationshipTypeRepository",
     "InternalBotRepository",
+    "McpToolGroupRepository",
+    "McpToolGroupUsageRepository",
     "MetadataRepository",
     "ProjectAssignedInternalBotRepository",
     "ProjectAssignedUserRepository",
@@ -75,4 +84,5 @@ __all__ = [
     "UserNotificationSettingRepository",
     "UserProfileRepository",
     "UserRepository",
+    "UserSignInHistoryRepository",
 ]

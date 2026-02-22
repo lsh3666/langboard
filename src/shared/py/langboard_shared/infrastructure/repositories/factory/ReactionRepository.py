@@ -64,9 +64,9 @@ class ReactionRepository(BaseRepository):
         user_or_bot: TUserOrBot,
         model_cls: type[_TReactionModel],
         target: BaseSqlModel | TBaseParam,
-        is_reacted: Literal[True],
+        should_react: Literal[True],
+        reaction_type: str,
         reaction: None = None,
-        reaction_type: None = None,
     ): ...
     @overload
     def toggle(
@@ -74,25 +74,23 @@ class ReactionRepository(BaseRepository):
         user_or_bot: TUserOrBot,
         model_cls: type[_TReactionModel],
         target: BaseSqlModel | TBaseParam,
-        is_reacted: Literal[False],
-        reaction: _TReactionModel,
+        should_react: Literal[False],
         reaction_type: str,
+        reaction: _TReactionModel,
     ): ...
     def toggle(
         self,
         user_or_bot: TUserOrBot,
         model_cls: type[_TReactionModel],
         target: BaseSqlModel | TBaseParam,
-        is_reacted: bool,
+        should_react: bool,
+        reaction_type: str,
         reaction: _TReactionModel | None = None,
-        reaction_type: str | None = None,
     ):
         target_id = InfraHelper.convert_id(target)
 
         with DbSession.use(readonly=False) as db:
-            if is_reacted:
-                db.delete(cast(BaseReactionModel, reaction))
-            else:
+            if should_react:
                 reaction_params = {
                     "reaction_type": reaction_type,
                     model_cls.get_target_column_name(): target_id,
@@ -105,3 +103,5 @@ class ReactionRepository(BaseRepository):
 
                 reaction = model_cls(**reaction_params)
                 db.insert(reaction)
+            else:
+                db.delete(cast(BaseReactionModel, reaction))

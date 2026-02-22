@@ -1,0 +1,90 @@
+import inspect
+from fastapi import Request
+from langboard_shared.core.filter import AuthFilter
+from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
+from langboard_shared.core.security import AuthSecurity
+from langboard_shared.domain.models import User
+from langboard_shared.domain.services import DomainService
+from langboard_shared.infrastructure.repositories import Repository
+from ...mcp_integration import McpTool
+from ...mcp_tools.RoleChecker import McpRoleChecker
+
+
+@AppRouter.schema()
+@AppRouter.api.get("/mcp/tools", tags=["MCP"], description="List all available MCP tools", response_model=None)
+@AuthFilter.add("admin")
+def get_mcp_tools():
+    tools = McpTool.get_tools()
+    return JsonResponse(
+        content={
+            "tools": [
+                {"name": name, "description": data["description"], "input_schema": data["input_schema"]}
+                for name, data in tools.items()
+            ]
+        }
+    )
+
+
+@AppRouter.schema()
+@AppRouter.api.post("/mcp/tools/{tool_name}", tags=["MCP"], description="Execute an MCP tool", response_model=None)
+@AuthFilter.add("admin")
+async def execute_mcp_tool(tool_name: str, request: Request):
+    tool = McpTool.get_tool(tool_name)
+    if not tool:
+        raise ApiException.NotFound_404(ApiErrorCode.NF1004)
+
+    user_or_bot = request.scope.get("auth")
+    if not user_or_bot:
+        raise ApiException.Unauthorized_401(ApiErrorCode.AU1001)
+
+    arguments = await request.json()
+
+    # Extract and validate MCP tool group UID from header only
+    mcp_tool_group_uid = request.headers.get(AuthSecurity.MCP_TOOL_GROUP_UID_HEADER)
+
+    if not mcp_tool_group_uid:
+        raise ApiException.BadRequest_400(ApiErrorCode.VA0000)
+
+    # Get MCP tool group and validate access
+    repo = Repository()
+    service = DomainService()
+    service.initialize(repo)
+
+    tool_group = service.mcp_tool_group.get_by_id_like(mcp_tool_group_uid)
+    if not tool_group:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3006)
+
+    # Check if it's a personal tool group and validate ownership
+    if tool_group.user_id is not None:
+        api_key = request.scope.get("api_key")
+        if not api_key:
+            raise ApiException.Forbidden_403(ApiErrorCode.PE1001)
+
+        # Validate that the API key belongs to the same user as the tool group
+        if api_key.user_id != tool_group.user_id:
+            raise ApiException.Forbidden_403(ApiErrorCode.PE1001)
+
+    handler = tool["handler"]
+    sig = inspect.signature(handler)
+
+    role_checker = McpRoleChecker()
+
+    if not role_checker.check_permission(handler, user_or_bot, arguments):
+        raise ApiException.Forbidden_403(ApiErrorCode.PE1001)
+
+    if "user_or_bot" in sig.parameters:
+        arguments["user_or_bot"] = user_or_bot
+    elif "user" in sig.parameters:
+        authenticated_user = user_or_bot if isinstance(user_or_bot, User) else None
+        if not authenticated_user:
+            raise ApiException.Forbidden_403(ApiErrorCode.PE1001)
+        arguments["user"] = authenticated_user
+
+    for param_name, param in sig.parameters.items():
+        if param_name == "service" and param.annotation == DomainService:
+            arguments["service"] = service
+            break
+
+    handler = tool["handler"]
+    result = await handler(**arguments) if inspect.iscoroutinefunction(handler) else handler(**arguments)
+    return JsonResponse(content={"result": result})

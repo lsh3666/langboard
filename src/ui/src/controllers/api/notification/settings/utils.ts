@@ -1,5 +1,5 @@
 import { AuthUser } from "@/core/models";
-import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/notification.type";
+import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/types/notification.type";
 
 interface IToggleAllScopedUnsubscriptionsParams {
     currentUser: AuthUser.TModel;

@@ -2,7 +2,7 @@ import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { BaseBotScheduleModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 
 export interface TBoardBotCronRescheduledRawResponse {
     target_table: TBotRelatedTargetTable;

@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 from fastapi import Depends, status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
@@ -31,20 +31,11 @@ def get_users_in_settings(
     if pagination.only_count:
         count_new_records = cast(int, result)
         return JsonResponse(content=PaginatedList(count_new_records=count_new_records))
-    users, count_new_records = cast(tuple[list[tuple[User, UserProfile]], int], result)
-
-    api_users = []
-    for user, profile in users:
-        api_user = user.api_response()
-        api_user.update(profile.api_response())
-        api_user["created_at"] = user.created_at
-        api_user["activated_at"] = user.activated_at
-        api_user["is_admin"] = user.is_admin
-        api_users.append(api_user)
+    users, count_new_records = cast(tuple[list[dict[str, Any]], int], result)
 
     return JsonResponse(
         content=PaginatedList(
-            records=api_users,
+            records=users,
             count_new_records=count_new_records,
         )
     )

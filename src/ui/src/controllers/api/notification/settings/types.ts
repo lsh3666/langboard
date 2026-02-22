@@ -1,4 +1,4 @@
-import { ENotificationChannel, TNotificationSpecificType } from "@/core/models/notification.type";
+import { ENotificationChannel, TNotificationSpecificType } from "@/core/models/types/notification.type";
 
 interface IBaseToggleSpecificScopedNotificationSettingsForm {
     channel: ENotificationChannel;

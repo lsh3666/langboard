@@ -44,13 +44,13 @@ export type PublicConfig = Partial<{
 
 export type ElementAutoScrollArgs<DragType extends AllDragTypes> = {
     element: Element;
-    canScroll?: (args: ElementGetFeedbackArgs<DragType>) => boolean;
+    canScroll?: (args: ElementGetFeedbackArgs<DragType>) => bool;
     getAllowedAxis?: (args: ElementGetFeedbackArgs<DragType>) => AllowedAxis;
     getConfiguration?: (args: ElementGetFeedbackArgs<DragType>) => PublicConfig;
 };
 
 export type WindowAutoScrollArgs<DragType extends AllDragTypes> = {
-    canScroll?: (args: WindowGetFeedbackArgs<DragType>) => boolean;
+    canScroll?: (args: WindowGetFeedbackArgs<DragType>) => bool;
     getAllowedAxis?: (args: WindowGetFeedbackArgs<DragType>) => AllowedAxis;
     getConfiguration?: (args: WindowGetFeedbackArgs<DragType>) => PublicConfig;
 };

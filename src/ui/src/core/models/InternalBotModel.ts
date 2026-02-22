@@ -3,7 +3,7 @@ import { BaseModel } from "@/core/models/Base";
 import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
-import { IBaseBotModel } from "@/core/models/bot.related.type";
+import { IBaseBotModel } from "@/core/models/types/bot.related.type";
 
 export enum EInternalBotType {
     ProjectChat = "project_chat",

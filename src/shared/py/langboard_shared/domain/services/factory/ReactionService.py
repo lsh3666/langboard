@@ -44,8 +44,8 @@ class ReactionService(BaseDomainService):
         reaction = self.repo.reaction.get_one(user_or_bot, model_cls, target, reaction_type)
 
         if reaction:
-            self.repo.reaction.toggle(user_or_bot, model_cls, target, False, reaction, reaction_type)
+            self.repo.reaction.toggle(user_or_bot, model_cls, target, False, reaction_type, reaction)
         else:
-            self.repo.reaction.toggle(user_or_bot, model_cls, target, True)
+            self.repo.reaction.toggle(user_or_bot, model_cls, target, True, reaction_type)
 
         return not bool(reaction)

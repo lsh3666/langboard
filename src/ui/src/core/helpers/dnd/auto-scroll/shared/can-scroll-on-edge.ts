@@ -1,7 +1,7 @@
 import { type Edge } from "@/core/helpers/dnd/auto-scroll/internal-types";
 
 export const canScrollOnEdge: {
-    [key in Edge]: (element: Element) => boolean;
+    [key in Edge]: (element: Element) => bool;
 } = {
     // Notes:
     //

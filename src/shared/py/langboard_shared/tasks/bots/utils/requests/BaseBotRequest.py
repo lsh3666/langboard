@@ -137,7 +137,7 @@ class BaseBotRequest(ABC):
             db.insert(scope_log)
 
         if self._project:
-            await ProjectBotPublisher.log_created(self._project, (bot_log, scope_log))
+            ProjectBotPublisher.log_created(self._project, (bot_log, scope_log))
         return bot_log, scope_log
 
     async def _update_log(
@@ -157,7 +157,7 @@ class BaseBotRequest(ABC):
             db.update(log)
 
         if self._project and scope_log:
-            await ProjectBotPublisher.log_stack_added(self._project, log, log_stack)
+            ProjectBotPublisher.log_stack_added(self._project, log, log_stack)
 
     def _get_start_request_log_type(self) -> BotLogType:
         if self._bot.platform == BotPlatform.Default:

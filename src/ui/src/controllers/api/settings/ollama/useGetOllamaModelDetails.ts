@@ -22,7 +22,7 @@ const useGetOllamaModelDetails = (options?: TMutationOptions<IGetOllamaModelDeta
             }
         );
 
-        getOllamaModelStore().addOrUpdateModel({
+        getOllamaModelStore().upsertModel({
             name: params.model,
             ...res.data,
         });

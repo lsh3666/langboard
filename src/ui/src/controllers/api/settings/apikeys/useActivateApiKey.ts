@@ -1,0 +1,32 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Routing } from "@langboard/core/constants";
+import { api } from "@/core/helpers/Api";
+import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
+import { Utils } from "@langboard/core/utils";
+import { ApiKeySettingModel } from "@/core/models";
+
+const useActivateApiKey = (apiKey: ApiKeySettingModel.TModel, options?: TMutationOptions) => {
+    const { mutate } = useQueryMutation();
+
+    const activateApiKey = async () => {
+        const url = Utils.String.format(Routing.API.SETTINGS.API_KEYS.ACTIVATE, { key_uid: apiKey.uid });
+        const res = await api.put(url, undefined, {
+            env: {
+                interceptToast: options?.interceptToast,
+            } as any,
+        });
+
+        apiKey.activated_at = new Date();
+
+        return res.data;
+    };
+
+    const result = mutate(["activate-api-key"], activateApiKey, {
+        ...options,
+        retry: 0,
+    });
+
+    return result;
+};
+
+export default useActivateApiKey;

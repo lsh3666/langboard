@@ -2,6 +2,7 @@
 
 COMPOSE_PREFIX := ./docker/docker-compose
 COMPOSE_ARGS := -f $(COMPOSE_PREFIX).kafka.yaml -f $(COMPOSE_PREFIX).pg.yaml -f $(COMPOSE_PREFIX).redis.yaml -f $(COMPOSE_PREFIX).server.yaml --env-file ./.env
+VAULT_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).vault.yaml
 DOCS_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).docs.yaml
 UI_WATCHER_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ui-watcher.yaml
 OLLAMA_SHARED_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.shared.yaml
@@ -140,9 +141,13 @@ dev_socket_build: ## build the Socket in development environment
 
 start_docker: ## run Docker in the production environment
 	make init_env
-	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans
+	make update_docker_settings
+	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build --remove-orphans; \
+	else \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans; \
+	fi
 
 rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_docker IMAGES=image_name or IMAGES="image_name1 image_name2")
 	if [ "$(IMAGES)" = "" ]; then \
@@ -151,17 +156,29 @@ rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_d
 	fi
 
 	make init_env
-	make update_docker_settings
 	mkdir -p ./docker/volumes
-	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans
+	make update_docker_settings
+	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
+	else \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
+	fi
 
 update_docker: ## update Docker in the production environment
 	make init_env
 	make update_docker_settings
-	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans
+	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
+	else \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
+	fi
 
 stop_docker: ## stop Docker in the production environment
-	docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans
+	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env 2>/dev/null; then \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
+	else \
+		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
+	fi
 
 unit_tests: ## run unit tests
 	uv run pytest $(API_DIR)/tests/units
@@ -173,6 +190,9 @@ cov_unit_tests: ## run unit tests with coverage
 init_env: ## initialize the .env file from .env.example if it does not exist
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
+	fi
+	@if [ ! -f ./docker/volumes/.vault-credentials ]; then \
+		touch ./docker/volumes/.vault-credentials; \
 	fi
 
 update_docker_settings: ## update Docker settings

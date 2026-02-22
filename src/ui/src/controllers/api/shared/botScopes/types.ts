@@ -1,4 +1,4 @@
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 
 export type TBotScopeRelatedParams = {
     target_table: TBotRelatedTargetTable;

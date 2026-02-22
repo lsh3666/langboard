@@ -1,6 +1,6 @@
 import { Button, Table } from "@/components/base";
+import DateDistance from "@/components/DateDistance";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { ProjectCard } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { ROUTES } from "@/core/routing/constants";
@@ -18,8 +18,7 @@ function CardRow({ card, ...props }: ICardRowProps): JSX.Element | null {
     const title = card.useField("title");
     const columnName = card.useField("project_column_name");
     const archivedAt = card.useField("archived_at");
-    const rawCreatedAt = card.useField("created_at");
-    const createdAt = useUpdateDateDistance(rawCreatedAt);
+    const createdAt = card.useField("created_at");
 
     return (
         <Table.FlexRow
@@ -45,7 +44,9 @@ function CardRow({ card, ...props }: ICardRowProps): JSX.Element | null {
                         {columnName}
                     </Button>
                 </Table.FlexCell>
-                <Table.FlexCell className="w-1/6 text-center">{createdAt}</Table.FlexCell>
+                <Table.FlexCell className="w-1/6 text-center">
+                    <DateDistance date={createdAt} />
+                </Table.FlexCell>
                 <Table.FlexCell className="w-1/6 text-center">
                     <CardRowTimeTaken />
                 </Table.FlexCell>

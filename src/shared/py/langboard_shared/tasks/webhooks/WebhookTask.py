@@ -44,7 +44,7 @@ async def run_webhook(event: str, data: dict[str, Any]):
             setting.total_used_count += 1
             with DbSession.use(readonly=False) as db:
                 db.update(setting)
-            await AppSettingPublisher.setting_updated(
+            AppSettingPublisher.setting_updated(
                 setting.get_uid(),
                 {
                     "last_used_at": setting.last_used_at,

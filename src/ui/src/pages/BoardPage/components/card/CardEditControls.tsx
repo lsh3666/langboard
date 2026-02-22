@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 
 export interface ICardEditControlsProps {
     className?: string;
-    isEditing: boolean;
+    isEditing: bool;
     onSave: () => void;
     onCancel: () => void;
-    saveDisabled?: boolean;
+    saveDisabled?: bool;
 }
 
 export const CardEditControls = ({ className, isEditing, onSave, onCancel, saveDisabled = false }: ICardEditControlsProps): JSX.Element | null => {

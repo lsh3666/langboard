@@ -287,7 +287,7 @@ function BotCreateFormDialog({ opened, setOpened }: IBotCreateFormDialogProps): 
                                     className="w-[calc(100%_-_theme(spacing.24))]"
                                     inputClassName="ml-1 placeholder:text-gray-500 placeholder:font-medium"
                                     canCreateNew
-                                    validateCreatedNewValue={Utils.String.isValidIpv4OrRnage}
+                                    validateCreatedNewValue={Utils.String.isValidIpv4OrRange}
                                     createNewCommandItemLabel={(value) => {
                                         const newIPs: string[] = [];
 

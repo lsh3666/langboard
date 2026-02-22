@@ -3,6 +3,7 @@ import { IBotScheduleFormMap } from "@/components/bots/BotScheduleList/Provider"
 import Cron from "@/components/Cron";
 import { BaseBotScheduleModel } from "@/core/models";
 import { cn } from "@/core/utils/ComponentUtils";
+import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -140,7 +141,7 @@ function BotScheduleListItemForm({ initialValuesMap, valuesMapRef, triggersMapRe
                             }}
                         >
                             <IconComponent icon="calendar" size="4" />
-                            {startAt?.toLocaleString() ?? t("bot.schedules.Set start time")}
+                            {startAt ? Utils.String.formatDateLocale(startAt) : t("bot.schedules.Set start time")}
                         </Button>
                     )}
                 />
@@ -168,7 +169,7 @@ function BotScheduleListItemForm({ initialValuesMap, valuesMapRef, triggersMapRe
                             }}
                         >
                             <IconComponent icon="calendar" size="4" />
-                            {endAt?.toLocaleString() ?? t("bot.schedules.Set end time")}
+                            {endAt ? Utils.String.formatDateLocale(endAt) : t("bot.schedules.Set end time")}
                         </Button>
                     )}
                 />

@@ -6,7 +6,7 @@ import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation
 import { ProjectCard, ProjectColumn, BotLogModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useEffect, useRef, useState } from "react";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 
 export type TUseGetBotLogsForm = TBotLogRelatedParams & {
     target_uid: string;

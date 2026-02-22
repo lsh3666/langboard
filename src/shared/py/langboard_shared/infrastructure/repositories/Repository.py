@@ -150,3 +150,23 @@ class Repository(Factory):
     @property
     def checkitem_timer_record(self):
         return self._create_or_get_product(factory.CheckitemTimerRecordRepository)
+
+    @property
+    def mcp_tool_group(self):
+        return self._create_or_get_product(factory.McpToolGroupRepository)
+
+    @property
+    def api_key(self):
+        return self._create_or_get_product(factory.ApiKeyRepository)
+
+    @property
+    def api_key_usage(self):
+        return self._create_or_get_product(factory.ApiKeyUsageRepository)
+
+    @property
+    def user_sign_in_history(self):
+        return self._create_or_get_product(factory.UserSignInHistoryRepository)
+
+    @property
+    def mcp_tool_group_usage(self):
+        return self._create_or_get_product(factory.McpToolGroupUsageRepository)

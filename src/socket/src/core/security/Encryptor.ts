@@ -37,7 +37,6 @@ const decrypt = (data: string, key: string): string => {
     const nonce = Buffer.from(b64Nonce, "base64");
     const tag = Buffer.from(b64Tag, "base64");
 
-    // scrypt로 key 복원
     const decodedKey = crypto.scryptSync(key, salt, 32, { N: 16384, r: 8, p: 1 });
 
     const decipher = crypto.createDecipheriv("aes-256-gcm", decodedKey, nonce);

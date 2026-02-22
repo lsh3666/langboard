@@ -21,7 +21,7 @@ function OllamaPullModelButton() {
 
         const { send } = usePullOllamaModelHandlers({});
 
-        getOllamaModelStore().addOrUpdatePullingModel({
+        getOllamaModelStore().upsertPullingModel({
             name: value,
             isTracking: true,
             progress: 0,

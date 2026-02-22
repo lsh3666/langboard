@@ -1,0 +1,129 @@
+import { Box, Button, Flex, Popover, SubmitButton, Toast, Tooltip } from "@/components/base";
+import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
+import MultiSelect from "@/components/MultiSelect";
+import useUpdateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useUpdateMcpToolGroup";
+import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
+import { ROUTES } from "@/core/routing/constants";
+import { useMcpTools } from "@/core/stores/McpToolStore";
+import { EHttpStatus } from "@langboard/core/enums";
+import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+const McpToolGroupTools = memo(() => {
+    const [t] = useTranslation();
+    const { model: toolGroup } = ModelRegistry.McpToolGroup.useContext();
+    const allMcpTools = useMcpTools();
+    const tools = toolGroup.useField("tools");
+
+    const toolDetails = tools.map((toolName) => allMcpTools[toolName]).filter((tool) => tool !== undefined);
+
+    return (
+        <Flex direction="col" gap="3">
+            <Flex justify="between" items="center">
+                <h3 className="text-sm font-semibold">{t("mcp.Available Tools ({count})", { count: toolDetails.length })}</h3>
+                <McpToolGroupToolsEdit />
+            </Flex>
+            {toolDetails.map((tool) => (
+                <Flex key={tool.name} direction="col" gap="2" className="w-full rounded-md border p-3">
+                    <Flex direction="col" gap="1">
+                        <h4 className="text-sm font-medium">{tool.name}</h4>
+                        <p className="text-xs text-muted-foreground">{tool.description}</p>
+                    </Flex>
+                    <details className="group">
+                        <summary className="cursor-pointer text-xs text-primary hover:underline">{t("mcp.View Input Schema")}</summary>
+                        <Box w="full" p="3" className="[&_.prose]:!max-w-full">
+                            <MarkdownCodeBlock code={JSON.stringify(tool.input_schema, null, 2)} language="json" />
+                        </Box>
+                    </details>
+                </Flex>
+            ))}
+        </Flex>
+    );
+});
+
+function McpToolGroupToolsEdit() {
+    const [t] = useTranslation();
+    const { model: toolGroup } = ModelRegistry.McpToolGroup.useContext();
+    const { isValidating, setIsValidating } = useAppSetting();
+    const allMcpTools = useMcpTools();
+    const navigate = usePageNavigateRef();
+    const tools = toolGroup.useField("tools");
+    const [selectedTools, setSelectedTools] = useState(tools);
+    const [isOpened, setIsOpened] = useState(false);
+    const { mutateAsync } = useUpdateMcpToolGroup(toolGroup, { interceptToast: true });
+
+    const save = () => {
+        setIsValidating(true);
+
+        const promise = mutateAsync({
+            tools: selectedTools,
+        });
+
+        Toast.Add.promise(promise, {
+            loading: t("common.Changing..."),
+            error: (error) => {
+                const messageRef = { message: "" };
+                const { handle } = setupApiErrorHandler(
+                    {
+                        [EHttpStatus.HTTP_403_FORBIDDEN]: {
+                            after: () => navigate(ROUTES.ERROR(EHttpStatus.HTTP_403_FORBIDDEN), { replace: true }),
+                        },
+                    },
+                    messageRef
+                );
+                handle(error);
+                return messageRef.message;
+            },
+            success: () => {
+                return t("successes.MCP tool group tools changed successfully.");
+            },
+            finally: () => {
+                setIsOpened(false);
+                setIsValidating(false);
+            },
+        });
+    };
+
+    return (
+        <Popover.Root open={isOpened} onOpenChange={setIsOpened}>
+            <Popover.Trigger asChild>
+                <Button variant="outline" size="sm">
+                    {t("common.Edit")}
+                </Button>
+            </Popover.Trigger>
+            <Popover.Content align="end" className="w-full">
+                <Flex direction="col" gap="2">
+                    <MultiSelect
+                        placeholder={t("settings.Select tool(s) to use")}
+                        selections={Object.keys(allMcpTools).map((value) => ({ label: value, value }))}
+                        selectedValue={selectedTools}
+                        listClassName="absolute w-[calc(100%_-_theme(spacing.6))]"
+                        badgeListClassName="max-h-28 overflow-y-auto relative"
+                        inputClassName="sticky bottom-0 bg-background ml-0 pl-2"
+                        onValueChange={setSelectedTools}
+                        createBadgeWrapper={(badge, value) => (
+                            <Tooltip.Root>
+                                <Tooltip.Trigger asChild>{badge}</Tooltip.Trigger>
+                                <Tooltip.Content className="max-w-[min(95vw,theme(spacing.96))]">{allMcpTools[value]?.name}</Tooltip.Content>
+                            </Tooltip.Root>
+                        )}
+                        disabled={isValidating}
+                    />
+                    <Flex items="center" justify="end" gap="1" mt="2">
+                        <Button type="button" variant="secondary" size="sm" disabled={isValidating} onClick={() => setIsOpened(false)}>
+                            {t("common.Cancel")}
+                        </Button>
+                        <SubmitButton type="button" size="sm" onClick={save} isValidating={isValidating}>
+                            {t("common.Save")}
+                        </SubmitButton>
+                    </Flex>
+                </Flex>
+            </Popover.Content>
+        </Popover.Root>
+    );
+}
+
+export default McpToolGroupTools;

@@ -7,6 +7,7 @@ type THTMLTags = keyof HTMLElementTagNameMap;
 export declare module "@langboard/core/utils" {
     const Utils: IUtils & {
         readonly String: {
+            formatDateLocale: (date: Date) => string;
             formatDateDistance: (i18n: i18n, translate: TFunction<"translation", undefined>, date: Date) => string;
             formatTimerDuration: (duration: Duration) => string;
             convertServerFileURL: {

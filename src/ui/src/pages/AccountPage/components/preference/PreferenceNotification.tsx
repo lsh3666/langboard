@@ -4,7 +4,7 @@ import { Box, Flex } from "@/components/base";
 import { Utils } from "@langboard/core/utils";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
-import { DEEP_NOTIFICATION_TYPE_MAP, TNotificationSpecificType, TNotificationType } from "@/core/models/notification.type";
+import { DEEP_NOTIFICATION_TYPE_MAP, TNotificationSpecificType, TNotificationType } from "@/core/models/types/notification.type";
 import NotificationSetting from "@/components/NotificationSetting";
 
 function PreferenceNotification() {

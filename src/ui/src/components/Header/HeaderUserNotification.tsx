@@ -15,6 +15,7 @@ import {
     Toast,
     Tooltip,
 } from "@/components/base";
+import DateDistance from "@/components/DateDistance";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
@@ -28,10 +29,9 @@ import useUserNotifiedHandlers from "@/controllers/socket/user/useUserNotifiedHa
 import useInfiniteScrollPager from "@/core/hooks/useInfiniteScrollPager";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { AuthUser, User, UserNotification } from "@/core/models";
 import { TUserLikeModel } from "@/core/models/ModelRegistry";
-import { ENotificationType } from "@/core/models/notification.type";
+import { ENotificationType } from "@/core/models/types/notification.type";
 import { useSocket } from "@/core/providers/SocketProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { getUserSettingsStore, IUserSettings, NOTIFICATIONS_TIME_RANGE_OPTIONS, useUserSettings } from "@/core/stores/UserSettingsStore";
@@ -241,7 +241,6 @@ const HeaderUserNotificationItem = memo(({ notification, updater }: IHeaderUserN
     const { send: sendReadUserNotification } = useReadUserNotificationHandlers();
     const { send: sendDeleteUserNotification } = useDeleteUserNotificationHandlers();
     const readAt = notification.useField("read_at");
-    const createdAt = useUpdateDateDistance(notification.created_at);
     const readNotification = (shouldUpdate: bool) => {
         sendReadUserNotification({ uid: notification.uid });
         notification.read_at = new Date();
@@ -333,7 +332,9 @@ const HeaderUserNotificationItem = memo(({ notification, updater }: IHeaderUserN
             </Card.Header>
             <HeaderUserNotificationItemContent notification={notification} className={readAt ? "opacity-50" : ""} />
             <Card.Footer className={cn("justify-end px-3 pb-4", !!readAt && "opacity-50")}>
-                <Card.Description className="text-xs">{createdAt}</Card.Description>
+                <Card.Description className="text-xs">
+                    <DateDistance date={notification.created_at} />
+                </Card.Description>
             </Card.Footer>
         </Card.Root>
     );

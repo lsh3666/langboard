@@ -1,3 +1,5 @@
+from .ApiKeySetting import ApiKeySetting
+from .ApiKeyUsage import ApiKeyUsage
 from .AppSetting import AppSetting
 from .Bot import Bot
 from .BotLog import BotLog
@@ -21,6 +23,8 @@ from .CheckitemTimerRecord import CheckitemTimerRecord
 from .Checklist import Checklist
 from .GlobalCardRelationshipType import GlobalCardRelationshipType
 from .InternalBot import InternalBot
+from .McpToolGroup import McpToolGroup
+from .McpToolGroupUsage import McpToolGroupUsage
 from .Project import Project
 from .ProjectActivity import ProjectActivity
 from .ProjectAssignedInternalBot import ProjectAssignedInternalBot
@@ -49,9 +53,12 @@ from .UserGroupAssignedEmail import UserGroupAssignedEmail
 from .UserNotification import UserNotification
 from .UserNotificationUnsubscription import UserNotificationUnsubscription
 from .UserProfile import UserProfile
+from .UserSignInHistory import UserSignInHistory
 
 
 __all__ = [
+    "ApiKeySetting",
+    "ApiKeyUsage",
     "AppSetting",
     "Bot",
     "BotLog",
@@ -75,6 +82,8 @@ __all__ = [
     "Checklist",
     "GlobalCardRelationshipType",
     "InternalBot",
+    "McpToolGroup",
+    "McpToolGroupUsage",
     "Project",
     "ProjectActivity",
     "ProjectAssignedInternalBot",
@@ -98,6 +107,7 @@ __all__ = [
     "User",
     "UserActivity",
     "UserEmail",
+    "UserSignInHistory",
     "UserGroup",
     "UserGroupAssignedEmail",
     "UserNotification",

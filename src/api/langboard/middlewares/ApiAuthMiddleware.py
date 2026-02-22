@@ -1,26 +1,21 @@
 from fastapi import status
 from langboard_shared.core.filter import AuthFilter, FilterMiddleware
 from langboard_shared.core.routing import ApiErrorCode, JsonResponse
-from langboard_shared.core.security import AuthSecurity
 from langboard_shared.domain.models import Bot, User
+from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import Env
-from langboard_shared.security import Auth
-from starlette.datastructures import Headers
+from langboard_shared.helpers import MiddlewareHelper
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.routing import BaseRoute
 from starlette.types import ASGIApp
 
 
-class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
+class ApiAuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
     """Checks if the user is authenticated and has the correct permissions."""
 
     __auto_load__ = False
 
-    def __init__(
-        self,
-        app: ASGIApp,
-        routes: list[BaseRoute],
-    ):
+    def __init__(self, app: ASGIApp, routes: list[BaseRoute]):
         FilterMiddleware.__init__(self, app, routes, AuthFilter)
 
     async def __call__(self, scope, receive, send) -> None:
@@ -30,10 +25,9 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
 
         should_filter, child_scope = self.should_filter(scope)
         is_secure = Env.PUBLIC_UI_URL.startswith("https://")
-        if should_filter:
-            headers = Headers(scope=scope)
 
-            validation_result = self._validate(headers)
+        if should_filter:
+            validation_result = MiddlewareHelper.validate_auth(scope)
             if isinstance(validation_result, int):
                 response = JsonResponse(status_code=validation_result)
                 if validation_result != status.HTTP_422_UNPROCESSABLE_CONTENT:
@@ -62,16 +56,5 @@ class AuthMiddleware(AuthenticationMiddleware, FilterMiddleware):
                 await response(scope, receive, send)
                 return
 
-            scope["auth"] = validation_result
-
-        await self.app(scope, receive, send)
-
-    def _validate(self, headers: Headers) -> User | Bot | int:
-        if headers.get(AuthSecurity.API_TOKEN_HEADER, headers.get(AuthSecurity.API_TOKEN_HEADER.lower())):
-            validation_result = Auth.validate_user_by_api_token(headers)
-            if isinstance(validation_result, User):
-                return validation_result
-
-            return Auth.validate_bot(headers)
-
-        return Auth.validate(headers)
+        service = DomainService()
+        await MiddlewareHelper.log_api_key_usage(self.app, scope, receive, send, service)

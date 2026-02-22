@@ -1,5 +1,5 @@
 import { BaseModel, IBaseModel } from "@/core/models/Base";
-import { TBotRelatedTargetTable } from "@/core/models/bot.related.type";
+import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
 

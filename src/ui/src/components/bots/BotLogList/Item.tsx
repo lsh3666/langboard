@@ -1,5 +1,5 @@
 import { Badge, Box, Button, Collapsible, Flex, IconComponent } from "@/components/base";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
+import DateDistance from "@/components/DateDistance";
 import { BotLogModel } from "@/core/models";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,8 +12,7 @@ function BotLogListItem({ log }: IBotLogListItemProps) {
     const [t] = useTranslation();
     const logType = log.useField("log_type");
     const logStack = log.useField("message_stack");
-    const rawUpdatedAt = log.useField("updated_at");
-    const updatedAt = useUpdateDateDistance(rawUpdatedAt);
+    const updatedAt = log.useField("updated_at");
     const badgeVariant = useMemo(() => log.getBadgeVariant(), [logType]);
 
     return (
@@ -28,7 +27,9 @@ function BotLogListItem({ log }: IBotLogListItemProps) {
                         <BotLogListItemStack log={log} stack={logStack.at(-1)!} />
                     ) : (
                         <Flex items="center" gap="2">
-                            <Badge variant="outline">{updatedAt}</Badge>
+                            <Badge variant="outline">
+                                <DateDistance date={updatedAt} />
+                            </Badge>
                             <Badge variant={badgeVariant}>{t(`bot.logs.types.${logType}`)}</Badge>
                         </Flex>
                     )}
@@ -54,12 +55,13 @@ interface IBotLogListItemStackProps extends IBotLogListItemProps {
 
 function BotLogListItemStack({ log, stack }: IBotLogListItemStackProps) {
     const [t] = useTranslation();
-    const logDate = useUpdateDateDistance(stack.log_date);
 
     return (
         <Flex items="start" gap="2">
             <Flex items="center" gap="1">
-                <Badge variant="outline">{logDate}</Badge>
+                <Badge variant="outline">
+                    <DateDistance date={stack.log_date} />
+                </Badge>
                 <Badge variant={log.getBadgeVariant(stack.log_type)}>{t(`bot.logs.types.${stack.log_type}`)}</Badge>
             </Flex>
             <Box textSize="sm" className="whitespace-break-spaces">

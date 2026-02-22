@@ -78,7 +78,7 @@ export function getScrollChange({
     client: Position;
     hitbox: DOMRect;
     edge: Edge;
-    isDistanceDampeningEnabled: boolean;
+    isDistanceDampeningEnabled: bool;
     config: InternalConfig;
 }): number {
     // We have two forms of speed dampening:

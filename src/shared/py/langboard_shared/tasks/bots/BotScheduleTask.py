@@ -101,7 +101,7 @@ async def _check_bot_schedule_runnable(interval_str: str):
             ):
                 continue
 
-        await BotScheduleHelper.change_status(
+        BotScheduleHelper.change_status(
             schedule_model.__class__,
             schedule_model,
             BotScheduleStatus.Started,
@@ -119,7 +119,7 @@ async def _check_bot_schedule_runnable(interval_str: str):
                 project = result.first()
 
         if project:
-            await ProjectBotPublisher.rescheduled(project, schedule_model, {"status": bot_schedule.status.value})
+            ProjectBotPublisher.rescheduled(project, schedule_model, {"status": bot_schedule.status.value})
 
         await _run_scheduler(bot, bot_schedule, schedule_model, model)
 
@@ -174,10 +174,10 @@ async def _run_scheduler(
 
     old_status = bot_schedule.status
     if bot_schedule.running_type == BotScheduleRunningType.Onetime:
-        await BotScheduleHelper.change_status(schedule_model.__class__, schedule_model, BotScheduleStatus.Stopped)
+        BotScheduleHelper.change_status(schedule_model.__class__, schedule_model, BotScheduleStatus.Stopped)
     elif bot_schedule.running_type == BotScheduleRunningType.Duration:
         if bot_schedule.end_at and bot_schedule.end_at < SafeDateTime.now():
-            await BotScheduleHelper.change_status(schedule_model.__class__, schedule_model, BotScheduleStatus.Stopped)
+            BotScheduleHelper.change_status(schedule_model.__class__, schedule_model, BotScheduleStatus.Stopped)
 
     if project and bot_schedule.status != old_status:
-        await ProjectBotPublisher.rescheduled(project, schedule_model, {"status": bot_schedule.status.value})
+        ProjectBotPublisher.rescheduled(project, schedule_model, {"status": bot_schedule.status.value})

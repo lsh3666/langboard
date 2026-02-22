@@ -16,7 +16,7 @@ const useGetOllamaRunningModelList = (options?: TMutationOptions) => {
 
         for (let i = 0; i < res.data.models.length; ++i) {
             res.data.models[i].expires_at = new Date(res.data.models[i].expires_at);
-            getOllamaModelStore().addOrUpdateModel({
+            getOllamaModelStore().upsertModel({
                 ...res.data.models[i],
                 is_running: true,
             });

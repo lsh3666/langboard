@@ -1,6 +1,6 @@
 import { Checkbox, Table } from "@/components/base";
 import { IFlexProps } from "@/components/base/Flex";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
+import DateDistance from "@/components/DateDistance";
 import { AppSettingModel } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import WebhookName from "@/pages/SettingsPage/components/webhook/WebhookName";
@@ -14,10 +14,8 @@ export interface IWebhookRowProps extends IFlexProps {
 }
 
 const WebhookRow = memo(({ url, selectedWebhooks, setSelectedWebhooks, ...props }: IWebhookRowProps) => {
-    const rawCreatedAt = url.useField("created_at");
-    const rawLastUsedAt = url.useField("last_used_at");
-    const createdAt = useUpdateDateDistance(rawCreatedAt);
-    const lastUsedAt = useUpdateDateDistance(rawLastUsedAt);
+    const createdAt = url.useField("created_at");
+    const lastUsedAt = url.useField("last_used_at");
 
     const toggleSelect = () => {
         setSelectedWebhooks((prev) => {
@@ -37,8 +35,12 @@ const WebhookRow = memo(({ url, selectedWebhooks, setSelectedWebhooks, ...props 
                 </Table.FlexCell>
                 <WebhookName />
                 <WebhookURL />
-                <Table.FlexCell className="w-1/6 truncate text-center">{createdAt}</Table.FlexCell>
-                <Table.FlexCell className="w-1/6 truncate text-center">{lastUsedAt}</Table.FlexCell>
+                <Table.FlexCell className="w-1/6 truncate text-center">
+                    <DateDistance date={createdAt} />
+                </Table.FlexCell>
+                <Table.FlexCell className="w-1/6 truncate text-center">
+                    <DateDistance date={lastUsedAt} />
+                </Table.FlexCell>
             </ModelRegistry.AppSettingModel.Provider>
         </Table.FlexRow>
     );

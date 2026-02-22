@@ -6,7 +6,7 @@ import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
 import { IChatContent } from "@/core/models/Base";
 import { Box } from "@/components/base";
 import MarkdownDateBlock from "@/components/Markdown/DateBlock";
-import rehypeRaw from "rehype-raw"; // HTML 태그를 처리
+import rehypeRaw from "rehype-raw";
 import { cn } from "@/core/utils/ComponentUtils";
 import MarkdownThinkBlock from "@/components/Markdown/ThinkBlock";
 import { memo } from "react";

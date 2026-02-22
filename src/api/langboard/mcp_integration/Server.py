@@ -1,0 +1,163 @@
+import traceback
+from inspect import Parameter, iscoroutinefunction, signature
+from types import UnionType
+from typing import Callable, TypeGuard, Union, get_args, get_origin
+from langboard_shared.core.types import Factory
+from langboard_shared.core.utils.decorators import class_instance
+from langboard_shared.domain.models import Bot, User
+from langboard_shared.domain.services import DomainService
+from langboard_shared.Env import Env
+from langboard_shared.infrastructure.repositories import Repository
+from langboard_shared.security import RoleSecurity
+from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
+from ..middlewares import DynamicSseMiddleware, McpAuthMiddleware
+from ..middlewares.McpAuthMiddleware import mcp_auth_context
+from .RoleFilter import McpRoleFilter
+from .Tool import McpTool
+
+
+@class_instance()
+class McpServer:
+    def __init__(self):
+        self.mcp = FastMCP(Env.PROJECT_NAME)
+        self._streamable_http_app = None
+
+    def get_http_app(self):
+        try:
+            security_settings = TransportSecuritySettings(
+                enable_dns_rebinding_protection=False,
+                allowed_hosts=["*"],
+                allowed_origins=["*"],
+            )
+
+            app = FastMCP(
+                Env.PROJECT_NAME,
+                transport_security=security_settings,
+                streamable_http_path="/stream",
+            )
+
+            all_tools = McpTool.get_tools()
+            for tool_name, tool_data in all_tools.items():
+                handler = tool_data["handler"]
+                wrapper = self._wrap_tool(tool_name, handler)
+                app.add_tool(wrapper, name=tool_name, description=tool_data["description"])
+
+            http_app = app.streamable_http_app()
+            http_app.add_middleware(DynamicSseMiddleware)
+            http_app.add_middleware(McpAuthMiddleware)
+
+            return http_app, app
+        except Exception:
+            traceback.print_exc()
+            return None
+
+    def _wrap_tool(self, tool_name: str, handler: Callable):
+        sig = signature(handler)
+
+        async def wrapper(**kwargs):
+            auth_data = mcp_auth_context.get()
+            auth_value = auth_data.get("user_or_bot") if auth_data else None
+            tool_group = auth_data.get("tool_group") if auth_data else None
+
+            if not self._validate_auth(auth_value, tool_name):
+                raise PermissionError("Authentication required")
+
+            if not tool_group:
+                raise PermissionError("MCP tool group not validated")
+
+            if tool_name not in tool_group.tools:
+                raise PermissionError(f"Tool '{tool_name}' not allowed for this tool group")
+
+            if not self._validate_role(auth_value, handler, **kwargs):
+                raise PermissionError("Insufficient permissions")
+
+            factories: list[Factory] = []
+            for param_name, param in sig.parameters.items():
+                if param_name in kwargs:
+                    continue
+
+                kwargs, factory = self._inject_kwargs(param_name, param, auth_value, kwargs)
+                if factory:
+                    factories.append(factory)
+
+            result = await handler(**kwargs) if iscoroutinefunction(handler) else handler(**kwargs)
+            for factory in factories:
+                factory.close()
+            return result
+
+        wrapper.__signature__ = sig.replace(parameters=[])
+
+        return wrapper
+
+    def _validate_auth(self, user_or_bot: User | Bot | None, tool_name: str) -> TypeGuard[User | Bot]:
+        if not isinstance(user_or_bot, (User, Bot)):
+            return False
+
+        tool_data = McpTool.get_tool(tool_name)
+        if not tool_data:
+            return False
+
+        accessible_type = tool_data.get("accessible_type", "all")
+        if accessible_type == "all":
+            return True
+        elif accessible_type == "user" and isinstance(user_or_bot, User):
+            return True
+        elif accessible_type == "bot" and isinstance(user_or_bot, Bot):
+            return True
+
+        return False
+
+    def _validate_role(self, user_or_bot: User | Bot | None, handler: Callable, **kwargs):
+        if not isinstance(user_or_bot, User):
+            return True
+
+        if not McpRoleFilter.exists(handler):
+            return True
+
+        role_model, actions, role_finder = McpRoleFilter.get_filtered(handler)
+
+        role_sec = RoleSecurity(role_model)
+
+        return role_sec.is_authorized(user_or_bot.id, kwargs, actions, role_finder)
+
+    def _inject_kwargs(
+        self, param_name: str, param: Parameter, auth_value: User | Bot, kwargs: dict
+    ) -> tuple[dict, Factory | None]:
+        annotation = param.annotation
+        origin = get_origin(annotation)
+        args = get_args(annotation)
+
+        factory = None
+
+        if origin is UnionType or origin is Union:
+            if User in args and Bot in args:
+                kwargs[param_name] = auth_value
+            elif User in args:
+                if isinstance(auth_value, User):
+                    kwargs[param_name] = auth_value
+                else:
+                    raise PermissionError("User authentication required")
+            elif Bot in args:
+                if isinstance(auth_value, Bot):
+                    kwargs[param_name] = auth_value
+                else:
+                    raise PermissionError("Bot authentication required")
+        elif annotation == User:
+            if isinstance(auth_value, User):
+                kwargs[param_name] = auth_value
+            else:
+                raise PermissionError("User authentication required")
+        elif annotation == Bot:
+            if isinstance(auth_value, Bot):
+                kwargs[param_name] = auth_value
+            else:
+                raise PermissionError("Bot authentication required")
+        elif annotation == DomainService:
+            factory = DomainService()
+            kwargs[param_name] = factory
+        elif annotation == Repository:
+            factory = Repository()
+            kwargs[param_name] = factory
+
+        return kwargs, factory

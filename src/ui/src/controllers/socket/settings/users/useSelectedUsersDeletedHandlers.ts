@@ -20,7 +20,7 @@ const useSelectedUsersDeletedHandlers = ({ currentUser, signOut, callback }: IUs
         topicId: GLOBAL_TOPIC_ID,
         eventKey: "selected-user-deleted",
         onProps: {
-            name: SocketEvents.SERVER.SETTINGS.USERS.SELECTION_DELETED,
+            name: SocketEvents.SERVER.SETTINGS.USERS.SELECTIONS_DELETED,
             callback,
             responseConverter: (data) => {
                 if (data.uids.includes(currentUser.uid)) {

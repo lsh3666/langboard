@@ -1,5 +1,5 @@
 import { Box, Label, Switch } from "@/components/base";
-import { ENotificationChannel } from "@/core/models/notification.type";
+import { ENotificationChannel } from "@/core/models/types/notification.type";
 import { cn } from "@/core/utils/ComponentUtils";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";

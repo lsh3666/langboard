@@ -5,7 +5,7 @@ import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
 import { AuthUser } from "@/core/models";
-import { TNotificationSpecificType } from "@/core/models/notification.type";
+import { TNotificationSpecificType } from "@/core/models/types/notification.type";
 import { Utils } from "@langboard/core/utils";
 
 const useToggleSpecificScopedNotificationSettings = <TType extends TNotificationSpecificType>(

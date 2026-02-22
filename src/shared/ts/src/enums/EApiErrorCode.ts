@@ -12,6 +12,7 @@ export enum EApiErrorCode {
     EX1004 = "The account is already activated.",
     EX3001 = "Bot uname already exists.",
     EX3002 = "Default internal bot cannot be deleted.",
+    EX3003 = "MCP tool name already exists.",
 
     // Permission Errors
     PE1001 = "Not enough permissions to access this endpoint.",
@@ -52,6 +53,8 @@ export enum EApiErrorCode {
     NF3002 = "Settings not found.",
     NF3003 = "Global relationships not found.",
     NF3004 = "Internal bot not found.",
+    NF3005 = "API key not found.",
+    NF3006 = "MCP tool group not found.",
     NF9000 = "Ollama API not found.",
     NF9001 = "Ollama model not found.",
 
@@ -65,6 +68,7 @@ export enum EApiErrorCode {
     VA3003 = "Invalid target table.",
     VA3004 = "Invalid target table or UID.",
     VA3005 = "Invalid request form.",
+    VA3006 = "API key has expired and cannot be modified.",
 
     // Operation Failure
     OP0000 = "Internal server error.",

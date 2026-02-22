@@ -1,4 +1,5 @@
 from ...domain.models import (
+    ApiKeySetting,
     AppSetting,
     Bot,
     Card,
@@ -11,6 +12,7 @@ from ...domain.models import (
     Checklist,
     GlobalCardRelationshipType,
     InternalBot,
+    McpToolGroup,
     Project,
     ProjectColumn,
     ProjectLabel,
@@ -45,3 +47,5 @@ TGlobalCardRelationshipTypeParam = GlobalCardRelationshipType | TBaseParam
 TNotificationParam = UserNotification | TBaseParam
 TChatTemplateParam = ChatTemplate | TBaseParam
 TInternalBotParam = InternalBot | TBaseParam
+TMcpToolGroupParam = McpToolGroup | TBaseParam
+TApiKeyParam = ApiKeySetting | TBaseParam

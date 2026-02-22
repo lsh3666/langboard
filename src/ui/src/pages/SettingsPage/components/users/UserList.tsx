@@ -6,9 +6,9 @@ import PaginatedTable from "@/components/PaginatedTable";
 import UserFirstname from "@/pages/SettingsPage/components/users/UserFirstname";
 import UserLastname from "@/pages/SettingsPage/components/users/UserLastname";
 import UserActivation from "@/pages/SettingsPage/components/users/UserActivation";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import UserAdmin from "@/pages/SettingsPage/components/users/UserAdmin";
 import UserMoreMenu from "@/pages/SettingsPage/components/users/UserMoreMenu";
+import DateDistance from "@/components/DateDistance";
 
 export interface IUserListProps {
     selectedUsers: string[];
@@ -124,9 +124,8 @@ function UserListItemEmail({ user }: { user: User.TModel }) {
 }
 
 function UserListItemCreatedAt({ user }: { user: User.TModel }) {
-    const rawCreatedAt = user.useField("created_at");
-    const createdAt = useUpdateDateDistance(rawCreatedAt);
-    return <>{createdAt}</>;
+    const createdAt = user.useField("created_at");
+    return <DateDistance date={createdAt} />;
 }
 
 export default UserList;

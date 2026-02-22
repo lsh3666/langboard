@@ -3,11 +3,11 @@ import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { BaseBotScheduleModel, ProjectCard, ProjectColumn } from "@/core/models";
+import { BaseBotScheduleModel, Project, ProjectCard, ProjectColumn } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
 export interface IScheduleBotCronForm {
-    scope: ProjectColumn.TModel | ProjectCard.TModel;
+    scope: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
     interval: string;
     running_type?: BaseBotScheduleModel.ERunningType;
     start_at?: Date;

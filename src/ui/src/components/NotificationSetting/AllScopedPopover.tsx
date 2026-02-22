@@ -10,7 +10,7 @@ import {
     ENotificationScope,
     FLAT_NOTIFICATION_TYPE_MAP,
     TNotificationSpecificType,
-} from "@/core/models/notification.type";
+} from "@/core/models/types/notification.type";
 import { Utils } from "@langboard/core/utils";
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";

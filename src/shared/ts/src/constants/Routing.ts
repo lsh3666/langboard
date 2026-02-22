@@ -190,6 +190,9 @@ const API = {
         CARD: "/metadata/project/{uid}/card/{card_uid}",
         PROJECT_WIKI: "/metadata/project/{uid}/wiki/{wiki_uid}",
     },
+    MCP: {
+        GET_TOOL_LIST: "/mcp/tools",
+    },
     SETTINGS: {
         IS_AVAILABLE: "/settings/available",
         GET_ALL: "/settings/all",
@@ -231,6 +234,26 @@ const API = {
             GET_LIST: "/settings/ollama/models",
             GET_DETAILS: "/settings/ollama/model/details",
             GET_RUNNING_LIST: "/settings/ollama/models/running",
+        },
+        API_KEYS: {
+            GET_LIST: "/settings/api-keys",
+            GET: "/settings/api-keys/{key_uid}",
+            CREATE: "/settings/api-keys",
+            UPDATE: "/settings/api-keys/{key_uid}",
+            DELETE: "/settings/api-keys/{key_uid}",
+            DELETE_SELECTED: "/settings/api-keys",
+            ACTIVATE: "/settings/api-keys/{key_uid}/activate",
+            DEACTIVATE: "/settings/api-keys/{key_uid}/deactivate",
+        },
+        MCP_TOOL_GROUPS: {
+            GET_ADMIN_LIST: "/settings/mcp/groups/admin",
+            GET_GLOBAL_LIST: "/settings/mcp/groups/global",
+            CREATE: "/settings/mcp/group",
+            UPDATE: "/settings/mcp/group/{group_uid}",
+            DELETE: "/settings/mcp/group/{group_uid}",
+            DELETE_SELECTED: "/settings/mcp/groups",
+            ACTIVATE: "/settings/mcp/group/{group_uid}/activate",
+            DEACTIVATE: "/settings/mcp/group/{group_uid}/deactivate",
         },
     },
     GLOBAL: {

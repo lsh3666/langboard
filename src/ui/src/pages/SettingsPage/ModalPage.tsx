@@ -1,18 +1,26 @@
 import { ROUTES } from "@/core/routing/constants";
+import { memo, useState } from "react";
+import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import { McpToolGroup } from "@/core/models";
 import BotCreateFormDialog from "@/pages/SettingsPage/components/bots/BotCreateFormDialog";
 import InternalBotCreateFormDialog from "@/pages/SettingsPage/components/internalBots/InternalBotCreateFormDialog";
-import ApiKeyCreateFormDialog from "@/pages/SettingsPage/components/keys/ApiKeyCreateFormDialog";
+import ApiKeyCreateFormDialog from "@/pages/SettingsPage/components/apiKeys/ApiKeyCreateFormDialog";
 import GlobalRelationshipCreateFormDialog from "@/pages/SettingsPage/components/relationships/GlobalRelationshipCreateFormDialog";
 import UserCreateFormDialog from "@/pages/SettingsPage/components/users/UserCreateFormDialog";
 import WebhookCreateFormDialog from "@/pages/SettingsPage/components/webhook/WebhookCreateFormDialog";
-import { memo, useState } from "react";
-import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import McpToolGroupCreateFormDialog from "@/pages/SettingsPage/components/mcpToolGroups/McpToolGroupCreateFormDialog";
 
 const ModalPage = memo(() => {
     const navigate = usePageNavigateRef();
     const [isOpened, setIsOpened] = useState(true);
+    const pathname = location.pathname;
 
     const moveToBack = () => {
+        if (pathname.startsWith(ROUTES.SETTINGS.CREATE_MCP_TOOL_GROUP(""))) {
+            navigate(ROUTES.SETTINGS.MCP_TOOL_GROUPS);
+            return;
+        }
+
         switch (pathname) {
             case ROUTES.SETTINGS.CREATE_API_KEY:
                 navigate(ROUTES.SETTINGS.API_KEYS);
@@ -45,8 +53,6 @@ const ModalPage = memo(() => {
         setIsOpened(opened);
     };
 
-    const pathname = location.pathname;
-
     let modalContent;
     switch (pathname) {
         case ROUTES.SETTINGS.CREATE_API_KEY:
@@ -70,6 +76,11 @@ const ModalPage = memo(() => {
         default:
             modalContent = null;
             break;
+    }
+
+    if (pathname.startsWith(ROUTES.SETTINGS.CREATE_MCP_TOOL_GROUP(""))) {
+        const groupType = pathname.split("/").slice(-1)[0] as McpToolGroup.TGroupType;
+        modalContent = <McpToolGroupCreateFormDialog opened={isOpened} setOpened={changeIsOpenedState} groupType={groupType} />;
     }
 
     return modalContent;

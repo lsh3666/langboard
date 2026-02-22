@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 from ....ai import BotScheduleHelper, BotScopeHelper
 from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
-from ....core.types import SafeDateTime
+from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TInternalBotParam, TProjectParam, TUserOrBot, TUserParam
 from ....core.utils.Converter import convert_python_data
 from ....domain.models import (
@@ -41,6 +41,34 @@ class ProjectService(BaseDomainService):
     def get_by_id_like(self, project: TProjectParam | None) -> Project | None:
         project = InfraHelper.get_by_id_like(Project, project)
         return project
+
+    def get_api_list(self, user: User) -> tuple[list[dict[str, Any]], list[SnowflakeID]]:
+        raw_projects = self.repo.project.get_all_by_user(user)
+
+        projects = []
+        all_roles = self.get_all_roles(user)
+        roles_dict = {}
+
+        if not user.is_admin:
+            for role in all_roles:
+                if role.project_id in roles_dict:
+                    continue
+                roles_dict[role.project_id] = role.actions
+
+        project_ids = []
+        for project, assigned_user in raw_projects:
+            if not user.is_admin and project.id not in roles_dict:
+                continue
+
+            project_ids.append(project.id)
+
+            api_project = project.api_response()
+            api_project["starred"] = assigned_user.starred
+            api_project["last_viewed_at"] = assigned_user.last_viewed_at
+            api_project["current_auth_role_actions"] = roles_dict[project.id] if not user.is_admin else [ALL_GRANTED]
+            projects.append(api_project)
+
+        return projects, project_ids
 
     def get_api_assigned_user_list(
         self, project: TProjectParam | None, where_user_in: list[TUserParam] | None = None
@@ -102,33 +130,10 @@ class ProjectService(BaseDomainService):
         return schedules
 
     def get_api_list_with_columns(self, user: User) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        raw_projects = self.repo.project.get_all_by_user(user)
-
-        projects = []
-        all_roles = self.get_all_roles(user)
-        roles_dict = {}
-
-        if not user.is_admin:
-            for role in all_roles:
-                if role.project_id in roles_dict:
-                    continue
-                roles_dict[role.project_id] = role.actions
-
-        project_ids = []
-        for project, assigned_user in raw_projects:
-            if not user.is_admin and project.id not in roles_dict:
-                continue
-
-            project_ids.append(project.id)
-
-            api_project = project.api_response()
-            api_project["starred"] = assigned_user.starred
-            api_project["last_viewed_at"] = assigned_user.last_viewed_at
-            api_project["current_auth_role_actions"] = roles_dict[project.id] if not user.is_admin else [ALL_GRANTED]
-            projects.append(api_project)
+        projects, project_ids = self.get_api_list(user)
 
         column_service = self._get_service(ProjectColumnService)
-        columns = column_service.get_api_list_by_project(project_ids)
+        columns = column_service.get_api_list_by_project(cast(list, project_ids))
 
         return projects, columns
 

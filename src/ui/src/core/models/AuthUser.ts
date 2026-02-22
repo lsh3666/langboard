@@ -3,7 +3,7 @@ import useUserDeletedHandlers from "@/controllers/socket/user/useUserDeletedHand
 import useUserNotificationDeletedHandlers from "@/controllers/socket/user/useUserNotificationDeletedHandlers";
 import useUserNotifiedHandlers from "@/controllers/socket/user/useUserNotifiedHandlers";
 import useUserProjectRolesUpdatedHandlers from "@/controllers/socket/user/useUserProjectRolesUpdatedHandlers";
-import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/notification.type";
+import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/types/notification.type";
 import * as User from "@/core/models/User";
 import * as UserGroup from "@/core/models/UserGroup";
 import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";

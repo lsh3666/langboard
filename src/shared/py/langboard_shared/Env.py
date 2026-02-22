@@ -267,6 +267,50 @@ class Env:
         logging_dir.mkdir(parents=True, exist_ok=True)
         return logging_dir
 
+    @property
+    def KEY_PROVIDER_TYPE(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_TYPE", "hashicorp").lower()
+
+    @property
+    def KEY_PROVIDER_HASHICORP_URL(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_HASHICORP_URL", "http://127.0.0.1:8200")
+
+    @property
+    def KEY_PROVIDER_AWS_REGION(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AWS_REGION", "")
+
+    @property
+    def KEY_PROVIDER_AWS_ACCESS_KEY_ID(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AWS_ACCESS_KEY_ID", "")
+
+    @property
+    def KEY_PROVIDER_AWS_SECRET_ACCESS_KEY(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AWS_SECRET_ACCESS_KEY", "")
+
+    @property
+    def KEY_PROVIDER_AWS_KMS_KEY_ARN(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AWS_KMS_KEY_ARN", "")
+
+    @property
+    def KEY_PROVIDER_AZURE_KEYVAULT_URL(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AZURE_KEYVAULT_URL", "")
+
+    @property
+    def KEY_PROVIDER_AZURE_CLIENT_ID(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AZURE_CLIENT_ID", "")
+
+    @property
+    def KEY_PROVIDER_AZURE_CLIENT_SECRET(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AZURE_CLIENT_SECRET", "")
+
+    @property
+    def KEY_PROVIDER_AZURE_TENANT_ID(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AZURE_TENANT_ID", "")
+
+    @property
+    def KEY_PROVIDER_AZURE_ENCRYPTION_KEY_NAME(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_AZURE_ENCRYPTION_KEY_NAME", "api-key-encryption")
+
     def __init__(self):
         self.__envs = {}
 

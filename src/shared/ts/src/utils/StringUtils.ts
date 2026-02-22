@@ -167,7 +167,7 @@ const formatBytes = (
     return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === "accurate" ? (accurateSizes[i] ?? "Bytest") : (sizes[i] ?? "Bytes")}`;
 };
 
-const isValidIpv4OrRnage = (str: string): bool => {
+const isValidIpv4OrRange = (str: string): bool => {
     const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}(\/24)?$/;
     return ipv4Pattern.test(str);
 };
@@ -260,7 +260,7 @@ export const StringUtils = {
     getInitials,
     format,
     formatBytes,
-    isValidIpv4OrRnage,
+    isValidIpv4OrRange,
     isJsonString,
     convertSafeEnum,
     Crontab,

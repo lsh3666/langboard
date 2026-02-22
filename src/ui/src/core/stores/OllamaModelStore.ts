@@ -49,10 +49,10 @@ export type TOllamaPullingModel = IUntrackedOllamaModel | ITrackedOllamaModel;
 interface IOllamaModelStore {
     models: Record<string, TBaseOllamaModel>;
     pullingModels: Record<string, TOllamaPullingModel>;
-    addOrUpdateModel: (model: TBaseOllamaModel) => void;
+    upsertModel: (model: TBaseOllamaModel) => void;
     deleteModel: (name: string) => void;
     replaceModels: (models: TBaseOllamaModel[]) => void;
-    addOrUpdatePullingModel: (model: TOllamaPullingModel) => void;
+    upsertPullingModel: (model: TOllamaPullingModel) => void;
     deletePullingModel: (name: string) => void;
     replacePullingModels: (models: (string | TOllamaPullingModel)[]) => void;
 }
@@ -62,7 +62,7 @@ const useOllamaModelStore = create(
         return {
             models: {},
             pullingModels: {},
-            addOrUpdateModel: (model: TBaseOllamaModel) => {
+            upsertModel: (model: TBaseOllamaModel) => {
                 const currentModels = get().models;
                 currentModels[model.name] = {
                     ...(currentModels[model.name] || {}),
@@ -82,7 +82,7 @@ const useOllamaModelStore = create(
                 });
                 set({ models: newModels });
             },
-            addOrUpdatePullingModel: (model: TOllamaPullingModel) => {
+            upsertPullingModel: (model: TOllamaPullingModel) => {
                 const currentModels = get().pullingModels;
                 currentModels[model.name] = {
                     ...(currentModels[model.name] || {}),
@@ -191,7 +191,7 @@ export const updateProgressCallback =
         }
 
         if (data.percent) {
-            getOllamaModelStore().addOrUpdatePullingModel({ name, progress: data.percent, isTracking: true });
+            getOllamaModelStore().upsertPullingModel({ name, progress: data.percent, isTracking: true });
         }
 
         if (data.status === "error") {

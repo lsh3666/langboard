@@ -4,7 +4,7 @@ import * as User from "@/core/models/User";
 import { BaseModel, IBaseModel } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
-import { ENotificationType } from "@/core/models/notification.type";
+import { ENotificationType } from "@/core/models/types/notification.type";
 
 export interface Interface extends IBaseModel {
     uid: string;

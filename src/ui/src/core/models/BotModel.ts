@@ -5,7 +5,7 @@ import useBotUpdatedHandlers from "@/controllers/socket/global/useBotUpdatedHand
 import useBotDeletedHandlers from "@/controllers/socket/global/useBotDeletedHandlers";
 import useBotSettingUpdatedHandlers from "@/controllers/socket/settings/bots/useBotSettingUpdatedHandlers";
 import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
-import { IBaseBotModel } from "@/core/models/bot.related.type";
+import { IBaseBotModel } from "@/core/models/types/bot.related.type";
 
 export const ALLOWED_ALL_IPS = "*";
 

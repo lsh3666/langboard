@@ -5,9 +5,6 @@ from ...core.storage import FileModel
 from .BaseBotModel import BaseBotModel
 
 
-ALLOWED_ALL_IPS = "*"
-
-
 class Bot(BaseBotModel, table=True):
     BOT_TYPE: ClassVar[str] = "bot"
     BOT_UNAME_PREFIX: ClassVar[str] = "bot-"

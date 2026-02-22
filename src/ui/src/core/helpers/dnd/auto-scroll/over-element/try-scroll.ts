@@ -12,9 +12,9 @@ import { markAndGetEngagement } from "@/core/helpers/dnd/auto-scroll/shared/enga
 import { selector } from "@/core/helpers/dnd/auto-scroll/over-element/data-attributes";
 import { getScrollBy } from "@/core/helpers/dnd/auto-scroll/over-element/get-scroll-by";
 
-type AvailableScrollDirection = { top: boolean; left: boolean };
+type AvailableScrollDirection = { top: bool; left: bool };
 
-function isScrollingAvailable(value: AvailableScrollDirection): boolean {
+function isScrollingAvailable(value: AvailableScrollDirection): bool {
     return Boolean(value.top || value.left);
 }
 

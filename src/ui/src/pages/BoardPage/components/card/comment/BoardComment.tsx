@@ -1,10 +1,10 @@
 import { Box, Flex, Skeleton } from "@/components/base";
+import DateDistance from "@/components/DateDistance";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
 import UserLikeComponent from "@/components/UserLikeComponent";
-import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { BotModel, ProjectCard, ProjectCardComment, User } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
@@ -124,9 +124,8 @@ function BoardCommentHeader(): JSX.Element {
     const [t] = useTranslation();
     const { model: comment, params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { author } = params;
-    const rawCommentedAt = comment.useField("updated_at");
+    const commentedAt = comment.useField("updated_at");
     const isEdited = comment.useField("is_edited");
-    const commentedAt = useUpdateDateDistance(rawCommentedAt);
 
     return (
         <Flex gap="2" items="center">
@@ -139,7 +138,7 @@ function BoardCommentHeader(): JSX.Element {
                 />
             </span>
             <span className="text-xs text-accent-foreground/50">
-                {commentedAt}
+                <DateDistance date={commentedAt} />
                 {isEdited && ` (${t("card.edited")})`}
             </span>
         </Flex>

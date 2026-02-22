@@ -4,7 +4,7 @@ import { IBaseNotificationSettingPopoverProps } from "@/components/NotificationS
 import useToggleAllByTypeNotificationSettings from "@/controllers/api/notification/settings/useToggleAllScopedByTypeNotificationSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { AuthUser } from "@/core/models";
-import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/notification.type";
+import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/types/notification.type";
 import { Utils } from "@langboard/core/utils";
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";

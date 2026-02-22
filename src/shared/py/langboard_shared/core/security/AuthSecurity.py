@@ -8,6 +8,7 @@ from fastapi.openapi.utils import get_openapi
 from jwt import ExpiredSignatureError, InvalidTokenError
 from jwt import decode as jwt_decode
 from jwt import encode as jwt_encode
+from starlette.datastructures import Headers
 from ...Env import Env
 from ..filter import AuthFilter
 from ..routing.AppExceptionHandlingRoute import AppExceptionHandlingRoute
@@ -19,8 +20,11 @@ from ..utils.Encryptor import Encryptor
 @staticclass
 class AuthSecurity:
     AUTHORIZATION_HEADER = "Authorization"
-    IP_HEADER = "X-Forwarded-For"
+    REAL_IP_HEADER = "X-Real-IP"
+    FORWARDED_FOR_HEADER = "X-Forwarded-For"
     API_TOKEN_HEADER = "X-Api-Token"
+    API_KEY_HEADER = "X-Api-Key"
+    MCP_TOOL_GROUP_UID_HEADER = "X-MCP-Tool-Group-UID"
 
     @staticmethod
     def authenticate(user_id: SnowflakeID) -> tuple[str, str]:
@@ -94,6 +98,35 @@ class AuthSecurity:
                     path_method["security"] = [{"BearerAuth": []}]
 
         app.openapi_schema = openapi_schema
+
+    @staticmethod
+    def get_client_ip(headers: Headers | dict[str, str]) -> str | None:
+        real_ip = headers.get(AuthSecurity.REAL_IP_HEADER, headers.get(AuthSecurity.REAL_IP_HEADER.lower()))
+        if real_ip:
+            return real_ip.strip()
+        forwarded_for = headers.get(
+            AuthSecurity.FORWARDED_FOR_HEADER, headers.get(AuthSecurity.FORWARDED_FOR_HEADER.lower())
+        )
+        if forwarded_for:
+            ips = [ip.strip() for ip in forwarded_for.split(",")]
+            if ips:
+                return ips[-1]
+        return None
+
+    @staticmethod
+    def get_all_client_ips(headers: Headers | dict[str, str]) -> list[str]:
+        ips: list[str] = []
+        real_ip = headers.get(AuthSecurity.REAL_IP_HEADER, headers.get(AuthSecurity.REAL_IP_HEADER.lower()))
+        if real_ip:
+            ips.append(real_ip.strip())
+        forwarded_for = headers.get(
+            AuthSecurity.FORWARDED_FOR_HEADER, headers.get(AuthSecurity.FORWARDED_FOR_HEADER.lower())
+        )
+        if forwarded_for:
+            ips.extend([ip.strip() for ip in forwarded_for.split(",")])
+        ips = ",".join(ips).split(",")
+        ips = [ip.strip() for ip in ips if ip.strip()]
+        return ips
 
     @staticmethod
     def create_access_token(user_id: int) -> str:

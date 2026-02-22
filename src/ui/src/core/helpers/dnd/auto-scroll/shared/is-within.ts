@@ -1,6 +1,6 @@
 import type { Position } from "@atlaskit/pragmatic-drag-and-drop/types";
 
-export function isWithin({ client, clientRect }: { client: Position; clientRect: DOMRect }): boolean {
+export function isWithin({ client, clientRect }: { client: Position; clientRect: DOMRect }): bool {
     return (
         // is within horizontal bounds
         client.x >= clientRect.x &&

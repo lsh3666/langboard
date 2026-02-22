@@ -147,3 +147,64 @@ class UpdateInternalBotForm(BaseFormModel):
 @form_model
 class OllamaModelForm(BaseFormModel):
     model: str
+
+
+@form_model
+class CreateApiKeyForm(BaseFormModel):
+    name: str
+    ip_whitelist: str | None = None
+    is_active: bool = True
+    expires_in_days: str | None = None
+
+    @field_validator("expires_in_days")
+    @classmethod
+    def validate_expires_in_days(cls, value: str | None) -> str | None:
+        if value is not None and value != "never":
+            valid_values = ["30", "60", "90", "180", "365"]
+            if value not in valid_values:
+                raise ValidationFailureException(
+                    ValidationFailureInfo(
+                        loc="body",
+                        field="expires_in_days",
+                        inputs={"expires_in_days": value},
+                    )
+                )
+        return value
+
+
+@form_model
+class UpdateApiKeyForm(BaseFormModel):
+    name: str | None = None
+    ip_whitelist: str | None = None
+
+
+@form_model
+class DeleteSelectedApiKeysForm(BaseFormModel):
+    key_uids: list[str]
+
+
+class ApiKeysPagination(BaseModel):
+    refer_time: SafeDateTime = SafeDateTime.now()
+    only_count: bool = False
+
+
+@form_model
+class CreateMcpToolGroupForm(BaseFormModel):
+    name: str
+    description: str = ""
+    tools: list[str]
+    activate: bool = True
+    is_global: bool = False
+
+
+@form_model
+class UpdateMcpToolGroupForm(BaseFormModel):
+    name: str | None = None
+    description: str | None = None
+    tools: list[str] | None = None
+    activate: bool | None = None
+
+
+@form_model
+class DeleteSelectedMcpToolGroupsForm(BaseFormModel):
+    group_uids: list[str]

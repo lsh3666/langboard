@@ -11,7 +11,7 @@ const useSelectedAppSettingsDeletedHandlers = ({ callback }: IBaseUseSocketHandl
     return useSocketHandler<{}, ISelectedAppSettingsDeletedRawResponse>({
         topic: ESocketTopic.AppSettings,
         topicId: GLOBAL_TOPIC_ID,
-        eventKey: "selected-global-relationship-deleted",
+        eventKey: "selected-app-settings-deleted",
         onProps: {
             name: SocketEvents.SERVER.SETTINGS.SELECTIONS_DELETED,
             callback,

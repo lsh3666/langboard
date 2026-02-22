@@ -12,7 +12,8 @@ from ....core.types.ParamTypes import TUserParam
 from ....core.utils.Converter import convert_python_data
 from ....core.utils.Encryptor import Encryptor
 from ....core.utils.String import concat, generate_random_string
-from ....domain.models import User, UserEmail, UserProfile
+from ....domain.models import User, UserEmail, UserProfile, UserSignInHistory
+from ....domain.models.UserSignInHistory import SignInErrorCode
 from ....Env import UI_QUERY_NAMES, Env
 from ....helpers import InfraHelper
 from ....publishers import AppSettingPublisher, UserPublisher
@@ -274,3 +275,15 @@ class UserService(BaseDomainService):
         AppSettingPublisher.selected_users_deleted(uids)
         for user_id in ids:
             UserPublisher.deleted(user_id)
+
+    def log_sign_in(
+        self,
+        user: User,
+        is_success: bool = True,
+        ip_address: str | None = None,
+        error_code: SignInErrorCode | None = None,
+    ) -> None:
+        login_history = UserSignInHistory(
+            user_id=user.id, is_success=is_success, ip_address=ip_address, error_code=error_code
+        )
+        self.repo.user_sign_in_history.insert(login_history)

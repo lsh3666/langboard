@@ -21,7 +21,7 @@ export type HitboxForEdge = {
 
 // Distance dampening is enabled when we are inside the edge
 // In order to match "over element" scrolling
-function getIsDistanceDampeningEnabled(value: HitboxForEdge): boolean {
+function getIsDistanceDampeningEnabled(value: HitboxForEdge): bool {
     return value.type === "inside-of-edge";
 }
 

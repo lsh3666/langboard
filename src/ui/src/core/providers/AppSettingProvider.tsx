@@ -1,8 +1,12 @@
 import useBotSettingCreatedHandlers from "@/controllers/socket/settings/bots/useBotSettingCreatedHandlers";
+import useMcpToolGroupCreatedHandlers from "@/controllers/socket/settings/mcpToolGroups/useMcpToolGroupCreatedHandlers";
+import useSelectedMcpToolGroupsDeletedHandlers from "@/controllers/socket/settings/mcpToolGroups/useSelectedMcpToolGroupsDeletedHandlers";
 import useAppSettingCreatedHandlers from "@/controllers/socket/settings/useAppSettingCreatedHandlers";
+import useSelectedUsersDeletedHandlers from "@/controllers/socket/settings/users/useSelectedUsersDeletedHandlers";
 import useSelectedAppSettingsDeletedHandlers from "@/controllers/socket/settings/useSelectedAppSettingsDeletedHandlers";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { AuthUser } from "@/core/models";
+import { useAuth } from "@/core/providers/AuthProvider";
 import { useSocket } from "@/core/providers/SocketProvider";
 import { createContext, useContext, useState } from "react";
 
@@ -26,15 +30,29 @@ const initialContext = {
 const AppSettingContext = createContext<IAppSettingContext>(initialContext);
 
 export const AppSettingProvider = ({ currentUser, children }: IAppSettingProviderProps): React.ReactNode => {
+    const { signOut } = useAuth();
     const socket = useSocket();
     const [isValidating, setIsValidating] = useState(false);
     const appSettingCreatedHandlers = useAppSettingCreatedHandlers({});
     const selectedAppSettingsDeletedHandlers = useSelectedAppSettingsDeletedHandlers({});
     const botSettingCreatedHandlers = useBotSettingCreatedHandlers({});
+    const selectedUsersDeletedHandlers = useSelectedUsersDeletedHandlers({
+        currentUser,
+        signOut,
+    });
+    const mcpToolGroupCreatedHandlers = useMcpToolGroupCreatedHandlers({});
+    const selectedMcpToolGroupsDeletedHandlers = useSelectedMcpToolGroupsDeletedHandlers({});
 
     useSwitchSocketHandlers({
         socket,
-        handlers: [appSettingCreatedHandlers, selectedAppSettingsDeletedHandlers, botSettingCreatedHandlers],
+        handlers: [
+            appSettingCreatedHandlers,
+            selectedAppSettingsDeletedHandlers,
+            botSettingCreatedHandlers,
+            selectedUsersDeletedHandlers,
+            mcpToolGroupCreatedHandlers,
+            selectedMcpToolGroupsDeletedHandlers,
+        ],
     });
 
     return (

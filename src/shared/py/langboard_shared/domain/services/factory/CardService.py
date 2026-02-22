@@ -299,7 +299,11 @@ class CardService(BaseDomainService):
                 return None
 
             card.project_column_id = new_column.id
-            card.archived_at = SafeDateTime.now() if new_column.is_archive else None
+
+            if new_column.is_archive:
+                card.archived_at = SafeDateTime.now()
+            else:
+                card.archived_at = None
 
         old_order = card.order
         card.order = order

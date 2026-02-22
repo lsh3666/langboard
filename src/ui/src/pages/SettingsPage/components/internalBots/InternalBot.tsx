@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Flex, IconComponent, Popover, SubmitButton, Toast } from "@/components/base";
+import { Avatar, Box, Button, Flex, IconComponent, PillList, Popover, SubmitButton, Toast } from "@/components/base";
 import useDeleteInternalBot from "@/controllers/api/settings/internalBots/useDeleteInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
@@ -74,19 +74,8 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
     };
 
     return (
-        <Flex
-            items="center"
-            justify="between"
-            border
-            rounded="md"
-            py="2"
-            px="3"
-            gap="4"
-            cursor="pointer"
-            className="transition-all duration-200 hover:bg-accent"
-            onClick={toInternalBotDetails}
-        >
-            <Flex items="center" gap="2" w="full">
+        <PillList.ItemRoot size="sm" className="cursor-pointer" onClick={toInternalBotDetails}>
+            <PillList.ItemTitle>
                 <Avatar.Root>
                     <Avatar.Image src={avatar} />
                     <Avatar.Fallback>
@@ -95,12 +84,12 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
                 </Avatar.Root>
                 <Box w="full">
                     <Box>{displayName}</Box>
-                    <Box w="full" textSize="sm">
+                    <Box w="full" textSize="xs" className="text-muted-foreground/70">
                         {t(`internalBot.botTypes.${botType}`)}
                     </Box>
                 </Box>
-            </Flex>
-            <Box
+            </PillList.ItemTitle>
+            <PillList.ItemContent
                 onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -136,8 +125,8 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
                         </Popover.Content>
                     </Popover.Root>
                 )}
-            </Box>
-        </Flex>
+            </PillList.ItemContent>
+        </PillList.ItemRoot>
     );
 });
 

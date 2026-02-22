@@ -125,3 +125,11 @@ class DomainService(Factory):
     @property
     def checklist(self):
         return self._create_or_get_product(factory.ChecklistService)
+
+    @property
+    def mcp_tool_group(self):
+        return self._create_or_get_product(factory.McpToolGroupService)
+
+    @property
+    def api_key(self):
+        return self._create_or_get_product(factory.ApiKeyService)

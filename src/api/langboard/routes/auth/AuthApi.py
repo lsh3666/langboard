@@ -8,6 +8,7 @@ from langboard_shared.core.utils.Encryptor import Encryptor
 from langboard_shared.domain.models import Bot, User, UserEmail, UserGroup, UserProfile
 from langboard_shared.domain.models.UserNotification import NotificationType
 from langboard_shared.domain.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
+from langboard_shared.domain.models.UserSignInHistory import SignInErrorCode
 from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import Env
 from langboard_shared.security import Auth
@@ -53,22 +54,35 @@ def auth_email(
         .get()
     ),
 )
-def sign_in(form: SignInForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+def sign_in(request: Request, form: SignInForm, service: DomainService = DomainService.scope()) -> JsonResponse:
+    ip_address = AuthSecurity.get_client_ip(request.headers)
+
     user, subemail = service.user.get_by_token(form.email_token, form.sign_token)
 
     if not user:
         raise ApiException.NotFound_404(ApiErrorCode.VA1001)
 
     if subemail and not subemail.verified_at:
+        service.user.log_sign_in(
+            user=user, is_success=False, ip_address=ip_address, error_code=SignInErrorCode.EmailNotVerified
+        )
         raise ApiException.NotAcceptable_406(ApiErrorCode.AU1002)
 
     if not user.check_password(form.password):
+        service.user.log_sign_in(
+            user=user, is_success=False, ip_address=ip_address, error_code=SignInErrorCode.InvalidPassword
+        )
         raise ApiException.NotFound_404(ApiErrorCode.VA1002)
 
     if not user.activated_at:
+        service.user.log_sign_in(
+            user=user, is_success=False, ip_address=ip_address, error_code=SignInErrorCode.AccountNotActivated
+        )
         raise ApiException.Locked_423(ApiErrorCode.AU1003)
 
     access_token, refresh_token = AuthSecurity.authenticate(user.id)
+
+    service.user.log_sign_in(user=user, is_success=True, ip_address=ip_address)
 
     response = JsonResponse(content={"access_token": access_token})
     response.set_cookie(
@@ -77,7 +91,7 @@ def sign_in(form: SignInForm, service: DomainService = DomainService.scope()) ->
         max_age=Env.JWT_RT_EXPIRATION * 60 * 60 * 24,
         domain=Env.DOMAIN if Env.DOMAIN else None,
         httponly=True,
-        secure=Env.PUBLIC_UI_URL.startswith("https://"),
+        secure=Env.PUBLIC_UI_URL.startswith("https"),
     )
 
     return response

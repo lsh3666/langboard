@@ -8,6 +8,7 @@
   "Undo": "Undo",
   "Clear": "Clear",
   "Create": "Create",
+  "Update": "Update",
   "Other": "Other",
   "Actions": "Actions",
   "Back to Sign In": "Back to Sign In",
@@ -69,5 +70,6 @@
   "deleteDescriptions": {
     "All data will be lost.": "All data will be lost.",
     "This action cannot be undone.": "This action cannot be undone."
-  }
+  },
+  "days": "days"
 }

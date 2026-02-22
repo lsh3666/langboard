@@ -8,18 +8,19 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { AppSettingProvider } from "@/core/providers/AppSettingProvider";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { ROUTES } from "@/core/routing/constants";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSocket } from "@/core/providers/SocketProvider";
+import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
+import { IS_OLLAMA_RUNNING } from "@/constants";
 import BotsPage from "@/pages/SettingsPage/BotsPage";
 import GlobalRelationshipsPage from "@/pages/SettingsPage/GlobalRelationshipsPage";
 import InternalBotsPage from "@/pages/SettingsPage/InternalBotsPage";
 import WebhooksPage from "@/pages/SettingsPage/WebhooksPage";
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useSocket } from "@/core/providers/SocketProvider";
 import UsersPage from "@/pages/SettingsPage/UsersPage";
 import ApiKeysPage from "@/pages/SettingsPage/ApiKeysPage";
-import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
-import { IS_OLLAMA_RUNNING } from "@/constants";
 import OllamaPage from "@/pages/SettingsPage/OllamaPage";
+import McpServerPage from "@/pages/SettingsPage/McpServerPage";
 
 function SettingsProxy(): JSX.Element {
     const [t] = useTranslation();
@@ -117,6 +118,13 @@ function SettingsProxy(): JSX.Element {
                 navigate(ROUTES.SETTINGS.WEBHOOKS, { smooth: true });
             },
         },
+        [ROUTES.SETTINGS.MCP_TOOL_GROUPS]: {
+            icon: "package",
+            name: t("mcp.MCP Server"),
+            onClick: () => {
+                navigate(ROUTES.SETTINGS.MCP_TOOL_GROUPS, { smooth: true });
+            },
+        },
     };
 
     if (IS_OLLAMA_RUNNING) {
@@ -158,6 +166,10 @@ function SettingsProxy(): JSX.Element {
             break;
         case ROUTES.SETTINGS.WEBHOOKS:
             pageContent = <WebhooksPage />;
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.MCP_TOOL_GROUPS:
+            pageContent = <McpServerPage />;
             skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.OLLAMA:

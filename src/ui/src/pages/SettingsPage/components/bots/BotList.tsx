@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import { PillList } from "@/components/base";
 import { BotModel } from "@/core/models";
 import Bot from "@/pages/SettingsPage/components/bots/Bot";
 
@@ -6,11 +6,11 @@ function BotList() {
     const bots = BotModel.Model.useModels(() => true);
 
     return (
-        <Flex direction="col" gap="3">
+        <PillList.Root>
             {bots.map((bot) => (
                 <Bot key={bot.uid} data-id={bot.uid} bot={bot} />
             ))}
-        </Flex>
+        </PillList.Root>
     );
 }
 
