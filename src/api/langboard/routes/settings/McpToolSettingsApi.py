@@ -54,6 +54,26 @@ def create_mcp_tool_group(
 
 
 @AppRouter.schema()
+@AppRouter.api.get(
+    "/settings/mcp/group/{group_uid}/details",
+    tags=["AppSettings.MCP"],
+    responses=OpenApiSchema().suc({"tool_group": McpToolGroup}).auth().forbidden().err(404, ApiErrorCode.NF3006).get(),
+)
+@AuthFilter.add("admin")
+def get_mcp_tool_group_details(
+    group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    tool_group = service.mcp_tool_group.get_by_id_like(group_uid)
+    if not tool_group:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3006)
+
+    if tool_group.user_id and tool_group.user_id != user.id:
+        raise ApiException.Forbidden_403(ApiErrorCode.AU1001)
+
+    return JsonResponse(content={"tool_group": tool_group.api_response()})
+
+
+@AppRouter.schema()
 @AppRouter.api.put(
     "/settings/mcp/group/{group_uid}",
     tags=["AppSettings.MCP"],
