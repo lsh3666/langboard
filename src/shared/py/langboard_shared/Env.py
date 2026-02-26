@@ -269,11 +269,23 @@ class Env:
 
     @property
     def KEY_PROVIDER_TYPE(self) -> str:
-        return self.__get_from_cache("KEY_PROVIDER_TYPE", "hashicorp").lower()
+        return self.__get_from_cache("KEY_PROVIDER_TYPE", "openbao-local").lower()
+
+    @property
+    def KEY_PROVIDER_OPENBAO_URL(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_OPENBAO_URL", "http://127.0.0.1:8200")
 
     @property
     def KEY_PROVIDER_HASHICORP_URL(self) -> str:
         return self.__get_from_cache("KEY_PROVIDER_HASHICORP_URL", "http://127.0.0.1:8200")
+
+    @property
+    def KEY_PROVIDER_HASHICORP_ROLE_ID(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_HASHICORP_ROLE_ID", "")
+
+    @property
+    def KEY_PROVIDER_HASHICORP_SECRET_ID(self) -> str:
+        return self.__get_from_cache("KEY_PROVIDER_HASHICORP_SECRET_ID", "")
 
     @property
     def KEY_PROVIDER_AWS_REGION(self) -> str:

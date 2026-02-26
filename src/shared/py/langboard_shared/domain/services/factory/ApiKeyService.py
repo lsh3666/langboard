@@ -61,7 +61,9 @@ class ApiKeyService(BaseDomainService):
         expires_in_days: str | None = None,
     ) -> tuple[ApiKeySetting, str] | None:
         provider_type = KeyVault.name()
-        if provider_type == "hashicorp":
+        if provider_type == "openbao":
+            provider = ApiKeyProvider.OpenBao
+        elif provider_type == "hashicorp":
             provider = ApiKeyProvider.Hashicorp
         elif provider_type == "aws":
             provider = ApiKeyProvider.Aws

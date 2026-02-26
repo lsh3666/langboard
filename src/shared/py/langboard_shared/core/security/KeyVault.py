@@ -1,6 +1,6 @@
 from ...Env import Env
 from ..utils.decorators.ClassInstance import class_instance
-from .vault import AwsKmsVaultProvider, AzureVaultProvider, HashiCorpVaultProvider, VaultProvider
+from .vault import AwsKmsVaultProvider, AzureVaultProvider, HashiCorpVaultProvider, OpenBaoVaultProvider, VaultProvider
 
 
 @class_instance()
@@ -8,7 +8,9 @@ class KeyVault(VaultProvider):
     def __init__(self):
         provider_type = Env.KEY_PROVIDER_TYPE
 
-        if provider_type.startswith("hashicorp"):
+        if provider_type.startswith("openbao"):
+            self.provider = OpenBaoVaultProvider()
+        elif provider_type == "hashicorp":
             self.provider = HashiCorpVaultProvider()
         elif provider_type == "aws":
             self.provider = AwsKmsVaultProvider()

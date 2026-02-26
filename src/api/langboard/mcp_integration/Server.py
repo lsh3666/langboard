@@ -1,4 +1,5 @@
 import traceback
+from enum import Enum
 from inspect import Parameter, iscoroutinefunction, signature
 from types import UnionType
 from typing import Callable, TypeGuard, Union, get_args, get_origin
@@ -11,6 +12,7 @@ from langboard_shared.infrastructure.repositories import Repository
 from langboard_shared.security import RoleSecurity
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from pydantic import BaseModel
 from ..middlewares import DynamicSseMiddleware, McpAuthMiddleware
 from ..middlewares.McpAuthMiddleware import mcp_auth_context
 from .RoleFilter import McpRoleFilter
@@ -35,6 +37,7 @@ class McpServer:
                 Env.PROJECT_NAME,
                 transport_security=security_settings,
                 streamable_http_path="/stream",
+                stateless_http=True,
             )
 
             all_tools = McpTool.get_tools()
@@ -54,6 +57,12 @@ class McpServer:
 
     def _wrap_tool(self, tool_name: str, handler: Callable):
         sig = signature(handler)
+        tool_data = McpTool.get_tool(tool_name)
+        exclude = tool_data.get("exclude", []) if tool_data else []
+
+        # Filter out excluded parameters from the signature
+        filtered_params = [param for name, param in sig.parameters.items() if name not in exclude]
+        filtered_sig = sig.replace(parameters=filtered_params)
 
         async def wrapper(**kwargs):
             auth_data = mcp_auth_context.get()
@@ -74,9 +83,6 @@ class McpServer:
 
             factories: list[Factory] = []
             for param_name, param in sig.parameters.items():
-                if param_name in kwargs:
-                    continue
-
                 kwargs, factory = self._inject_kwargs(param_name, param, auth_value, kwargs)
                 if factory:
                     factories.append(factory)
@@ -86,7 +92,8 @@ class McpServer:
                 factory.close()
             return result
 
-        wrapper.__signature__ = sig.replace(parameters=[])
+        # Use the filtered signature so FastMCP only sees the non-excluded parameters
+        wrapper.__signature__ = filtered_sig
 
         return wrapper
 
@@ -159,5 +166,17 @@ class McpServer:
         elif annotation == Repository:
             factory = Repository()
             kwargs[param_name] = factory
+        elif isinstance(annotation, type) and issubclass(annotation, BaseModel):
+            kwargs[param_name] = annotation.model_validate(kwargs.get(param_name))
+        elif isinstance(annotation, type) and issubclass(annotation, Enum):
+            value = kwargs.get(param_name)
+            if value is not None:
+                try:
+                    kwargs[param_name] = annotation(value)
+                except Exception:
+                    try:
+                        kwargs[param_name] = annotation[value]
+                    except Exception:
+                        raise ValueError(f"Invalid value for enum '{annotation.__name__}': {value}")
 
         return kwargs, factory

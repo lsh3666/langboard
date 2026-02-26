@@ -1,7 +1,9 @@
+from enum import Enum
 from inspect import Parameter, signature
 from types import UnionType
 from typing import Any, Callable, Literal, TypedDict, _UnionGenericAlias, get_origin  # type: ignore
 from langboard_shared.core.utils.decorators import class_instance, thread_safe_singleton
+from pydantic import BaseModel
 
 
 _TAccessibleType = Literal["all", "user", "bot"]
@@ -45,31 +47,8 @@ class McpTool:
                     continue
 
                 param_annotation = param.annotation
-                json_type = "string"
-                enum_values = None
 
-                if isinstance(param_annotation, UnionType) or isinstance(param_annotation, _UnionGenericAlias):
-                    args = [a for a in param_annotation.__args__ if a not in (type(None), None)]
-                    if args and hasattr(args[0], "__bases__"):
-                        try:
-                            enum_values = [e.value for e in args[0]]
-                        except (TypeError, AttributeError):
-                            pass
-                elif hasattr(param_annotation, "__bases__"):
-                    try:
-                        enum_values = [e.value for e in param_annotation]
-                    except (TypeError, AttributeError):
-                        pass
-
-                if enum_values is None:
-                    json_type, _ = self._get_param_type(param_annotation, param)
-                else:
-                    json_type = "string"
-
-                if enum_values:
-                    prop = {"type": json_type, "enum": enum_values}
-                else:
-                    prop = {"type": json_type}
+                prop = self._get_param_type(param_annotation, param)
 
                 if param.default != Parameter.empty:
                     prop["default"] = param.default
@@ -96,28 +75,45 @@ class McpTool:
     def get_tool(self, tool_name: str) -> McpToolMetadata | None:
         return self._tools.get(tool_name)
 
-    def _get_param_type(self, param_annotation: Any, param: Parameter) -> tuple[str, list[str] | None]:
-        json_type = "string"
-        enum_values = None
+    def _get_param_type(self, param_annotation: Any, param: Parameter) -> dict:
+        schema: dict = {"type": "string"}
 
-        if param_annotation is int:
-            json_type = "integer"
+        if isinstance(param_annotation, type) and issubclass(param_annotation, Enum):
+            schema["type"] = "string"
+            schema["enum"] = [e.value for e in param_annotation]
+        elif param_annotation is int:
+            schema["type"] = "integer"
         elif param_annotation is bool:
-            json_type = "boolean"
+            schema["type"] = "boolean"
         elif param.annotation is not Parameter.empty:
             if isinstance(param_annotation, UnionType) or isinstance(param_annotation, _UnionGenericAlias):
                 args = [a for a in param_annotation.__args__ if a not in (type(None), None)]
                 if args and args[0] is int:
-                    json_type = "integer"
+                    schema["type"] = "integer"
                 elif args and args[0] is bool:
-                    json_type = "boolean"
+                    schema["type"] = "boolean"
                 elif args and args[0] is float:
-                    json_type = "number"
+                    schema["type"] = "number"
             elif hasattr(param_annotation, "__origin__"):
                 origin = get_origin(param_annotation)
                 if origin is list:
-                    json_type = "array"
+                    schema["type"] = "array"
                 elif origin is dict:
-                    json_type = "object"
+                    schema["type"] = "object"
+        elif isinstance(param_annotation, type) and issubclass(param_annotation, BaseModel):
+            schema["type"] = "object"
+            api_schema: Callable[[], str] | None = getattr(param_annotation, "api_schema", None)
+            if api_schema and callable(api_schema):
+                schema["properties"] = api_schema()
+            else:
+                # Use Pydantic's built-in schema generation
+                try:
+                    json_schema = param_annotation.model_json_schema()
+                    if "properties" in json_schema:
+                        schema["properties"] = json_schema["properties"]
+                    if "required" in json_schema:
+                        schema["required"] = json_schema["required"]
+                except Exception:
+                    pass
 
-        return json_type, enum_values
+        return schema

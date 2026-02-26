@@ -35,9 +35,9 @@ def save_card_metadata(
     card_uid: str,
     key: str,
     value: str,
+    old_key: str | None,
     user_or_bot: User | Bot,
     service: DomainService,
-    old_key: str | None = None,
 ) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
@@ -103,9 +103,9 @@ def save_wiki_metadata(
     wiki_uid: str,
     key: str,
     value: str,
+    old_key: str | None,
     user_or_bot: User | Bot,
     service: DomainService,
-    old_key: str | None = None,
 ) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:

@@ -6,6 +6,7 @@ from .User import User
 
 
 class ApiKeyProvider(Enum):
+    OpenBao = "openbao"
     Hashicorp = "hashicorp"
     Aws = "aws"
     Azure = "azure"

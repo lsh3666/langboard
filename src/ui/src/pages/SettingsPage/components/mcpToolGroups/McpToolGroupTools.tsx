@@ -8,6 +8,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { useMcpTools } from "@/core/stores/McpToolStore";
+import { cn } from "@/core/utils/ComponentUtils";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -100,6 +101,12 @@ function McpToolGroupToolsEdit() {
                         placeholder={t("settings.Select tool(s) to use")}
                         selections={Object.keys(allMcpTools).map((value) => ({ label: value, value }))}
                         selectedValue={selectedTools}
+                        className={cn(
+                            "max-w-[calc(100vw_-_theme(spacing.20))]",
+                            "sm:max-w-[calc(theme(screens.sm)_-_theme(spacing.60))]",
+                            "lg:max-w-[calc(theme(screens.md)_-_theme(spacing.60))]",
+                            "min-w-[min(theme(spacing.20),100%)]"
+                        )}
                         listClassName="absolute w-[calc(100%_-_theme(spacing.6))]"
                         badgeListClassName="max-h-28 overflow-y-auto relative"
                         inputClassName="sticky bottom-0 bg-background ml-0 pl-2"

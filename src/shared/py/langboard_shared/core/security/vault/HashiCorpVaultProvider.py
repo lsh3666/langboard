@@ -1,5 +1,4 @@
 import secrets
-from pathlib import Path
 from hvac import Client
 from hvac.exceptions import VaultError
 from ....Env import Env
@@ -10,12 +9,15 @@ class HashiCorpVaultProvider(VaultProvider):
     def __init__(self):
         self.addr = Env.KEY_PROVIDER_HASHICORP_URL
 
-        role_id, secret_id = self._load_vault_credentials()
+        # For external HashiCorp Vault, use environment variables directly
+        role_id = Env.KEY_PROVIDER_HASHICORP_ROLE_ID
+        secret_id = Env.KEY_PROVIDER_HASHICORP_SECRET_ID
 
         if not role_id or not secret_id:
             raise ValueError(
-                "Vault credentials not found in .vault-credentials file. "
-                "Please ensure VAULT_ROLE_ID and VAULT_SECRET_ID are set."
+                "HashiCorp Vault credentials not found. "
+                "Please ensure KEY_PROVIDER_HASHICORP_ROLE_ID and "
+                "KEY_PROVIDER_HASHICORP_SECRET_ID are set in .env file."
             )
 
         try:
@@ -87,25 +89,3 @@ class HashiCorpVaultProvider(VaultProvider):
             return self.client.is_authenticated()
         except VaultError:
             return False
-
-    def _load_vault_credentials(self) -> tuple[str | None, str | None]:
-        vault_creds_path = Path(".vault-credentials")
-
-        if not vault_creds_path.exists():
-            return None, None
-
-        role_id = None
-        secret_id = None
-
-        try:
-            with open(vault_creds_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith("VAULT_ROLE_ID="):
-                        role_id = line.split("=", 1)[1].strip()
-                    elif line.startswith("VAULT_SECRET_ID="):
-                        secret_id = line.split("=", 1)[1].strip()
-        except Exception:
-            pass
-
-        return role_id, secret_id

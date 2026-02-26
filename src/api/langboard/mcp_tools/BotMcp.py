@@ -64,12 +64,15 @@ def schedule_bot_cron(
     target_table: str,
     target_uid: str,
     interval_str: str,
+    running_type: BotScheduleRunningType | None,
+    start_at: str | SafeDateTime | None,
+    end_at: str | SafeDateTime | None,
+    tz: str | float | None,
     service: DomainService,
-    running_type: BotScheduleRunningType | None = None,
-    start_at: str | SafeDateTime | None = None,
-    end_at: str | SafeDateTime | None = None,
-    tz: str | float = "UTC",
 ) -> dict:
+    if tz is None:
+        tz = "UTC"
+
     interval_str = BotScheduleHelper.utils.convert_valid_interval_str(interval_str)
     if not interval_str:
         raise ValueError("Invalid interval")
@@ -119,13 +122,16 @@ def reschedule_bot_cron(
     bot_uid: str,
     schedule_uid: str,
     target_table: str,
+    interval_str: str | None,
+    running_type: BotScheduleRunningType | None,
+    start_at: str | SafeDateTime | None,
+    end_at: str | SafeDateTime | None,
+    tz: str | float,
     service: DomainService,
-    interval_str: str | None = None,
-    running_type: BotScheduleRunningType | None = None,
-    start_at: str | SafeDateTime | None = None,
-    end_at: str | SafeDateTime | None = None,
-    tz: str | float = "UTC",
 ) -> dict:
+    if tz is None:
+        tz = "UTC"
+
     if isinstance(start_at, str):
         start_at = SafeDateTime.fromisoformat(start_at)
     if isinstance(end_at, str):

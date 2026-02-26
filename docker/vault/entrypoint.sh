@@ -1,107 +1,167 @@
-#!/bin/sh
+#!/bin/bash
+
 set -e
 
-# Always initialize Vault (force recreation of credentials)
-echo "Initializing Vault..."
+echo "=========================================="
+echo "ENTRYPOINT.SH STARTED"
+echo "ROOT_TOKEN: ${ROOT_TOKEN:+SET}"
+echo "=========================================="
 
-# Start Vault in background with file storage (persistent)
-/usr/local/bin/docker-entrypoint.sh server -dev -dev-root-token-id="${VAULT_TOKEN:-dev-root-token}" -dev-listen-address="0.0.0.0:8200" &
-VAULT_PID=$!
+# Start OpenBao server in background for initialization/check
+echo "🔧 Starting OpenBao server..."
+docker-entrypoint.sh server &
+SERVER_PID=$!
 
-echo $VAULT_TOKEN
+# Wait for server to be ready
+echo "⏳ Waiting for OpenBao to start..."
+sleep 15
 
-# Wait for Vault to be ready
-echo "Waiting for Vault to start..."
-until vault status > /dev/null 2>&1; do
-    echo "  Vault not ready yet, waiting..."
-    sleep 2
-done
-echo "Vault is ready"
+export BAO_ADDR="http://127.0.0.1:8200"
+VAULT_URL="$BAO_ADDR"
+ROLE_NAME="${PROJECT_NAME}-role"
+CREDENTIALS_FILE="/openbao/.vault-credentials"
 
-# 1. Enable KV Secrets Engine v2
-echo ""
-echo "Enabling KV secrets engine v2..."
-vault secrets enable -path=apikeys kv-v2 2>/dev/null || echo "  KV secrets engine already enabled"
+echo "⏳ Checking OpenBao initialization status..."
 
-# 2. Create policy
-echo ""
-echo "Creating API key policy..."
-vault policy write apikey-policy - <<EOF
-# API Key data permissions (KV v2)
+# Check if vault-secret.json already exists from previous initialization
+if [ -f /openbao/vault-secret.json ] && [ -s /openbao/vault-secret.json ]; then
+    echo "📋 Found existing vault-secret.json. Loading credentials..."
+    UNSEAL_KEY=$(cat /openbao/vault-secret.json | grep -o '"keys_base64":\[[^]]*\]' | sed 's/"keys_base64":\[\([^]]*\)\]/\1/' | cut -d',' -f1 | tr -d ' "')
+    ROOT_TOKEN=$(cat /openbao/vault-secret.json | grep -o '"root_token":"[^"]*"' | cut -d'"' -f4)
+    export BAO_TOKEN="$ROOT_TOKEN"
+    echo "✅ Loaded existing credentials"
+else
+    # Check if OpenBao is initialized
+    INIT_STATUS=$(wget -qO- "http://127.0.0.1:8200/v1/sys/init" 2>/dev/null | grep -o '"initialized":[^,]*' | cut -d':' -f2)
+
+    if [ "$INIT_STATUS" != "true" ]; then
+        echo "🔧 OpenBao not initialized. Initializing..."
+
+        # Initialize OpenBao using HTTP API
+        wget -qO- --post-data='{"secret_shares":1,"secret_threshold":1}' \
+            --header='Content-Type: application/json' \
+            "$BAO_ADDR/v1/sys/init" > /openbao/vault-secret.json
+
+        echo "✅ OpenBao initialized"
+
+        # Extract unseal key and root token from JSON response
+        UNSEAL_KEY=$(cat /openbao/vault-secret.json | grep -o '"keys_base64":\[[^]]*\]' | sed 's/"keys_base64":\[\([^]]*\)\]/\1/' | cut -d',' -f1 | tr -d ' "')
+        ROOT_TOKEN=$(cat /openbao/vault-secret.json | grep -o '"root_token":"[^"]*"' | cut -d'"' -f4)
+
+        # Unseal OpenBao using HTTP API
+        echo "🔧 Unsealing OpenBao..."
+        wget -qO- --post-data="{\"key\":\"$UNSEAL_KEY\"}" \
+            --header='Content-Type: application/json' \
+            "$BAO_ADDR/v1/sys/unseal" >/dev/null
+        echo "✅ OpenBao unsealed"
+
+        export BAO_TOKEN="$ROOT_TOKEN"
+    else
+        echo "✅ OpenBao already initialized, but no vault-secret.json found"
+        echo "❌ Cannot proceed without unseal key. Please clear volumes and restart."
+        kill $SERVER_PID 2>/dev/null
+        exit 1
+    fi
+fi
+
+# Check if sealed and unseal if needed
+SEALED=$(wget -qO- "http://127.0.0.1:8200/v1/sys/seal-status" 2>/dev/null | grep -o '"sealed":[^,]*' | cut -d':' -f2)
+if [ "$SEALED" = "true" ]; then
+    echo "🔧 OpenBao is sealed. Auto-unsealing..."
+    if [ -f /openbao/vault-secret.json ]; then
+        UNSEAL_KEY=$(cat /openbao/vault-secret.json | grep -o '"keys_base64":\[[^]]*\]' | sed 's/"keys_base64":\[\([^]]*\)\]/\1/' | cut -d',' -f1 | tr -d ' "')
+        wget -qO- --post-data="{\"key\":\"$UNSEAL_KEY\"}" \
+            --header='Content-Type: application/json' \
+            "$BAO_ADDR/v1/sys/unseal" >/dev/null
+        echo "✅ OpenBao unsealed"
+
+        ROOT_TOKEN=$(cat /openbao/vault-secret.json | grep -o '"root_token":"[^"]*"' | cut -d'"' -f4)
+        export BAO_TOKEN="$ROOT_TOKEN"
+    else
+        echo "❌ Cannot find unseal key. Please reinitialize."
+        kill $SERVER_PID 2>/dev/null
+        exit 1
+    fi
+fi
+
+# Check if credentials file already exists
+if [ -f "$CREDENTIALS_FILE" ] && [ -s "$CREDENTIALS_FILE" ]; then
+    echo "✅ Credentials file already exists. Skipping configuration."
+    echo ""
+    echo "🔄 OpenBao server is already running (PID: $SERVER_PID)"
+    wait $SERVER_PID
+fi
+
+# Check if ROOT_TOKEN is set before proceeding with configuration
+if [ -z "$ROOT_TOKEN" ]; then
+    echo "⚠️  ROOT_TOKEN not set. Skipping configuration. Keeping server running..."
+    wait $SERVER_PID
+fi
+
+# Enable AppRole auth method
+echo "🔧 Configuring AppRole authentication..."
+if ! bao auth list 2>/dev/null | grep -q "approle/"; then
+    bao auth enable approle
+    echo "✅ AppRole enabled"
+else
+    echo "✅ AppRole already enabled"
+fi
+
+# Create policy for apikeys
+echo "🔧 Creating policy for apikeys..."
+cat > /tmp/apikeys-policy.hcl << 'EOF'
 path "apikeys/data/*" {
-  capabilities = ["create", "read", "update"]
+  capabilities = ["create", "update", "read"]
 }
 
-# Metadata permissions
 path "apikeys/metadata/*" {
   capabilities = ["create", "update", "delete", "list"]
 }
 
-# Delete permissions
 path "apikeys/delete/*" {
   capabilities = ["update"]
 }
 EOF
-echo "Policy created"
+bao policy write apikeys-policy /tmp/apikeys-policy.hcl
+echo "✅ Policy created"
 
-# 3. Create AppRole
-echo ""
-echo "Creating AppRole for API server..."
-vault auth enable approle 2>/dev/null || echo "  AppRole already enabled"
+# Create or update the role
+echo "🔧 Creating/updating AppRole: $ROLE_NAME"
+bao write auth/approle/role/$ROLE_NAME token_policies=apikeys-policy
+echo "✅ Role created/updated"
 
-vault write auth/approle/role/api-server-role \
-    token_policies="apikey-policy" \
-    token_ttl=1h \
-    token_max_ttl=4h \
-    secret_id_ttl=0
+# Get role_id
+ROLE_ID=$(bao read -field=role_id auth/approle/role/$ROLE_NAME/role-id)
+echo "   Role ID: $ROLE_ID"
 
-# Extract Role ID and Secret ID
-ROLE_ID=$(vault read -field=role_id auth/approle/role/api-server-role/role-id)
-SECRET_ID=$(vault write -f -field=secret_id auth/approle/role/api-server-role/secret-id)
+# Generate secret_id
+SECRET_ID=$(bao write -field=secret_id -f auth/approle/role/$ROLE_NAME/secret-id)
+echo "   Secret ID: $SECRET_ID"
 
-echo ""
-echo "AppRole created"
-echo "   Role ID: ${ROLE_ID}"
-echo "   Secret ID: ${SECRET_ID}"
+# Enable KV v2 secrets engine for apikeys
+if ! bao secrets list 2>/dev/null | grep -q "^apikeys/$"; then
+    bao secrets enable -path=apikeys kv-v2
+    echo "✅ KV v2 secrets engine mounted at apikeys/"
+else
+    echo "✅ KV v2 secrets engine already mounted at apikeys/"
+fi
 
-# 4. Create .vault-credentials file
-echo ""
-echo "Creating .vault-credentials file..."
-cat > /vault/.vault-credentials <<EOF
-VAULT_ROLE_ID=${ROLE_ID}
-VAULT_SECRET_ID=${SECRET_ID}
+# Write credentials to file
+echo "💾 Writing credentials to $CREDENTIALS_FILE..."
+cat > "$CREDENTIALS_FILE" << EOF
+VAULT_ROLE_ID=$ROLE_ID
+VAULT_SECRET_ID=$SECRET_ID
 EOF
-chmod 600 /vault/.vault-credentials
-echo ".vault-credentials file created with secure permissions"
 
-# 5. Create demo API keys
+chmod 600 "$CREDENTIALS_FILE"
 echo ""
-echo "Creating demo API keys..."
-vault kv put apikeys/demo-key-1 key_material="demo-api-key-value-1"
-vault kv put apikeys/demo-key-2 key_material="demo-api-key-value-2"
-echo "Demo keys created"
-
-# 6. Print credentials
-echo ""
-echo "=========================================="
-echo "Credentials saved to .vault-credentials"
-echo "=========================================="
-echo ""
-echo "VAULT_ROLE_ID=${ROLE_ID}"
-echo "VAULT_SECRET_ID=${SECRET_ID}"
+echo "=========================================================="
+echo "✅ OpenBao initialization complete!"
+echo "📁 Credentials saved to: ./volumes/.vault-credentials"
+echo "=========================================================="
 echo ""
 
-# 7. Check Vault status
-echo ""
-echo "Vault Status:"
-vault status
+echo "🔄 OpenBao server is already running (PID: $SERVER_PID)"
+# Keep the server process running
+wait $SERVER_PID
 
-echo ""
-echo "Vault initialization completed"
-echo ""
-echo "Access Vault UI at: http://localhost:8080"
-echo "   Token: dev-root-token"
-echo ""
-
-# Wait for the background vault process
-wait $VAULT_PID

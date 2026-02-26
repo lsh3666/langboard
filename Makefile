@@ -118,7 +118,31 @@ install_socket: ## install socket dependencies
 	cd $(SOCKET_DIR) && yarn install
 	cd $(SOCKET_DIR) && yarn run format
 
+dev_openbao:
+	@if [ -z "$$BAO_EXECUTABLE_PATH" ]; then \
+		echo "$(RED)BAO_EXECUTABLE_PATH environment variable is not set. Please set it to the path of the bao executable file. Aborting.$(NC)"; \
+		exit 1; \
+	fi
+
+	@if [ ! -f "$$BAO_EXECUTABLE_PATH" ]; then \
+		echo "$(RED)Bao executable file not found at the specified path: $$BAO_EXECUTABLE_PATH. Please check the path and try again. Aborting.$(NC)"; \
+		exit 1; \
+	fi
+
+	@ROOT_TOKEN=$$(grep "^KEY_PROVIDER_OPENBAO_ROOT_TOKEN=" .env 2>/dev/null | cut -d '=' -f2-); \
+	if [ -n "$$ROOT_TOKEN" ]; then \
+		echo "Starting OpenBao with custom root token from .env"; \
+		$$BAO_EXECUTABLE_PATH server -dev -dev-root-token-id="$$ROOT_TOKEN"; \
+	else \
+		echo "Starting OpenBao with default root token"; \
+		$$BAO_EXECUTABLE_PATH server -dev; \
+	fi
+
 dev_api: ## run the API in development environment
+	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
+		bash ./scripts/init-vault.sh; \
+	fi
+
 	langboard run -w
 
 dev_ts_core_build: ## build the shared core in development environment
@@ -143,7 +167,7 @@ start_docker: ## run Docker in the production environment
 	make init_env
 	mkdir -p ./docker/volumes
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build --remove-orphans; \
 	else \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans; \
@@ -158,7 +182,7 @@ rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_d
 	make init_env
 	mkdir -p ./docker/volumes
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
 	else \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
@@ -167,14 +191,14 @@ rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_d
 update_docker: ## update Docker in the production environment
 	make init_env
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env; then \
+	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
 	else \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
 	fi
 
 stop_docker: ## stop Docker in the production environment
-	@if grep -q "^KEY_PROVIDER_TYPE=hashicorp-local" .env 2>/dev/null; then \
+	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env 2>/dev/null; then \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
 	else \
 		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
@@ -193,6 +217,9 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 	fi
 	@if [ ! -f ./docker/volumes/.vault-credentials ]; then \
 		touch ./docker/volumes/.vault-credentials; \
+	fi
+	@if [ ! -f ./docker/volumes/vault-secret.json ]; then \
+		touch ./docker/volumes/vault-secret.json; \
 	fi
 
 update_docker_settings: ## update Docker settings

@@ -1,49 +1,36 @@
 services:
   vault:
-    image: hashicorp/vault:1.15
-    init: true
+    image: openbao/openbao:latest
     container_name: ${PROJECT_NAME}_vault
-    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    restart: unless-stopped
+
     ports:
       - "8200:8200"
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: ${KEY_PROVIDER_HASHICORP_ROOT_TOKEN:-dev-root-token}
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
-      VAULT_CLUSTER_ADDR: "http://localhost:8201"
-      VAULT_API_ADDR: "http://localhost:8200"
-      VAULT_ADDR: "http://127.0.0.1:8200"
-      VAULT_TOKEN: ${KEY_PROVIDER_HASHICORP_ROOT_TOKEN:-dev-root-token}
+
+    volumes:
+      - ./vault/entrypoint.sh:/entrypoint.sh:ro
+      - ./volumes/vault/file:/openbao/file
+      - ./volumes/vault/logs:/openbao/logs
+      - ./volumes/vault/config:/bao/config
+      - ./volumes/.vault-credentials:/openbao/.vault-credentials
+      - ./volumes/vault-secret.json:/openbao/vault-secret.json
+
     cap_add:
       - IPC_LOCK
-    volumes:
-      - vault-data:/vault/data
-      - ./vault/entrypoint.sh:/entrypoint.sh:ro
-      - ./volumes/.vault-credentials:/vault/.vault-credentials:rw
-    networks:
-      - net
-    healthcheck:
-      test: ["CMD", "vault", "status"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
 
-  vault-ui:
-    image: djenriquez/vault-ui:latest
-    container_name: ${PROJECT_NAME}_vault_ui
-    ports:
-      - "8080:8000"
     environment:
-      VAULT_URL_DEFAULT: http://${PROJECT_NAME}_vault:8200
-      VAULT_AUTH_DEFAULT: token
-    depends_on:
-      vault:
-        condition: service_healthy
+      - BAO_LOCAL_CONFIG={"listener":{"tcp":{"address":"0.0.0.0:8200","tls_disable":true}},"storage":{"file":{"path":"/openbao/file"}},"api_addr":"http://0.0.0.0:8200","disable_mlock":true,"ui":true}
+      - ROOT_TOKEN=${KEY_PROVIDER_OPENBAO_ROOT_TOKEN}
+      - PROJECT_NAME=${PROJECT_NAME}
+
+    command: ["sh", "/entrypoint.sh"]
+
+    healthcheck:
+      test: ["CMD", "bao", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
     networks:
       - net
-    restart: unless-stopped
-
-volumes:
-  vault-data:
-    driver: local

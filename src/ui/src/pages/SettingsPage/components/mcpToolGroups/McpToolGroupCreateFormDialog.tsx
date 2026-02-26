@@ -68,7 +68,7 @@ function McpToolGroupCreateFormDialog({ opened, setOpened, groupType }: IMcpTool
         const newErrors = {} as Record<keyof typeof inputsRef.current, string>;
         let focusableInput = null as HTMLInputElement | HTMLTextAreaElement | null;
 
-        const shouldValidateInputs: (keyof typeof inputsRef.current)[] = ["name", "description"];
+        const shouldValidateInputs: (keyof typeof inputsRef.current)[] = ["name"];
 
         shouldValidateInputs.forEach((key) => {
             const input = inputsRef.current[key] as HTMLInputElement | HTMLTextAreaElement;

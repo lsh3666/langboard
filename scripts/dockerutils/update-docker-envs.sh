@@ -15,10 +15,10 @@ cd ../
 
 source .env
 
-# Set Vault URL if using hashicorp-local
-if [[ "$KEY_PROVIDER_TYPE" == "hashicorp-local" ]]; then
-    export KEY_PROVIDER_HASHICORP_URL="http://${PROJECT_NAME}_vault:8200"
-    echo "Vault URL set to: $KEY_PROVIDER_HASHICORP_URL"
+# Set OpenBao URL if using openbao-local
+if [[ "$KEY_PROVIDER_TYPE" == "openbao-local" ]]; then
+    export KEY_PROVIDER_OPENBAO_URL="http://${PROJECT_NAME}_vault:8200"
+    echo "OpenBao URL set to: $KEY_PROVIDER_OPENBAO_URL"
 fi
 
 declare -A service_envs=(
