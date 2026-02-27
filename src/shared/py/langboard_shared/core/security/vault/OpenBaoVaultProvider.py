@@ -1,5 +1,4 @@
 import secrets
-from pathlib import Path
 from hvac import Client
 from hvac.exceptions import VaultError
 from ....Env import Env
@@ -94,7 +93,7 @@ class OpenBaoVaultProvider(VaultProvider):
             return False
 
     def _load_vault_credentials(self) -> tuple[str | None, str | None]:
-        vault_creds_path = Path(".vault-credentials")
+        vault_creds_path = Env.ROOT_DIR / ".vault-credentials"
 
         if not vault_creds_path.exists():
             return None, None
@@ -127,4 +126,5 @@ class OpenBaoVaultProvider(VaultProvider):
         except Exception as e:
             # Log warning but don't fail the key creation
             import warnings
+
             warnings.warn(f"Failed to save key material to file {key_file_path}: {e}")
