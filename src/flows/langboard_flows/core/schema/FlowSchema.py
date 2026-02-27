@@ -1,5 +1,5 @@
-from langflow.graph.schema import RunOutputs
 from langflow.schema.schema import InputType
+from lfx.graph.schema import RunOutputs
 from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
 

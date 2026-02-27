@@ -10,9 +10,9 @@ from langboard_shared.publishers import CardPublisher, ProjectBotPublisher, Proj
 from langflow.events.event_manager import EventManager, create_stream_tokens_event_manager
 from langflow.exceptions.serialization import SerializationError
 from langflow.graph import Graph
-from langflow.graph.schema import RunOutputs
 from langflow.schema.schema import INPUT_FIELD_NAME
 from langflow.services.deps import get_settings_service
+from lfx.graph.schema import RunOutputs
 from ..schema import FlowRequestModel, InputValueRequest, RunResponse
 from ..schema.Exception import InvalidChatInputError
 
