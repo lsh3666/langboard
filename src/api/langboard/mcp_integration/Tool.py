@@ -23,7 +23,9 @@ class McpTool:
     def __init__(self):
         self._tools: dict[str, McpToolMetadata] = {}
 
-    def add(self, accessible_type: _TAccessibleType = "all") -> Callable[[Callable], Callable]:
+    def add(
+        self, accessible_type: _TAccessibleType = "all", description: str | None = None
+    ) -> Callable[[Callable], Callable]:
         def decorator(func: Callable) -> Callable:
             sig = signature(func)
             params = sig.parameters
@@ -58,7 +60,7 @@ class McpTool:
                     required.append(param_name)
 
             self._tools[func.__name__] = {
-                "description": func.__doc__ or func.__name__,
+                "description": description or func.__doc__ or func.__name__,
                 "handler": func,
                 "input_schema": {"type": "object", "properties": properties, "required": required},
                 "accessible_type": accessible_type,

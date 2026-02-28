@@ -10,7 +10,7 @@ from langboard_shared.security import RoleFinder
 from ..mcp_integration import McpRoleFilter, McpTool
 
 
-@McpTool.add()
+@McpTool.add(description="Get all cards in a project.")
 def get_cards(project_uid: str, service: DomainService) -> dict:
     project = service.project.get_by_id_like(project_uid)
     if not project:
@@ -19,7 +19,7 @@ def get_cards(project_uid: str, service: DomainService) -> dict:
     return {"cards": cards}
 
 
-@McpTool.add()
+@McpTool.add(description="Get card details.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_card(project_uid: str, card_uid: str, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
@@ -32,7 +32,7 @@ def get_card(project_uid: str, card_uid: str, service: DomainService) -> dict:
     return api_card
 
 
-@McpTool.add()
+@McpTool.add(description="Get card checklists.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_card_checklists(project_uid: str, card_uid: str, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
@@ -43,7 +43,7 @@ def get_card_checklists(project_uid: str, card_uid: str, service: DomainService)
     return {"checklists": checklists}
 
 
-@McpTool.add()
+@McpTool.add(description="Get card attachments.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_card_attachments(project_uid: str, card_uid: str, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
@@ -54,7 +54,7 @@ def get_card_attachments(project_uid: str, card_uid: str, service: DomainService
     return {"attachments": attachments}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot scopes for a card.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_card_bot_scopes(project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
@@ -74,7 +74,7 @@ def get_card_bot_scopes(project_uid: str, card_uid: str, user_or_bot: User | Bot
     return {"bot_scopes": bot_scopes}
 
 
-@McpTool.add()
+@McpTool.add(description="Create a card.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 def create_card(
     project_uid: str,
@@ -93,7 +93,7 @@ def create_card(
     return api_card
 
 
-@McpTool.add()
+@McpTool.add(description="Change card details.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 def change_card_details(
     project_uid: str,
@@ -132,7 +132,7 @@ def change_card_details(
     return result
 
 
-@McpTool.add()
+@McpTool.add(description="Archive a card.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
 def archive_card(project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     p = service.project.get_by_id_like(project_uid)
@@ -144,10 +144,21 @@ def archive_card(project_uid: str, card_uid: str, user_or_bot: User | Bot, servi
     return {"message": "Archived"}
 
 
-@McpTool.add()
+@McpTool.add(description="Delete a card. (Only available for archived cards)")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.CardDelete], RoleFinder.project)
 def delete_card(project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     result = service.card.delete(user_or_bot, project_uid, card_uid)
     if not result:
         raise ValueError("Failed to delete")
     return {"message": "Deleted"}
+
+
+@McpTool.add(description="Change card order or move to another project column.")
+@McpRoleFilter.add(ProjectRole, [ProjectRoleAction.CardUpdate], RoleFinder.project)
+def change_card_order_or_move_column(
+    project_uid: str, card_uid: str, order: int, column_uid: str | None, user_or_bot: User | Bot, service: DomainService
+) -> dict:
+    result = service.card.change_order(user_or_bot, project_uid, card_uid, order, column_uid or "")
+    if not result:
+        raise ValueError("Failed to change order or move column")
+    return {"message": "Order changed or card moved"}

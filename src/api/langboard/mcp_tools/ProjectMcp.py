@@ -5,7 +5,7 @@ from langboard_shared.security import RoleFinder
 from ..mcp_integration import McpRoleFilter, McpTool
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get starred projects for the current user.")
 def get_starred_projects(user_or_bot: User | Bot, service: DomainService) -> dict:
     if not isinstance(user_or_bot, User):
         raise ValueError("Only users can access this endpoint")
@@ -13,7 +13,7 @@ def get_starred_projects(user_or_bot: User | Bot, service: DomainService) -> dic
     return {"projects": projects}
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get all projects for the current user.")
 def get_projects(user_or_bot: User | Bot, service: DomainService) -> dict:
     if not isinstance(user_or_bot, User):
         raise ValueError("Only users can access this endpoint")
@@ -21,7 +21,7 @@ def get_projects(user_or_bot: User | Bot, service: DomainService) -> dict:
     return {"projects": projects}
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Toggle star status for a project.")
 def toggle_star_project(project_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     if not isinstance(user_or_bot, User):
         raise ValueError("Only users can access this endpoint")
@@ -31,7 +31,7 @@ def toggle_star_project(project_uid: str, user_or_bot: User | Bot, service: Doma
     return {"message": "Toggled"}
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Create a new project.")
 def create_project(
     title: str, description: str | None, project_type: str, user_or_bot: User | Bot, service: DomainService
 ) -> dict:
@@ -41,7 +41,7 @@ def create_project(
     return {"project_uid": project.get_uid()}
 
 
-@McpTool.add()
+@McpTool.add(description="Check if the project is available.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def is_project_available(project_uid: str, service: DomainService) -> dict:
     p = service.project.get_by_id_like(project_uid)
@@ -50,7 +50,7 @@ def is_project_available(project_uid: str, service: DomainService) -> dict:
     return {"title": p.title}
 
 
-@McpTool.add()
+@McpTool.add(description="Get project details.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_project(project_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     result = service.project.get_details(user_or_bot, project_uid, False)
@@ -64,7 +64,7 @@ def get_project(project_uid: str, user_or_bot: User | Bot, service: DomainServic
     return {"project": response, "project_bot_scopes": bot_scopes, "project_bot_schedules": bot_schedules}
 
 
-@McpTool.add()
+@McpTool.add(description="Get project assigned users.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_project_assigned_users(project_uid: str, service: DomainService) -> list[dict]:
     p = service.project.get_by_id_like(project_uid)
@@ -73,7 +73,7 @@ def get_project_assigned_users(project_uid: str, service: DomainService) -> list
     return service.project.get_api_assigned_user_list(p)
 
 
-@McpTool.add()
+@McpTool.add(description="Get project columns.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_project_columns(project_uid: str, service: DomainService) -> list[dict]:
     p = service.project.get_by_id_like(project_uid)
@@ -82,7 +82,7 @@ def get_project_columns(project_uid: str, service: DomainService) -> list[dict]:
     return service.project_column.get_api_list_by_project(p)
 
 
-@McpTool.add()
+@McpTool.add(description="Get project labels.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_project_labels(project_uid: str, service: DomainService) -> list[dict]:
     p = service.project.get_by_id_like(project_uid)
@@ -91,7 +91,7 @@ def get_project_labels(project_uid: str, service: DomainService) -> list[dict]:
     return service.project_label.get_api_list_by_project(p)
 
 
-@McpTool.add()
+@McpTool.add(description="Get project checklists.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_project_checklists(project_uid: str, service: DomainService) -> dict:
     p = service.project.get_by_id_like(project_uid)
@@ -101,13 +101,13 @@ def get_project_checklists(project_uid: str, service: DomainService) -> dict:
     return {"checklists": checklists}
 
 
-@McpTool.add()
+@McpTool.add(description="Get global card relationship types.")
 def get_global_relationships(service: DomainService) -> dict:
     global_rels = service.app_setting.get_api_global_relationship_list()
     return {"global_relationships": global_rels}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot scopes for all columns in a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_column_bot_scopes(project_uid: str, service: DomainService) -> dict:
     p = service.project.get_by_id_like(project_uid)
@@ -117,7 +117,7 @@ def get_column_bot_scopes(project_uid: str, service: DomainService) -> dict:
     return {"column_bot_scopes": col_bot_scopes}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot schedules for all columns in a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_column_bot_schedules(project_uid: str, service: DomainService) -> dict:
     p = service.project.get_by_id_like(project_uid)
@@ -128,7 +128,7 @@ def get_column_bot_schedules(project_uid: str, service: DomainService) -> dict:
     return {"column_bot_schedules": col_bot_schedules}
 
 
-@McpTool.add()
+@McpTool.add(description="Update project members by inviting users via email.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def update_project_members(
     project_uid: str, user_or_bot: User | Bot, emails: list[str], service: DomainService
@@ -141,7 +141,7 @@ def update_project_members(
     return {"message": "Updated"}
 
 
-@McpTool.add()
+@McpTool.add(description="Unassign a member from a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def unassign_project_member(
     project_uid: str, assignee_uid: str, user_or_bot: User | Bot, service: DomainService
@@ -154,7 +154,7 @@ def unassign_project_member(
     return {"message": "Unassigned"}
 
 
-@McpTool.add()
+@McpTool.add(description="Check if a user is assigned to a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def is_project_assignee(project_uid: str, assignee_uid: str, service: DomainService) -> dict[str, bool]:
     target = service.user.get_by_id_like(assignee_uid)
@@ -164,7 +164,7 @@ def is_project_assignee(project_uid: str, assignee_uid: str, service: DomainServ
     return {"result": result}
 
 
-@McpTool.add()
+@McpTool.add(description="Create a new column in a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def create_column(project_uid: str, user_or_bot: User | Bot, name: str, service: DomainService) -> dict:
     column = service.project_column.create(user_or_bot, project_uid, name)
@@ -173,7 +173,7 @@ def create_column(project_uid: str, user_or_bot: User | Bot, name: str, service:
     return {**column.api_response(), "count": 0}
 
 
-@McpTool.add()
+@McpTool.add(description="Change column name.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def change_column_name(
     project_uid: str, column_uid: str, user_or_bot: User | Bot, name: str, service: DomainService
@@ -184,7 +184,7 @@ def change_column_name(
     return {"name": name}
 
 
-@McpTool.add()
+@McpTool.add(description="Delete a column from a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def delete_column(project_uid: str, column_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     result = service.project_column.delete(user_or_bot, project_uid, column_uid)

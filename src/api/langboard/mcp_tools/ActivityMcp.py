@@ -9,7 +9,7 @@ class ActivityPagination(TimeBasedPagination):
     only_count: bool = False
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get activities for the current user.")
 def get_current_user_activities(user_or_bot: User | Bot, service: DomainService, limit: int = 50) -> dict:
     if not isinstance(user_or_bot, User):
         raise ValueError("Only users can access this endpoint")
@@ -21,7 +21,7 @@ def get_current_user_activities(user_or_bot: User | Bot, service: DomainService,
     return {"activities": activities, "count_new_records": count_new_records}
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get activities for a project.")
 def get_project_activities(project_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50) -> dict:
     if not isinstance(user_or_bot, User):
         raise ValueError("Only users can access this endpoint")
@@ -33,7 +33,7 @@ def get_project_activities(project_uid: str, user_or_bot: User | Bot, service: D
     return {"activities": activities, "count_new_records": count_new_records, "project": {"uid": project.get_uid()}}
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get activities for a project column.")
 def get_project_column_activities(
     project_uid: str, column_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
 ) -> dict:
@@ -52,7 +52,7 @@ def get_project_column_activities(
     }
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get activities for a card.")
 def get_card_activities(
     project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
 ) -> dict:
@@ -71,7 +71,7 @@ def get_card_activities(
     }
 
 
-@McpTool.add("user")
+@McpTool.add("user", description="Get activities for a wiki.")
 def get_wiki_activities(
     project_uid: str, wiki_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
 ) -> dict:

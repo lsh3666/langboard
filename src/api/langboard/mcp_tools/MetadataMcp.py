@@ -4,7 +4,7 @@ from langboard_shared.helpers import InfraHelper
 from ..mcp_integration import McpTool
 
 
-@McpTool.add()
+@McpTool.add(description="Get card metadata.")
 def get_card_metadata(project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (Card, card_uid))
     if not params:
@@ -15,7 +15,7 @@ def get_card_metadata(project_uid: str, card_uid: str, user_or_bot: User | Bot, 
     return {"metadata": metadata}
 
 
-@McpTool.add()
+@McpTool.add(description="Get card metadata by key.")
 def get_card_metadata_by_key(
     project_uid: str, card_uid: str, key: str, user_or_bot: User | Bot, service: DomainService
 ) -> dict:
@@ -29,7 +29,7 @@ def get_card_metadata_by_key(
     return {key: value}
 
 
-@McpTool.add()
+@McpTool.add(description="Save card metadata.")
 def save_card_metadata(
     project_uid: str,
     card_uid: str,
@@ -51,7 +51,7 @@ def save_card_metadata(
     return {"message": "Metadata saved successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Delete card metadata.")
 def delete_card_metadata(
     project_uid: str, card_uid: str, keys: list[str], user_or_bot: User | Bot, service: DomainService
 ) -> dict:
@@ -64,7 +64,7 @@ def delete_card_metadata(
     return {"message": "Metadata deleted successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Get wiki metadata.")
 def get_wiki_metadata(project_uid: str, wiki_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
     params = InfraHelper.get_records_with_foreign_by_params((Project, project_uid), (ProjectWiki, wiki_uid))
     if not params:
@@ -79,7 +79,7 @@ def get_wiki_metadata(project_uid: str, wiki_uid: str, user_or_bot: User | Bot, 
     return {"metadata": metadata}
 
 
-@McpTool.add()
+@McpTool.add(description="Get wiki metadata by key.")
 def get_wiki_metadata_by_key(
     project_uid: str, wiki_uid: str, key: str, user_or_bot: User | Bot, service: DomainService
 ) -> dict:
@@ -97,7 +97,7 @@ def get_wiki_metadata_by_key(
     return {key: value}
 
 
-@McpTool.add()
+@McpTool.add(description="Save wiki metadata.")
 def save_wiki_metadata(
     project_uid: str,
     wiki_uid: str,
@@ -123,7 +123,7 @@ def save_wiki_metadata(
     return {"message": "Metadata saved successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Delete wiki metadata.")
 def delete_wiki_metadata(
     project_uid: str, wiki_uid: str, keys: list[str], user_or_bot: User | Bot, service: DomainService
 ) -> dict:

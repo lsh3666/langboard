@@ -9,7 +9,7 @@ from langboard_shared.security import RoleFinder
 from ..mcp_integration import McpRoleFilter, McpTool
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot schedules for a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_bot_schedules_by_project(bot_uid: str, project_uid: str, service: DomainService) -> dict:
     bot = service.bot.get_by_id_like(bot_uid)
@@ -25,7 +25,7 @@ def get_bot_schedules_by_project(bot_uid: str, project_uid: str, service: Domain
     return {"schedules": schedules, "target": project.api_response()}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot schedules for a card.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_bot_schedules_by_card(bot_uid: str, card_uid: str, service: DomainService) -> dict:
     bot = service.bot.get_by_id_like(bot_uid)
@@ -41,7 +41,7 @@ def get_bot_schedules_by_card(bot_uid: str, card_uid: str, service: DomainServic
     return {"schedules": schedules, "target": card.api_response()}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot schedules for a column.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_bot_schedules_by_column(bot_uid: str, column_uid: str, service: DomainService) -> dict:
     bot = service.bot.get_by_id_like(bot_uid)
@@ -57,7 +57,7 @@ def get_bot_schedules_by_column(bot_uid: str, column_uid: str, service: DomainSe
     return {"schedules": schedules, "target": column.api_response()}
 
 
-@McpTool.add()
+@McpTool.add(description="Schedule a bot cron schedule.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def schedule_bot_cron(
     bot_uid: str,
@@ -116,7 +116,7 @@ def schedule_bot_cron(
     return {"message": "Bot scheduled successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Reschedule a bot cron schedule.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def reschedule_bot_cron(
     bot_uid: str,
@@ -172,7 +172,7 @@ def reschedule_bot_cron(
     return {"message": "Bot rescheduled successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Unschedule a bot cron schedule.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def unschedule_bot_cron(bot_uid: str, schedule_uid: str, target_table: str, service: DomainService) -> dict:
     bot = service.bot.get_by_id_like(bot_uid)
@@ -194,7 +194,7 @@ def unschedule_bot_cron(bot_uid: str, schedule_uid: str, target_table: str, serv
     return {"message": "Bot unscheduled successfully"}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot scopes for a project.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_project_bot_scopes(project_uid: str, service: DomainService) -> dict:
     project = service.project.get_by_id_like(project_uid)
@@ -205,7 +205,7 @@ def get_project_bot_scopes(project_uid: str, service: DomainService) -> dict:
     return {"scopes": scopes}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot scopes for a card.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_card_bot_scopes(card_uid: str, service: DomainService) -> dict:
     card = service.card.get_by_id_like(card_uid)
@@ -217,7 +217,7 @@ def get_card_bot_scopes(card_uid: str, service: DomainService) -> dict:
     return {"scopes": scopes}
 
 
-@McpTool.add()
+@McpTool.add(description="Get bot scopes for a column.")
 @McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
 def get_column_bot_scopes(column_uid: str, service: DomainService) -> dict:
     column = service.project_column.get_by_id_like(column_uid)
