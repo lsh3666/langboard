@@ -1,4 +1,7 @@
+import base64
+import io
 from langboard_shared.core.db import EditorContentModel
+from langboard_shared.core.storage import Storage, StorageName
 from langboard_shared.core.types import SafeDateTime
 from langboard_shared.core.utils.Converter import convert_python_data
 from langboard_shared.domain.models import Bot, Card, Project, ProjectRole, User
@@ -162,3 +165,32 @@ def change_card_order_or_move_column(
     if not result:
         raise ValueError("Failed to change order or move column")
     return {"message": "Order changed or card moved"}
+
+
+@McpTool.add("user", description="Upload a card attachment. Accepts base64 encoded file data.")
+@McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
+def upload_card_attachment(
+    project_uid: str,
+    card_uid: str,
+    filename: str,
+    file_data_base64: str,
+    user: User,
+    service: DomainService,
+) -> dict:
+    try:
+        file_content = base64.b64decode(file_data_base64)
+    except Exception as e:
+        raise ValueError(f"Invalid base64 data: {str(e)}")
+
+    file_object = io.BytesIO(file_content)
+    file_object.name = filename
+
+    file_model = Storage.upload(file_object, StorageName.CardAttachment)
+    if not file_model:
+        raise ValueError("Failed to upload file")
+
+    result = service.card_attachment.create(user, project_uid, card_uid, file_model)
+    if not result:
+        raise ValueError("Failed to create attachment")
+
+    return result.api_response()

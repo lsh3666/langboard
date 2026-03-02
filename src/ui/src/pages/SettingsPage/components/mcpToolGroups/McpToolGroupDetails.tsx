@@ -1,6 +1,6 @@
 import { Box, Button, Flex, IconComponent } from "@/components/base";
 import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
-import { API_URL } from "@/constants";
+import { API_URL, APP_NAME } from "@/constants";
 import { McpToolGroup } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { copyToClipboard } from "@/core/utils/ComponentUtils";
@@ -37,7 +37,7 @@ function McpToolGroupDetailsDisplay() {
 
     const mcpServerConfig = {
         mcpServers: {
-            [`${toolGroup.name}-${toolGroup.uid}`]: {
+            [`${APP_NAME}-${toolGroup.name}-${toolGroup.uid}`]: {
                 transport: {
                     type: "http",
                     url: mcpEndpoint,

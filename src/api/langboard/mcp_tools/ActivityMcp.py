@@ -1,5 +1,5 @@
 from langboard_shared.core.schema import TimeBasedPagination
-from langboard_shared.domain.models import Bot, User
+from langboard_shared.domain.models import User
 from langboard_shared.domain.services.DomainService import DomainService
 from ..mcp_integration import McpTool
 
@@ -10,11 +10,9 @@ class ActivityPagination(TimeBasedPagination):
 
 
 @McpTool.add("user", description="Get activities for the current user.")
-def get_current_user_activities(user_or_bot: User | Bot, service: DomainService, limit: int = 50) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
+def get_current_user_activities(user: User, service: DomainService, limit: int = 50) -> dict:
     pagination = ActivityPagination(limit=limit)
-    result = service.activity.get_api_list_by_user(user_or_bot, pagination)
+    result = service.activity.get_api_list_by_user(user, pagination)
     if not result:
         return {"activities": [], "count_new_records": 0}
     activities, count_new_records, _ = result
@@ -22,9 +20,7 @@ def get_current_user_activities(user_or_bot: User | Bot, service: DomainService,
 
 
 @McpTool.add("user", description="Get activities for a project.")
-def get_project_activities(project_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
+def get_project_activities(project_uid: str, service: DomainService, limit: int = 50) -> dict:
     pagination = ActivityPagination(limit=limit)
     result = service.activity.get_api_list_by_project(project_uid, pagination)
     if not result:
@@ -34,11 +30,7 @@ def get_project_activities(project_uid: str, user_or_bot: User | Bot, service: D
 
 
 @McpTool.add("user", description="Get activities for a project column.")
-def get_project_column_activities(
-    project_uid: str, column_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
-) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
+def get_project_column_activities(project_uid: str, column_uid: str, service: DomainService, limit: int = 50) -> dict:
     pagination = ActivityPagination(limit=limit)
     result = service.activity.get_api_list_by_column(project_uid, column_uid, pagination)
     if not result:
@@ -53,11 +45,7 @@ def get_project_column_activities(
 
 
 @McpTool.add("user", description="Get activities for a card.")
-def get_card_activities(
-    project_uid: str, card_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
-) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
+def get_card_activities(project_uid: str, card_uid: str, service: DomainService, limit: int = 50) -> dict:
     pagination = ActivityPagination(limit=limit)
     result = service.activity.get_api_list_by_card(project_uid, card_uid, pagination)
     if not result:
@@ -72,11 +60,7 @@ def get_card_activities(
 
 
 @McpTool.add("user", description="Get activities for a wiki.")
-def get_wiki_activities(
-    project_uid: str, wiki_uid: str, user_or_bot: User | Bot, service: DomainService, limit: int = 50
-) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
+def get_wiki_activities(project_uid: str, wiki_uid: str, service: DomainService, limit: int = 50) -> dict:
     pagination = ActivityPagination(limit=limit)
     result = service.activity.get_api_list_by_wiki(project_uid, wiki_uid, pagination)
     if not result:

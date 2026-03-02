@@ -6,38 +6,28 @@ from ..mcp_integration import McpRoleFilter, McpTool
 
 
 @McpTool.add("user", description="Get starred projects for the current user.")
-def get_starred_projects(user_or_bot: User | Bot, service: DomainService) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
-    projects = service.project.get_api_starred_project_list(user_or_bot)
+def get_starred_projects(user: User, service: DomainService) -> dict:
+    projects = service.project.get_api_starred_project_list(user)
     return {"projects": projects}
 
 
 @McpTool.add("user", description="Get all projects for the current user.")
-def get_projects(user_or_bot: User | Bot, service: DomainService) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
-    projects, _ = service.project.get_api_list(user_or_bot)
+def get_projects(user: User, service: DomainService) -> dict:
+    projects, _ = service.project.get_api_list(user)
     return {"projects": projects}
 
 
 @McpTool.add("user", description="Toggle star status for a project.")
-def toggle_star_project(project_uid: str, user_or_bot: User | Bot, service: DomainService) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
-    result = service.project.toggle_star(user_or_bot, project_uid)
+def toggle_star_project(project_uid: str, user: User, service: DomainService) -> dict:
+    result = service.project.toggle_star(user, project_uid)
     if not result:
         raise ValueError("Failed")
     return {"message": "Toggled"}
 
 
 @McpTool.add("user", description="Create a new project.")
-def create_project(
-    title: str, description: str | None, project_type: str, user_or_bot: User | Bot, service: DomainService
-) -> dict:
-    if not isinstance(user_or_bot, User):
-        raise ValueError("Only users can access this endpoint")
-    project = service.project.create(user_or_bot, title, description, project_type)
+def create_project(title: str, description: str | None, project_type: str, user: User, service: DomainService) -> dict:
+    project = service.project.create(user, title, description, project_type)
     return {"project_uid": project.get_uid()}
 
 
