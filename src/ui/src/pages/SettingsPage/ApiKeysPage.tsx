@@ -2,6 +2,8 @@ import { Button, Flex, IconComponent, Toast } from "@/components/base";
 import useDeleteSelectedApiKeys from "@/controllers/api/settings/apiKeys/useDeleteSelectedApiKeys";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { ApiKeyRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -14,9 +16,12 @@ function ApiKeysPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating, setIsValidating } = useAppSetting();
+    const { currentUser, isValidating, setIsValidating } = useAppSetting();
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const { mutate: deleteSelectedApiKeysMutate } = useDeleteSelectedApiKeys();
+    const apiKeyRoleActions = currentUser.useField("api_key_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(apiKeyRoleActions);
+    const canDeleteApiKey = hasRoleAction(ApiKeyRole.EAction.Delete);
 
     useEffect(() => {
         setPageAliasRef.current("API keys");
@@ -27,7 +32,7 @@ function ApiKeysPage() {
     };
 
     const deleteSelectedApiKeys = () => {
-        if (isValidating || !selectedKeys.length) {
+        if (isValidating || !selectedKeys.length || !canDeleteApiKey) {
             return;
         }
 
@@ -63,7 +68,7 @@ function ApiKeysPage() {
             <Flex justify="between" mb="4" pb="2" textSize="3xl" weight="semibold" className="scroll-m-20 tracking-tight">
                 <span className="w-36">{t("settings.API keys")}</span>
                 <Flex gap="2" wrap justify="end">
-                    {selectedKeys.length > 0 && (
+                    {selectedKeys.length > 0 && canDeleteApiKey && (
                         <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedApiKeys}>
                             <IconComponent icon="trash" size="4" />
                             {t("common.Delete")}

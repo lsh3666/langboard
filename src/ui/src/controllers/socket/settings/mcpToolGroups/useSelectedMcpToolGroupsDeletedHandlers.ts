@@ -1,7 +1,7 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { McpToolGroup } from "@/core/models";
-import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 
 export interface ISelectedMcpToolGroupsDeletedRawResponse {
     uids: string[];
@@ -10,7 +10,7 @@ export interface ISelectedMcpToolGroupsDeletedRawResponse {
 const useSelectedMcpToolGroupsDeletedHandlers = ({ callback }: IBaseUseSocketHandlersProps<{}>) => {
     return useSocketHandler<{}, ISelectedMcpToolGroupsDeletedRawResponse>({
         topic: ESocketTopic.AppSettings,
-        topicId: GLOBAL_TOPIC_ID,
+        topicId: ESettingSocketTopicID.McpToolGroup,
         eventKey: "selected-mcp-tool-groups-deleted",
         onProps: {
             name: SocketEvents.SERVER.SETTINGS.MCP_TOOL_GROUP.SELECTIONS_DELETED,

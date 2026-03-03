@@ -3,12 +3,12 @@ from ....core.domain import BaseDomainService
 from ....core.schema import TimeBasedPagination
 from ....core.types import SafeDateTime
 from ....core.types.ParamTypes import TCardParam, TCheckitemParam, TChecklistParam, TProjectParam, TUserOrBot
-from ....domain.models import Card, Checkitem, CheckitemTimerRecord, Checklist, Project, ProjectColumn, User
-from ....domain.models.Checkitem import CheckitemStatus
 from ....helpers import InfraHelper
 from ....publishers import CheckitemPublisher
 from ....tasks.activities import CardCheckitemActivityTask
 from ....tasks.bots import CardBotTask, CardCheckitemBotTask
+from ...models import Card, Checkitem, CheckitemTimerRecord, Checklist, Project, ProjectColumn, User
+from ...models.Checkitem import CheckitemStatus
 
 
 class CheckitemService(BaseDomainService):

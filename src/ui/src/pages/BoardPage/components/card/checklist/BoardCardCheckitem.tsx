@@ -1,6 +1,6 @@
 import { Box, Button, Flex, IconComponent, Tooltip } from "@/components/base";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
-import { Project, ProjectCheckitem } from "@/core/models";
+import { ProjectCheckitem } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
@@ -18,6 +18,7 @@ import { BOARD_CARD_CHECK_DND_SYMBOL_SET } from "@/pages/BoardPage/components/ca
 import { TRowState } from "@/core/helpers/dnd/types";
 import { ROW_IDLE } from "@/core/helpers/dnd/createDndRowEvents";
 import { Utils } from "@langboard/core/utils";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardCheckitemProps {
     checkitem: ProjectCheckitem.TModel;
@@ -28,7 +29,7 @@ function BoardCardCheckitem({ checkitem }: IBoardCardCheckitemProps): JSX.Elemen
     const outerRef = useRef<HTMLDivElement | null>(null);
     const draggableRef = useRef<HTMLButtonElement | null>(null);
     const [state, setState] = useState<TRowState>(ROW_IDLE);
-    const canReorder = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const canReorder = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const order = checkitem.useField("order");
     const checklistUID = checkitem.useField("checklist_uid");
 
@@ -91,7 +92,7 @@ const BoardCardCheckitemDisplay = memo(({ checkitem, canReorder, draggableRef }:
     const isChecked = checkitem.useField("is_checked");
     const cardifiedCard = checkitem.useForeignFieldOne("cardified_card");
     const assignedUser = checkitem.useForeignFieldOne("user");
-    const canEditCheckitem = (!assignedUser && hasRoleAction(Project.ERoleAction.CardUpdate)) || assignedUser.uid === currentUser.uid;
+    const canEditCheckitem = (!assignedUser && hasRoleAction(ProjectRole.EAction.CardUpdate)) || assignedUser.uid === currentUser.uid;
 
     const toCardifiedCard = () => {
         if (!cardifiedCard) {

@@ -5,8 +5,11 @@ import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useDeleteApiKey from "@/controllers/api/settings/apiKeys/useDeleteApiKey";
 import useUpdateApiKey from "@/controllers/api/settings/apiKeys/useUpdateApiKey";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ApiKeySettingModel } from "@/core/models";
+import { ApiKeyRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
@@ -18,13 +21,23 @@ export interface IApiKeyMoreMenuProps {
 }
 
 const ApiKeyMoreMenu = memo(({ apiKey }: IApiKeyMoreMenuProps) => {
+    const { currentUser } = useAppSetting();
+    const apiKeyRoleActions = currentUser.useField("api_key_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(apiKeyRoleActions);
+    const canUpdateApiKey = hasRoleAction(ApiKeyRole.EAction.Update);
+    const canDeleteApiKey = hasRoleAction(ApiKeyRole.EAction.Delete);
+
+    if (!canUpdateApiKey && !canDeleteApiKey) {
+        return null;
+    }
+
     return (
         <MoreMenu.Root
             triggerProps={{ className: "size-7", titleSide: "bottom", ...{ [DISABLE_DRAGGING_ATTR]: "" } }}
             contentProps={{ className: "w-min p-0", ...{ [DISABLE_DRAGGING_ATTR]: "" } }}
         >
-            <ApiKeyMoreMenuEditIPWhitelist apiKey={apiKey} />
-            <ApiKeyMoreMenuDelete apiKey={apiKey} />
+            {canUpdateApiKey && <ApiKeyMoreMenuEditIPWhitelist apiKey={apiKey} />}
+            {canDeleteApiKey && <ApiKeyMoreMenuDelete apiKey={apiKey} />}
         </MoreMenu.Root>
     );
 });

@@ -6,9 +6,10 @@ export interface IBotPlatformRunningTypeSelectProps {
     state: [EBotPlatformRunningType, (value: EBotPlatformRunningType) => void | Promise<void>];
     platform: EBotPlatform;
     isValidating?: bool;
+    disabled?: bool;
 }
 
-function BotPlatformRunningTypeSelect({ state, platform, isValidating }: IBotPlatformRunningTypeSelectProps) {
+function BotPlatformRunningTypeSelect({ state, platform, isValidating, disabled }: IBotPlatformRunningTypeSelectProps) {
     const [t] = useTranslation();
     const [platformRunningType, changePlatformRunningType] = state;
 
@@ -18,7 +19,7 @@ function BotPlatformRunningTypeSelect({ state, platform, isValidating }: IBotPla
             value={platformRunningType}
             defaultValue={platformRunningType.toString()}
             onValueChange={changePlatformRunningType as (value: string) => void}
-            disabled={isValidating}
+            disabled={isValidating || disabled}
             required
             options={AVAILABLE_RUNNING_TYPES_BY_PLATFORM[platform].map((targetPlatformRunningType) => (
                 <Select.Item value={targetPlatformRunningType.toString()} key={`bot-platform-running-type-select-${targetPlatformRunningType}`}>

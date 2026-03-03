@@ -2,9 +2,12 @@ import { Box, Toast } from "@/components/base";
 import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EBotPlatform } from "@langboard/core/ai";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
@@ -14,12 +17,16 @@ const BotPlatform = memo(() => {
     const [t] = useTranslation();
     const { model: internalBot } = ModelRegistry.BotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateBot = hasRoleAction(SettingRole.EAction.BotUpdate);
     const platform = internalBot.useField("platform");
     const [isValidating, setIsValidating] = useState(false);
     const { mutateAsync } = useUpdateBot(internalBot, { interceptToast: true });
 
     const changePlatform = async (value: EBotPlatform) => {
-        if (isValidating) {
+        if (isValidating || !canUpdateBot) {
             return;
         }
 
@@ -56,7 +63,7 @@ const BotPlatform = memo(() => {
 
     return (
         <Box>
-            <BotPlatformSelect state={[platform, changePlatform]} isValidating={isValidating} />
+            <BotPlatformSelect state={[platform, changePlatform]} isValidating={isValidating} disabled={!canUpdateBot} />
         </Box>
     );
 });

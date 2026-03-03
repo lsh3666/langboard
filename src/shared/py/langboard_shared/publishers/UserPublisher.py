@@ -1,6 +1,6 @@
 from typing import Any
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
-from ..core.routing import SocketTopic
+from ..core.routing import SettingSocketTopicID, SocketTopic
 from ..core.types import SnowflakeID
 from ..core.utils.decorators import staticclass
 from ..domain.models import User
@@ -31,6 +31,63 @@ class UserPublisher(BaseSocketPublisher):
         )
 
         UserPublisher.put_dispather({}, publish_model)
+
+    @staticmethod
+    def api_key_roles_updated(user_uid: str, roles: list[str]):
+        publish_models = [
+            SocketPublishModel(
+                topic=SocketTopic.UserPrivate,
+                topic_id=user_uid,
+                event=f"user:api-key-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+            SocketPublishModel(
+                topic=SocketTopic.AppSettings,
+                topic_id=SettingSocketTopicID.User.value,
+                event=f"user:api-key-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+        ]
+
+        UserPublisher.put_dispather({"roles": roles}, publish_models)
+
+    @staticmethod
+    def setting_roles_updated(user_uid: str, roles: list[str]):
+        publish_models = [
+            SocketPublishModel(
+                topic=SocketTopic.UserPrivate,
+                topic_id=user_uid,
+                event=f"user:setting-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+            SocketPublishModel(
+                topic=SocketTopic.AppSettings,
+                topic_id=SettingSocketTopicID.User.value,
+                event=f"user:setting-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+        ]
+
+        UserPublisher.put_dispather({"roles": roles}, publish_models)
+
+    @staticmethod
+    def mcp_roles_updated(user_uid: str, roles: list[str]):
+        publish_models = [
+            SocketPublishModel(
+                topic=SocketTopic.UserPrivate,
+                topic_id=user_uid,
+                event=f"user:mcp-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+            SocketPublishModel(
+                topic=SocketTopic.AppSettings,
+                topic_id=SettingSocketTopicID.User.value,
+                event=f"user:mcp-roles:updated:{user_uid}",
+                data_keys=["roles"],
+            ),
+        ]
+
+        UserPublisher.put_dispather({"roles": roles}, publish_models)
 
     @staticmethod
     def deleted(user: User | SnowflakeID):

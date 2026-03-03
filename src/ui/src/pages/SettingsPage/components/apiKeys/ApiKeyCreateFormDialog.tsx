@@ -12,13 +12,9 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
 import { ApiKeySettingModel } from "@/core/models";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IApiKeyCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function ApiKeyCreateFormDialog({ opened, setOpened }: IApiKeyCreateFormDialogProps): JSX.Element {
+function ApiKeyCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

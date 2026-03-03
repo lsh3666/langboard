@@ -2,8 +2,11 @@ import AvatarUploader from "@/components/AvatarUploader";
 import { Flex, Toast } from "@/components/base";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useCallback, useRef, useState } from "react";
@@ -12,15 +15,19 @@ import { useTranslation } from "react-i18next";
 const BotAvatar = memo(() => {
     const [t] = useTranslation();
     const { model: bot } = ModelRegistry.BotModel.useContext();
-    const avatar = bot.useField("avatar");
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateBot = hasRoleAction(SettingRole.EAction.BotUpdate);
+    const avatar = bot.useField("avatar");
     const dataTransferRef = useRef<DataTransfer>(new DataTransfer());
     const [isValidating, setIsValidating] = useState(false);
     const { mutateAsync } = useUpdateBot(bot, { interceptToast: true });
 
     const onChange = useCallback(
         (files: File[] | FileList) => {
-            if (isValidating || !files.length) {
+            if (isValidating || !files.length || !canUpdateBot) {
                 return;
             }
 
@@ -45,7 +52,7 @@ const BotAvatar = memo(() => {
     );
 
     const onDeleted = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateBot) {
             return;
         }
 
@@ -92,6 +99,7 @@ const BotAvatar = memo(() => {
                 initialAvatarUrl={avatar}
                 dataTransferRef={dataTransferRef}
                 isValidating={isValidating}
+                disabled={!canUpdateBot}
                 avatarSize={{
                     initial: "lg",
                     md: "2xl",

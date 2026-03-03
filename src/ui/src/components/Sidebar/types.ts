@@ -4,6 +4,7 @@ export interface ISidebarNavItem {
     href?: string;
     onClick?: () => void;
     current?: true;
+    hidden?: bool;
 }
 
 export interface ISidebarProps {

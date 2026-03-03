@@ -3,7 +3,9 @@ import useGetMcpToolList from "@/controllers/api/mcp/getMcpToolList";
 import useDeleteSelectedMcpToolGroups from "@/controllers/api/settings/mcpToolGroups/useDeleteSelectedMcpToolGroups";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { McpToolGroup } from "@/core/models";
+import { McpRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -16,11 +18,14 @@ function McpServerPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating, setIsValidating } = useAppSetting();
+    const { currentUser, isValidating, setIsValidating } = useAppSetting();
     const [activeTab, setActiveTab] = useState<McpToolGroup.TGroupType>("global");
     const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
     const { mutateAsync: getMcpToolListMutateAsync } = useGetMcpToolList();
     const { mutate: deleteSelectedMcpToolGroupsMutate } = useDeleteSelectedMcpToolGroups();
+    const mcpRoleActions = currentUser.useField("mcp_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(mcpRoleActions);
+    const canDeleteMcpToolGroup = hasRoleAction(McpRole.EAction.Delete);
 
     useEffect(() => {
         setPageAliasRef.current("MCP Server");
@@ -46,7 +51,7 @@ function McpServerPage() {
     };
 
     const deleteSelectedMcpToolGroups = () => {
-        if (isValidating || !selectedGroups.length) {
+        if (isValidating || !selectedGroups.length || !canDeleteMcpToolGroup) {
             return;
         }
 
@@ -82,7 +87,7 @@ function McpServerPage() {
             <Flex justify="between" mb="4" pb="2" textSize="3xl" weight="semibold" className="scroll-m-20 tracking-tight">
                 <span className="max-w-72">{t("mcp.MCP Server")}</span>
                 <Flex gap="2" wrap justify="end">
-                    {selectedGroups.length > 0 && (
+                    {selectedGroups.length > 0 && canDeleteMcpToolGroup && (
                         <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedMcpToolGroups}>
                             <IconComponent icon="trash" size="4" />
                             {t("common.Delete")}

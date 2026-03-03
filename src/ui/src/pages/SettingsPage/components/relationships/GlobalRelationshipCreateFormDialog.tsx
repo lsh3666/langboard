@@ -7,13 +7,9 @@ import { ROUTES } from "@/core/routing/constants";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IGlobalRelationshipCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function GlobalRelationshipCreateFormDialog({ opened, setOpened }: IGlobalRelationshipCreateFormDialogProps): JSX.Element {
+function GlobalRelationshipCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

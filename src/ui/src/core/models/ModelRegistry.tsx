@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Model as ActivityModel } from "@/core/models/ActivityModel";
 import type { Model as ApiKeySettingModel } from "@/core/models/ApiKeySettingModel";
-import type { Model as AppSettingModel } from "@/core/models/AppSettingModel";
 import type { Model as AuthUserModel } from "@/core/models/AuthUser";
 import type { Model as BotLogModel } from "@/core/models/BotLogModel";
 import type { Model as BotModel } from "@/core/models/BotModel";
@@ -25,6 +24,7 @@ import type { Model as ProjectWikiModel } from "@/core/models/ProjectWiki";
 import type { Model as UserModel } from "@/core/models/User";
 import type { Model as UserGroupModel } from "@/core/models/UserGroup";
 import type { Model as UserNotificationModel } from "@/core/models/UserNotification";
+import type { Model as WebhookModel } from "@/core/models/WebhookModel";
 import type { Interface as BaseBotScopeInterface } from "@/core/models/botScopes/BaseBotScopeModel";
 import type { Model as ProjectBotScopeModel } from "@/core/models/botScopes/ProjectBotScope";
 import type { Model as ProjectColumnBotScopeModel } from "@/core/models/botScopes/ProjectColumnBotScope";
@@ -38,7 +38,6 @@ import { createContext, useContext } from "react";
 export interface IModelMap {
     ActivityModel: IModelRegistry<typeof ActivityModel>;
     ApiKeySettingModel: IModelRegistry<typeof ApiKeySettingModel>;
-    AppSettingModel: IModelRegistry<typeof AppSettingModel>;
     AuthUser: IModelRegistry<typeof AuthUserModel>;
     BotLogModel: IModelRegistry<typeof BotLogModel>;
     BotModel: IModelRegistry<typeof BotModel>;
@@ -62,6 +61,7 @@ export interface IModelMap {
     User: IModelRegistry<typeof UserModel>;
     UserGroup: IModelRegistry<typeof UserGroupModel>;
     UserNotification: IModelRegistry<typeof UserNotificationModel>;
+    WebhookModel: IModelRegistry<typeof WebhookModel>;
 
     ProjectBotScope: IModelRegistry<typeof ProjectBotScopeModel>;
     ProjectColumnBotScope: IModelRegistry<typeof ProjectColumnBotScopeModel>;

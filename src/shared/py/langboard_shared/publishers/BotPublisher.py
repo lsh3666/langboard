@@ -1,6 +1,6 @@
 from typing import Any
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
-from ..core.routing import GLOBAL_TOPIC_ID, SocketTopic
+from ..core.routing import GLOBAL_TOPIC_ID, SettingSocketTopicID, SocketTopic
 from ..core.utils.decorators import staticclass
 from ..domain.models import Bot
 
@@ -22,7 +22,7 @@ class BotPublisher(BaseSocketPublisher):
             ),
             SocketPublishModel(
                 topic=SocketTopic.AppSettings,
-                topic_id=GLOBAL_TOPIC_ID,
+                topic_id=SettingSocketTopicID.Bot.value,
                 event="settings:bot:created",
                 data_keys="setting_bot",
             ),
@@ -51,7 +51,7 @@ class BotPublisher(BaseSocketPublisher):
 
         publish_model = SocketPublishModel(
             topic=SocketTopic.AppSettings,
-            topic_id=GLOBAL_TOPIC_ID,
+            topic_id=SettingSocketTopicID.Bot.value,
             event=f"settings:bot:updated:{uid}",
             data_keys=list(model.keys()),
         )

@@ -42,7 +42,11 @@ const FloatingNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ i
                 className={ButtonVariants({
                     variant: "secondary",
                     size: "icon",
-                    className: cn(item.current ? "bg-muted text-primary" : "", "size-14 cursor-pointer rounded-full opacity-70"),
+                    className: cn(
+                        item.current ? "bg-muted text-primary" : "",
+                        "size-14 cursor-pointer rounded-full opacity-70",
+                        item.hidden && "hidden"
+                    ),
                 })}
                 ref={ref}
                 {...props}
@@ -65,7 +69,8 @@ const SidebarNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ it
                 "select-none group-data-[fullscreen=false]/floating:justify-center",
                 "inline-flex w-full cursor-pointer items-center gap-3 rounded-lg py-1 text-base",
                 "transition-all duration-100 hover:text-primary",
-                "group-data-[collapsed=false]/sidebar:px-3 group-data-[collapsed=false]/sidebar:py-2"
+                "group-data-[collapsed=false]/sidebar:px-3 group-data-[collapsed=false]/sidebar:py-2",
+                item.hidden && "hidden"
             )}
             ref={ref}
         >

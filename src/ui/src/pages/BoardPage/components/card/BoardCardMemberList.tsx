@@ -2,7 +2,8 @@ import MultiSelectAssignee, { IFormProps, TSaveHandler } from "@/components/Mult
 import { Toast } from "@/components/base";
 import useUpdateCardAssignedUsers from "@/controllers/api/card/useUpdateCardAssignedUsers";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project, User } from "@/core/models";
+import { User } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { memo, useMemo } from "react";
@@ -11,7 +12,7 @@ import { useTranslation } from "react-i18next";
 const BoardCardMemberList = memo(() => {
     const { projectUID, card, currentUser, hasRoleAction } = useBoardCard();
     const [t] = useTranslation();
-    const canEdit = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const canEdit = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const projectMembers = card.useForeignFieldArray("project_members");
     const cardMemberUIDs = card.useField("member_uids");
     const cardMembers = useMemo(() => projectMembers.filter((member) => cardMemberUIDs.includes(member.uid)), [projectMembers, cardMemberUIDs]);

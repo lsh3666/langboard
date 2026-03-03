@@ -1,37 +1,37 @@
 import { Checkbox, Table } from "@/components/base";
 import { IFlexProps } from "@/components/base/Flex";
 import DateDistance from "@/components/DateDistance";
-import { AppSettingModel } from "@/core/models";
+import { WebhookModel } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import WebhookName from "@/pages/SettingsPage/components/webhook/WebhookName";
 import WebhookURL from "@/pages/SettingsPage/components/webhook/WebhookURL";
 import { memo } from "react";
 
 export interface IWebhookRowProps extends IFlexProps {
-    url: AppSettingModel.TModel;
+    webhook: WebhookModel.TModel;
     selectedWebhooks: string[];
     setSelectedWebhooks: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const WebhookRow = memo(({ url, selectedWebhooks, setSelectedWebhooks, ...props }: IWebhookRowProps) => {
-    const createdAt = url.useField("created_at");
-    const lastUsedAt = url.useField("last_used_at");
+const WebhookRow = memo(({ webhook, selectedWebhooks, setSelectedWebhooks, ...props }: IWebhookRowProps) => {
+    const createdAt = webhook.useField("created_at");
+    const lastUsedAt = webhook.useField("last_used_at");
 
     const toggleSelect = () => {
         setSelectedWebhooks((prev) => {
-            if (prev.some((value) => value === url.uid)) {
-                return prev.filter((value) => value !== url.uid);
+            if (prev.some((value) => value === webhook.uid)) {
+                return prev.filter((value) => value !== webhook.uid);
             } else {
-                return [...prev, url.uid];
+                return [...prev, webhook.uid];
             }
         });
     };
 
     return (
         <Table.FlexRow {...props}>
-            <ModelRegistry.AppSettingModel.Provider model={url}>
+            <ModelRegistry.WebhookModel.Provider model={webhook}>
                 <Table.FlexCell className="w-12 text-center">
-                    <Checkbox checked={selectedWebhooks.some((value) => value === url.uid)} onClick={toggleSelect} />
+                    <Checkbox checked={selectedWebhooks.some((value) => value === webhook.uid)} onClick={toggleSelect} />
                 </Table.FlexCell>
                 <WebhookName />
                 <WebhookURL />
@@ -41,7 +41,7 @@ const WebhookRow = memo(({ url, selectedWebhooks, setSelectedWebhooks, ...props 
                 <Table.FlexCell className="w-1/6 truncate text-center">
                     <DateDistance date={lastUsedAt} />
                 </Table.FlexCell>
-            </ModelRegistry.AppSettingModel.Provider>
+            </ModelRegistry.WebhookModel.Provider>
         </Table.FlexRow>
     );
 });

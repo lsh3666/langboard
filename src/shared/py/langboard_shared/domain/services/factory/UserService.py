@@ -1,23 +1,24 @@
 from json import dumps as json_dumps
 from json import loads as json_loads
-from typing import Any, Literal, Sequence, overload
+from typing import Any, Literal, Sequence, cast, overload
 from urllib.parse import urlparse
 from ....core.caching import Cache
 from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.resources.locales.LangEnum import LangEnum
 from ....core.storage import FileModel
-from ....core.types import SafeDateTime
+from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TUserParam
 from ....core.utils.Converter import convert_python_data
 from ....core.utils.Encryptor import Encryptor
 from ....core.utils.String import concat, generate_random_string
-from ....domain.models import User, UserEmail, UserProfile, UserSignInHistory
-from ....domain.models.UserSignInHistory import SignInErrorCode
 from ....Env import UI_QUERY_NAMES, Env
 from ....helpers import InfraHelper
 from ....publishers import AppSettingPublisher, UserPublisher
 from ....security import Auth
+from ...models import SettingRole, User, UserEmail, UserProfile, UserSignInHistory
+from ...models.SettingRole import SettingRoleAction, SettingRoleCategory
+from ...models.UserSignInHistory import SignInErrorCode
 
 
 class UserService(BaseDomainService):
@@ -46,6 +47,15 @@ class UserService(BaseDomainService):
 
         users = self.repo.user.get_all_with_profile_scroller(refer_time)
 
+        api_key_roles = self.repo.role.api_key.get_list(user_id=cast(SnowflakeID, [user.id for user, _ in users]))
+        api_key_role_actions_dicts = {role.user_id: role.actions for role in api_key_roles}
+
+        setting_roles = self.repo.role.setting.get_list(user_id=cast(SnowflakeID, [user.id for user, _ in users]))
+        setting_role_actions_dicts = {role.user_id: role.actions for role in setting_roles}
+
+        mcp_roles = self.repo.role.mcp.get_list(user_id=cast(SnowflakeID, [user.id for user, _ in users]))
+        mcp_role_actions_dicts = {role.user_id: role.actions for role in mcp_roles}
+
         api_list = []
         for user, profile in users:
             api_user = user.api_response()
@@ -53,6 +63,9 @@ class UserService(BaseDomainService):
             api_user["created_at"] = user.created_at
             api_user["activated_at"] = user.activated_at
             api_user["is_admin"] = user.is_admin
+            api_user["setting_role_actions"] = setting_role_actions_dicts.get(user.id, [])
+            api_user["api_key_role_actions"] = api_key_role_actions_dicts.get(user.id, [])
+            api_user["mcp_role_actions"] = mcp_role_actions_dicts.get(user.id, [])
             api_list.append(api_user)
 
         return api_list, count
@@ -257,6 +270,70 @@ class UserService(BaseDomainService):
     def change_password(self, user: User, password: str) -> None:
         user.set_password(password)
         self.repo.user.update(user)
+
+    def get_setting_role(self, user: TUserParam) -> SettingRole | None:
+        user_id = InfraHelper.convert_id(user)
+        return self.repo.role.setting.get_one(user_id=user_id)
+
+    def grant_setting_roles(
+        self,
+        user: TUserParam,
+        actions: SettingRoleAction | str | list[SettingRoleAction | str] | list[SettingRoleAction] | list[str],
+    ) -> SettingRole:
+        user_id = InfraHelper.convert_id(user)
+        if not isinstance(actions, list):
+            actions = [actions]
+        action_strs = [action.value if isinstance(action, SettingRoleAction) else action for action in actions]
+
+        # Handle Read permission dependencies for SettingRole
+        action_strs = self._normalize_setting_role_actions(action_strs)
+
+        role = self.repo.role.setting.grant(actions=action_strs, user_id=user_id)
+
+        UserPublisher.setting_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role
+
+    def _normalize_setting_role_actions(self, actions: list[str]) -> list[str]:
+        """Ensure Read permission dependencies are properly handled for SettingRole"""
+        if not actions:
+            return actions
+
+        result = set(actions)
+
+        # Dynamically get actions for each category
+        for category in SettingRoleCategory:
+            category_value = category.value
+            read_action = f"{category_value}_read"
+
+            # Get all actions for this category by checking SettingRoleAction enum
+            category_actions = [
+                action.value for action in SettingRoleAction if action.value.startswith(f"{category_value}_")
+            ]
+
+            if not category_actions:
+                continue
+
+            dependent_actions = [action for action in category_actions if action != read_action]
+
+            # If any Create/Update/Delete is added, add Read too
+            if any(action in result for action in dependent_actions):
+                result.add(read_action)
+
+            # If Read is removed, remove all dependent actions
+            if read_action not in result:
+                for action in dependent_actions:
+                    result.discard(action)
+
+        return list(result)
+
+    def grant_all_setting_roles(self, user: TUserParam) -> SettingRole:
+        user_id = InfraHelper.convert_id(user)
+        role = self.repo.role.setting.grant_all(user_id=user_id)
+
+        UserPublisher.setting_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role
 
     def delete(self, user: User) -> None:
         self.repo.user.delete(user)

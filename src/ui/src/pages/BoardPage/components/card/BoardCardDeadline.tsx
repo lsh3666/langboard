@@ -1,7 +1,7 @@
 import { Button, DateTimePicker, Flex, IconComponent, Skeleton, SubmitButton } from "@/components/base";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
@@ -18,7 +18,7 @@ const BoardCardDeadline = memo(() => {
     const { mutate: changeCardDetailsMutate } = useChangeCardDetails("deadline_at");
     const deadline = card.useField("deadline_at");
     const [isSaving, setIsSaving] = useState(false);
-    const editable = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const editable = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const changeDeadline = (date: Date | undefined) => {
         if (!editable || isSaving) {
             return;

@@ -1,4 +1,7 @@
 {
+  "Role updated successfully.": "Role updated successfully.",
+  "All permissions granted.": "All permissions granted.",
+  "All permissions revoked.": "All permissions revoked.",
   "Column added successfully.": "Column added successfully.",
   "Chat session renamed successfully.": "Chat session renamed successfully.",
   "Chat session deleted successfully.": "Chat session deleted successfully.",

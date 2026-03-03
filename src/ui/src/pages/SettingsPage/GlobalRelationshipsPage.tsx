@@ -1,7 +1,10 @@
 import { Button, Flex, IconComponent, Toast } from "@/components/base";
 import useDeleteSelectedGlobalRelationships from "@/controllers/api/settings/relationships/useDeleteSelectedGlobalRelationships";
+import useGetGlobalRelationships from "@/controllers/api/settings/relationships/useGetGlobalRelationships";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { SettingRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -16,16 +19,21 @@ function GlobalRelationshipsPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating, setIsValidating } = useAppSetting();
+    const { currentUser, isValidating, setIsValidating } = useAppSetting();
     const [selectedGlobalRelationships, setSelectedGlobalRelationships] = useState<string[]>([]);
+    const { mutateAsync: getGlobalRelationshipsMutateAsync } = useGetGlobalRelationships();
     const { mutate: deleteSelectedGlobalRelationshipsMutate } = useDeleteSelectedGlobalRelationships();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canDeleteGlobalRelationship = hasRoleAction(SettingRole.EAction.GlobalRelationshipDelete);
 
     useEffect(() => {
         setPageAliasRef.current("Global relationships");
+        getGlobalRelationshipsMutateAsync({});
     }, []);
 
     const deleteSelectedGlobalRelationships = () => {
-        if (isValidating || !selectedGlobalRelationships.length) {
+        if (isValidating || !selectedGlobalRelationships.length || !canDeleteGlobalRelationship) {
             return;
         }
 
@@ -74,7 +82,7 @@ function GlobalRelationshipsPage() {
             >
                 <span className="max-w-72 truncate">{t("settings.Global relationships")}</span>
                 <Flex gap="2" wrap justify="end" maxW={{ initial: "full", sm: "96" }}>
-                    {selectedGlobalRelationships.length > 0 && (
+                    {selectedGlobalRelationships.length > 0 && canDeleteGlobalRelationship && (
                         <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedGlobalRelationships}>
                             <IconComponent icon="trash" size="4" />
                             {t("common.Delete")}

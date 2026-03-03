@@ -1,7 +1,7 @@
 import { Floating } from "@/components/base";
 import { TSharedBotValueInputProps } from "@/components/bots/BotValueInput/types";
 
-function BotValueTextInput({ value, label, newValueRef, change, required, ref }: TSharedBotValueInputProps) {
+function BotValueTextInput({ value, label, newValueRef, disabled, change, required, ref }: TSharedBotValueInputProps) {
     const handleKeyEvent = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -22,6 +22,7 @@ function BotValueTextInput({ value, label, newValueRef, change, required, ref }:
             onKeyDown={handleKeyEvent}
             onKeyUp={handleKeyEvent}
             required={required}
+            disabled={disabled}
             ref={ref as React.RefObject<HTMLInputElement>}
         />
     );

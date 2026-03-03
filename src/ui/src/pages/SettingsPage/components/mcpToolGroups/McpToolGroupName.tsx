@@ -2,8 +2,11 @@ import { Box, Flex, IconComponent, Input, Toast } from "@/components/base";
 import useUpdateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useUpdateMcpToolGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { McpRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
 import { EHttpStatus } from "@langboard/core/enums";
@@ -14,12 +17,16 @@ const McpToolGroupName = memo(() => {
     const [t] = useTranslation();
     const { model: toolGroup } = ModelRegistry.McpToolGroup.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const mcpRoleActions = currentUser.useField("mcp_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(mcpRoleActions);
+    const canUpdateMcpToolGroup = hasRoleAction(McpRole.EAction.Update);
     const name = toolGroup.useField("name");
     const editorName = `${toolGroup.uid}-tool-group-name`;
     const { mutateAsync } = useUpdateMcpToolGroup(toolGroup, { interceptToast: true });
 
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => true,
+        canEdit: () => canUpdateMcpToolGroup,
         valueType: "input",
         editorName,
         save: (value, endCallback) => {
@@ -57,11 +64,17 @@ const McpToolGroupName = memo(() => {
     return (
         <Box>
             {!isEditing ? (
-                <Flex items="center" cursor="pointer" textSize="lg" weight="semibold" onClick={() => changeMode("edit")}>
+                <Flex
+                    items="center"
+                    cursor={canUpdateMcpToolGroup ? "pointer" : "default"}
+                    textSize="lg"
+                    weight="semibold"
+                    onClick={() => changeMode("edit")}
+                >
                     <Box as="span" className="max-w-[calc(100%_-_theme(spacing.6))] truncate">
                         {name}
                     </Box>
-                    <IconComponent icon="pencil" size="4" className="ml-2" />
+                    {canUpdateMcpToolGroup && <IconComponent icon="pencil" size="4" className="ml-2" />}
                 </Flex>
             ) : (
                 <Input

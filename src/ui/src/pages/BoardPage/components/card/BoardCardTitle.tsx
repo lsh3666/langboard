@@ -2,7 +2,7 @@ import { Button, Dialog, Flex, IconComponent, Skeleton, Textarea, Toast } from "
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { cn, setElementStyles } from "@/core/utils/ComponentUtils";
@@ -24,7 +24,7 @@ function BoardCardTitle(): JSX.Element {
     const [t] = useTranslation();
     const { mutateAsync: changeCardDetailsMutateAsync } = useChangeCardDetails("title", { interceptToast: true });
     const title = card.useField("title");
-    const canEdit = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const canEdit = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const titleSpanRef = useRef<HTMLSpanElement>(null);
     const editorName = `${card.uid}-card-title`;
     const [isOpened, setIsOpened] = useState(false);

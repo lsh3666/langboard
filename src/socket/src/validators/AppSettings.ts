@@ -1,6 +1,33 @@
+import { FULL_ADMIN_ACCESS_EMAILS } from "@/Constants";
 import Subscription from "@/core/server/Subscription";
-import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
+import ApiKeyRole from "@/models/ApiKeyRole";
+import McpRole from "@/models/McpRole";
+import SettingRole, { ESettingCategory } from "@/models/SettingRole";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
+import { Utils } from "@langboard/core/utils";
 
 Subscription.registerValidator(ESocketTopic.AppSettings, async (context) => {
-    return context.client.user.is_admin && context.topicId === GLOBAL_TOPIC_ID;
+    if (FULL_ADMIN_ACCESS_EMAILS.includes(context.client.user.email)) {
+        return true;
+    }
+
+    const topicId = Utils.String.convertSafeEnum(ESettingSocketTopicID, context.topicId);
+    switch (topicId) {
+        case ESettingSocketTopicID.ApiKey:
+            ApiKeyRole.isAnyGranted(context.client.user.id);
+            break;
+        case ESettingSocketTopicID.McpToolGroup:
+            McpRole.isAnyGranted(context.client.user.id);
+            break;
+        default:
+            if (!context.client.user.is_admin) {
+                return false;
+            }
+
+            if (Object.entries(ESettingCategory).some(([key, value]) => key === (topicId as string) || value === (topicId as string))) {
+                return SettingRole.isCategoryGranted(context.client.user.id, topicId as unknown as ESettingCategory);
+            }
+            break;
+    }
+    return false;
 });

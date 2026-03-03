@@ -1,14 +1,11 @@
-from json import dumps as json_dumps
 from typing import Any, Literal, Sequence
 from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
-from ....core.types.ParamTypes import TGlobalCardRelationshipTypeParam, TSettingParam
+from ....core.types.ParamTypes import TGlobalCardRelationshipTypeParam
 from ....core.utils.Converter import convert_python_data
-from ....core.utils.String import generate_random_string
-from ....domain.models import AppSetting, GlobalCardRelationshipType
-from ....domain.models.AppSetting import AppSettingType
 from ....helpers import InfraHelper
 from ....publishers import AppSettingPublisher
+from ...models import GlobalCardRelationshipType, WebhookSetting
 
 
 class AppSettingService(BaseDomainService):
@@ -17,85 +14,9 @@ class AppSettingService(BaseDomainService):
         """DO NOT EDIT THIS METHOD"""
         return "app_setting"
 
-    def get_by_id_like(self, setting: TSettingParam | None) -> AppSetting | None:
-        setting = InfraHelper.get_by_id_like(AppSetting, setting)
-        return setting
-
-    def get_api_list_by_type(self, setting_type: AppSettingType) -> list[dict[str, Any]]:
-        settings = InfraHelper.get_all_by(AppSetting, "setting_type", setting_type)
-        return [setting.api_response() for setting in settings]
-
-    def get_api_list(self) -> list[dict[str, Any]]:
-        settings = InfraHelper.get_all(AppSetting)
-        return [setting.api_response() for setting in settings]
-
     def get_api_global_relationship_list(self) -> list[dict[str, Any]]:
         global_relationships = InfraHelper.get_all(GlobalCardRelationshipType)
         return [relationship.api_response() for relationship in global_relationships]
-
-    def generate_api_key(self) -> str:
-        api_key = f"sk-{generate_random_string(53)}"
-        while True:
-            is_existed = InfraHelper.get_by(AppSetting, "setting_value", json_dumps(api_key))
-            if not is_existed:
-                break
-            api_key = f"sk-{generate_random_string(53)}"
-        return api_key
-
-    def create(self, setting_type: AppSettingType, setting_name: str, setting_value: Any) -> AppSetting:
-        setting = AppSetting(setting_type=setting_type, setting_name=setting_name)
-        setting.set_value(setting_value)
-
-        self.repo.app_setting.insert(setting)
-
-        AppSettingPublisher.setting_created(setting)
-
-        return setting
-
-    def update(
-        self,
-        setting: TSettingParam | None,
-        setting_name: str | None = None,
-        setting_value: Any | None = None,
-    ) -> AppSetting | Literal[True] | None:
-        setting = InfraHelper.get_by_id_like(AppSetting, setting)
-        if not setting:
-            return None
-
-        if setting_name:
-            setting.setting_name = setting_name
-        if setting_value and not setting.is_immutable_type():
-            setting.set_value(setting_value)
-
-        model = setting.changes_dict
-
-        if not setting.has_changes():
-            return True
-
-        self.repo.app_setting.update(setting)
-
-        AppSettingPublisher.setting_updated(setting.get_uid(), model)
-
-        return setting
-
-    def delete(self, setting: TSettingParam | None) -> bool:
-        setting = InfraHelper.get_by_id_like(AppSetting, setting)
-        if not setting:
-            return False
-
-        self.repo.app_setting.delete(setting)
-
-        AppSettingPublisher.setting_deleted(setting.get_uid())
-
-        return True
-
-    def delete_selected(self, settings: Sequence[TSettingParam]) -> bool:
-        self.repo.app_setting.delete(settings)
-
-        uids = [InfraHelper.convert_uid(s) for s in settings]
-        AppSettingPublisher.selected_setting_deleted(uids)
-
-        return True
 
     def create_global_relationship(
         self, parent_name: str, child_name: str, description: str = ""
@@ -174,7 +95,75 @@ class AppSettingService(BaseDomainService):
     def delete_selected_global_relationships(self, relationships: Sequence[TGlobalCardRelationshipTypeParam]) -> bool:
         self.repo.global_card_relationship_type.delete(relationships)
 
+        if isinstance(relationships, str):
+            relationships = [relationships]
         uids = [InfraHelper.convert_uid(r) for r in relationships]
         AppSettingPublisher.selected_global_relationships_deleted(uids)
+
+        return True
+
+    def get_api_webhook_setting_list(self) -> list[dict[str, Any]]:
+        webhook_settings = InfraHelper.get_all(WebhookSetting)
+        return [setting.api_response() for setting in webhook_settings]
+
+    def get_api_webhook_setting(self, webhook_setting_uid: str) -> dict[str, Any] | None:
+        setting = InfraHelper.get_by_id_like(WebhookSetting, webhook_setting_uid)
+        if not setting:
+            return None
+        return setting.api_response()
+
+    def create_webhook_setting(self, name: str, url: str) -> WebhookSetting:
+        webhook_setting = WebhookSetting(
+            name=name,
+            url=url.strip(),
+        )
+
+        self.repo.webhook_setting.insert(webhook_setting)
+
+        AppSettingPublisher.webhook_setting_created(webhook_setting)
+
+        return webhook_setting
+
+    def update_webhook_setting(
+        self, webhook_setting_uid: str, name: str | None = None, url: str | None = None
+    ) -> WebhookSetting | Literal[True] | None:
+        setting = InfraHelper.get_by_id_like(WebhookSetting, webhook_setting_uid)
+        if not setting:
+            return None
+
+        if name:
+            setting.name = name
+        if url:
+            setting.url = url.strip()
+
+        model = setting.changes_dict
+
+        if not setting.has_changes():
+            return True
+
+        self.repo.webhook_setting.update(setting)
+
+        AppSettingPublisher.webhook_setting_updated(setting.get_uid(), model)
+
+        return setting
+
+    def delete_webhook_setting(self, webhook_setting_uid: str) -> bool:
+        setting = InfraHelper.get_by_id_like(WebhookSetting, webhook_setting_uid)
+        if not setting:
+            return False
+
+        self.repo.webhook_setting.delete(setting)
+
+        AppSettingPublisher.webhook_setting_deleted(setting.get_uid())
+
+        return True
+
+    def delete_selected_webhook_settings(self, webhook_setting_uids: Sequence[str]) -> bool:
+        self.repo.webhook_setting.delete(webhook_setting_uids)
+
+        if isinstance(webhook_setting_uids, str):
+            webhook_setting_uids = [webhook_setting_uids]
+        uids = [InfraHelper.convert_uid(r) for r in webhook_setting_uids]
+        AppSettingPublisher.selected_webhook_settings_deleted(uids)
 
         return True

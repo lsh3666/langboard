@@ -18,6 +18,7 @@ interface IBaseAvatarUploaderProps {
     avatarUrlRef?: React.RefObject<string | null>;
     isDeletedRef?: React.RefObject<bool>;
     isValidating?: bool;
+    disabled?: bool;
     canRevertUrl?: bool;
     avatarSize?: VariantProps<typeof AvatarVariants>["size"];
     hideDock?: bool;
@@ -48,6 +49,7 @@ function AvatarUploader({
     avatarUrlRef,
     isDeletedRef,
     isValidating,
+    disabled,
     errorMessage,
     canRevertUrl = false,
     avatarSize = "2xl",
@@ -60,6 +62,10 @@ function AvatarUploader({
     const [t] = useTranslation();
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(initialAvatarUrl);
     const handleUpload = useCallback((files: File[] | FileList) => {
+        if (isValidating || disabled) {
+            return;
+        }
+
         if (!files.length) {
             if (initialAvatarUrl && !isDeletedRef?.current) {
                 if (avatarUrlRef) {
@@ -93,6 +99,7 @@ function AvatarUploader({
         accept: { "image/*": [] },
         onDrop: handleUpload,
         onFileDialogCancel: () => handleUpload([]),
+        disabled: isValidating || disabled,
     });
     const [bgColor, textColor] = isBot ? ["", ""] : new Utils.Color.Generator(userInitials).generateAvatarColor();
 
@@ -102,7 +109,7 @@ function AvatarUploader({
     };
 
     const removeAvatar = () => {
-        if (isValidating) {
+        if (isValidating || disabled) {
             return;
         }
 
@@ -118,7 +125,7 @@ function AvatarUploader({
     };
 
     const revertUrl = () => {
-        if (isValidating) {
+        if (isValidating || disabled) {
             return;
         }
 
@@ -170,7 +177,7 @@ function AvatarUploader({
                 </Flex>
             )}
             {!notInForm ? <Form.Field name={name}>{avatar}</Form.Field> : <Box>{avatar}</Box>}
-            {!hideDock && (
+            {!hideDock && !disabled && (
                 <Dock.Root direction="middle" magnification={50} distance={100} size="sm">
                     <Dock.Button
                         buttonProps={{ type: "button", className: "p-3", onClick: () => !isValidating && inputRef.current?.click() }}

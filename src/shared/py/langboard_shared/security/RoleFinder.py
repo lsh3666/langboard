@@ -1,7 +1,7 @@
 from typing import Any
 from sqlmodel.sql.expression import SelectOfScalar
 from ..core.types import SnowflakeID
-from ..domain.models import Project, ProjectRole
+from ..domain.models import ApiKeyRole, McpRole, Project, ProjectRole, SettingRole
 
 
 def project(
@@ -19,4 +19,21 @@ def project(
     else:
         query = query.where(Project.column("id") == SnowflakeID.from_short_code(project_uid) if project_uid else None)  # type: ignore
 
+    return query
+
+
+def setting(
+    query: SelectOfScalar[SettingRole], path_params: dict[str, Any], user_id: int
+) -> SelectOfScalar[SettingRole]:
+    """RoleFinder for SettingRole - no additional filtering needed."""
+    return query
+
+
+def api_key(query: SelectOfScalar[ApiKeyRole], path_params: dict[str, Any], user_id: int) -> SelectOfScalar[ApiKeyRole]:
+    """RoleFinder for ApiKeyRole - no additional filtering needed."""
+    return query
+
+
+def mcp(query: SelectOfScalar[McpRole], path_params: dict[str, Any], user_id: int) -> SelectOfScalar[McpRole]:
+    """RoleFinder for McpRole - no additional filtering needed."""
     return query

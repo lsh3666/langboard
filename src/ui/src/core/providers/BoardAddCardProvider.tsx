@@ -2,7 +2,8 @@ import { Toast } from "@/components/base";
 import useCreateCard from "@/controllers/api/board/useCreateCard";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { Project, ProjectColumn } from "@/core/models";
+import { ProjectColumn } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { createContext, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -43,11 +44,11 @@ export const BoardAddCardProvider = ({ column, viewportRef, toLastPage, children
     const [t] = useTranslation();
     const [isValidating, setIsValidating] = useState(false);
     const disableChangeModeAttr = "data-disable-change-mode";
-    const canWrite = hasRoleAction(Project.ERoleAction.CardWrite) && !column.is_archive;
+    const canWrite = hasRoleAction(ProjectRole.EAction.CardWrite) && !column.is_archive;
     const { mutateAsync: createCardMutateAsync } = useCreateCard({ interceptToast: true });
     const editorName = `${column.uid}-add-card`;
     const { valueRef, isEditing, setIsEditing, changeMode } = useChangeEditMode({
-        canEdit: () => hasRoleAction(Project.ERoleAction.Update),
+        canEdit: () => hasRoleAction(ProjectRole.EAction.Update),
         valueType: "textarea",
         disableNewLine: true,
         editorName,

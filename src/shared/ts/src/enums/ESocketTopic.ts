@@ -13,5 +13,21 @@ export enum ESocketTopic {
     None = "none",
 }
 
+export enum ESettingSocketTopicID {
+    // Api Key role management
+    ApiKey = "api_key",
+
+    // Setting role management
+    User = "user",
+    Bot = "bot",
+    InternalBot = "internal_bot",
+    GlobalRelationship = "global_relationship",
+    Webhook = "webhook",
+    Ollama = "ollama",
+
+    // MCP Server management
+    McpToolGroup = "mcp_tool_group",
+}
+
 export const GLOBAL_TOPIC_ID = "all" as const;
 export const NONE_TOPIC_ID = "none" as const;

@@ -13,6 +13,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { IUserAvatarDefaultListContext, useUserAvatarDefaultList } from "@/components/UserAvatarDefaultList/Provider";
 import { useUserAvatar } from "@/components/UserAvatar/Provider";
 import { useMemo } from "react";
+import { ProjectRole } from "@/core/models/roles";
 
 interface IUserAvatarDefaultUserListProps {
     user: User.TModel;
@@ -65,7 +66,7 @@ function UserAvatarDefaultUserList({ user }: IUserAvatarDefaultUserListProps): J
 
     return (
         <>
-            {scopeModels.project && isAssignee && (hasRoleAction(Project.ERoleAction.CardWrite) || currentUser?.is_admin) && (
+            {scopeModels.project && isAssignee && (hasRoleAction(ProjectRole.EAction.CardWrite) || currentUser?.is_admin) && (
                 <>
                     <UserAvatarUserCreateAssignedCardAction user={user} project={scopeModels.project} />
                     <UserAvatar.ListSeparator />
@@ -104,7 +105,7 @@ function UserAvatarDefaultUserList({ user }: IUserAvatarDefaultUserListProps): J
                     <UserAvatar.ListSeparator />
                 </>
             )}
-            {notificationForm && currentUser && currentUser.uid === user.uid && hasRoleAction(Project.ERoleAction.Read) && (
+            {notificationForm && currentUser && currentUser.uid === user.uid && hasRoleAction(ProjectRole.EAction.Read) && (
                 <>
                     <Popover.Root modal={false}>
                         <Popover.Trigger asChild>
@@ -126,7 +127,7 @@ function UserAvatarDefaultUserList({ user }: IUserAvatarDefaultUserListProps): J
             {scopeModels.project &&
                 currentUser?.uid !== user.uid &&
                 isAssignee &&
-                (hasRoleAction(Project.ERoleAction.Update) || currentUser?.is_admin) && (
+                (hasRoleAction(ProjectRole.EAction.Update) || currentUser?.is_admin) && (
                     <>
                         <UserAvatarUserUnassignAction project={scopeModels.project} setIsAssignee={setIsAssignee} />
                         <UserAvatar.ListSeparator />

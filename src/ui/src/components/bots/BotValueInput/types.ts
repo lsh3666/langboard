@@ -18,6 +18,7 @@ export interface IBotValueInputProps {
     valueType: TBotValueInputType;
     newValueRef: React.RefObject<string>;
     isValidating: bool;
+    disabled?: bool;
     previewByDialog?: bool;
     change?: () => void;
     required?: bool;

@@ -17,3 +17,15 @@ class RoleRepository(BaseRepository, Factory):
     @property
     def project(self):
         return self._create_or_get_product(factory.ProjectRoleRepository)
+
+    @property
+    def setting(self):
+        return self._create_or_get_product(factory.SettingRoleRepository)
+
+    @property
+    def api_key(self):
+        return self._create_or_get_product(factory.ApiKeyRoleRepository)
+
+    @property
+    def mcp(self):
+        return self._create_or_get_product(factory.McpRoleRepository)

@@ -6,9 +6,12 @@ import PaginatedTable from "@/components/PaginatedTable";
 import UserFirstname from "@/pages/SettingsPage/components/users/UserFirstname";
 import UserLastname from "@/pages/SettingsPage/components/users/UserLastname";
 import UserActivation from "@/pages/SettingsPage/components/users/UserActivation";
-import UserAdmin from "@/pages/SettingsPage/components/users/UserAdmin";
+import UserSettingRole from "@/pages/SettingsPage/components/users/UserSettingRole";
+import UserApiKeyRole from "@/pages/SettingsPage/components/users/UserApiKeyRole";
+import UserMcpRole from "@/pages/SettingsPage/components/users/UserMcpRole";
 import UserMoreMenu from "@/pages/SettingsPage/components/users/UserMoreMenu";
 import DateDistance from "@/components/DateDistance";
+import { useState } from "react";
 
 export interface IUserListProps {
     selectedUsers: string[];
@@ -18,11 +21,17 @@ export interface IUserListProps {
 function UserList({ selectedUsers, setSelectedUsers }: IUserListProps) {
     const [t] = useTranslation();
     const { currentUser } = useAppSetting();
+    const [fullAccessEmails, setFullAccessEmails] = useState<string[]>([]);
 
     return (
         <PaginatedTable
             form={{ listType: "User" }}
             modelFilter={(model) => model.isValidUser() && !model.isDeletedUser() && !!model.created_at && model.uid !== currentUser?.uid}
+            prepareData={(_, data) => {
+                if (data.full_access_emails) {
+                    setFullAccessEmails(data.full_access_emails);
+                }
+            }}
             columns={[
                 {
                     key: "uid",
@@ -92,17 +101,31 @@ function UserList({ selectedUsers, setSelectedUsers }: IUserListProps) {
                     render: ({ row }) => <UserActivation user={row} />,
                 },
                 {
-                    key: "is_admin",
+                    key: "setting_role_actions",
                     header: t("settings.Admin"),
                     align: "center",
-                    width: "w-1/12",
-                    render: ({ row }) => <UserAdmin user={row} />,
+                    width: "w-[calc(calc(100%_/_12_*_1.5)_-_theme(spacing.12))]",
+                    render: ({ row }) => <UserSettingRole user={row} fullAccessEmails={fullAccessEmails} />,
+                },
+                {
+                    key: "api_key_role_actions",
+                    header: t("settings.API key"),
+                    align: "center",
+                    width: "w-[calc(calc(100%_/_12_*_1)_-_theme(spacing.12))]",
+                    render: ({ row }) => <UserApiKeyRole user={row} />,
+                },
+                {
+                    key: "mcp_role_actions",
+                    header: t("settings.MCP"),
+                    align: "center",
+                    width: "w-[calc(calc(100%_/_12_*_1)_-_theme(spacing.12))]",
+                    render: ({ row }) => <UserMcpRole user={row} />,
                 },
                 {
                     key: "created_at",
                     header: t("settings.Created"),
                     align: "center",
-                    width: "w-1/6",
+                    width: "w-[calc(calc(100%_/_12_*_1.5))]",
                     sortable: true,
                     render: ({ row }) => <UserListItemCreatedAt user={row} />,
                 },

@@ -3,7 +3,8 @@ from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
 from ....core.schema import TimeBasedPagination
 from ....core.types.ParamTypes import TCardParam, TColumnParam, TProjectParam, TUserOrBotParam, TUserParam, TWikiParam
-from ....domain.models import (
+from ....helpers import InfraHelper
+from ...models import (
     Bot,
     Card,
     Project,
@@ -14,8 +15,7 @@ from ....domain.models import (
     User,
     UserActivity,
 )
-from ....domain.models.bases import BaseActivityModel
-from ....helpers import InfraHelper
+from ...models.bases import BaseActivityModel
 
 
 class ActivityService(BaseDomainService):

@@ -1,4 +1,5 @@
 import { Button, Flex, IconComponent, Toast } from "@/components/base";
+import useGetInternalBots from "@/controllers/api/settings/internalBots/useGetInternalBots";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { InternalBotModel } from "@/core/models";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
@@ -17,11 +18,13 @@ function InternalBotsPage() {
     const { isValidating } = useAppSetting();
     const { botUID } = useParams();
     const [bot, setBot] = useState<InternalBotModel.TModel | null>(null);
+    const { mutateAsync: getInternalBotsMutateAsync } = useGetInternalBots();
 
     useEffect(() => {
         if (!botUID) {
             setPageAliasRef.current("Internal Bots");
             setBot(null);
+            getInternalBotsMutateAsync({});
             return;
         }
 

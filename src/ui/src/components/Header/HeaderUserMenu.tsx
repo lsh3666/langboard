@@ -16,7 +16,6 @@ const HeaderUserMenu = memo(({ currentUser }: IHeaderUserMenuProps) => {
     const navigate = usePageNavigateRef();
     const [t] = useTranslation();
     const { close: closeSocket } = useSocket();
-    const isAdmin = currentUser.useField("is_admin");
 
     return (
         <UserAvatar.Root
@@ -32,14 +31,10 @@ const HeaderUserMenu = memo(({ currentUser }: IHeaderUserMenuProps) => {
                 <UserAvatar.ListItem className="cursor-pointer" onClick={() => navigate(ROUTES.ACCOUNT.PROFILE, { smooth: true })}>
                     {t("myAccount.My account")}
                 </UserAvatar.ListItem>
-                {isAdmin && (
-                    <>
-                        <UserAvatar.ListSeparator />
-                        <UserAvatar.ListItem className="cursor-pointer" onClick={() => navigate(ROUTES.SETTINGS.ROUTE, { smooth: true })}>
-                            {t("settings.App settings")}
-                        </UserAvatar.ListItem>
-                    </>
-                )}
+                <UserAvatar.ListSeparator />
+                <UserAvatar.ListItem className="cursor-pointer" onClick={() => navigate(ROUTES.SETTINGS.ROUTE, { smooth: true })}>
+                    {t("settings.App settings")}
+                </UserAvatar.ListItem>
                 <UserAvatar.ListSeparator />
                 <UserAvatar.ListItem
                     className="cursor-pointer"

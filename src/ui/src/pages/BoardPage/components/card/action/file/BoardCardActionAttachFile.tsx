@@ -1,5 +1,4 @@
 import { Box, Button, Flex, IconComponent, Input, Popover, ScrollArea, SubmitButton, Toast } from "@/components/base";
-import { Project } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { Utils } from "@langboard/core/utils";
 import BoardCardActionAttachedFileList from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachedFileList";
@@ -8,6 +7,7 @@ import { memo, useMemo, useReducer, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import { MAX_FILE_SIZE_MB } from "@/constants";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardActionAttachFileProps extends ISharedBoardCardActionProps {}
 
@@ -105,7 +105,7 @@ const BoardCardActionAttachFile = memo(({ buttonClassName }: IBoardCardActionAtt
         setIsOpened(opened);
     };
 
-    if (!hasRoleAction(Project.ERoleAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
         return null;
     }
 

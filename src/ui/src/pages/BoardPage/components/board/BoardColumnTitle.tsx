@@ -2,13 +2,14 @@ import { Input, Toast } from "@/components/base";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useChangeProjectColumnName from "@/controllers/api/board/useChangeProjectColumnName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project, ProjectColumn } from "@/core/models";
+import { ProjectColumn } from "@/core/models";
 import { useBoardController } from "@/core/providers/BoardController";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { memo, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardColumnTitleProps {
     isDragging: bool;
@@ -24,7 +25,7 @@ const BoardColumnTitle = memo(({ isDragging, column }: IBoardColumnTitleProps) =
     const editorName = `${column.uid}-column-title`;
     const isArchiveColumn = column.useField("is_archive");
     const { mutateAsync: changeProjectColumnNameMutateAsync } = useChangeProjectColumnName({ interceptToast: true });
-    const canEdit = hasRoleAction(Project.ERoleAction.Update) && !isArchiveColumn;
+    const canEdit = hasRoleAction(ProjectRole.EAction.Update) && !isArchiveColumn;
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
         canEdit: () => canEdit && !isDragging && !selectCardViewType,
         valueType: "input",

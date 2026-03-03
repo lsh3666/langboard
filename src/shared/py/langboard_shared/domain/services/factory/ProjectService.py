@@ -5,7 +5,11 @@ from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TInternalBotParam, TProjectParam, TUserOrBot, TUserParam
 from ....core.utils.Converter import convert_python_data
-from ....domain.models import (
+from ....helpers import InfraHelper
+from ....publishers import ProjectPublisher
+from ....tasks.activities import ProjectActivityTask
+from ....tasks.bots import ProjectBotTask
+from ...models import (
     InternalBot,
     Project,
     ProjectAssignedInternalBot,
@@ -15,14 +19,10 @@ from ....domain.models import (
     ProjectRole,
     User,
 )
-from ....domain.models.bases import ALL_GRANTED
-from ....domain.models.Checkitem import CheckitemStatus
-from ....domain.models.InternalBot import InternalBotType
-from ....domain.models.ProjectRole import ProjectRoleAction
-from ....helpers import InfraHelper
-from ....publishers import ProjectPublisher
-from ....tasks.activities import ProjectActivityTask
-from ....tasks.bots import ProjectBotTask
+from ...models.bases import ALL_GRANTED
+from ...models.Checkitem import CheckitemStatus
+from ...models.InternalBot import InternalBotType
+from ...models.ProjectRole import ProjectRoleAction
 from .CheckitemService import CheckitemService
 from .ProjectColumnService import ProjectColumnService
 from .ProjectLabelService import ProjectLabelService

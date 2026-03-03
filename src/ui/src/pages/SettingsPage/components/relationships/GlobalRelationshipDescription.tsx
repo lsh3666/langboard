@@ -2,8 +2,11 @@ import { Box, Flex, IconComponent, Input, Table, Toast } from "@/components/base
 import useUpdateGlobalRelationship from "@/controllers/api/settings/relationships/useUpdateGlobalRelationship";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
 import { EHttpStatus } from "@langboard/core/enums";
@@ -13,12 +16,16 @@ function GlobalRelationshipDescription() {
     const [t] = useTranslation();
     const { model: globalRelationship } = ModelRegistry.GlobalRelationshipType.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateGlobalRelationship = hasRoleAction(SettingRole.EAction.GlobalRelationshipUpdate);
     const description = globalRelationship.useField("description");
     const editorName = `${globalRelationship.uid}-global-relationship-description`;
     const { mutateAsync } = useUpdateGlobalRelationship(globalRelationship, { interceptToast: true });
 
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => true,
+        canEdit: () => canUpdateGlobalRelationship,
         valueType: "input",
         canEmpty: true,
         editorName,
@@ -62,18 +69,27 @@ function GlobalRelationshipDescription() {
             )}
         >
             {!isEditing ? (
-                <Flex cursor="pointer" justify="center" items="center" gap="1" position="relative" onClick={() => changeMode("edit")}>
+                <Flex
+                    cursor={canUpdateGlobalRelationship ? "pointer" : "default"}
+                    justify="center"
+                    items="center"
+                    gap="1"
+                    position="relative"
+                    onClick={() => changeMode("edit")}
+                >
                     <Box
                         as="span"
                         className={cn("max-w-[calc(100%_-_theme(spacing.6))] truncate", !description?.length && "text-muted-foreground/70")}
                     >
                         {description?.length ? description : t("settings.No description")}
                     </Box>
-                    <Box position="relative">
-                        <Box position="absolute" left="2" className="top-1/2 -translate-y-1/2">
-                            <IconComponent icon="pencil" size="4" />
+                    {canUpdateGlobalRelationship && (
+                        <Box position="relative">
+                            <Box position="absolute" left="2" className="top-1/2 -translate-y-1/2">
+                                <IconComponent icon="pencil" size="4" />
+                            </Box>
                         </Box>
-                    </Box>
+                    )}
                 </Flex>
             ) : (
                 <Input

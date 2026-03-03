@@ -8,7 +8,10 @@ from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TNotificationParam, TUserOrBot, TUserParam
 from ....core.utils.EditorContentParser import change_date_element, find_mentioned
 from ....core.utils.String import concat
-from ....domain.models import (
+from ....Env import UI_QUERY_NAMES, Env
+from ....helpers import InfraHelper
+from ....tasks.bots import BotDefaultTask
+from ...models import (
     Bot,
     Card,
     CardComment,
@@ -20,10 +23,7 @@ from ....domain.models import (
     User,
     UserNotification,
 )
-from ....domain.models.UserNotification import NotificationType
-from ....Env import UI_QUERY_NAMES, Env
-from ....helpers import InfraHelper
-from ....tasks.bots import BotDefaultTask
+from ...models.UserNotification import NotificationType
 
 
 _TModel = TypeVar(

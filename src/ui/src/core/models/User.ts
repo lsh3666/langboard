@@ -6,6 +6,10 @@ import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";
 import { Utils } from "@langboard/core/utils";
 import { ESocketTopic } from "@langboard/core/enums";
 import useUserDeletedHandlers from "@/controllers/socket/user/useUserDeletedHandlers";
+import { SettingRole, ApiKeyRole, McpRole } from "@/core/models/roles";
+import useUserApiKeyRolesUpdatedHandlers from "@/controllers/socket/user/useUserApiKeyRolesUpdatedHandlers";
+import useUserSettingRolesUpdatedHandlers from "@/controllers/socket/user/useUserSettingRolesUpdatedHandlers";
+import useUserMcpRolesUpdatedHandlers from "@/controllers/socket/user/useUserMcpRolesUpdatedHandlers";
 
 export interface Interface extends IBaseModel {
     type: "user" | "unknown" | "bot" | "group_email";
@@ -14,6 +18,7 @@ export interface Interface extends IBaseModel {
     email: string;
     username: string;
     avatar?: string;
+    api_key_role_actions: ApiKeyRole.TActions[];
 
     // In settings
     is_admin?: bool;
@@ -22,6 +27,8 @@ export interface Interface extends IBaseModel {
     affiliation?: string;
     position?: string;
     activated_at?: Date;
+    setting_role_actions: SettingRole.TActions[];
+    mcp_role_actions: McpRole.TActions[];
 }
 
 export const INDUSTRIES: string[] = ["Industry 1"];
@@ -49,6 +56,31 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
     constructor(model: Record<string, unknown>) {
         super(model);
 
+        if (!Utils.Type.isNullOrUndefined(model.api_key_role_actions)) {
+            const newActions = [...(model.api_key_role_actions as string[])].map((action) =>
+                Utils.String.convertSafeEnum(ApiKeyRole.EAction, action)
+            );
+            model.api_key_role_actions = newActions;
+        } else {
+            model.api_key_role_actions = [];
+        }
+
+        if (!Utils.Type.isNullOrUndefined(model.setting_role_actions)) {
+            const newActions = [...(model.setting_role_actions as string[])].map((action) =>
+                Utils.String.convertSafeEnum(SettingRole.EAction, action)
+            );
+            model.setting_role_actions = newActions;
+        } else {
+            model.setting_role_actions = [];
+        }
+
+        if (!Utils.Type.isNullOrUndefined(model.mcp_role_actions)) {
+            const newActions = [...(model.mcp_role_actions as string[])].map((action) => Utils.String.convertSafeEnum(McpRole.EAction, action));
+            model.mcp_role_actions = newActions;
+        } else {
+            model.mcp_role_actions = [];
+        }
+
         this.#subscribeUser();
     }
 
@@ -69,6 +101,9 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
             purpose: "",
             affiliation: undefined,
             position: undefined,
+            api_key_role_actions: [],
+            setting_role_actions: [],
+            mcp_role_actions: [],
         };
 
         return createFakeModel(User.MODEL_NAME, model, User.createFakeMethodsMap(model));
@@ -91,6 +126,9 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
             purpose: "",
             affiliation: undefined,
             position: undefined,
+            api_key_role_actions: [],
+            setting_role_actions: [],
+            mcp_role_actions: [],
         };
 
         return createFakeModel(User.MODEL_NAME, model, User.createFakeMethodsMap(model));
@@ -220,6 +258,27 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
         this.update({ activated_at: value as unknown as Date });
     }
 
+    public get api_key_role_actions() {
+        return this.getValue("api_key_role_actions");
+    }
+    public set api_key_role_actions(value) {
+        this.update({ api_key_role_actions: value });
+    }
+
+    public get setting_role_actions() {
+        return this.getValue("setting_role_actions");
+    }
+    public set setting_role_actions(value) {
+        this.update({ setting_role_actions: value });
+    }
+
+    public get mcp_role_actions() {
+        return this.getValue("mcp_role_actions");
+    }
+    public set mcp_role_actions(value) {
+        this.update({ mcp_role_actions: value });
+    }
+
     public isPresentableUnknownUser(type?: User["type"]) {
         if (!type) {
             type = this.type;
@@ -267,9 +326,19 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
             }
         }, 100);
 
-        this.subscribeSocketEvents([useUserUpdatedHandlers, useUserDeletedHandlers], {
-            user: this,
-        });
+        this.subscribeSocketEvents(
+            [
+                useUserUpdatedHandlers,
+                useUserApiKeyRolesUpdatedHandlers,
+                useUserSettingRolesUpdatedHandlers,
+                useUserMcpRolesUpdatedHandlers,
+                useUserDeletedHandlers,
+            ],
+            {
+                user: this,
+                isPrivate: false,
+            }
+        );
     }
 }
 

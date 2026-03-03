@@ -2,8 +2,11 @@ import { Button, Dialog, Flex, Floating, IconComponent, Toast } from "@/componen
 import CopyInput from "@/components/CopyInput";
 import useGenerateNewBotApiToken from "@/controllers/api/settings/bots/useGenerateNewBotApiToken";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
@@ -13,6 +16,10 @@ const BotAppApiToken = memo(() => {
     const [t] = useTranslation();
     const { model: bot } = ModelRegistry.BotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateBot = hasRoleAction(SettingRole.EAction.BotUpdate);
     const appApiToken = bot.useField("app_api_token");
     const { mutateAsync } = useGenerateNewBotApiToken(bot, { interceptToast: true });
     const [isValidating, setIsValidating] = useState(false);
@@ -20,7 +27,7 @@ const BotAppApiToken = memo(() => {
     const [revealedToken, setRevealedToken] = useState<string>();
 
     const generate = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateBot) {
             return;
         }
 
@@ -75,7 +82,7 @@ const BotAppApiToken = memo(() => {
                     wrapperProps={{ className: "max-w-[calc(100%_-_theme(spacing.10))]" }}
                     disabled
                 />
-                <Button size="icon-sm" onClick={generate} title={t("settings.Generate new API token")}>
+                <Button size="icon-sm" onClick={generate} title={t("settings.Generate new API token")} disabled={!canUpdateBot}>
                     <IconComponent icon="refresh-ccw" size="4" />
                 </Button>
             </Flex>

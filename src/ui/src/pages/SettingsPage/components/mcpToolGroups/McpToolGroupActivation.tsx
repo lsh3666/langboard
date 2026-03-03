@@ -1,9 +1,12 @@
-import { Badge, Flex, Toast, Tooltip } from "@/components/base";
+import { Button, Flex, Toast, Tooltip } from "@/components/base";
 import useActivateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useActivateMcpToolGroup";
 import useDeactivateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useDeactivateMcpToolGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { McpToolGroup } from "@/core/models";
+import { McpRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
@@ -17,13 +20,17 @@ export interface IMcpToolGroupActivationProps {
 const McpToolGroupActivation = memo(({ toolGroup, variant = "default" }: IMcpToolGroupActivationProps) => {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const mcpRoleActions = currentUser.useField("mcp_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(mcpRoleActions);
+    const canUpdateMcpToolGroup = hasRoleAction(McpRole.EAction.Update);
     const rawActivatedAt = toolGroup.useField("activated_at");
     const { mutate: activateMutate } = useActivateMcpToolGroup(toolGroup);
     const { mutate: deactivateMutate } = useDeactivateMcpToolGroup(toolGroup);
     const [isValidating, setIsValidating] = useState(false);
 
     const toggle = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateMcpToolGroup) {
             return;
         }
 
@@ -56,9 +63,16 @@ const McpToolGroupActivation = memo(({ toolGroup, variant = "default" }: IMcpToo
             <Tooltip.Root>
                 <Tooltip.Trigger asChild>
                     <Flex justify="center">
-                        <Badge variant={rawActivatedAt ? "default" : "secondary"} className="cursor-pointer gap-1" onClick={toggle}>
-                            {rawActivatedAt ? "● Active" : "○ Inactive"}
-                        </Badge>
+                        <Button
+                            variant={rawActivatedAt ? "default" : "secondary"}
+                            size="sm"
+                            className="cursor-pointer gap-1"
+                            onClick={toggle}
+                            disabled={!canUpdateMcpToolGroup}
+                        >
+                            {rawActivatedAt ? "● " : "○ "}
+                            {rawActivatedAt ? t("settings.Active") : t("settings.Inactive")}
+                        </Button>
                     </Flex>
                 </Tooltip.Trigger>
                 <Tooltip.Content side="bottom" align="center">
@@ -71,9 +85,16 @@ const McpToolGroupActivation = memo(({ toolGroup, variant = "default" }: IMcpToo
     return (
         <Tooltip.Root>
             <Tooltip.Trigger asChild>
-                <Badge variant={rawActivatedAt ? "default" : "secondary"} className="cursor-pointer gap-1" onClick={toggle}>
-                    {rawActivatedAt ? "● Active" : "○ Inactive"}
-                </Badge>
+                <Button
+                    variant={rawActivatedAt ? "default" : "secondary"}
+                    size="sm"
+                    className="cursor-pointer gap-1"
+                    onClick={toggle}
+                    disabled={!canUpdateMcpToolGroup}
+                >
+                    {rawActivatedAt ? "● " : "○ "}
+                    {rawActivatedAt ? t("settings.Active") : t("settings.Inactive")}
+                </Button>
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" align="center">
                 {rawActivatedAt ? t("settings.Deactivate") : t("settings.Activate")}

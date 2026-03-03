@@ -3,8 +3,9 @@ import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
 import useUpdateProjectUserRoles from "@/controllers/api/board/settings/useUpdateProjectUserRoles";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project, User } from "@/core/models";
-import { ROLE_ALL_GRANTED } from "@/core/models/Base";
+import { User } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
+import { ROLE_ALL_GRANTED } from "@/core/models/roles/base";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,11 +28,11 @@ const BoardSettingsMemberRole = memo(({ member, isValidating, setIsValidating }:
                 return;
             }
 
-            const role: Project.ERoleAction = e.currentTarget.getAttribute("data-value") as Project.ERoleAction;
+            const role: ProjectRole.EAction = e.currentTarget.getAttribute("data-value") as ProjectRole.EAction;
 
             setIsValidating(true);
 
-            const newRoles = roles.includes(ROLE_ALL_GRANTED) ? Object.values(Project.ERoleAction) : [...roles];
+            const newRoles = roles.includes(ROLE_ALL_GRANTED) ? Object.values(ProjectRole.EAction) : [...roles];
 
             const promise = mutateAsync({
                 project_uid: project.uid,
@@ -80,7 +81,7 @@ const BoardSettingsMemberRole = memo(({ member, isValidating, setIsValidating }:
                 />
             </UserAvatar.Root>
             <Flex wrap gap="2">
-                {Object.keys(Project.ERoleAction).map((key) => {
+                {Object.keys(ProjectRole.EAction).map((key) => {
                     const disabled = key === "Read" || isValidating;
                     return (
                         <Label
@@ -90,13 +91,13 @@ const BoardSettingsMemberRole = memo(({ member, isValidating, setIsValidating }:
                             className={!disabled ? "cursor-pointer" : "cursor-not-allowed"}
                         >
                             <Checkbox
-                                checked={roles.includes(Project.ERoleAction[key]) || roles.includes(ROLE_ALL_GRANTED)}
+                                checked={roles.includes(ProjectRole.EAction[key]) || roles.includes(ROLE_ALL_GRANTED)}
                                 disabled={disabled}
-                                data-value={Project.ERoleAction[key]}
+                                data-value={ProjectRole.EAction[key]}
                                 className="mr-1"
                                 onClick={updateRole}
                             />
-                            {t(`role.project.${Project.ERoleAction[key]}`)}
+                            {t(`role.project.${ProjectRole.EAction[key]}`)}
                         </Label>
                     );
                 })}

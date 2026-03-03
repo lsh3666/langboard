@@ -1,6 +1,6 @@
+from .ApiKeyRole import ApiKeyRole
 from .ApiKeySetting import ApiKeySetting
 from .ApiKeyUsage import ApiKeyUsage
-from .AppSetting import AppSetting
 from .Bot import Bot
 from .BotLog import BotLog
 from .BotSchedule import BotSchedule
@@ -23,6 +23,7 @@ from .CheckitemTimerRecord import CheckitemTimerRecord
 from .Checklist import Checklist
 from .GlobalCardRelationshipType import GlobalCardRelationshipType
 from .InternalBot import InternalBot
+from .McpRole import McpRole
 from .McpToolGroup import McpToolGroup
 from .McpToolGroupUsage import McpToolGroupUsage
 from .Project import Project
@@ -45,6 +46,7 @@ from .ProjectWikiActivity import ProjectWikiActivity
 from .ProjectWikiAssignedUser import ProjectWikiAssignedUser
 from .ProjectWikiAttachment import ProjectWikiAttachment
 from .ProjectWikiMetadata import ProjectWikiMetadata
+from .SettingRole import SettingRole
 from .User import User
 from .UserActivity import UserActivity
 from .UserEmail import UserEmail
@@ -54,12 +56,15 @@ from .UserNotification import UserNotification
 from .UserNotificationUnsubscription import UserNotificationUnsubscription
 from .UserProfile import UserProfile
 from .UserSignInHistory import UserSignInHistory
+from .WebhookSetting import WebhookSetting
 
 
 __all__ = [
+    "SettingRole",
+    "ApiKeyRole",
     "ApiKeySetting",
     "ApiKeyUsage",
-    "AppSetting",
+    "McpRole",
     "Bot",
     "BotLog",
     "BotSchedule",
@@ -113,4 +118,5 @@ __all__ = [
     "UserNotification",
     "UserNotificationUnsubscription",
     "UserProfile",
+    "WebhookSetting",
 ]

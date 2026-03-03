@@ -135,6 +135,9 @@ const SERVER = {
         UPDATED: "user:updated",
         NOTIFIED: "user:notified",
         NOTIFICATION_DELETED: "user:notification:deleted",
+        API_KEY_ROLES_UPDATED: "user:api-key-roles:updated:{uid}",
+        SETTING_ROLES_UPDATED: "user:setting-roles:updated:{uid}",
+        MCP_ROLES_UPDATED: "user:mcp-roles:updated:{uid}",
         PROJECT_ROLES_UPDATED: "user:project-roles:updated",
         DELETED: "user:deleted:{uid}",
         DEACTIVATED: "user:deactivated:{uid}",
@@ -159,10 +162,6 @@ const SERVER = {
         TASK_ABORTED: "task:aborted",
     },
     SETTINGS: {
-        CREATED: "settings:created",
-        UPDATED: "settings:updated:{uid}",
-        DELETED: "settings:deleted:{uid}",
-        SELECTIONS_DELETED: "settings:deleted",
         USERS: {
             SELECTIONS_DELETED: "user:deleted",
         },
@@ -184,6 +183,12 @@ const SERVER = {
             UPDATED: "mcp-tool-group:updated:{uid}",
             DELETED: "mcp-tool-group:deleted:{uid}",
             SELECTIONS_DELETED: "mcp-tool-group:deleted",
+        },
+        WEBHOOKS: {
+            CREATED: "settings:webhook:created",
+            UPDATED: "settings:webhook:updated:{uid}",
+            DELETED: "settings:webhook:deleted:{uid}",
+            SELECTIONS_DELETED: "settings:webhook:deleted",
         },
     },
 } as const;

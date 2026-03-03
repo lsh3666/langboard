@@ -2,26 +2,26 @@
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { AppSettingModel } from "@/core/models";
+import { WebhookModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
-const useDeleteSetting = (setting: AppSettingModel.TModel, options?: TMutationOptions<unknown>) => {
+const useDeleteWebhook = (webhook: WebhookModel.TModel, options?: TMutationOptions<unknown>) => {
     const { mutate } = useQueryMutation();
 
-    const deleteSetting = async () => {
-        const url = Utils.String.format(Routing.API.SETTINGS.DELETE, { uid: setting.uid });
+    const deleteWebhook = async () => {
+        const url = Utils.String.format(Routing.API.SETTINGS.WEBHOOKS.DELETE, { webhook_uid: webhook.uid });
         const res = await api.delete(url, {
             env: {
                 interceptToast: options?.interceptToast,
             } as any,
         });
 
-        AppSettingModel.Model.deleteModel(setting.uid);
+        WebhookModel.Model.deleteModel(webhook.uid);
 
         return res.data;
     };
 
-    const result = mutate(["delete-setting"], deleteSetting, {
+    const result = mutate(["delete-webhook"], deleteWebhook, {
         ...options,
         retry: 0,
     });
@@ -29,4 +29,4 @@ const useDeleteSetting = (setting: AppSettingModel.TModel, options?: TMutationOp
     return result;
 };
 
-export default useDeleteSetting;
+export default useDeleteWebhook;

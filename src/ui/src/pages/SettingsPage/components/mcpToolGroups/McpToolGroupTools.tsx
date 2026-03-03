@@ -3,8 +3,10 @@ import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
 import MultiSelect from "@/components/MultiSelect";
 import useUpdateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useUpdateMcpToolGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { McpRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { useMcpTools } from "@/core/stores/McpToolStore";
@@ -48,6 +50,10 @@ const McpToolGroupTools = memo(() => {
 function McpToolGroupToolsEdit() {
     const [t] = useTranslation();
     const { model: toolGroup } = ModelRegistry.McpToolGroup.useContext();
+    const { currentUser } = useAppSetting();
+    const mcpRoleActions = currentUser.useField("mcp_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(mcpRoleActions);
+    const canUpdateMcpToolGroup = hasRoleAction(McpRole.EAction.Update);
     const { isValidating, setIsValidating } = useAppSetting();
     const allMcpTools = useMcpTools();
     const navigate = usePageNavigateRef();
@@ -57,6 +63,10 @@ function McpToolGroupToolsEdit() {
     const { mutateAsync } = useUpdateMcpToolGroup(toolGroup, { interceptToast: true });
 
     const save = () => {
+        if (!canUpdateMcpToolGroup) {
+            return;
+        }
+
         setIsValidating(true);
 
         const promise = mutateAsync({
@@ -91,7 +101,7 @@ function McpToolGroupToolsEdit() {
     return (
         <Popover.Root open={isOpened} onOpenChange={setIsOpened}>
             <Popover.Trigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" disabled={!canUpdateMcpToolGroup}>
                     {t("common.Edit")}
                 </Button>
             </Popover.Trigger>
@@ -103,8 +113,8 @@ function McpToolGroupToolsEdit() {
                         selectedValue={selectedTools}
                         className={cn(
                             "max-w-[calc(100vw_-_theme(spacing.20))]",
-                            "sm:max-w-[calc(theme(screens.sm)_-_theme(spacing.60))]",
-                            "lg:max-w-[calc(theme(screens.md)_-_theme(spacing.60))]",
+                            "sm:max-w-[calc(theme(screens.sm)__-_theme(spacing.60))]",
+                            "lg:max-w-[calc(theme(screens.md)__-_theme(spacing.60))]",
                             "min-w-[min(theme(spacing.20),100%)]"
                         )}
                         listClassName="absolute w-[calc(100%_-_theme(spacing.6))]"
@@ -117,10 +127,16 @@ function McpToolGroupToolsEdit() {
                                 <Tooltip.Content className="max-w-[min(95vw,theme(spacing.96))]">{allMcpTools[value]?.name}</Tooltip.Content>
                             </Tooltip.Root>
                         )}
-                        disabled={isValidating}
+                        disabled={!canUpdateMcpToolGroup || isValidating}
                     />
                     <Flex items="center" justify="end" gap="1" mt="2">
-                        <Button type="button" variant="secondary" size="sm" disabled={isValidating} onClick={() => setIsOpened(false)}>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            disabled={!canUpdateMcpToolGroup || isValidating}
+                            onClick={() => setIsOpened(false)}
+                        >
                             {t("common.Cancel")}
                         </Button>
                         <SubmitButton type="button" size="sm" onClick={save} isValidating={isValidating}>

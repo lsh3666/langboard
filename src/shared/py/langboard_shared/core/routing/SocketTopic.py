@@ -18,3 +18,19 @@ class SocketTopic(Enum):
     OllamaManager = "ollama_manager"
     Global = "global"
     NoneTopic = "none"
+
+
+class SettingSocketTopicID(Enum):
+    # Api Key role management
+    ApiKey = "api_key"
+
+    # Setting role management
+    User = "user"
+    Bot = "bot"
+    InternalBot = "internal_bot"
+    GlobalRelationship = "global_relationship"
+    Webhook = "webhook"
+    Ollama = "ollama"
+
+    # MCP Server management
+    McpToolGroup = "mcp_tool_group"

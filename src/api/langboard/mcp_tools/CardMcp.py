@@ -14,6 +14,7 @@ from ..mcp_integration import McpRoleFilter, McpTool
 
 
 @McpTool.add(description="Get all cards in a project.")
+@McpRoleFilter.add(ProjectRole, [ProjectRoleAction.Read], RoleFinder.project)
 def get_cards(project_uid: str, service: DomainService) -> dict:
     project = service.project.get_by_id_like(project_uid)
     if not project:

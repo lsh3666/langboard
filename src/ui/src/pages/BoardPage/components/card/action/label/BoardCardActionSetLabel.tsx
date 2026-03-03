@@ -1,7 +1,7 @@
 import { Box, Button, Flex, IconComponent, Popover, SubmitButton, Toast } from "@/components/base";
 import useUpdateCardLabels from "@/controllers/api/card/useUpdateCardLabels";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import BoardCardActionLabelList from "@/pages/BoardPage/components/card/action/label/BoardCardActionLabelList";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";
@@ -61,7 +61,7 @@ const BoardCardActionSetLabel = memo(({ buttonClassName }: IBoardCardActionSetLa
         });
     };
 
-    if (!hasRoleAction(Project.ERoleAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
         return null;
     }
 

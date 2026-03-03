@@ -2,8 +2,11 @@ import AvatarUploader from "@/components/AvatarUploader";
 import { Flex, Toast } from "@/components/base";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useCallback, useRef, useState } from "react";
@@ -12,15 +15,19 @@ import { useTranslation } from "react-i18next";
 const InternalBotAvatar = memo(() => {
     const [t] = useTranslation();
     const { model: internalBot } = ModelRegistry.InternalBotModel.useContext();
-    const avatar = internalBot.useField("avatar");
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser?.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateInternalBot = hasRoleAction(SettingRole.EAction.InternalBotUpdate);
+    const avatar = internalBot.useField("avatar");
     const dataTransferRef = useRef<DataTransfer>(new DataTransfer());
     const [isValidating, setIsValidating] = useState(false);
     const { mutateAsync } = useUpdateInternalBot(internalBot, { interceptToast: true });
 
     const onChange = useCallback(
         (files: File[] | FileList) => {
-            if (isValidating || !files.length) {
+            if (isValidating || !files.length || !canUpdateInternalBot) {
                 return;
             }
 
@@ -45,7 +52,7 @@ const InternalBotAvatar = memo(() => {
     );
 
     const onDeleted = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateInternalBot) {
             return;
         }
 
@@ -92,6 +99,7 @@ const InternalBotAvatar = memo(() => {
                 initialAvatarUrl={avatar}
                 dataTransferRef={dataTransferRef}
                 isValidating={isValidating}
+                disabled={!canUpdateInternalBot}
                 avatarSize={{
                     initial: "lg",
                     md: "2xl",

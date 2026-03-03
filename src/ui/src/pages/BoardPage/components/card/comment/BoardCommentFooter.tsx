@@ -2,9 +2,10 @@ import { Button, Flex, Separator, SubmitButton, Toast } from "@/components/base"
 import useDeleteCardComment from "@/controllers/api/card/comment/useDeleteCardComment";
 import useUpdateCardComment from "@/controllers/api/card/comment/useUpdateCardComment";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { BotModel, Project } from "@/core/models";
+import { BotModel } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { getEditorStore } from "@/core/stores/EditorStore";
 import BoardCommentReaction from "@/pages/BoardPage/components/card/comment/BoardCommentReaction";
@@ -142,7 +143,7 @@ function BoardCommentFooterActions() {
     return (
         <>
             <BoardCommentReaction comment={comment} />
-            {hasRoleAction(Project.ERoleAction.Read) &&
+            {hasRoleAction(ProjectRole.EAction.Read) &&
                 currentUser.uid !== author.uid &&
                 currentUser.isValidUser() &&
                 [...projectMembers, ...bots].find((user) => user.uid === author.uid) && (

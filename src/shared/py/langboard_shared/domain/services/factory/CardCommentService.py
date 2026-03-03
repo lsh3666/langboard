@@ -2,11 +2,11 @@ from typing import Any
 from ....core.db import EditorContentModel
 from ....core.domain import BaseDomainService
 from ....core.types.ParamTypes import TCardParam, TCommentParam, TProjectParam, TUserOrBot
-from ....domain.models import Bot, Card, CardComment, CardCommentReaction, Project, User
 from ....helpers import InfraHelper
 from ....publishers import CardCommentPublisher
 from ....tasks.activities import CardCommentActivityTask
 from ....tasks.bots import CardCommentBotTask
+from ...models import Bot, Card, CardComment, CardCommentReaction, Project, User
 from .NotificationService import NotificationService
 from .ReactionService import ReactionService
 

@@ -1,7 +1,7 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { InternalBotModel } from "@/core/models";
-import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 
 export interface IInternalBotSettingDefaultChangedRawResponse {
     uid: string;
@@ -15,7 +15,7 @@ export interface IInternalBotSettingDefaultChangedProps extends IBaseUseSocketHa
 const useInternalBotSettingDefaultChangedHandlers = ({ internalBot, callback }: IInternalBotSettingDefaultChangedProps) => {
     return useSocketHandler<{}, IInternalBotSettingDefaultChangedRawResponse>({
         topic: ESocketTopic.AppSettings,
-        topicId: GLOBAL_TOPIC_ID,
+        topicId: ESettingSocketTopicID.InternalBot,
         eventKey: `internal-bot-setting-default-changed-${internalBot.uid}`,
         onProps: {
             name: SocketEvents.SERVER.SETTINGS.INTERNAL_BOTS.DEFAULT_CHANGED,

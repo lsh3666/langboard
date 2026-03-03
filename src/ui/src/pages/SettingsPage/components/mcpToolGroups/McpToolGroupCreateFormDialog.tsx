@@ -13,10 +13,9 @@ import { McpToolGroup } from "@/core/models";
 import useGetMcpToolList from "@/controllers/api/mcp/getMcpToolList";
 import { useMcpTools } from "@/core/stores/McpToolStore";
 import MultiSelect from "@/components/MultiSelect";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IMcpToolGroupCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
+export interface IMcpToolGroupCreateFormDialogProps extends ISharedSettingsModalProps {
     groupType: McpToolGroup.TGroupType;
 }
 

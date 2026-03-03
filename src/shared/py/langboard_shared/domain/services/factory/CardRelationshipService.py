@@ -2,11 +2,11 @@ from typing import Any
 from ....core.domain import BaseDomainService
 from ....core.types import SnowflakeID
 from ....core.types.ParamTypes import TCardParam, TProjectParam, TUserOrBot
-from ....domain.models import Card, CardRelationship, Project
 from ....helpers import InfraHelper
 from ....publishers import CardRelationshipPublisher
 from ....tasks.activities import CardRelationshipActivityTask
 from ....tasks.bots import CardBotTask
+from ...models import Card, CardRelationship, Project
 
 
 class CardRelationshipService(BaseDomainService):

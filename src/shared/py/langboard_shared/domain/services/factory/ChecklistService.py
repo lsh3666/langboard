@@ -2,12 +2,12 @@ from typing import Any
 from ....core.domain import BaseDomainService
 from ....core.types import SafeDateTime
 from ....core.types.ParamTypes import TCardParam, TChecklistParam, TProjectParam, TUserOrBot
-from ....domain.models import Card, Checklist, Project
-from ....domain.models.Checkitem import CheckitemStatus
 from ....helpers import InfraHelper
 from ....publishers import ChecklistPublisher
 from ....tasks.activities import CardChecklistActivityTask
 from ....tasks.bots import CardChecklistBotTask
+from ...models import Card, Checklist, Project
+from ...models.Checkitem import CheckitemStatus
 from .CheckitemService import CheckitemService
 from .NotificationService import NotificationService
 

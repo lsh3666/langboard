@@ -1,8 +1,8 @@
 from typing import Any
 from ....core.domain import BaseDomainService
 from ....core.types.ParamTypes import TUserGroupParam
-from ....domain.models import User, UserEmail, UserGroup, UserGroupAssignedEmail
 from ....helpers import InfraHelper
+from ...models import User, UserEmail, UserGroup, UserGroupAssignedEmail
 
 
 class UserGroupService(BaseDomainService):

@@ -1,6 +1,5 @@
 from ...domain.models import (
     ApiKeySetting,
-    AppSetting,
     Bot,
     Card,
     CardAttachment,
@@ -42,7 +41,6 @@ TUserParam = User | TBaseParam
 TUserGroupParam = UserGroup | TBaseParam
 TProjectLabelParam = ProjectLabel | TBaseParam
 TBotParam = Bot | TBaseParam
-TSettingParam = AppSetting | TBaseParam
 TGlobalCardRelationshipTypeParam = GlobalCardRelationshipType | TBaseParam
 TNotificationParam = UserNotification | TBaseParam
 TChatTemplateParam = ChatTemplate | TBaseParam

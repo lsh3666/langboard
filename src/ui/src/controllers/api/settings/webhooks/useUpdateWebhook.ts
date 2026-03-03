@@ -2,25 +2,24 @@
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { AppSettingModel } from "@/core/models";
+import { WebhookModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
-export interface IUpdateSettingForm {
-    setting_name?: string;
-
-    setting_value?: any;
+export interface IUpdateWebhookForm {
+    name?: string;
+    url?: string;
 }
 
-const useUpdateSetting = (setting: AppSettingModel.TModel, options?: TMutationOptions<IUpdateSettingForm>) => {
+const useUpdateWebhook = (webhook: WebhookModel.TModel, options?: TMutationOptions<IUpdateWebhookForm>) => {
     const { mutate } = useQueryMutation();
 
-    const updateSetting = async (params: IUpdateSettingForm) => {
-        const url = Utils.String.format(Routing.API.SETTINGS.UPDATE, { uid: setting.uid });
+    const updateWebhook = async (params: IUpdateWebhookForm) => {
+        const url = Utils.String.format(Routing.API.SETTINGS.WEBHOOKS.UPDATE, { webhook_uid: webhook.uid });
         const res = await api.put(
             url,
             {
-                setting_name: params.setting_name,
-                setting_value: params.setting_value,
+                name: params.name,
+                url: params.url,
             },
             {
                 env: {
@@ -29,15 +28,15 @@ const useUpdateSetting = (setting: AppSettingModel.TModel, options?: TMutationOp
             }
         );
 
-        AppSettingModel.Model.fromOne({
-            uid: setting.uid,
+        WebhookModel.Model.fromOne({
+            uid: webhook.uid,
             ...res.data,
         });
 
         return res.data;
     };
 
-    const result = mutate(["update-setting"], updateSetting, {
+    const result = mutate(["update-webhook"], updateWebhook, {
         ...options,
         retry: 0,
     });
@@ -45,4 +44,4 @@ const useUpdateSetting = (setting: AppSettingModel.TModel, options?: TMutationOp
     return result;
 };
 
-export default useUpdateSetting;
+export default useUpdateWebhook;

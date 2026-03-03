@@ -2,11 +2,11 @@ from typing import Any
 from ....core.domain import BaseDomainService
 from ....core.storage import FileModel
 from ....core.types.ParamTypes import TAttachmentParam, TCardParam, TProjectParam
-from ....domain.models import Card, CardAttachment, Project, User
 from ....helpers import InfraHelper
 from ....publishers import CardAttachmentPublisher
 from ....tasks.activities import CardAttachmentActivityTask
 from ....tasks.bots import CardAttachmentBotTask
+from ...models import Card, CardAttachment, Project, User
 
 
 class CardAttachmentService(BaseDomainService):

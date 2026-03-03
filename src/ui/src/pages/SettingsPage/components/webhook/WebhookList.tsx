@@ -2,8 +2,7 @@ import { Box, Button, Checkbox, Flex, IconComponent, Loading } from "@/component
 import InfiniteScroller from "@/components/InfiniteScroller";
 import useInfiniteScrollPager from "@/core/hooks/useInfiniteScrollPager";
 import useScrollToTop from "@/core/hooks/useScrollToTop";
-import { AppSettingModel } from "@/core/models";
-import { ESettingType } from "@/core/models/AppSettingModel";
+import { WebhookModel } from "@/core/models";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 import WebhookRow from "@/pages/SettingsPage/components/webhook/WebhookRow";
@@ -19,16 +18,16 @@ function WebhookList({ selectedWebhooks, setSelectedWebhooks }: IWebhookListProp
     const [t] = useTranslation();
     const { scrollableRef, isAtTop, scrollToTop } = useScrollToTop({});
     const updater = useReducer((x) => x + 1, 0);
-    const webhooks = AppSettingModel.Model.useModels((model) => model.setting_type === ESettingType.WebhookUrl);
+    const rawWebhooks = WebhookModel.Model.useModels(() => true);
     const PAGE_SIZE = 30;
-    const { items: urls, nextPage, hasMore } = useInfiniteScrollPager({ allItems: webhooks, size: PAGE_SIZE, updater });
+    const { items: webhooks, nextPage, hasMore } = useInfiniteScrollPager({ allItems: rawWebhooks, size: PAGE_SIZE, updater });
 
     const selectAll = () => {
         setSelectedWebhooks((prev) => {
-            if (prev.length === urls.length) {
+            if (prev.length === webhooks.length) {
                 return [];
             } else {
-                return urls.map((url) => url.uid);
+                return webhooks.map((webhook) => webhook.uid);
             }
         });
     };
@@ -47,7 +46,7 @@ function WebhookList({ selectedWebhooks, setSelectedWebhooks }: IWebhookListProp
                 <InfiniteScroller.Table.Default
                     columns={[
                         {
-                            name: <Checkbox checked={!!urls.length && urls.length === selectedWebhooks.length} onClick={selectAll} />,
+                            name: <Checkbox checked={!!webhooks.length && webhooks.length === selectedWebhooks.length} onClick={selectAll} />,
                             className: "w-12 text-center",
                         },
                         { name: t("settings.Name"), className: "w-1/6 text-center" },
@@ -59,20 +58,25 @@ function WebhookList({ selectedWebhooks, setSelectedWebhooks }: IWebhookListProp
                     scrollable={() => scrollableRef.current}
                     loadMore={nextPage}
                     hasMore={hasMore}
-                    totalCount={urls.length}
+                    totalCount={webhooks.length}
                     loader={
                         <Flex justify="center" py="6" key={Utils.String.Token.shortUUID()}>
                             <Loading variant="secondary" />
                         </Flex>
                     }
                 >
-                    {urls.map((url) => (
-                        <WebhookRow key={url.uid} url={url} selectedWebhooks={selectedWebhooks} setSelectedWebhooks={setSelectedWebhooks} />
+                    {webhooks.map((webhook) => (
+                        <WebhookRow
+                            key={webhook.uid}
+                            webhook={webhook}
+                            selectedWebhooks={selectedWebhooks}
+                            setSelectedWebhooks={setSelectedWebhooks}
+                        />
                     ))}
                 </InfiniteScroller.Table.Default>
-                {!urls.length && (
+                {!webhooks.length && (
                     <Flex justify="center" items="center" h="full" mt="2">
-                        {t("settings.No global relationships")}
+                        {t("settings.No webhooks")}
                     </Flex>
                 )}
                 {!isAtTop && (

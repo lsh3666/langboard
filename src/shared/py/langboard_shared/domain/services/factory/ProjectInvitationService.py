@@ -5,11 +5,11 @@ from ....core.domain import BaseDomainService
 from ....core.types import SnowflakeID
 from ....core.types.ParamTypes import TProjectParam
 from ....core.utils.String import concat, generate_random_string
-from ....domain.models import Project, ProjectAssignedUser, ProjectInvitation, User, UserEmail
 from ....Env import UI_QUERY_NAMES, Env
 from ....helpers import InfraHelper
 from ....publishers import ProjectInvitationPublisher, ProjectPublisher
 from ....tasks.activities import ProjectActivityTask, UserActivityTask
+from ...models import Project, ProjectAssignedUser, ProjectInvitation, User, UserEmail
 from .EmailService import EmailService
 from .NotificationService import NotificationService
 from .ProjectService import ProjectService

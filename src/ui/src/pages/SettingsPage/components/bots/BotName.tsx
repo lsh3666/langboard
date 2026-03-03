@@ -2,8 +2,11 @@ import { Box, Flex, IconComponent, Input, Toast } from "@/components/base";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
 import { EHttpStatus } from "@langboard/core/enums";
@@ -14,12 +17,16 @@ const BotName = memo(() => {
     const [t] = useTranslation();
     const { model: bot } = ModelRegistry.BotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateBot = hasRoleAction(SettingRole.EAction.BotUpdate);
     const name = bot.useField("name");
     const editorName = `${bot.uid}-bot-name`;
     const { mutateAsync } = useUpdateBot(bot, { interceptToast: true });
 
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => true,
+        canEdit: () => canUpdateBot,
         valueType: "input",
         editorName,
         save: (value, endCallback) => {
@@ -57,11 +64,11 @@ const BotName = memo(() => {
     return (
         <Box>
             {!isEditing ? (
-                <Flex items="center" cursor="pointer" textSize="lg" weight="semibold" onClick={() => changeMode("edit")}>
+                <Flex items="center" cursor={canUpdateBot ? "pointer" : "default"} textSize="lg" weight="semibold" onClick={() => changeMode("edit")}>
                     <Box as="span" className="max-w-[calc(100%_-_theme(spacing.6))] truncate">
                         {name}
                     </Box>
-                    <IconComponent icon="pencil" size="4" className="ml-2" />
+                    {canUpdateBot && <IconComponent icon="pencil" size="4" className="ml-2" />}
                 </Flex>
             ) : (
                 <Input

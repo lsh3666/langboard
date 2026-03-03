@@ -4,15 +4,31 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
-from langboard_shared.domain.models import Bot
+from langboard_shared.domain.models import Bot, SettingRole
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
+from langboard_shared.security import RoleFinder
 from .Form import CreateBotForm, UpdateBotForm
+
+
+@AppRouter.api.get(
+    "/settings/bots",
+    tags=["AppSettings.Bot"],
+    responses=OpenApiSchema().suc({"bots": [(Bot, {"is_setting": True})]}).auth().forbidden().get(),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotRead], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+    bots = service.bot.get_api_list(is_setting=True)
+
+    return JsonResponse(content={"bots": bots})
 
 
 @AppRouter.api.post(
     "/settings/bot",
-    tags=["AppSettings"],
+    tags=["AppSettings.Bot"],
     responses=(
         OpenApiSchema()
         .suc({"bot": (Bot, {"is_setting": True}), "revealed_app_api_token": "string"}, 201)
@@ -23,6 +39,7 @@ from .Form import CreateBotForm, UpdateBotForm
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotCreate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def create_bot(
     form: CreateBotForm = CreateBotForm.scope(),
@@ -65,7 +82,7 @@ def create_bot(
 
 @AppRouter.api.put(
     "/settings/bot/{bot_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.Bot"],
     responses=(
         OpenApiSchema()
         .suc(
@@ -87,6 +104,7 @@ def create_bot(
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotUpdate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def update_bot(
     bot_uid: str,
@@ -132,7 +150,7 @@ def update_bot(
 
 @AppRouter.api.put(
     "/settings/bot/{bot_uid}/new-api-token",
-    tags=["AppSettings"],
+    tags=["AppSettings.Bot"],
     responses=(
         OpenApiSchema()
         .suc({"secret_app_api_token": "string", "revealed_app_api_token": "string"})
@@ -142,6 +160,7 @@ def update_bot(
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotUpdate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def generate_new_bot_api_token(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     bot = service.bot.generate_new_api_token(bot_uid)
@@ -158,9 +177,10 @@ def generate_new_bot_api_token(bot_uid: str, service: DomainService = DomainServ
 
 @AppRouter.api.delete(
     "/settings/bot/{bot_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.Bot"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3001).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotDelete], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def delete_bot(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     result = service.bot.delete(bot_uid)

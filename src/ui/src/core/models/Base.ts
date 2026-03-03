@@ -13,10 +13,6 @@ import { ModelRegistry, IModelMap, TPickedModel } from "@/core/models/ModelRegis
 import ModelEdgeStore from "@/core/models/ModelEdgeStore";
 import { ESocketTopic } from "@langboard/core/enums";
 
-export const ROLE_ALL_GRANTED = "*";
-
-export type TRoleAllGranted = typeof ROLE_ALL_GRANTED;
-
 export interface IEditorContent {
     content: string;
 }

@@ -2,8 +2,11 @@ import { Checkbox, Flex, Toast, Tooltip } from "@/components/base";
 import useUpdateUserInSettings from "@/controllers/api/settings/users/useUpdateUserInSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { User } from "@/core/models";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { useState } from "react";
@@ -12,13 +15,17 @@ import { useTranslation } from "react-i18next";
 function UserActivation({ user }: { user: User.TModel }) {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateUser = hasRoleAction(SettingRole.EAction.UserUpdate);
     const rawActivatedAt = user.useField("activated_at");
     const activatedAt = useUpdateDateDistance(rawActivatedAt);
     const { mutateAsync } = useUpdateUserInSettings(user, { interceptToast: true });
     const [isValidating, setIsValidating] = useState(false);
 
     const toggle = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateUser) {
             return;
         }
 
@@ -59,7 +66,7 @@ function UserActivation({ user }: { user: User.TModel }) {
         <Tooltip.Root>
             <Tooltip.Trigger asChild>
                 <Flex justify="center" w="full">
-                    <Checkbox checked={!!rawActivatedAt} onClick={toggle} />
+                    <Checkbox checked={!!rawActivatedAt} onClick={toggle} disabled={!canUpdateUser} />
                 </Flex>
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" align="center">

@@ -3,8 +3,9 @@ import { Toast } from "@/components/base";
 import { EMAIL_REGEX } from "@/constants";
 import useUpdateProjectAssignedUsers from "@/controllers/api/board/useUpdateProjectAssignedUsers";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { BotModel, Project, User } from "@/core/models";
+import { BotModel, User } from "@/core/models";
 import { TUserLikeModel } from "@/core/models/ModelRegistry";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
@@ -18,7 +19,7 @@ export interface IBoardMemberListProps {
 const BoardMemberList = memo(({ isSelectCardView }: IBoardMemberListProps) => {
     const [t] = useTranslation();
     const { project, currentUser, hasRoleAction } = useBoard();
-    const canEdit = hasRoleAction(Project.ERoleAction.Update);
+    const canEdit = hasRoleAction(ProjectRole.EAction.Update);
     const ownerUID = project.useField("owner_uid");
     const allMemebers = project.useForeignFieldArray("all_members");
     const invitedMemberUIDs = project.useField("invited_member_uids");

@@ -4,14 +4,30 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
-from langboard_shared.domain.models import InternalBot
+from langboard_shared.domain.models import InternalBot, SettingRole
+from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
+from langboard_shared.security import RoleFinder
 from .Form import CreateInternalBotForm, UpdateInternalBotForm
+
+
+@AppRouter.api.get(
+    "/settings/bots",
+    tags=["AppSettings.Bot"],
+    responses=OpenApiSchema().suc({"internal_bots": [(InternalBot, {"is_setting": True})]}).auth().forbidden().get(),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotCreate], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+    internal_bots = service.internal_bot.get_api_list(is_setting=True)
+
+    return JsonResponse(content={"internal_bots": internal_bots})
 
 
 @AppRouter.api.post(
     "/settings/internal-bot",
-    tags=["AppSettings"],
+    tags=["AppSettings.InternalBot"],
     responses=(
         OpenApiSchema()
         .suc({"internal_bot": (InternalBot, {"is_setting": True})}, 201)
@@ -21,6 +37,7 @@ from .Form import CreateInternalBotForm, UpdateInternalBotForm
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotCreate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def create_internal_bot(
     form: CreateInternalBotForm = CreateInternalBotForm.scope(),
@@ -50,9 +67,10 @@ def create_internal_bot(
 
 @AppRouter.api.put(
     "/settings/internal-bot/{internal_bot_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.InternalBot"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotUpdate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def update_internal_bot(
     internal_bot_uid: str,
@@ -78,9 +96,10 @@ def update_internal_bot(
 
 @AppRouter.api.put(
     "/settings/internal-bot/{internal_bot_uid}/default",
-    tags=["AppSettings"],
+    tags=["AppSettings.InternalBot"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotUpdate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def set_internal_bot_default(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     internal_bot = service.internal_bot.change_default(internal_bot_uid)
@@ -92,9 +111,10 @@ def set_internal_bot_default(internal_bot_uid: str, service: DomainService = Dom
 
 @AppRouter.api.delete(
     "/settings/internal-bot/{internal_bot_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.InternalBot"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3004).err(409, ApiErrorCode.EX3002).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotDelete], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def delete_internal_bot(internal_bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
     internal_bot = service.internal_bot.get_by_id_like(internal_bot_uid)

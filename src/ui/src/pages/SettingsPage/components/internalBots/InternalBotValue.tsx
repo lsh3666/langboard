@@ -1,7 +1,10 @@
 import { Alert, Box, Toast } from "@/components/base";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { memo, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +19,10 @@ const InternalBotValue = memo(() => {
     const [t] = useTranslation();
     const { model: internalBot } = ModelRegistry.InternalBotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateInternalBot = hasRoleAction(SettingRole.EAction.InternalBotUpdate);
     const platform = internalBot.useField("platform");
     const platformRunningType = internalBot.useField("platform_running_type");
     const value = internalBot.useField("value");
@@ -26,7 +33,7 @@ const InternalBotValue = memo(() => {
     const [isValidating, setIsValidating] = useState(false);
 
     const change = () => {
-        if (isValidating || !newValueRef.current || !inputRef.current) {
+        if (isValidating || !newValueRef.current || !inputRef.current || !canUpdateInternalBot) {
             return;
         }
 
@@ -89,6 +96,7 @@ const InternalBotValue = memo(() => {
                 isValidating={isValidating}
                 change={change}
                 required
+                disabled={!canUpdateInternalBot}
                 ref={inputRef}
             />
         </Box>

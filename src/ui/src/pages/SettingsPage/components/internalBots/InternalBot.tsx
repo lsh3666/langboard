@@ -1,9 +1,11 @@
 import { Avatar, Box, Button, Flex, IconComponent, PillList, Popover, SubmitButton, Toast } from "@/components/base";
 import useDeleteInternalBot from "@/controllers/api/settings/internalBots/useDeleteInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { InternalBotModel } from "@/core/models";
-import { useAppSetting } from "@/core/providers/AppSettingProvider";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
@@ -16,6 +18,10 @@ export interface IInternalBotProps {
 const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canDeleteInternalBot = hasRoleAction(SettingRole.EAction.InternalBotDelete);
     const { isValidating, setIsValidating } = useAppSetting();
     const { mutateAsync } = useDeleteInternalBot(internalBot, { interceptToast: true });
     const [isOpened, setIsOpened] = useState(false);
@@ -28,7 +34,7 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (isValidating) {
+        if (isValidating || !canDeleteInternalBot) {
             return;
         }
 
@@ -97,7 +103,7 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
             >
                 {isDefault ? (
                     <span className="text-secondary-foreground/50">{isDefault ? ` (${t("common.default")})` : ""}</span>
-                ) : (
+                ) : canDeleteInternalBot ? (
                     <Popover.Root open={isOpened} onOpenChange={changeOpenState}>
                         <Popover.Trigger asChild>
                             <Button variant="destructive" size="icon-sm" title={t("common.Delete")} titleSide="bottom" disabled={isValidating}>
@@ -124,7 +130,7 @@ const InternalBot = memo(({ internalBot }: IInternalBotProps) => {
                             </Flex>
                         </Popover.Content>
                     </Popover.Root>
-                )}
+                ) : null}
             </PillList.ItemContent>
         </PillList.ItemRoot>
     );

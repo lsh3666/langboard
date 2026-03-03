@@ -1,5 +1,5 @@
 import { Box, Button, Collapsible, Flex, IconComponent, Tooltip } from "@/components/base";
-import { Project, ProjectChecklist, ProjectCheckitem } from "@/core/models";
+import { ProjectChecklist, ProjectCheckitem } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import BoardCardChecklistAddItem from "@/pages/BoardPage/components/card/checklist/BoardCardChecklistAddItem";
@@ -18,6 +18,7 @@ import { TColumnState } from "@/core/helpers/dnd/types";
 import { COLUMN_IDLE } from "@/core/helpers/dnd/createDndColumnEvents";
 import useRowReordered from "@/core/hooks/useRowReordered";
 import { Utils } from "@langboard/core/utils";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardChecklistProps {
     checklist: ProjectChecklist.TModel;
@@ -38,7 +39,7 @@ const BoardCardChecklist = memo(({ checklist, checkitemsMap }: IBoardCardCheckli
     const [state, setState] = useState<TColumnState>(COLUMN_IDLE);
     const isOpenedInBoardCard = checklist.useField("isOpenedInBoardCard");
     const order = checklist.useField("order");
-    const canReorder = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const canReorder = hasRoleAction(ProjectRole.EAction.CardUpdate);
 
     useEffect(() => {
         if (!canReorder) {

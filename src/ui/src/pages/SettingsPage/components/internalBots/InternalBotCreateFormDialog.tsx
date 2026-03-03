@@ -18,13 +18,9 @@ import BotValueInput from "@/components/bots/BotValueInput";
 import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/types";
 import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
 import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTypeSelect";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IInternalBotCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function InternalBotCreateFormDialog({ opened, setOpened }: IInternalBotCreateFormDialogProps): JSX.Element {
+function InternalBotCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

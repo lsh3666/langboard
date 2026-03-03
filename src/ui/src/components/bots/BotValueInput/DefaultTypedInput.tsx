@@ -8,25 +8,26 @@ import { useTranslation } from "react-i18next";
 
 export interface IDefaultTypedInputProps {
     input: TAgentFormInput;
+    disabled?: bool;
 }
 
-function DefaultTypedInput({ input }: IDefaultTypedInputProps) {
+function DefaultTypedInput({ input, disabled }: IDefaultTypedInputProps) {
     const { selectedProvider, valuesRef, setValue } = useBotValueDefaultInput();
     switch (input.type) {
         case "text":
         case "password":
             setValue(input.name)(valuesRef.current[input.name] || input.defaultValue);
-            return <DefaultStringInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} />;
+            return <DefaultStringInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} disabled={disabled} />;
         case "select":
             setValue(input.name)(valuesRef.current[input.name] || input.defaultValue || input.options[0]);
-            return <DefaultSelectInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} />;
+            return <DefaultSelectInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} disabled={disabled} />;
         case "integer":
             setValue(input.name)(valuesRef.current[input.name] || input.defaultValue || input.min);
-            return <DefaultIntegerInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} />;
+            return <DefaultIntegerInput key={`default-bot-json-input-${selectedProvider}-${input.name}`} input={input} disabled={disabled} />;
     }
 }
 
-function DefaultStringInput({ input }: { input: IStringAgentFormInput }) {
+function DefaultStringInput({ input, disabled }: { input: IStringAgentFormInput; disabled?: bool }) {
     const [t] = useTranslation();
     const { valuesRef, setInputRef, setValue, isValidating, required } = useBotValueDefaultInput();
     const [isDefault, setIsDefault] = useState(!!input.checkDefault && valuesRef.current[input.name] === input.checkDefault);
@@ -40,7 +41,7 @@ function DefaultStringInput({ input }: { input: IStringAgentFormInput }) {
             defaultValue={valuesRef.current[input.name] ?? input.defaultValue}
             onInput={(e) => setValue(input.name)(e.currentTarget.value)}
             required={required && !input.nullable}
-            disabled={isValidating || isDefault}
+            disabled={isValidating || isDefault || disabled}
             ref={setInputRef(input.name)}
         />
     );
@@ -70,7 +71,7 @@ function DefaultStringInput({ input }: { input: IStringAgentFormInput }) {
     );
 }
 
-function DefaultSelectInput({ input }: { input: ISelectAgentFormInput }) {
+function DefaultSelectInput({ input, disabled }: { input: ISelectAgentFormInput; disabled?: bool }) {
     const [t] = useTranslation();
     const { selectedProvider, valuesRef, setInputRef, setValue, isValidating, required } = useBotValueDefaultInput();
     const [currentValue, setCurrentValue] = useState(valuesRef.current[input.name] || input.defaultValue || input.options[0]);
@@ -115,7 +116,7 @@ function DefaultSelectInput({ input }: { input: ISelectAgentFormInput }) {
             value={currentValue}
             onValueChange={setCurrentValue}
             required={required && !input.nullable}
-            disabled={isValidating}
+            disabled={isValidating || disabled}
             options={options.map((option) => (
                 <Select.Item value={option} key={`default-bot-json-input-${selectedProvider}-${input.name}-${option}`}>
                     {option}
@@ -137,7 +138,7 @@ function DefaultSelectInput({ input }: { input: ISelectAgentFormInput }) {
                 size="icon"
                 variant="outline"
                 className="size-10"
-                disabled={isValidating}
+                disabled={isValidating || disabled}
                 onClick={fetchOptions}
                 title={t("common.Refresh")}
             >
@@ -147,7 +148,7 @@ function DefaultSelectInput({ input }: { input: ISelectAgentFormInput }) {
     );
 }
 
-function DefaultIntegerInput({ input }: { input: IIntegerAgentFormInput }) {
+function DefaultIntegerInput({ input, disabled }: { input: IIntegerAgentFormInput; disabled?: bool }) {
     const { valuesRef, setValue, required, isValidating, setInputRef } = useBotValueDefaultInput();
 
     return (
@@ -159,7 +160,7 @@ function DefaultIntegerInput({ input }: { input: IIntegerAgentFormInput }) {
             defaultValue={valuesRef.current[input.name] || input.defaultValue || input.min}
             onInput={(e) => setValue(input.name)(e.currentTarget.value)}
             required={required && !input.nullable}
-            disabled={isValidating}
+            disabled={isValidating || disabled}
             min={input.min}
             max={input.max}
             ref={setInputRef(input.name)}

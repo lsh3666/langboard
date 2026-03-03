@@ -1,6 +1,5 @@
 import * as ProjectCardRelationship from "@/core/models/ProjectCardRelationship";
 import * as ProjectLabel from "@/core/models/ProjectLabel";
-import * as Project from "@/core/models/Project";
 import * as User from "@/core/models/User";
 import { BaseModel, IBaseModel, IEditorContent } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
@@ -22,6 +21,7 @@ import useCardDeletedHandlers from "@/controllers/socket/card/useCardDeletedHand
 import useMetadataUpdatedHandlers from "@/controllers/socket/metadata/useMetadataUpdatedHandlers";
 import useMetadataDeletedHandlers from "@/controllers/socket/metadata/useMetadataDeletedHandlers";
 import { Utils } from "@langboard/core/utils";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface Interface extends IBaseModel {
     project_uid: string;
@@ -38,7 +38,7 @@ export interface IStore extends Interface {
     count_comment: number;
     member_uids: string[];
     project_column_name: string;
-    current_auth_role_actions: Project.TRoleActions[];
+    current_auth_role_actions: ProjectRole.TActions[];
     project_members: User.Interface[];
     labels: ProjectLabel.Interface[];
     relationships: ProjectCardRelationship.Interface[];

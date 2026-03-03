@@ -1,7 +1,6 @@
 from .ActivityRepository import ActivityRepository
 from .ApiKeyRepository import ApiKeyRepository
 from .ApiKeyUsageRepository import ApiKeyUsageRepository
-from .AppSettingRepository import AppSettingRepository
 from .BotLogRepository import BotLogRepository
 from .BotRepository import BotRepository
 from .CardAssignedProjectLabelRepository import CardAssignedProjectLabelRepository
@@ -40,13 +39,13 @@ from .UserNotificationSettingRepository import UserNotificationSettingRepository
 from .UserProfileRepository import UserProfileRepository
 from .UserRepository import UserRepository
 from .UserSignInHistoryRepository import UserSignInHistoryRepository
+from .WebhookSettingRepository import WebhookSettingRepository
 
 
 __all__ = [
     "ActivityRepository",
     "ApiKeyRepository",
     "ApiKeyUsageRepository",
-    "AppSettingRepository",
     "BotLogRepository",
     "BotRepository",
     "CardAssignedProjectLabelRepository",
@@ -85,4 +84,5 @@ __all__ = [
     "UserProfileRepository",
     "UserRepository",
     "UserSignInHistoryRepository",
+    "WebhookSettingRepository",
 ]

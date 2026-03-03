@@ -2,6 +2,7 @@ from fastapi import status
 from langboard_shared.core.filter import FilterMiddleware
 from langboard_shared.core.routing import ApiErrorCode, JsonResponse
 from langboard_shared.domain.models import Bot, User
+from langboard_shared.Env import Env
 from langboard_shared.filter import RoleFilter
 from langboard_shared.security import RoleSecurity
 from starlette.routing import BaseRoute
@@ -39,8 +40,12 @@ class RoleMiddleware(FilterMiddleware):
                 await response(scope, receive, send)
                 return
 
-            if isinstance(user_or_bot, User) and not user_or_bot.is_admin:
-                role_model, actions, role_finder = RoleFilter.get_filtered(child_scope["endpoint"])
+            if isinstance(user_or_bot, User):
+                role_model, actions, role_finder, allowed_all_admin = RoleFilter.get_filtered(child_scope["endpoint"])
+                if (allowed_all_admin and user_or_bot.is_admin) or user_or_bot.email in Env.FULL_ADMIN_ACCESS_EMAILS:
+                    await self.app(scope, receive, send)
+                    return
+
                 role = RoleSecurity(role_model)
 
                 is_authorized = role.is_authorized(

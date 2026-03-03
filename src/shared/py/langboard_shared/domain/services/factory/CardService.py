@@ -7,7 +7,11 @@ from ....core.schema import TimeBasedPagination
 from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TCardParam, TColumnParam, TProjectLabelParam, TProjectParam, TUserOrBot
 from ....core.utils.Converter import convert_python_data
-from ....domain.models import (
+from ....helpers import InfraHelper
+from ....publishers import CardPublisher
+from ....tasks.activities import CardActivityTask
+from ....tasks.bots import CardBotTask
+from ...models import (
     Card,
     CardAssignedProjectLabel,
     CardAssignedUser,
@@ -18,11 +22,7 @@ from ....domain.models import (
     ProjectColumn,
     User,
 )
-from ....domain.models.Checkitem import CheckitemStatus
-from ....helpers import InfraHelper
-from ....publishers import CardPublisher
-from ....tasks.activities import CardActivityTask
-from ....tasks.bots import CardBotTask
+from ...models.Checkitem import CheckitemStatus
 from .CardRelationshipService import CardRelationshipService
 from .CheckitemService import CheckitemService
 from .NotificationService import NotificationService

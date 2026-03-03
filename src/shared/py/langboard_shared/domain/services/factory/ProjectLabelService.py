@@ -3,11 +3,11 @@ from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.types.ParamTypes import TCardParam, TProjectLabelParam, TProjectParam, TUserOrBot
 from ....core.utils.Converter import convert_python_data
-from ....domain.models import Card, Project, ProjectLabel
 from ....helpers import InfraHelper
 from ....publishers import ProjectLabelPublisher
 from ....tasks.activities import ProjectLabelActivityTask
 from ....tasks.bots import ProjectLabelBotTask
+from ...models import Card, Project, ProjectLabel
 
 
 class ProjectLabelService(BaseDomainService):

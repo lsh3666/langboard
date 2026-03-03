@@ -3,11 +3,23 @@ import MoreMenu from "@/components/MoreMenu";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useDeleteUserInSettings from "@/controllers/api/settings/users/useDeleteUserInSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { User } from "@/core/models";
+import { SettingRole } from "@/core/models/roles";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
 const UserMoreMenu = memo(({ user }: { user: User.TModel }) => {
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canDeleteUser = hasRoleAction(SettingRole.EAction.UserDelete);
+
+    if (!canDeleteUser) {
+        return null;
+    }
+
     return (
         <MoreMenu.Root
             triggerProps={{ className: "size-7", titleSide: "bottom", ...{ [DISABLE_DRAGGING_ATTR]: "" } }}

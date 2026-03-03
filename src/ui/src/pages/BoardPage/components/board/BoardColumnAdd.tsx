@@ -2,7 +2,7 @@ import { Box, Button, Card, ScrollArea, Toast } from "@/components/base";
 import useCreateProjectColumn from "@/controllers/api/board/useCreateProjectColumn";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { BoardColumnTitleInput } from "@/pages/BoardPage/components/board/BoardColumnTitle";
@@ -16,7 +16,7 @@ const BoardColumnAdd = memo(() => {
     const { mutateAsync: createProjectColumnMutateAsync } = useCreateProjectColumn({ interceptToast: true });
     const editorName = `${project.uid}-add-column`;
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => hasRoleAction(Project.ERoleAction.Update),
+        canEdit: () => hasRoleAction(ProjectRole.EAction.Update),
         valueType: "input",
         disableNewLine: true,
         editorName,

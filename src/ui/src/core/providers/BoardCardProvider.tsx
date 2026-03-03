@@ -1,15 +1,16 @@
 import { createContext, useContext, useRef } from "react";
-import { AuthUser, Project, ProjectCard } from "@/core/models";
+import { AuthUser, ProjectCard } from "@/core/models";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import { TUserLikeModel } from "@/core/models/ModelRegistry";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardContext {
     projectUID: string;
     card: ProjectCard.TModel;
     currentUser: AuthUser.TModel;
     viewportRef: React.RefObject<HTMLDivElement | null>;
-    hasRoleAction: ReturnType<typeof useRoleActionFilter<Project.TRoleActions>>["hasRoleAction"];
+    hasRoleAction: ReturnType<typeof useRoleActionFilter<ProjectRole.TActions>>["hasRoleAction"];
     socket: ISocketContext;
     replyRef: React.RefObject<(target: TUserLikeModel) => void>;
     sharedClassNames: {

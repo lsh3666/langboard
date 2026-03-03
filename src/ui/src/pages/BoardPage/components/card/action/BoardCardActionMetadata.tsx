@@ -1,7 +1,7 @@
 import { Box, Button, Dialog, IconComponent } from "@/components/base";
 import { MetadataList } from "@/components/MetadataList";
 import MetadataAddButton from "@/components/MetadataList/MetadataAddButton";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";
 import { memo, useState } from "react";
@@ -34,11 +34,11 @@ const BoardCardActionMetadata = memo(({ buttonClassName }: IBoardCardActionMetad
                                 uid: card.uid,
                             }}
                             errorsMap={errorsMap}
-                            canEdit={() => hasRoleAction(Project.ERoleAction.CardUpdate)}
+                            canEdit={() => hasRoleAction(ProjectRole.EAction.CardUpdate)}
                         />
                     </Box>
                 </Dialog.Description>
-                {hasRoleAction(Project.ERoleAction.CardUpdate) && (
+                {hasRoleAction(ProjectRole.EAction.CardUpdate) && (
                     <Dialog.Footer>
                         <MetadataAddButton
                             form={{

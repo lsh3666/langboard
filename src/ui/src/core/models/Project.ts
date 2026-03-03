@@ -1,7 +1,7 @@
 import * as User from "@/core/models/User";
 import * as ProjectLabel from "@/core/models/ProjectLabel";
 import * as InternalBotModel from "@/core/models/InternalBotModel";
-import { IBaseModel, BaseModel, TRoleAllGranted } from "@/core/models/Base";
+import { IBaseModel, BaseModel } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
 import useBoardLabelCreatedHandlers from "@/controllers/socket/board/label/useBoardLabelCreatedHandlers";
@@ -37,15 +37,7 @@ import useBoardBotLogCreatedHandlers from "@/controllers/socket/board/botLogs/us
 import useBoardBotLogStackAddedHandlers from "@/controllers/socket/board/botLogs/useBoardBotLogStackAddeddHandlers";
 import useBoardBotStatusChangedHandlers from "@/controllers/socket/board/useBoardBotStatusChangedHandlers";
 import useBoardAssignedInternalBotSettingsChangedHandlers from "@/controllers/socket/board/useBoardAssignedInternalBotSettingsChangedHandlers";
-
-export enum ERoleAction {
-    Read = "read",
-    Update = "update",
-    CardWrite = "card_write",
-    CardUpdate = "card_update",
-    CardDelete = "card_delete",
-}
-export type TRoleActions = ERoleAction | keyof typeof ERoleAction | TRoleAllGranted;
+import { ProjectRole } from "@/core/models/roles";
 
 export const TYPES = ["SI", "SW", "Other"];
 
@@ -67,13 +59,13 @@ export interface IStore extends Interface {
             use_default_prompt: bool;
         }
     >;
-    current_auth_role_actions: TRoleActions[];
+    current_auth_role_actions: ProjectRole.TActions[];
     labels: ProjectLabel.Interface[];
     description: string;
     ai_description?: string;
     last_viewed_at: Date;
 
-    member_roles: Record<string, TRoleActions[]>; // This will be used in board setting.
+    member_roles: Record<string, ProjectRole.TActions[]>; // This will be used in board setting.
 }
 
 class Project extends BaseModel<IStore> {

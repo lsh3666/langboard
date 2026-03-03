@@ -4,7 +4,8 @@ import NotificationSetting from "@/components/NotificationSetting";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useDeleteProjectColumn from "@/controllers/api/board/useDeleteProjectColumn";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project, ProjectColumn } from "@/core/models";
+import { ProjectColumn } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import BoardColumnMoreMenuBotList from "@/pages/BoardPage/components/board/BoardColumnMoreMenuBotList";
 import BoardColumnMoreMenuBotScope from "@/pages/BoardPage/components/board/BoardColumnMoreMenuBotScope";
@@ -17,7 +18,7 @@ export interface IBoardColumnMoreMenuProps {
 
 const BoardColumnMoreMenu = memo(({ column }: IBoardColumnMoreMenuProps) => {
     const { project, currentUser, hasRoleAction } = useBoard();
-    const canEdit = hasRoleAction(Project.ERoleAction.Update);
+    const canEdit = hasRoleAction(ProjectRole.EAction.Update);
 
     return (
         <MoreMenu.Root

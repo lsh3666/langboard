@@ -20,7 +20,10 @@ class BaseRoleRepository(Generic[_TRoleModel], BaseRepository[_TRoleModel]):
 
         for arg, value in kwargs.items():
             if arg in model_cls.model_fields and value is not None:
-                query = query.where(getattr(model_cls, arg) == value)
+                if isinstance(value, list):
+                    query = query.where(getattr(model_cls, arg).in_(value))
+                else:
+                    query = query.where(getattr(model_cls, arg) == value)
 
         records = []
         with DbSession.use(readonly=True) as db:

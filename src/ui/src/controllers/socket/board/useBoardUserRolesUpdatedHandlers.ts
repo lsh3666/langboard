@@ -2,10 +2,11 @@ import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { Project } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardUserRolesUpdatedRawResponse {
     user_uid: string;
-    roles: Project.TRoleActions[];
+    roles: ProjectRole.TActions[];
 }
 
 export interface IUseBoardUserRolesUpdatedHandlersProps extends IBaseUseSocketHandlersProps<{}> {

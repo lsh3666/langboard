@@ -1,15 +1,15 @@
-import { ROLE_ALL_GRANTED } from "@/core/models/Base";
+import { ROLE_ALL_GRANTED } from "@/core/models/roles/base";
 import { useCallback } from "react";
 
 const useRoleActionFilter = <T extends string>(userActions: T[]) => {
     const hasRoleAction = useCallback(
-        (...roles: T[]) => {
+        (...actions: T[]) => {
             if (userActions.includes(ROLE_ALL_GRANTED as T)) {
                 return true;
             }
 
-            for (let i = 0; i < roles.length; ++i) {
-                if (userActions.includes(roles[i])) {
+            for (let i = 0; i < actions.length; ++i) {
+                if (userActions.includes(actions[i])) {
                     return true;
                 }
             }

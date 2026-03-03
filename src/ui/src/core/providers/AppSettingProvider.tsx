@@ -1,9 +1,9 @@
 import useBotSettingCreatedHandlers from "@/controllers/socket/settings/bots/useBotSettingCreatedHandlers";
 import useMcpToolGroupCreatedHandlers from "@/controllers/socket/settings/mcpToolGroups/useMcpToolGroupCreatedHandlers";
 import useSelectedMcpToolGroupsDeletedHandlers from "@/controllers/socket/settings/mcpToolGroups/useSelectedMcpToolGroupsDeletedHandlers";
-import useAppSettingCreatedHandlers from "@/controllers/socket/settings/useAppSettingCreatedHandlers";
+import useWebhookCreatedHandlers from "@/controllers/socket/settings/webhooks/useWebhookCreatedHandlers";
 import useSelectedUsersDeletedHandlers from "@/controllers/socket/settings/users/useSelectedUsersDeletedHandlers";
-import useSelectedAppSettingsDeletedHandlers from "@/controllers/socket/settings/useSelectedAppSettingsDeletedHandlers";
+import useSelectedWebhooksDeletedHandlers from "@/controllers/socket/settings/webhooks/useSelectedWebhooksDeletedHandlers";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { AuthUser } from "@/core/models";
 import { useAuth } from "@/core/providers/AuthProvider";
@@ -33,8 +33,8 @@ export const AppSettingProvider = ({ currentUser, children }: IAppSettingProvide
     const { signOut } = useAuth();
     const socket = useSocket();
     const [isValidating, setIsValidating] = useState(false);
-    const appSettingCreatedHandlers = useAppSettingCreatedHandlers({});
-    const selectedAppSettingsDeletedHandlers = useSelectedAppSettingsDeletedHandlers({});
+    const webhookCreatedHandlers = useWebhookCreatedHandlers({});
+    const selectedWebhooksDeletedHandlers = useSelectedWebhooksDeletedHandlers({});
     const botSettingCreatedHandlers = useBotSettingCreatedHandlers({});
     const selectedUsersDeletedHandlers = useSelectedUsersDeletedHandlers({
         currentUser,
@@ -46,8 +46,8 @@ export const AppSettingProvider = ({ currentUser, children }: IAppSettingProvide
     useSwitchSocketHandlers({
         socket,
         handlers: [
-            appSettingCreatedHandlers,
-            selectedAppSettingsDeletedHandlers,
+            webhookCreatedHandlers,
+            selectedWebhooksDeletedHandlers,
             botSettingCreatedHandlers,
             selectedUsersDeletedHandlers,
             mcpToolGroupCreatedHandlers,

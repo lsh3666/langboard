@@ -32,6 +32,7 @@ def _run_app(options: RunCommandOptions):
         DbUpgradeCommand().execute(DbUpgradeCommandOptions())
         _init_internal_bots()
         _init_admin()
+        _set_full_admin_access()
 
     app_config = FastAPIAppConfig(APP_CONFIG_FILE)
     app_config.create(
@@ -124,3 +125,45 @@ def _init_admin():
             admin_profile = UserProfile(user_id=admin.id, industry="", purpose="")
             db.insert(admin_profile)
         sleep(1)
+
+
+def _set_full_admin_access():
+    if not Env.FULL_ADMIN_ACCESS_EMAILS:
+        return
+
+    from langboard_shared.core.db import DbSession, SqlBuilder
+    from langboard_shared.domain.models import ApiKeyRole, McpRole, SettingRole, User
+    from langboard_shared.domain.models.bases.BaseRoleModel import ALL_GRANTED
+
+    with DbSession.use(readonly=False) as db:
+        admin_users = db.exec(
+            SqlBuilder.select.table(User).where(User.column("email").in_(Env.FULL_ADMIN_ACCESS_EMAILS))
+        ).all()
+        for admin in admin_users:
+            setting_role = db.exec(
+                SqlBuilder.select.table(SettingRole).where(SettingRole.column("user_id") == admin.id)
+            ).first()
+            if not setting_role:
+                setting_role = SettingRole(user_id=admin.id, actions=[ALL_GRANTED])
+                db.insert(setting_role)
+            if not setting_role.is_all_granted():
+                setting_role.set_all_actions()
+                db.update(setting_role)
+
+            api_key_role = db.exec(
+                SqlBuilder.select.table(ApiKeyRole).where(ApiKeyRole.column("user_id") == admin.id)
+            ).first()
+            if not api_key_role:
+                api_key_role = ApiKeyRole(user_id=admin.id, actions=[ALL_GRANTED])
+                db.insert(api_key_role)
+            if not api_key_role.is_all_granted():
+                api_key_role.set_all_actions()
+                db.update(api_key_role)
+
+            mcp_role = db.exec(SqlBuilder.select.table(McpRole).where(McpRole.column("user_id") == admin.id)).first()
+            if not mcp_role:
+                mcp_role = McpRole(user_id=admin.id, actions=[ALL_GRANTED])
+                db.insert(mcp_role)
+            if not mcp_role.is_all_granted():
+                mcp_role.set_all_actions()
+                db.update(mcp_role)

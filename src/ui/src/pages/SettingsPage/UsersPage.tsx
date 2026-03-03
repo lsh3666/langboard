@@ -2,6 +2,8 @@ import { Button, Flex, IconComponent, Toast } from "@/components/base";
 import useDeleteSelectedUsersInSettings from "@/controllers/api/settings/users/useDeleteSelectedUsersInSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { SettingRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -14,9 +16,12 @@ function UsersPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating, setIsValidating } = useAppSetting();
+    const { currentUser, isValidating, setIsValidating } = useAppSetting();
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
     const { mutate: deleteSelectedUsersMutate } = useDeleteSelectedUsersInSettings();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canDeleteUser = hasRoleAction(SettingRole.EAction.UserDelete);
 
     useEffect(() => {
         setPageAliasRef.current("Users");
@@ -27,7 +32,7 @@ function UsersPage() {
     };
 
     const deleteSelectedUsers = () => {
-        if (isValidating || !selectedUsers.length) {
+        if (isValidating || !selectedUsers.length || !canDeleteUser) {
             return;
         }
 
@@ -72,7 +77,7 @@ function UsersPage() {
             >
                 <span className="w-36">{t("settings.Users")}</span>
                 <Flex gap="2" wrap justify="end" maxW={{ initial: "full", sm: "auto" }}>
-                    {selectedUsers.length > 0 && (
+                    {selectedUsers.length > 0 && canDeleteUser && (
                         <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedUsers}>
                             <IconComponent icon="trash" size="4" />
                             {t("common.Delete")}

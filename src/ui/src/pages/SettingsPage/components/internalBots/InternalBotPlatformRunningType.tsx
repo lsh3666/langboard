@@ -2,9 +2,12 @@ import { Box, Toast } from "@/components/base";
 import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTypeSelect";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EBotPlatformRunningType } from "@langboard/core/ai";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
@@ -14,13 +17,17 @@ const InternalBotPlatformRunningType = memo(() => {
     const [t] = useTranslation();
     const { model: internalBot } = ModelRegistry.InternalBotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateInternalBot = hasRoleAction(SettingRole.EAction.InternalBotUpdate);
     const platform = internalBot.useField("platform");
     const platformRunningType = internalBot.useField("platform_running_type");
     const [isValidating, setIsValidating] = useState(false);
     const { mutateAsync } = useUpdateInternalBot(internalBot, { interceptToast: true });
 
     const changePlatformRunningType = async (value: EBotPlatformRunningType) => {
-        if (isValidating) {
+        if (isValidating || !canUpdateInternalBot) {
             return;
         }
 
@@ -57,7 +64,12 @@ const InternalBotPlatformRunningType = memo(() => {
 
     return (
         <Box>
-            <BotPlatformRunningTypeSelect state={[platformRunningType, changePlatformRunningType]} platform={platform} isValidating={isValidating} />
+            <BotPlatformRunningTypeSelect
+                state={[platformRunningType, changePlatformRunningType]}
+                platform={platform}
+                isValidating={isValidating}
+                disabled={!canUpdateInternalBot}
+            />
         </Box>
     );
 });

@@ -3,8 +3,7 @@ from httpx import post
 from ...core.broker import Broker
 from ...core.db import DbSession, SqlBuilder
 from ...core.types import SafeDateTime
-from ...domain.models import AppSetting
-from ...domain.models.AppSetting import AppSettingType
+from ...domain.models import WebhookSetting
 from ...publishers import AppSettingPublisher
 from .utils import WebhookModel
 
@@ -20,14 +19,10 @@ async def run_webhook(event: str, data: dict[str, Any]):
         return
 
     for setting in settings:
-        url = setting.get_value()
-        if not isinstance(url, str) or not url.strip():
-            continue
-
         res = None
         try:
             res = post(
-                url,
+                setting.url,
                 json={"event": event, "data": data},
             )
             res.raise_for_status()
@@ -35,16 +30,16 @@ async def run_webhook(event: str, data: dict[str, Any]):
             res = True
         except Exception:
             if res:
-                Broker.logger.error("Failed to request webhook: \nURL: %s\nResponse: %s", res.text)
+                Broker.logger.error("Failed to request webhook: \nURL: %s\nResponse: %s", setting.url, res.text)
             else:
-                Broker.logger.error("Failed to request webhook: \nURL: %s", url)
+                Broker.logger.error("Failed to request webhook: \nURL: %s", setting.url)
 
         if res:
             setting.last_used_at = SafeDateTime.now()
             setting.total_used_count += 1
             with DbSession.use(readonly=False) as db:
                 db.update(setting)
-            AppSettingPublisher.setting_updated(
+            AppSettingPublisher.webhook_setting_updated(
                 setting.get_uid(),
                 {
                     "last_used_at": setting.last_used_at,
@@ -53,12 +48,10 @@ async def run_webhook(event: str, data: dict[str, Any]):
             )
 
 
-def _get_webhook_settings() -> list[AppSetting]:
+def _get_webhook_settings() -> list[WebhookSetting]:
     urls = None
     with DbSession.use(readonly=True) as db:
-        result = db.exec(
-            SqlBuilder.select.table(AppSetting).where(AppSetting.setting_type == AppSettingType.WebhookUrl)
-        )
+        result = db.exec(SqlBuilder.select.table(WebhookSetting))
         urls = result.all()
     if not urls:
         return []

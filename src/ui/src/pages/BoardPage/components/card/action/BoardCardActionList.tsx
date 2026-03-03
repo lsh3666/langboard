@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/base";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
-import { Project } from "@/core/models";
 import { memo } from "react";
 import BoardCardActionActivity from "@/pages/BoardPage/components/card/action/BoardCardActionActivity";
 import BoardCardActionAttachFile from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachFile";
@@ -12,6 +11,7 @@ import BoardCardActionArchive from "@/pages/BoardPage/components/card/action/Boa
 import BoardCardActionDelete from "@/pages/BoardPage/components/card/action/BoardCardActionDelete";
 import BoardCardActionMetadata from "@/pages/BoardPage/components/card/action/BoardCardActionMetadata";
 import BoardCardActionBotScope from "@/pages/BoardPage/components/card/action/botScope/BoardCardActionBotScope";
+import { ProjectRole } from "@/core/models/roles";
 
 const sharedButtonClassName = "mb-2 w-full justify-start gap-2 rounded-none px-2 py-1 sm:h-7";
 
@@ -43,10 +43,10 @@ const BoardCardActionList = memo(() => {
             <BoardCardActionMetadata buttonClassName={sharedButtonClassName} />
             <BoardCardActionActivity buttonClassName={sharedButtonClassName} />
             <BoardCardActionShare buttonClassName={sharedButtonClassName} />
-            {!archivedAt && (hasRoleAction(Project.ERoleAction.CardUpdate) || isAdmin) ? (
+            {!archivedAt && (hasRoleAction(ProjectRole.EAction.CardUpdate) || isAdmin) ? (
                 <BoardCardActionArchive buttonClassName={sharedButtonClassName} />
             ) : null}
-            {!!archivedAt && (hasRoleAction(Project.ERoleAction.CardDelete) || isAdmin) ? (
+            {!!archivedAt && (hasRoleAction(ProjectRole.EAction.CardDelete) || isAdmin) ? (
                 <BoardCardActionDelete buttonClassName={sharedButtonClassName} />
             ) : null}
         </>

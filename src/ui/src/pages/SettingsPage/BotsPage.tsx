@@ -1,4 +1,5 @@
 import { Button, Flex, IconComponent, Toast } from "@/components/base";
+import useGetBots from "@/controllers/api/settings/bots/useGetBots";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { BotModel } from "@/core/models";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
@@ -17,11 +18,13 @@ function BotsPage() {
     const { isValidating } = useAppSetting();
     const { botUID } = useParams();
     const [bot, setBot] = useState<BotModel.TModel | null>(null);
+    const { mutateAsync: getBotsMutateAsync } = useGetBots();
 
     useEffect(() => {
         if (!botUID) {
             setPageAliasRef.current("Bots");
             setBot(null);
+            getBotsMutateAsync({});
             return;
         }
 

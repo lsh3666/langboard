@@ -20,13 +20,9 @@ import { TBotValueDefaultInputRefLike } from "@/components/bots/BotValueInput/ty
 import BotValueInput from "@/components/bots/BotValueInput";
 import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
 import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTypeSelect";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IBotCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function BotCreateFormDialog({ opened, setOpened }: IBotCreateFormDialogProps): JSX.Element {
+function BotCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

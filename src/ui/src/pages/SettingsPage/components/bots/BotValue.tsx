@@ -1,7 +1,10 @@
 import { Alert, Box, Toast } from "@/components/base";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { SettingRole } from "@/core/models/roles";
 import { ROUTES } from "@/core/routing/constants";
 import { memo, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,6 +19,10 @@ const BotValue = memo(() => {
     const [t] = useTranslation();
     const { model: internalBot } = ModelRegistry.BotModel.useContext();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canUpdateBot = hasRoleAction(SettingRole.EAction.BotUpdate);
     const platform = internalBot.useField("platform");
     const platformRunningType = internalBot.useField("platform_running_type");
     const value = internalBot.useField("value");
@@ -27,7 +34,7 @@ const BotValue = memo(() => {
 
     const change = () => {
         const input = inputRef.current;
-        if (isValidating || !newValueRef.current || !input) {
+        if (isValidating || !newValueRef.current || !input || !canUpdateBot) {
             return;
         }
 
@@ -94,6 +101,7 @@ const BotValue = memo(() => {
                 isValidating={isValidating}
                 change={change}
                 required
+                disabled={!canUpdateBot}
                 ref={inputRef}
             />
         </Box>

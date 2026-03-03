@@ -1,7 +1,7 @@
 from typing import Any, Literal, TypeVar, overload
 from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
-from ....domain.models.bases import BaseMetadataModel
+from ...models.bases import BaseMetadataModel
 
 
 _TMetadata = TypeVar("_TMetadata", bound=BaseMetadataModel)

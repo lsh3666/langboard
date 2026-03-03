@@ -1,27 +1,22 @@
 import { useTranslation } from "react-i18next";
 import { Box, Button, Dialog, Floating, SubmitButton, Toast } from "@/components/base";
 import { useRef, useState } from "react";
-import useCreateSetting from "@/controllers/api/settings/useCreateSetting";
-import { ESettingType } from "@/core/models/AppSettingModel";
+import useCreateWebhook from "@/controllers/api/settings/webhooks/useCreateWebhook";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ROUTES } from "@/core/routing/constants";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { Utils } from "@langboard/core/utils";
 import { EHttpStatus } from "@langboard/core/enums";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IWebhookCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function WebhookCreateFormDialog({ opened, setOpened }: IWebhookCreateFormDialogProps): JSX.Element {
+function WebhookCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);
     const nameInputRef = useRef<HTMLInputElement>(null);
     const urlInputRef = useRef<HTMLInputElement>(null);
-    const { mutate } = useCreateSetting();
+    const { mutate } = useCreateWebhook();
     const [errors, setErrors] = useState<Record<string, string>>({});
     const save = () => {
         if (isValidating || !nameInputRef.current || !urlInputRef.current) {
@@ -63,9 +58,8 @@ function WebhookCreateFormDialog({ opened, setOpened }: IWebhookCreateFormDialog
 
         mutate(
             {
-                setting_type: ESettingType.WebhookUrl,
-                setting_name: nameValue,
-                setting_value: urlValue,
+                name: nameValue,
+                url: urlValue,
             },
             {
                 onSuccess: () => {

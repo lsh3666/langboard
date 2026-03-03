@@ -52,6 +52,11 @@ class Env:
         return self.__get_from_cache("ADMIN_PASSWORD")
 
     @property
+    def FULL_ADMIN_ACCESS_EMAILS(self) -> set[str]:
+        emails = self.__get_from_cache("FULL_ADMIN_ACCESS_EMAILS", "")
+        return set(email.strip() for email in emails.split(",") if email.strip())
+
+    @property
     def API_PORT(self) -> int:
         return int(self.__get_from_cache("API_PORT", "5381"))
 

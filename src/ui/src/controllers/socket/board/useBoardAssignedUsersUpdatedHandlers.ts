@@ -2,6 +2,7 @@ import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { Project, User } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardAssignedUsersUpdatedRawResponse {
     assigned_members: User.Interface[];
@@ -46,7 +47,7 @@ const useBoardAssignedUsersUpdatedHandlers = ({ callback, projectUID }: IUseBoar
                         for (let i = 0; i < data.assigned_members.length; ++i) {
                             const assignedMember = data.assigned_members[i];
                             if (!memberRoles[assignedMember.uid]) {
-                                memberRoles[assignedMember.uid] = [Project.ERoleAction.Read];
+                                memberRoles[assignedMember.uid] = [ProjectRole.EAction.Read];
                             }
                         }
                         model.member_roles = memberRoles;

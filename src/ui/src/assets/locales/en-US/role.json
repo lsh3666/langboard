@@ -5,5 +5,54 @@
     "card_write": "Card Write",
     "card_update": "Card Update",
     "card_delete": "Card Delete"
+  },
+  "setting": {
+    "user_read": "Read",
+    "user_create": "Create",
+    "user_update": "Update",
+    "user_delete": "Delete",
+    "bot_read": "Read",
+    "bot_create": "Create",
+    "bot_update": "Update",
+    "bot_delete": "Delete",
+    "internal_bot_read": "Read",
+    "internal_bot_create": "Create",
+    "internal_bot_update": "Update",
+    "internal_bot_delete": "Delete",
+    "global_relationship_read": "Read",
+    "global_relationship_create": "Create",
+    "global_relationship_update": "Update",
+    "global_relationship_delete": "Delete",
+    "webhook_read": "Read",
+    "webhook_create": "Create",
+    "webhook_update": "Update",
+    "webhook_delete": "Delete",
+    "ollama_read": "Read"
+  },
+  "setting_categories": {
+    "user": "User Management",
+    "bot": "Bot Management",
+    "internal_bot": "Internal Bot Management",
+    "global_relationship": "Global Relationship Management",
+    "webhook": "Webhook Management",
+    "ollama": "Ollama Management"
+  },
+  "action_types": {
+    "read": "All Read",
+    "create": "All Create",
+    "update": "All Update",
+    "delete": "All Delete"
+  },
+  "api_key": {
+    "read": "Read",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete"
+  },
+  "mcp": {
+    "read": "Read",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete"
   }
 }

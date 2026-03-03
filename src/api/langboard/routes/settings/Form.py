@@ -1,12 +1,13 @@
 from re import match
-from typing import Any
 from langboard_shared.ai import BaseSharedBotForm
 from langboard_shared.core.routing import BaseFormModel, form_model
 from langboard_shared.core.routing.Exception import MissingException, ValidationFailureException, ValidationFailureInfo
 from langboard_shared.core.types import SafeDateTime
-from langboard_shared.domain.models.AppSetting import AppSettingType
+from langboard_shared.domain.models.ApiKeyRole import ApiKeyRoleAction
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from langboard_shared.domain.models.InternalBot import InternalBotType
+from langboard_shared.domain.models.McpRole import McpRoleAction
+from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from pydantic import BaseModel, field_validator
 from ...Constants import EMAIL_REGEX
 
@@ -14,24 +15,6 @@ from ...Constants import EMAIL_REGEX
 class UsersPagination(BaseModel):
     refer_time: SafeDateTime = SafeDateTime.now()
     only_count: bool = False
-
-
-@form_model
-class CreateSettingForm(BaseFormModel):
-    setting_type: AppSettingType
-    setting_name: str
-    setting_value: Any = ""
-
-
-@form_model
-class UpdateSettingForm(BaseFormModel):
-    setting_name: str | None = None
-    setting_value: Any | None = None
-
-
-@form_model
-class DeleteSelectedSettingsForm(BaseFormModel):
-    setting_uids: list[str]
 
 
 @form_model
@@ -208,3 +191,35 @@ class UpdateMcpToolGroupForm(BaseFormModel):
 @form_model
 class DeleteSelectedMcpToolGroupsForm(BaseFormModel):
     group_uids: list[str]
+
+
+@form_model
+class UpdateSettingRoleForm(BaseFormModel):
+    actions: list[SettingRoleAction]
+
+
+@form_model
+class UpdateApiKeyRoleForm(BaseFormModel):
+    actions: list[ApiKeyRoleAction]
+
+
+@form_model
+class UpdateMcpRoleForm(BaseFormModel):
+    actions: list[McpRoleAction]
+
+
+@form_model
+class CreateWebhookForm(BaseFormModel):
+    name: str
+    url: str
+
+
+@form_model
+class UpdateWebhookForm(BaseFormModel):
+    name: str | None = None
+    url: str | None = None
+
+
+@form_model
+class DeleteSelectedWebhooksForm(BaseFormModel):
+    webhook_uids: list[str]

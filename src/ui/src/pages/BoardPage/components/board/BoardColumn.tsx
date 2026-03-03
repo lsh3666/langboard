@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import invariant from "tiny-invariant";
 import BoardColumnCard, { BoardColumnCardShadow, SkeletonBoardColumnCard } from "@/pages/BoardPage/components/board/BoardColumnCard";
 import { useBoard } from "@/core/providers/BoardProvider";
-import { Project, ProjectColumn } from "@/core/models";
+import { ProjectColumn } from "@/core/models";
 import { BoardAddCardProvider } from "@/core/providers/BoardAddCardProvider";
 import { Box, Card, Flex, ScrollArea, ShineBorder, Skeleton } from "@/components/base";
 import BoardColumnHeader from "@/pages/BoardPage/components/board/BoardColumnHeader";
@@ -20,6 +20,7 @@ import { BLOCK_BOARD_PANNING_ATTR, BOARD_DND_SETTINGS, BOARD_DND_SYMBOL_SET } fr
 import { COLUMN_IDLE } from "@/core/helpers/dnd/createDndColumnEvents";
 import useRowReordered from "@/core/hooks/useRowReordered";
 import { useHasRunningBot } from "@/core/stores/BotStatusStore";
+import { ProjectRole } from "@/core/models/roles";
 
 export function SkeletonBoardColumn({ cardCount }: { cardCount: number }) {
     return (
@@ -110,7 +111,7 @@ function BoardColumn({ column, updateBoard }: IBoardColumnProps) {
                     <Card.Content
                         className={cn(
                             "flex flex-grow flex-col gap-2 p-3",
-                            hasRoleAction(Project.ERoleAction.CardWrite) && !column.is_archive
+                            hasRoleAction(ProjectRole.EAction.CardWrite) && !column.is_archive
                                 ? "max-h-[calc(100vh_-_theme(spacing.64)_-_theme(spacing.2))]"
                                 : "max-h-[calc(100vh_-_theme(spacing.56)_-_theme(spacing.1))]"
                         )}

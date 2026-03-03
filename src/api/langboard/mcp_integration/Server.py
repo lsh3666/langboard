@@ -5,7 +5,7 @@ from types import UnionType
 from typing import Callable, TypeGuard, Union, get_args, get_origin
 from langboard_shared.core.types import Factory
 from langboard_shared.core.utils.decorators import class_instance
-from langboard_shared.domain.models import Bot, User
+from langboard_shared.domain.models import Bot, McpToolGroup, User
 from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import Env
 from langboard_shared.infrastructure.repositories import Repository
@@ -66,8 +66,8 @@ class McpServer:
 
         async def wrapper(**kwargs):
             auth_data = mcp_auth_context.get()
-            auth_value = auth_data.get("user_or_bot") if auth_data else None
-            tool_group = auth_data.get("tool_group") if auth_data else None
+            auth_value: User | Bot | None = auth_data.get("user_or_bot") if auth_data else None
+            tool_group: McpToolGroup | None = auth_data.get("tool_group") if auth_data else None
 
             if not self._validate_auth(auth_value, tool_name):
                 raise PermissionError("Authentication required")
@@ -122,7 +122,10 @@ class McpServer:
         if not McpRoleFilter.exists(handler):
             return True
 
-        role_model, actions, role_finder = McpRoleFilter.get_filtered(handler)
+        role_model, actions, role_finder, allowed_all_admin = McpRoleFilter.get_filtered(handler)
+
+        if allowed_all_admin and user_or_bot.is_admin:
+            return True
 
         role_sec = RoleSecurity(role_model)
 

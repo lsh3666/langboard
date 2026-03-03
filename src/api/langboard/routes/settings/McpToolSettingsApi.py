@@ -2,9 +2,11 @@ from fastapi import status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
-from langboard_shared.domain.models import McpToolGroup, User
+from langboard_shared.domain.models import McpRole, McpToolGroup, User
+from langboard_shared.domain.models.McpRole import McpRoleAction
 from langboard_shared.domain.services.DomainService import DomainService
-from langboard_shared.security import Auth
+from langboard_shared.filter import RoleFilter
+from langboard_shared.security import Auth, RoleFinder
 from .Form import CreateMcpToolGroupForm, DeleteSelectedMcpToolGroupsForm, UpdateMcpToolGroupForm
 
 
@@ -14,7 +16,8 @@ from .Form import CreateMcpToolGroupForm, DeleteSelectedMcpToolGroupsForm, Updat
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().suc({"tool_groups": [McpToolGroup]}).auth().forbidden().get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Read], RoleFinder.mcp)
+@AuthFilter.add("user")
 def list_mcp_tool_groups(
     user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -28,7 +31,8 @@ def list_mcp_tool_groups(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().suc({"tool_groups": [McpToolGroup]}).auth().forbidden().get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Read], RoleFinder.mcp)
+@AuthFilter.add("user")
 def list_global_mcp_tool_groups(service: DomainService = DomainService.scope()) -> JsonResponse:
     tool_groups = service.mcp_tool_group.get_api_global_list()
     return JsonResponse(content={"tool_groups": tool_groups})
@@ -40,7 +44,8 @@ def list_global_mcp_tool_groups(service: DomainService = DomainService.scope()) 
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().suc({"tool_group": McpToolGroup}, 201).auth().forbidden().get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Create], RoleFinder.mcp)
+@AuthFilter.add("user")
 def create_mcp_tool_group(
     form: CreateMcpToolGroupForm, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -59,7 +64,8 @@ def create_mcp_tool_group(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().suc({"tool_group": McpToolGroup}).auth().forbidden().err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Read], RoleFinder.mcp)
+@AuthFilter.add("user")
 def get_mcp_tool_group_details(
     group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -79,7 +85,8 @@ def get_mcp_tool_group_details(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().suc({"tool_group": McpToolGroup}).auth().forbidden().err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Update], RoleFinder.mcp)
+@AuthFilter.add("user")
 def update_mcp_tool_group(
     group_uid: str,
     form: UpdateMcpToolGroupForm,
@@ -108,7 +115,8 @@ def update_mcp_tool_group(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().auth().forbidden().err(403, ApiErrorCode.AU1001).err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Update], RoleFinder.mcp)
+@AuthFilter.add("user")
 def activate_mcp_tool_group(
     group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -132,7 +140,8 @@ def activate_mcp_tool_group(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().auth().forbidden().err(403, ApiErrorCode.AU1001).err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Update], RoleFinder.mcp)
+@AuthFilter.add("user")
 def deactivate_mcp_tool_group(
     group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -156,7 +165,8 @@ def deactivate_mcp_tool_group(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().auth().forbidden().err(403, ApiErrorCode.AU1001).err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Delete], RoleFinder.mcp)
+@AuthFilter.add("user")
 def delete_mcp_tool_group(
     group_uid: str, user: User = Auth.scope("user"), service: DomainService = DomainService.scope()
 ) -> JsonResponse:
@@ -180,7 +190,8 @@ def delete_mcp_tool_group(
     tags=["AppSettings.MCP"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3006).get(),
 )
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Delete], RoleFinder.mcp)
+@AuthFilter.add("user")
 def delete_selected_mcp_tool_groups(
     form: DeleteSelectedMcpToolGroupsForm,
     user: User = Auth.scope("user"),

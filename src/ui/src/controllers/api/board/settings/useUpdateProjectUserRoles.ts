@@ -2,12 +2,12 @@
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { Project } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IUpdateProjectUserRolesForm {
     project_uid: string;
-    roles: Project.TRoleActions[];
+    roles: ProjectRole.TActions[];
 }
 
 const useUpdateProjectUserRoles = (userUID: string, options?: TMutationOptions<IUpdateProjectUserRolesForm>) => {

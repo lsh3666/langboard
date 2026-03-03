@@ -1,8 +1,7 @@
 import { IHeaderNavItem } from "@/components/Header/types";
 import { DashboardStyledLayout } from "@/components/Layout";
 import { ISidebarNavItem } from "@/components/Sidebar/types";
-import useGetAllSettings from "@/controllers/api/settings/useGetAllSettings";
-import useIsSettingsAvailable from "@/controllers/api/settings/useIsSettingsAvailable";
+import useGetSettingRoles from "@/controllers/api/settings/useGetSettingRoles";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { AppSettingProvider } from "@/core/providers/AppSettingProvider";
@@ -11,7 +10,7 @@ import { ROUTES } from "@/core/routing/constants";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSocket } from "@/core/providers/SocketProvider";
-import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
+import { EHttpStatus, ESettingSocketTopicID, ESocketTopic } from "@langboard/core/enums";
 import { IS_OLLAMA_RUNNING } from "@/constants";
 import BotsPage from "@/pages/SettingsPage/BotsPage";
 import GlobalRelationshipsPage from "@/pages/SettingsPage/GlobalRelationshipsPage";
@@ -21,15 +20,16 @@ import UsersPage from "@/pages/SettingsPage/UsersPage";
 import ApiKeysPage from "@/pages/SettingsPage/ApiKeysPage";
 import OllamaPage from "@/pages/SettingsPage/OllamaPage";
 import McpServerPage from "@/pages/SettingsPage/McpServerPage";
+import { AuthUser } from "@/core/models";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { ApiKeyRole, McpRole, SettingRole } from "@/core/models/roles";
 
 function SettingsProxy(): JSX.Element {
-    const [t] = useTranslation();
     const { currentUser } = useAuth();
     const socket = useSocket();
     const navigate = usePageNavigateRef();
     const pathname = location.pathname.split("/").slice(0, 3).join("/");
-    const { data, isFetching, error } = useIsSettingsAvailable();
-    const { mutate: getAllSettingsMutate } = useGetAllSettings();
+    const { data, isFetching, error } = useGetSettingRoles();
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
@@ -52,26 +52,68 @@ function SettingsProxy(): JSX.Element {
             return;
         }
 
-        getAllSettingsMutate(
-            {},
-            {
-                onSuccess: () => {
-                    socket.subscribe(ESocketTopic.AppSettings, ["all"], () => {
-                        setIsReady(() => true);
-                    });
-                },
-                onError: (error) => {
-                    const { handle } = setupApiErrorHandler({
-                        [EHttpStatus.HTTP_403_FORBIDDEN]: {
-                            after: () => navigate(ROUTES.ERROR(EHttpStatus.HTTP_403_FORBIDDEN), { replace: true }),
-                        },
-                    });
-
-                    handle(error);
-                },
+        socket.subscribe(ESocketTopic.AppSettings, Object.values(ESettingSocketTopicID), () => {
+            if (currentUser) {
+                currentUser.setting_role_actions = data.setting_role_actions ?? undefined;
+                currentUser.api_key_role_actions = data.api_key_role_actions ?? undefined;
+                currentUser.mcp_role_actions = data.mcp_role_actions ?? undefined;
             }
-        );
+
+            setIsReady(() => true);
+        });
     }, [isFetching]);
+
+    let skeletonContent;
+    switch (pathname) {
+        case ROUTES.SETTINGS.API_KEYS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.USERS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.BOTS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.INTERNAL_BOTS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.GLOBAL_RELATIONSHIPS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.WEBHOOKS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.MCP_TOOL_GROUPS:
+            skeletonContent = <></>;
+            break;
+        case ROUTES.SETTINGS.OLLAMA:
+            skeletonContent = <></>;
+            break;
+    }
+
+    return (
+        <>
+            {isReady && currentUser ? (
+                <SettingsProxyDisplay currentUser={currentUser} />
+            ) : (
+                <DashboardStyledLayout headerNavs={[]} sidebarNavs={[]}>
+                    {skeletonContent}
+                </DashboardStyledLayout>
+            )}
+        </>
+    );
+}
+
+function SettingsProxyDisplay({ currentUser }: { currentUser: AuthUser.TModel }): JSX.Element {
+    const [t] = useTranslation();
+    const navigate = usePageNavigateRef();
+    const pathname = location.pathname.split("/").slice(0, 3).join("/");
+    const apiKeyRoleActions = currentUser.useField("api_key_role_actions");
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const mcpRoleActions = currentUser.useField("mcp_role_actions");
+    const { hasRoleAction: hasApiKeyRoleAction } = useRoleActionFilter(apiKeyRoleActions);
+    const { hasRoleAction: hasSettingRoleAction } = useRoleActionFilter(settingRoleActions);
+    const { hasRoleAction: hasMcpRoleAction } = useRoleActionFilter(mcpRoleActions);
 
     const headerNavs: Record<string, IHeaderNavItem> = {};
 
@@ -82,6 +124,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.API_KEYS, { smooth: true });
             },
+            hidden: !hasApiKeyRoleAction(...Object.values(ApiKeyRole.EAction)),
         },
         [ROUTES.SETTINGS.USERS]: {
             icon: "users",
@@ -89,6 +132,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.USERS, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.User),
         },
         [ROUTES.SETTINGS.BOTS]: {
             icon: "bot",
@@ -96,6 +140,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.BOTS, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Bot),
         },
         [ROUTES.SETTINGS.INTERNAL_BOTS]: {
             icon: "bot-message-square",
@@ -103,6 +148,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.INTERNAL_BOTS, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.InternalBot),
         },
         [ROUTES.SETTINGS.GLOBAL_RELATIONSHIPS]: {
             icon: "waypoints",
@@ -110,6 +156,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.GLOBAL_RELATIONSHIPS, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.GlobalRelationship),
         },
         [ROUTES.SETTINGS.WEBHOOKS]: {
             icon: "webhook",
@@ -117,6 +164,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.WEBHOOKS, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Webhook),
         },
         [ROUTES.SETTINGS.MCP_TOOL_GROUPS]: {
             icon: "package",
@@ -124,6 +172,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.MCP_TOOL_GROUPS, { smooth: true });
             },
+            hidden: !hasMcpRoleAction(...Object.values(McpRole.EAction)),
         },
     };
 
@@ -134,6 +183,7 @@ function SettingsProxy(): JSX.Element {
             onClick: () => {
                 navigate(ROUTES.SETTINGS.OLLAMA, { smooth: true });
             },
+            hidden: !hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Ollama),
         };
     }
 
@@ -142,45 +192,82 @@ function SettingsProxy(): JSX.Element {
     }
 
     let pageContent;
-    let skeletonContent;
     switch (pathname) {
         case ROUTES.SETTINGS.API_KEYS:
             pageContent = <ApiKeysPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.USERS:
             pageContent = <UsersPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.BOTS:
             pageContent = <BotsPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.INTERNAL_BOTS:
             pageContent = <InternalBotsPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.GLOBAL_RELATIONSHIPS:
             pageContent = <GlobalRelationshipsPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.WEBHOOKS:
             pageContent = <WebhooksPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.MCP_TOOL_GROUPS:
             pageContent = <McpServerPage />;
-            skeletonContent = <></>;
             break;
         case ROUTES.SETTINGS.OLLAMA:
             pageContent = <OllamaPage />;
-            skeletonContent = <></>;
             break;
     }
 
+    useEffect(() => {
+        const foundAvailableRoute = Object.entries(sidebarNavs).find(([_, nav]) => !nav.hidden)?.[0];
+        switch (pathname) {
+            case ROUTES.SETTINGS.API_KEYS:
+                if (!hasApiKeyRoleAction(...Object.values(ApiKeyRole.EAction))) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.USERS:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.User)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.BOTS:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Bot)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.INTERNAL_BOTS:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.InternalBot)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.GLOBAL_RELATIONSHIPS:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.GlobalRelationship)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.WEBHOOKS:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Webhook)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.MCP_TOOL_GROUPS:
+                if (!hasMcpRoleAction(...Object.values(McpRole.EAction))) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+            case ROUTES.SETTINGS.OLLAMA:
+                if (!hasSettingRoleAction(...SettingRole.CATEGORIZED_MAP.Ollama)) {
+                    navigate(foundAvailableRoute ?? ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
+                }
+                break;
+        }
+    }, [hasApiKeyRoleAction, hasSettingRoleAction, hasMcpRoleAction]);
+
     return (
         <DashboardStyledLayout headerNavs={Object.values(headerNavs)} sidebarNavs={Object.values(sidebarNavs)}>
-            {isReady && currentUser ? <AppSettingProvider currentUser={currentUser}>{pageContent}</AppSettingProvider> : skeletonContent}
+            <AppSettingProvider currentUser={currentUser}>{pageContent}</AppSettingProvider>
         </DashboardStyledLayout>
     );
 }

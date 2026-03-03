@@ -1,6 +1,6 @@
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import SocketTopic
-from ..core.routing.SocketTopic import GLOBAL_TOPIC_ID
+from ..core.routing.SocketTopic import GLOBAL_TOPIC_ID, SettingSocketTopicID
 from ..core.utils.decorators import staticclass
 from ..domain.models import InternalBot
 
@@ -36,7 +36,7 @@ class InternalBotPublisher(BaseSocketPublisher):
         model = {"bot_type": setting.bot_type.value}
         publish_model = SocketPublishModel(
             topic=SocketTopic.AppSettings,
-            topic_id=GLOBAL_TOPIC_ID,
+            topic_id=SettingSocketTopicID.InternalBot.value,
             event=f"settings:internal-bot:default-changed:{setting.get_uid()}",
             data_keys=list(model.keys()),
         )

@@ -1,7 +1,10 @@
 import { Button, Flex, IconComponent, Toast } from "@/components/base";
-import useDeleteSelectedSettings from "@/controllers/api/settings/useDeleteSelectedSettings";
+import useDeleteSelectedWebhooks from "@/controllers/api/settings/webhooks/useDeleteSelectedWebhooks";
+import useGetWebhooks from "@/controllers/api/settings/webhooks/useGetWebhooks";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { SettingRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -14,28 +17,33 @@ function WebhooksPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating, setIsValidating } = useAppSetting();
+    const { currentUser, isValidating, setIsValidating } = useAppSetting();
     const [selectedWebhooks, setSelectedWebhooks] = useState<string[]>([]);
-    const { mutate: deleteSelectedSettingsMutate } = useDeleteSelectedSettings();
+    const { mutateAsync: getWebhooksMutateAsync } = useGetWebhooks();
+    const { mutate: deleteSelectedWebhooksMutate } = useDeleteSelectedWebhooks();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
+    const canDeleteWebhook = hasRoleAction(SettingRole.EAction.WebhookDelete);
 
     useEffect(() => {
         setPageAliasRef.current("Webhooks");
+        getWebhooksMutateAsync({});
     }, []);
 
     const openCreateDialog = () => {
         navigate(ROUTES.SETTINGS.CREATE_WEBHOOK);
     };
 
-    const deleteSelectedSettings = () => {
-        if (isValidating || !selectedWebhooks.length) {
+    const deleteSelectedWebhooks = () => {
+        if (isValidating || !selectedWebhooks.length || !canDeleteWebhook) {
             return;
         }
 
         setIsValidating(true);
 
-        deleteSelectedSettingsMutate(
+        deleteSelectedWebhooksMutate(
             {
-                setting_uids: selectedWebhooks,
+                webhook_uids: selectedWebhooks,
             },
             {
                 onSuccess: () => {
@@ -72,8 +80,8 @@ function WebhooksPage() {
             >
                 <span className="w-36">{t("settings.Webhooks")}</span>
                 <Flex gap="2" wrap justify="end" maxW={{ initial: "full", sm: "auto" }}>
-                    {selectedWebhooks.length > 0 && (
-                        <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedSettings}>
+                    {selectedWebhooks.length > 0 && canDeleteWebhook && (
+                        <Button variant="destructive" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={deleteSelectedWebhooks}>
                             <IconComponent icon="trash" size="4" />
                             {t("common.Delete")}
                         </Button>

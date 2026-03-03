@@ -1,7 +1,7 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { McpToolGroup } from "@/core/models";
-import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 
 export interface IMcpToolGroupUpdatedRawResponse {
     name?: string;
@@ -17,7 +17,7 @@ export interface IUseMcpToolGroupUpdatedHandlersProps extends IBaseUseSocketHand
 const useMcpToolGroupUpdatedHandlers = ({ callback, toolGroup }: IUseMcpToolGroupUpdatedHandlersProps) => {
     return useSocketHandler<{}, IMcpToolGroupUpdatedRawResponse>({
         topic: ESocketTopic.AppSettings,
-        topicId: GLOBAL_TOPIC_ID,
+        topicId: ESettingSocketTopicID.McpToolGroup,
         eventKey: `mcp-tool-group-updated-${toolGroup.uid}`,
         onProps: {
             name: SocketEvents.SERVER.SETTINGS.MCP_TOOL_GROUP.UPDATED,

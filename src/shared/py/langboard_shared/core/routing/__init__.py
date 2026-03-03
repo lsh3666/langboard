@@ -6,7 +6,7 @@ from .AppRouter import AppRouter, TApiRouteMap
 from .BaseMiddleware import BaseMiddleware
 from .Form import BaseFormModel, form_model
 from .JsonResponse import JsonResponse
-from .SocketTopic import GLOBAL_TOPIC_ID, NONE_TOPIC_ID, SocketTopic
+from .SocketTopic import GLOBAL_TOPIC_ID, NONE_TOPIC_ID, SettingSocketTopicID, SocketTopic
 
 
 __all__ = [
@@ -25,4 +25,5 @@ __all__ = [
     "GLOBAL_TOPIC_ID",
     "NONE_TOPIC_ID",
     "SocketTopic",
+    "SettingSocketTopicID",
 ]

@@ -5,9 +5,10 @@ import { useTranslation } from "react-i18next";
 export interface IBotPlatformSelectProps {
     state: [EBotPlatform, (value: EBotPlatform) => void | Promise<void>];
     isValidating?: bool;
+    disabled?: bool;
 }
 
-function BotPlatformSelect({ state, isValidating }: IBotPlatformSelectProps) {
+function BotPlatformSelect({ state, isValidating, disabled }: IBotPlatformSelectProps) {
     const [t] = useTranslation();
     const [selectedPlatform, setSelectedPlatform] = state;
 
@@ -16,7 +17,7 @@ function BotPlatformSelect({ state, isValidating }: IBotPlatformSelectProps) {
             label={t("settings.Select a platform")}
             value={selectedPlatform}
             onValueChange={setSelectedPlatform as (value: string) => void}
-            disabled={isValidating}
+            disabled={isValidating || disabled}
             required
             options={Object.keys(EBotPlatform).map((platformKey) => {
                 const platform = EBotPlatform[platformKey];

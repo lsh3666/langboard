@@ -2,7 +2,7 @@ from typing import TypeVar
 from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
 from ....core.types.ParamTypes import TBaseParam, TUserOrBot
-from ....domain.models.bases import BaseReactionModel
+from ...models.bases import BaseReactionModel
 
 
 _TReactionModel = TypeVar("_TReactionModel", bound=BaseReactionModel)

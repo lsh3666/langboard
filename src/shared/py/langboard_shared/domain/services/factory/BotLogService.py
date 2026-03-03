@@ -2,8 +2,8 @@ from typing import Any, TypeVar
 from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
 from ....core.schema import TimeBasedPagination
-from ....domain.models import Bot
-from ....domain.models.bases import BaseBotLogModel
+from ...models import Bot
+from ...models.bases import BaseBotLogModel
 
 
 _TBotLogModel = TypeVar("_TBotLogModel", bound=BaseBotLogModel)

@@ -5,6 +5,7 @@ import { useAuth } from "@/core/providers/AuthProvider";
 import useIsProjectAssignee from "@/controllers/api/board/useIsProjectAssignee";
 import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import { isModel, TUserLikeModel } from "@/core/models/ModelRegistry";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IUserAvatarDefaultListContext {
     socket: ISocketContext;
@@ -16,7 +17,7 @@ export interface IUserAvatarDefaultListContext {
         wiki?: ProjectWiki.TModel;
     };
     currentUser: AuthUser.TModel;
-    hasRoleAction: ReturnType<typeof useRoleActionFilter<Project.TRoleActions>>["hasRoleAction"];
+    hasRoleAction: ReturnType<typeof useRoleActionFilter<ProjectRole.TActions>>["hasRoleAction"];
     isAssignee: bool;
     setIsAssignee: React.Dispatch<React.SetStateAction<bool>>;
 }

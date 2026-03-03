@@ -3,7 +3,7 @@ import CachedImage from "@/components/CachedImage";
 import { singleDndHelpers } from "@/core/helpers/dnd";
 import { SINGLE_ROW_IDLE } from "@/core/helpers/dnd/createDndSingleRowEvents";
 import { TSingleRowState } from "@/core/helpers/dnd/types";
-import { Project, ProjectCardAttachment } from "@/core/models";
+import { ProjectCardAttachment } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { Utils } from "@langboard/core/utils";
 import BoardCardAttachmentMoreMenu from "@/pages/BoardPage/components/card/attachment/BoardCardAttachmentMoreMenu";
@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import mimeTypes from "react-native-mime-types";
 import invariant from "tiny-invariant";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardAttachmentProps {
     attachment: ProjectCardAttachment.TModel;
@@ -42,7 +43,7 @@ function BoardCardAttachment({ attachment, openPreview }: IBoardCardAttachmentPr
     const { hasRoleAction } = useBoardCard();
     const [state, setState] = useState<TSingleRowState>(SINGLE_ROW_IDLE);
     const order = attachment.useField("order");
-    const canReorder = hasRoleAction(Project.ERoleAction.CardUpdate);
+    const canReorder = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const outerRef = useRef<HTMLDivElement | null>(null);
     const draggableRef = useRef<HTMLButtonElement | null>(null);
 

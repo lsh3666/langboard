@@ -60,10 +60,6 @@ class Repository(Factory):
         return self._create_or_get_product(factory.BotLogRepository)
 
     @property
-    def app_setting(self):
-        return self._create_or_get_product(factory.AppSettingRepository)
-
-    @property
     def global_card_relationship_type(self):
         return self._create_or_get_product(factory.GlobalCardRelationshipTypeRepository)
 
@@ -170,3 +166,7 @@ class Repository(Factory):
     @property
     def mcp_tool_group_usage(self):
         return self._create_or_get_product(factory.McpToolGroupUsageRepository)
+
+    @property
+    def webhook_setting(self):
+        return self._create_or_get_product(factory.WebhookSettingRepository)

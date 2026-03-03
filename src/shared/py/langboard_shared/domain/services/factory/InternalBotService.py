@@ -3,11 +3,11 @@ from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.storage import FileModel
 from ....core.types.ParamTypes import TInternalBotParam
-from ....domain.models import InternalBot
-from ....domain.models.InternalBot import InternalBotType
 from ....helpers import InfraHelper
 from ....publishers import InternalBotPublisher, ProjectPublisher
+from ...models import InternalBot
 from ...models.BaseBotModel import BotPlatform, BotPlatformRunningType
+from ...models.InternalBot import InternalBotType
 
 
 class InternalBotService(BaseDomainService):

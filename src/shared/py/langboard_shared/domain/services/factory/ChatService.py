@@ -3,8 +3,8 @@ from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
 from ....core.schema import TimeBasedPagination
 from ....core.types.ParamTypes import TBaseParam, TChatHistoryParam, TChatSessionParam, TChatTemplateParam
-from ....domain.models import ChatHistory, ChatSession, ChatTemplate, User
 from ....helpers import InfraHelper
+from ...models import ChatHistory, ChatSession, ChatTemplate, User
 from ...models.bases import BaseChatSessionModel
 
 

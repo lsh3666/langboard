@@ -1,7 +1,7 @@
 import { Button, Flex, Floating, IconComponent, Popover, SubmitButton, Toast } from "@/components/base";
 import useCreateCardChecklist from "@/controllers/api/card/checklist/useCreateCardChecklist";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { Project } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";
 import { memo, useRef, useState } from "react";
@@ -63,7 +63,7 @@ const BoardCardActionAddChecklist = memo(({ buttonClassName }: IBoardCardActionA
         });
     };
 
-    if (!hasRoleAction(Project.ERoleAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
         return null;
     }
 

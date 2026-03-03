@@ -10,6 +10,7 @@ import { useBoardController } from "@/core/providers/BoardController";
 import useSearchFilters, { ISearchFilterMap } from "@/core/hooks/useSearchFilters";
 import { IPageNavigateOptions, usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { Utils } from "@langboard/core/utils";
+import { ProjectRole } from "@/core/models/roles";
 
 export interface IFilterMap extends ISearchFilterMap {
     keyword?: string[];
@@ -29,7 +30,7 @@ export interface IBoardContext {
     cardsMap: Record<string, ProjectCard.TModel>;
     currentUser: AuthUser.TModel;
     globalRelationshipTypes: GlobalRelationshipType.TModel[];
-    hasRoleAction: ReturnType<typeof useRoleActionFilter<Project.TRoleActions>>["hasRoleAction"];
+    hasRoleAction: ReturnType<typeof useRoleActionFilter<ProjectRole.TActions>>["hasRoleAction"];
     filters: IFilterMap;
     navigateWithFilters: (to?: To, options?: IPageNavigateOptions) => void;
     filterMember: (member: User.TModel) => bool;
@@ -98,7 +99,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
         return map;
     }, [cards]);
     const globalRelationshipTypes = GlobalRelationshipType.Model.useModels(() => true, [selectCardViewType, filters]);
-    const canDragAndDrop = useMemo(() => hasRoleAction(Project.ERoleAction.Update) && !selectCardViewType, [hasRoleAction, selectCardViewType]);
+    const canDragAndDrop = useMemo(() => hasRoleAction(ProjectRole.EAction.Update) && !selectCardViewType, [hasRoleAction, selectCardViewType]);
 
     useEffect(() => {
         if (isAdmin || members.some((member) => member.uid === currentUser.uid) || forbiddenMessageIdRef.current) {

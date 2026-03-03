@@ -20,10 +20,14 @@ class _RoleFinderFunc(Protocol, Generic[_TRoleModel]):
 @thread_safe_singleton
 class RoleFilter(BaseFilter, Generic[_TMethod]):
     def __init__(self):
-        self._filtered: dict[_TMethod, tuple[type, list[str], _RoleFinderFunc]] = {}
+        self._filtered: dict[_TMethod, tuple[type, list[str], _RoleFinderFunc, bool]] = {}
 
     def add(
-        self, role_model: type[_TRoleModel], actions: list[str | Enum], role_finder: _RoleFinderFunc
+        self,
+        role_model: type[_TRoleModel],
+        actions: list[str | Enum],
+        role_finder: _RoleFinderFunc,
+        allowed_all_admin: bool = True,
     ) -> Callable[[_TMethod], _TMethod]:
         """Adds a method to be filtered in :class:`RoleMiddleware`.
 
@@ -36,12 +40,12 @@ class RoleFilter(BaseFilter, Generic[_TMethod]):
 
         def _add(method: _TMethod) -> _TMethod:
             str_actions = [action.value if isinstance(action, Enum) else action for action in actions]
-            self._filtered[method] = (role_model, str_actions, role_finder)
+            self._filtered[method] = (role_model, str_actions, role_finder, allowed_all_admin)
             return method
 
         return _add
 
-    def get_filtered(self, method: _TMethod) -> tuple[type[BaseRoleModel], list[str], _RoleFinderFunc]:
+    def get_filtered(self, method: _TMethod) -> tuple[type[BaseRoleModel], list[str], _RoleFinderFunc, bool]:
         """Gets the role model and actions of a method.
 
         :param method: Method to be filtered

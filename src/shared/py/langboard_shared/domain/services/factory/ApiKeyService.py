@@ -5,11 +5,14 @@ from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.security import KeyVault
 from ....core.types import SafeDateTime
-from ....core.types.ParamTypes import TApiKeyParam
+from ....core.types.ParamTypes import TApiKeyParam, TUserParam
 from ....core.utils.IpAddress import ALLOWED_ALL_IPS, is_valid_ipv4_address_or_range, make_valid_ipv4_range
-from ....domain.models import ApiKeySetting, ApiKeyUsage, User
-from ....domain.models.ApiKeySetting import ApiKeyProvider
+from ....Env import Env
 from ....helpers import InfraHelper
+from ....publishers import UserPublisher
+from ...models import ApiKeyRole, ApiKeySetting, ApiKeyUsage, User
+from ...models.ApiKeyRole import ApiKeyRoleAction
+from ...models.ApiKeySetting import ApiKeyProvider
 
 
 class ApiKeyService(BaseDomainService):
@@ -23,20 +26,18 @@ class ApiKeyService(BaseDomainService):
         return api_key
 
     @overload
-    def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: Literal[True]) -> int: ...
-
+    def get_api_list_in_settings(self, user: User, refer_time: SafeDateTime, only_count: Literal[True]) -> int: ...
     @overload
     def get_api_list_in_settings(
-        self, refer_time: SafeDateTime, only_count: Literal[False]
+        self, user: User, refer_time: SafeDateTime, only_count: Literal[False]
     ) -> tuple[list[ApiKeySetting], int]: ...
-
-    def get_api_list_in_settings(self, refer_time: SafeDateTime, only_count: bool = False):
+    def get_api_list_in_settings(self, user: User, refer_time: SafeDateTime, only_count: bool = False):
         """Get API keys for settings page with pagination support"""
-        count = self.repo.api_key.count_api_keys_scroller(refer_time)
+        count = self.repo.api_key.count_api_keys_scroller(user, refer_time)
         if only_count:
             return count
 
-        api_keys = self.repo.api_key.get_api_keys_scroller(refer_time)
+        api_keys = self.repo.api_key.get_api_keys_scroller(user, refer_time)
         return api_keys, count
 
     def get_api_list(self) -> list[dict[str, Any]]:
@@ -209,6 +210,67 @@ class ApiKeyService(BaseDomainService):
                     ip = make_valid_ipv4_range(ip)
                 valid_ip_whitelist.append(ip)
         return valid_ip_whitelist
+
+    def get_role(self, user: TUserParam) -> ApiKeyRole | None:
+        user_id = InfraHelper.convert_id(user)
+        return self.repo.role.api_key.get_one(user_id=user_id)
+
+    def grant_roles(
+        self,
+        user: TUserParam,
+        actions: ApiKeyRoleAction | str | list[ApiKeyRoleAction | str] | list[ApiKeyRoleAction] | list[str],
+    ) -> ApiKeyRole | None:
+        user_model = InfraHelper.get_by_id_like(User, user)
+        if not user_model:
+            return None
+
+        if user_model.is_admin or user_model.email in Env.FULL_ADMIN_ACCESS_EMAILS:
+            return self.grant_all_roles(user)
+
+        if not isinstance(actions, list):
+            actions = [actions]
+        action_strs = [action.value if isinstance(action, ApiKeyRoleAction) else action for action in actions]
+
+        # Handle Read permission dependencies
+        action_strs = self._normalize_role_actions(action_strs)
+
+        role = self.repo.role.api_key.grant(actions=action_strs, user_id=user_model.id)
+
+        UserPublisher.api_key_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role
+
+    def _normalize_role_actions(self, actions: list[str]) -> list[str]:
+        """Ensure Read permission dependencies are properly handled"""
+        if not actions:
+            return actions
+
+        result = set(actions)
+        read_action = ApiKeyRoleAction.Read.value
+        dependent_actions = [
+            ApiKeyRoleAction.Create.value,
+            ApiKeyRoleAction.Update.value,
+            ApiKeyRoleAction.Delete.value,
+        ]
+
+        # If any Create/Update/Delete is added, add Read too
+        if any(action in result for action in dependent_actions):
+            result.add(read_action)
+
+        # If Read is removed, remove all dependent actions
+        if read_action not in result:
+            for action in dependent_actions:
+                result.discard(action)
+
+        return list(result)
+
+    def grant_all_roles(self, user: TUserParam) -> ApiKeyRole:
+        user_id = InfraHelper.convert_id(user)
+        role = self.repo.role.api_key.grant_all(user_id=user_id)
+
+        UserPublisher.api_key_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role
 
     def delete_selected(self, api_keys: Sequence[TApiKeyParam]) -> None:
         if not isinstance(api_keys, Sequence) or isinstance(api_keys, str):

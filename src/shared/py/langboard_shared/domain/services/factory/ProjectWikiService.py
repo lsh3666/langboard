@@ -5,11 +5,11 @@ from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.storage import FileModel
 from ....core.types.ParamTypes import TProjectParam, TUserOrBot, TWikiParam
 from ....core.utils.Converter import convert_python_data
-from ....domain.models import Bot, Project, ProjectWiki, ProjectWikiAssignedUser, ProjectWikiAttachment, User
 from ....helpers import InfraHelper
 from ....publishers import ProjectWikiPublisher
 from ....tasks.activities import ProjectWikiActivityTask
 from ....tasks.bots import ProjectWikiBotTask
+from ...models import Bot, Project, ProjectWiki, ProjectWikiAssignedUser, ProjectWikiAttachment, User
 from .NotificationService import NotificationService
 
 

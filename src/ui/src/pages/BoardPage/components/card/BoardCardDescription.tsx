@@ -5,8 +5,9 @@ import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import useToggleEditingByClickOutside from "@/core/hooks/useToggleEditingByClickOutside";
-import { BotModel, Project, ProjectCard } from "@/core/models";
+import { BotModel, ProjectCard } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { getEditorStore } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
@@ -40,7 +41,7 @@ const BoardCardDescription = memo((): JSX.Element => {
     const description = card.useField("description");
     const { markSectionDirty, resetSection, getHasUnsavedChanges } = useBoardCardUnsavedActions();
     const { valueRef, isEditing, changeMode, setIsEditing } = useChangeEditMode({
-        canEdit: () => hasRoleAction(Project.ERoleAction.CardUpdate),
+        canEdit: () => hasRoleAction(ProjectRole.EAction.CardUpdate),
         valueType: "editor",
         canEmpty: true,
         editorName,

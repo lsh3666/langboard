@@ -1,5 +1,6 @@
-import BaseModel, { BigIntColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import { BigIntColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
 import SnowflakeID from "@/core/db/SnowflakeID";
+import BaseRole from "@/models/bases/BaseRole";
 import { Entity, Column } from "typeorm";
 
 export enum EProjectRoleAction {
@@ -12,10 +13,7 @@ export enum EProjectRoleAction {
 export type TProjectRoleActions = EProjectRoleAction | keyof typeof EProjectRoleAction | TRoleAllGranted;
 
 @Entity({ name: "project_role" })
-class ProjectRole extends BaseModel {
-    @BigIntColumn(false)
-    public user_id!: TBigIntString | null;
-
+class ProjectRole extends BaseRole {
     @BigIntColumn(false)
     public project_id!: TBigIntString;
 

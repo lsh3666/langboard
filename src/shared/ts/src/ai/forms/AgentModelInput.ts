@@ -17,7 +17,7 @@ export const getAgentModelInputForm = (model: TAgentModelName, envs: Record<stri
     switch (model) {
         case "Azure OpenAI":
             form.push(
-                { type: "password", name: "api_key", label: "API Key" },
+                { type: "password", name: "api_key", label: "API key" },
                 {
                     type: "select",
                     name: "api_version",
@@ -39,37 +39,37 @@ export const getAgentModelInputForm = (model: TAgentModelName, envs: Record<stri
             break;
         case "Anthropic":
             form.push(
-                { type: "password", name: "api_key", label: "API Key", nullable: true },
+                { type: "password", name: "api_key", label: "API key", nullable: true },
                 { type: "select", name: "model_name", label: "Provider", options: ANTHROPIC_MODELS as unknown as string[] }
             );
             break;
         case "Google Generative AI":
             form.push(
-                { type: "password", name: "api_key", label: "API Key" },
+                { type: "password", name: "api_key", label: "API key" },
                 { type: "select", name: "model_name", label: "Provider", options: GOOGLE_GENERATIVE_AI_MODELS as unknown as string[] }
             );
             break;
         case "Groq":
             form.push(
-                { type: "password", name: "api_key", label: "API Key", nullable: true },
+                { type: "password", name: "api_key", label: "API key", nullable: true },
                 { type: "select", name: "model_name", label: "Provider", options: GROQ_MODELS as unknown as string[] }
             );
             break;
         case "NVIDIA":
             form.push(
-                { type: "password", name: "api_key", label: "API Key", nullable: true },
+                { type: "password", name: "api_key", label: "API key", nullable: true },
                 { type: "select", name: "model_name", label: "Provider", options: NVIDIA_MODELS as unknown as string[] }
             );
             break;
         case "OpenAI":
             form.push(
-                { type: "password", name: "api_key", label: "API Key" },
+                { type: "password", name: "api_key", label: "API key" },
                 { type: "select", name: "model_name", label: "Provider", options: OPEN_AI_MODELS as unknown as string[] }
             );
             break;
         case "SambaNova":
             form.push(
-                { type: "password", name: "api_key", label: "API Key" },
+                { type: "password", name: "api_key", label: "API key" },
                 { type: "select", name: "model_name", label: "Provider", options: SAMBA_NOVA_MODELS as unknown as string[] }
             );
             break;
@@ -94,7 +94,7 @@ export const getAgentModelInputForm = (model: TAgentModelName, envs: Record<stri
         case "LM Studio":
             form.push(
                 { type: "text", name: "base_url", label: "Base URL", defaultValue: "" },
-                { type: "text", name: "api_key", label: "API Key", nullable: true },
+                { type: "text", name: "api_key", label: "API key", nullable: true },
                 {
                     type: "select",
                     name: "model_name",

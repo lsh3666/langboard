@@ -3,7 +3,8 @@ from typing import Any
 from fastapi import status
 from langboard_shared.core.routing import ApiErrorCode, BaseMiddleware, JsonResponse
 from langboard_shared.core.security import AuthSecurity
-from langboard_shared.domain.models import ApiKeySetting
+from langboard_shared.domain.models import ApiKeySetting, User
+from langboard_shared.domain.models.McpRole import McpRoleAction
 from langboard_shared.domain.services import DomainService
 from langboard_shared.Env import Env
 from langboard_shared.helpers import MiddlewareHelper
@@ -71,6 +72,13 @@ class McpAuthMiddleware(BaseMiddleware):
 
             # Validate that the API key belongs to the same user as the tool group
             if api_key.user_id != tool_group.user_id:
+                response = JsonResponse(ApiErrorCode.PE1001, status_code=status.HTTP_403_FORBIDDEN)
+                await response(scope, receive, send)
+                return
+
+        if isinstance(validation_result, User) and not validation_result.is_admin:
+            mcp_role = service.mcp_tool_group.get_role(validation_result)
+            if not mcp_role or not mcp_role.is_granted(McpRoleAction.Read):
                 response = JsonResponse(ApiErrorCode.PE1001, status_code=status.HTTP_403_FORBIDDEN)
                 await response(scope, receive, send)
                 return

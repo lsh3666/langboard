@@ -2,8 +2,11 @@ import { Checkbox, Flex, Toast, Tooltip } from "@/components/base";
 import useActivateApiKey from "@/controllers/api/settings/apiKeys/useActivateApiKey";
 import useDeactivateApiKey from "@/controllers/api/settings/apiKeys/useDeactivateApiKey";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { ApiKeySettingModel } from "@/core/models";
+import { ApiKeyRole } from "@/core/models/roles";
 import { EHttpStatus } from "@langboard/core/enums";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +17,10 @@ export interface IApiKeyActivationProps {
 
 const ApiKeyActivation = memo(({ apiKey }: IApiKeyActivationProps) => {
     const [t] = useTranslation();
+    const { currentUser } = useAppSetting();
+    const apiKeyRoleActions = currentUser.useField("api_key_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(apiKeyRoleActions);
+    const canUpdateApiKey = hasRoleAction(ApiKeyRole.EAction.Update);
     const rawActivatedAt = apiKey.useField("activated_at");
     const activatedAt = useUpdateDateDistance(rawActivatedAt);
     const { mutateAsync: activateMutateAsync } = useActivateApiKey(apiKey);
@@ -21,7 +28,7 @@ const ApiKeyActivation = memo(({ apiKey }: IApiKeyActivationProps) => {
     const [isValidating, setIsValidating] = useState(false);
 
     const toggle = () => {
-        if (isValidating) {
+        if (isValidating || !canUpdateApiKey) {
             return;
         }
 
@@ -58,7 +65,7 @@ const ApiKeyActivation = memo(({ apiKey }: IApiKeyActivationProps) => {
         <Tooltip.Root>
             <Tooltip.Trigger asChild>
                 <Flex justify="center" w="full">
-                    <Checkbox checked={!!rawActivatedAt} onClick={toggle} />
+                    <Checkbox checked={!!rawActivatedAt} onClick={toggle} disabled={!canUpdateApiKey} />
                 </Flex>
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom" align="center">

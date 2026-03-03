@@ -8,6 +8,7 @@ import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useHandleInteractOutside from "@/core/hooks/useHandleInteractOutside";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { BotModel, Project, ProjectBotScope } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { IBoardRelatedPageProps } from "@/pages/BoardPage/types";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,7 +21,7 @@ export interface IBoardBotScopeProps extends IBoardRelatedPageProps {
 function BoardBotScope({ project, ...props }: IBoardBotScopeProps) {
     const currentUserRoleActions = project.useField("current_auth_role_actions");
     const { hasRoleAction } = useRoleActionFilter(currentUserRoleActions);
-    const canEdit = hasRoleAction(Project.ERoleAction.Update);
+    const canEdit = hasRoleAction(ProjectRole.EAction.Update);
 
     if (!canEdit) {
         return null;

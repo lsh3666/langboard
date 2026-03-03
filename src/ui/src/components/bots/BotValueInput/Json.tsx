@@ -8,7 +8,7 @@ import { vscodeTheme } from "@uiw/react-json-view/vscode";
 import { composeRefs } from "@/core/utils/ComponentUtils";
 import { TSharedBotValueInputProps } from "@/components/bots/BotValueInput/types";
 
-function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, change, required, ref }: TSharedBotValueInputProps) {
+function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, disabled, change, required, ref }: TSharedBotValueInputProps) {
     const [t] = useTranslation();
     const [currentObject, setCurrentObject] = useState(Utils.String.isJsonString(value) ? JSON.parse(value) : {});
     const [currentJSON, setCurrentJSON] = useState(Utils.String.isJsonString(value) ? JSON.stringify(currentObject, undefined, "    ") : value);
@@ -19,7 +19,7 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
     const [isDialogOpened, setIsDialogOpened] = useState(false);
 
     const onValueChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        if (!textareaRef.current?.value) {
+        if (!textareaRef.current?.value || isValidating || disabled) {
             return;
         }
 
@@ -52,7 +52,7 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
     };
 
     const save = () => {
-        if (!textareaRef.current || isValidating) {
+        if (!textareaRef.current || isValidating || disabled) {
             return;
         }
 
@@ -84,7 +84,7 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
     }, [value]);
 
     const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || !e.target.files.length) {
+        if (!e.target.files || !e.target.files.length || isValidating || disabled) {
             return;
         }
 
@@ -121,13 +121,15 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
             resize="none"
             onChange={onValueChange}
             onBlur={save}
-            disabled={isValidating}
+            disabled={isValidating || disabled}
             required={required}
             ref={composeRefs(textareaRef, ref as React.RefObject<HTMLTextAreaElement>)}
         />
     );
 
-    const fileInput = <Input type="file" className="hidden" ref={fileInputRef} accept=".json" onChange={onFileInputChange} disabled={isValidating} />;
+    const fileInput = (
+        <Input type="file" className="hidden" ref={fileInputRef} accept=".json" onChange={onFileInputChange} disabled={isValidating || disabled} />
+    );
 
     let jsonViewer;
     if (error.length) {
@@ -166,7 +168,7 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
                                 onClick={() => {
                                     fileInputRef.current?.click();
                                 }}
-                                disabled={isValidating}
+                                disabled={isValidating || disabled}
                             >
                                 <IconComponent icon="braces" size="4" />
                                 {t("common.Upload JSON")}
@@ -217,7 +219,7 @@ function BotValueJsonInput({ value, newValueRef, previewByDialog, isValidating, 
                         onClick={() => {
                             fileInputRef.current?.click();
                         }}
-                        disabled={isValidating}
+                        disabled={isValidating || disabled}
                     >
                         <IconComponent icon="braces" size="4" />
                         {t("common.Upload JSON")}

@@ -11,13 +11,9 @@ import PasswordInput from "@/components/PasswordInput";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { Utils } from "@langboard/core/utils";
 import { EHttpStatus } from "@langboard/core/enums";
+import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-export interface IUserCreateFormDialogProps {
-    opened: bool;
-    setOpened: (opened: bool) => void;
-}
-
-function UserCreateFormDialog({ opened, setOpened }: IUserCreateFormDialogProps): JSX.Element {
+function UserCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { mutate } = useCreateUserInSettings();

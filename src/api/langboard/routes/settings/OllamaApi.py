@@ -3,7 +3,11 @@ from langboard_shared.core.caching import Cache
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
+from langboard_shared.domain.models import SettingRole
+from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from langboard_shared.Env import Env
+from langboard_shared.filter import RoleFilter
+from langboard_shared.security import RoleFinder
 from .Form import OllamaModelForm
 
 
@@ -12,7 +16,7 @@ _OLLAMA_PULLING_MODELS_CACHE_KEY = "ollama:pulling:models"
 
 @AppRouter.api.get(
     "/settings/ollama/models",
-    tags=["AppSettings"],
+    tags=["AppSettings.Ollama"],
     responses=(
         OpenApiSchema()
         .suc(
@@ -26,6 +30,7 @@ _OLLAMA_PULLING_MODELS_CACHE_KEY = "ollama:pulling:models"
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.OllamaRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def get_ollama_models() -> JsonResponse:
     if not Env.OLLAMA_API_URL:
@@ -53,7 +58,7 @@ def get_ollama_models() -> JsonResponse:
 
 @AppRouter.api.post(
     "/settings/ollama/model/details",
-    tags=["AppSettings"],
+    tags=["AppSettings.Ollama"],
     responses=(
         OpenApiSchema()
         .suc({"check ollama api docs": "https://docs.ollama.com/api-reference/show-model-details"})
@@ -63,6 +68,7 @@ def get_ollama_models() -> JsonResponse:
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.OllamaRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def get_ollama_model_details(form: OllamaModelForm) -> JsonResponse:
     if not Env.OLLAMA_API_URL:
@@ -79,11 +85,12 @@ def get_ollama_model_details(form: OllamaModelForm) -> JsonResponse:
 
 @AppRouter.api.get(
     "/settings/ollama/models/running",
-    tags=["AppSettings"],
+    tags=["AppSettings.Ollama"],
     responses=(
         OpenApiSchema().suc({"check ollama api docs": "https://docs.ollama.com/api/ps"}).auth().forbidden().get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.OllamaRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def get_ollama_running_models() -> JsonResponse:
     if not Env.OLLAMA_API_URL:

@@ -2,8 +2,11 @@ from fastapi import status
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
-from langboard_shared.domain.models import GlobalCardRelationshipType
+from langboard_shared.domain.models import GlobalCardRelationshipType, SettingRole
+from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
+from langboard_shared.security import RoleFinder
 from .Form import (
     CreateGlobalRelationshipTypeForm,
     DeleteSelectedGlobalRelationshipTypesForm,
@@ -12,11 +15,25 @@ from .Form import (
 )
 
 
+@AppRouter.api.get(
+    "/settings/global-relationships",
+    tags=["AppSettings.Bot"],
+    responses=OpenApiSchema().suc({"global_relationships": [GlobalCardRelationshipType]}).auth().forbidden().get(),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipRead], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+    global_relationships = service.app_setting.get_api_global_relationship_list()
+
+    return JsonResponse(content={"global_relationships": global_relationships})
+
+
 @AppRouter.api.post(
     "/settings/global-relationship",
-    tags=["AppSettings"],
+    tags=["AppSettings.GlobalRelationship"],
     responses=OpenApiSchema().suc({"global_relationship": GlobalCardRelationshipType}, 201).auth().forbidden().get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipCreate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def create_global_relationship(
     form: CreateGlobalRelationshipTypeForm, service: DomainService = DomainService.scope()
@@ -32,11 +49,12 @@ def create_global_relationship(
 
 @AppRouter.api.post(
     "/settings/import-global-relationships",
-    tags=["AppSettings"],
+    tags=["AppSettings.GlobalRelationship"],
     responses=(
         OpenApiSchema().suc({"global_relationships": [GlobalCardRelationshipType]}, 201).auth().forbidden().get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipCreate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def import_global_relationships(
     form: ImportGlobalRelationshipTypesForm, service: DomainService = DomainService.scope()
@@ -53,7 +71,7 @@ def import_global_relationships(
 
 @AppRouter.api.put(
     "/settings/global-relationship/{global_relationship_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.GlobalRelationship"],
     responses=(
         OpenApiSchema()
         .suc(
@@ -69,6 +87,7 @@ def import_global_relationships(
         .get()
     ),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipUpdate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def update_global_relationship(
     global_relationship_uid: str, form: UpdateGlobalRelationshipTypeForm, service: DomainService = DomainService.scope()
@@ -89,9 +108,10 @@ def update_global_relationship(
 
 @AppRouter.api.delete(
     "/settings/global-relationship/{global_relationship_uid}",
-    tags=["AppSettings"],
+    tags=["AppSettings.GlobalRelationship"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3003).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipDelete], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def delete_global_relationship(
     global_relationship_uid: str, service: DomainService = DomainService.scope()
@@ -105,9 +125,10 @@ def delete_global_relationship(
 
 @AppRouter.api.delete(
     "/settings/global-relationship",
-    tags=["AppSettings"],
+    tags=["AppSettings.GlobalRelationship"],
     responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3003).get(),
 )
+@RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipDelete], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def delete_selected_global_relationship(
     form: DeleteSelectedGlobalRelationshipTypesForm, service: DomainService = DomainService.scope()

@@ -1,8 +1,11 @@
+import useUserApiKeyRolesUpdatedHandlers from "@/controllers/socket/user/useUserApiKeyRolesUpdatedHandlers";
 import useUserDeactivatedHandlers from "@/controllers/socket/user/useUserDeactivatedHandlers";
 import useUserDeletedHandlers from "@/controllers/socket/user/useUserDeletedHandlers";
+import useUserMcpRolesUpdatedHandlers from "@/controllers/socket/user/useUserMcpRolesUpdatedHandlers";
 import useUserNotificationDeletedHandlers from "@/controllers/socket/user/useUserNotificationDeletedHandlers";
 import useUserNotifiedHandlers from "@/controllers/socket/user/useUserNotifiedHandlers";
 import useUserProjectRolesUpdatedHandlers from "@/controllers/socket/user/useUserProjectRolesUpdatedHandlers";
+import useUserSettingRolesUpdatedHandlers from "@/controllers/socket/user/useUserSettingRolesUpdatedHandlers";
 import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/types/notification.type";
 import * as User from "@/core/models/User";
 import * as UserGroup from "@/core/models/UserGroup";
@@ -52,6 +55,9 @@ class AuthUser extends User.Model<Interface> {
             [
                 useUserNotifiedHandlers,
                 useUserNotificationDeletedHandlers,
+                useUserApiKeyRolesUpdatedHandlers,
+                useUserSettingRolesUpdatedHandlers,
+                useUserMcpRolesUpdatedHandlers,
                 useUserProjectRolesUpdatedHandlers,
                 useUserDeactivatedHandlers,
                 useUserDeletedHandlers,
@@ -59,6 +65,7 @@ class AuthUser extends User.Model<Interface> {
             {
                 currentUser: this,
                 user: this,
+                isPrivate: true,
             }
         );
 

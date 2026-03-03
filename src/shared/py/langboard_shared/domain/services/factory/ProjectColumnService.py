@@ -3,11 +3,11 @@ from ....ai import BotScheduleHelper, BotScopeHelper
 from ....core.domain import BaseDomainService
 from ....core.types import SafeDateTime, SnowflakeID
 from ....core.types.ParamTypes import TColumnParam, TProjectParam, TUserOrBot
-from ....domain.models import Project, ProjectColumn, ProjectColumnBotSchedule, ProjectColumnBotScope
 from ....helpers import InfraHelper
 from ....publishers import ProjectColumnPublisher
 from ....tasks.activities import ProjectColumnActivityTask
 from ....tasks.bots import ProjectColumnBotTask
+from ...models import Project, ProjectColumn, ProjectColumnBotSchedule, ProjectColumnBotScope
 
 
 class ProjectColumnService(BaseDomainService):

@@ -1,7 +1,7 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { McpToolGroup } from "@/core/models";
-import { ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 
 export interface IMcpToolGroupCreatedRawResponse {
     tool_group: McpToolGroup.Interface;
@@ -10,7 +10,7 @@ export interface IMcpToolGroupCreatedRawResponse {
 const useMcpToolGroupCreatedHandlers = ({ callback }: IBaseUseSocketHandlersProps<{}>) => {
     return useSocketHandler<{}, IMcpToolGroupCreatedRawResponse>({
         topic: ESocketTopic.AppSettings,
-        topicId: GLOBAL_TOPIC_ID,
+        topicId: ESettingSocketTopicID.McpToolGroup,
         eventKey: "mcp-tool-group-created",
         onProps: {
             name: SocketEvents.SERVER.SETTINGS.MCP_TOOL_GROUP.CREATED,

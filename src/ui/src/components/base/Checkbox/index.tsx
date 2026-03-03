@@ -27,7 +27,7 @@ export const CheckboxVariants = tv(
 );
 
 export interface CheckboxProps extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, VariantProps<typeof CheckboxVariants> {
-    label?: string;
+    label?: React.ReactNode;
     description?: string;
     error?: string;
 }

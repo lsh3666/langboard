@@ -2,10 +2,12 @@ from typing import Any, Literal, Sequence
 from ....core.domain import BaseDomainService
 from ....core.domain.BaseDomainService import TMutableValidatorMap
 from ....core.types import SafeDateTime, SnowflakeID
-from ....core.types.ParamTypes import TMcpToolGroupParam
+from ....core.types.ParamTypes import TMcpToolGroupParam, TUserParam
+from ....Env import Env
 from ....helpers import InfraHelper
-from ....publishers import AppSettingPublisher
-from ...models import McpToolGroup, User
+from ....publishers import AppSettingPublisher, UserPublisher
+from ...models import McpRole, McpToolGroup, User
+from ...models.McpRole import McpRoleAction
 
 
 class McpToolGroupService(BaseDomainService):
@@ -130,3 +132,64 @@ class McpToolGroupService(BaseDomainService):
         )
 
         return True
+
+    def get_role(self, user: TUserParam) -> McpRole | None:
+        user_id = InfraHelper.convert_id(user)
+        return self.repo.role.mcp.get_one(user_id=user_id)
+
+    def grant_roles(
+        self,
+        user: TUserParam,
+        actions: McpRoleAction | str | list[McpRoleAction | str] | list[McpRoleAction] | list[str],
+    ) -> McpRole | None:
+        user_model = InfraHelper.get_by_id_like(User, user)
+        if not user_model:
+            return None
+
+        if user_model.is_admin or user_model.email in Env.FULL_ADMIN_ACCESS_EMAILS:
+            return self.grant_all_roles(user)
+
+        if not isinstance(actions, list):
+            actions = [actions]
+        action_strs = [action.value if isinstance(action, McpRoleAction) else action for action in actions]
+
+        # Handle Read permission dependencies
+        action_strs = self._normalize_role_actions(action_strs)
+
+        role = self.repo.role.mcp.grant(actions=action_strs, user_id=user_model.id)
+
+        UserPublisher.mcp_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role
+
+    def _normalize_role_actions(self, actions: list[str]) -> list[str]:
+        """Ensure Read permission dependencies are properly handled"""
+        if not actions:
+            return actions
+
+        result = set(actions)
+        read_action = McpRoleAction.Read.value
+        dependent_actions = [
+            McpRoleAction.Create.value,
+            McpRoleAction.Update.value,
+            McpRoleAction.Delete.value,
+        ]
+
+        # If any Create/Update/Delete is added, add Read too
+        if any(action in result for action in dependent_actions):
+            result.add(read_action)
+
+        # If Read is removed, remove all dependent actions
+        if read_action not in result:
+            for action in dependent_actions:
+                result.discard(action)
+
+        return list(result)
+
+    def grant_all_roles(self, user: TUserParam) -> McpRole:
+        user_id = InfraHelper.convert_id(user)
+        role = self.repo.role.mcp.grant_all(user_id=user_id)
+
+        UserPublisher.mcp_roles_updated(InfraHelper.convert_uid(user), role.actions)
+
+        return role

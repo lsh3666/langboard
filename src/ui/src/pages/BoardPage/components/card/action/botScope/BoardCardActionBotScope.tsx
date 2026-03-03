@@ -1,5 +1,6 @@
 import { Box, Button, Drawer, Flex, IconComponent, ScrollArea } from "@/components/base";
-import { BotModel, Project } from "@/core/models";
+import { BotModel } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import BoardCardActionBotScopeDrawer from "@/pages/BoardPage/components/card/action/botScope/BoardCardActionBotScopeDrawer";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";
@@ -13,7 +14,7 @@ const BoardCardActionBotScope = memo(({ buttonClassName }: IBoardCardActionBotSc
     const [t] = useTranslation();
     const bots = BotModel.Model.useModels(() => true);
 
-    if (!hasRoleAction(Project.ERoleAction.Update)) {
+    if (!hasRoleAction(ProjectRole.EAction.Update)) {
         return null;
     }
 

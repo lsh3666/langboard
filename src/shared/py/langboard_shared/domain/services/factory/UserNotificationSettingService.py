@@ -3,10 +3,10 @@ from ....core.db import BaseSqlModel
 from ....core.domain import BaseDomainService
 from ....core.publisher import NotificationPublishModel
 from ....core.types.ParamTypes import TCardParam, TColumnParam, TProjectParam, TWikiParam
-from ....domain.models import Card, Project, ProjectColumn, ProjectWiki, User, UserNotificationUnsubscription
-from ....domain.models.UserNotification import NotificationType
-from ....domain.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 from ....helpers import InfraHelper
+from ...models import Card, Project, ProjectColumn, ProjectWiki, User, UserNotificationUnsubscription
+from ...models.UserNotification import NotificationType
+from ...models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 
 
 class UserNotificationSettingService(BaseDomainService):

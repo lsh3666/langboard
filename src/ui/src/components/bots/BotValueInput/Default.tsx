@@ -18,7 +18,7 @@ function BotValueDefaultInput(props: TSharedBotValueInputProps) {
     );
 }
 
-function BotValueDefaultInputDisplay({ isValidating, required, change }: TSharedBotValueInputProps) {
+function BotValueDefaultInputDisplay({ isValidating, disabled, required, change }: TSharedBotValueInputProps) {
     const [t] = useTranslation();
     const { mutateAsync: getApiListMutateAsync } = useGetApiList({ interceptToast: true });
     const {
@@ -69,7 +69,7 @@ function BotValueDefaultInputDisplay({ isValidating, required, change }: TShared
                                 <Tooltip.Content className="max-w-[min(95vw,theme(spacing.96))]">{apiList[value]}</Tooltip.Content>
                             </Tooltip.Root>
                         )}
-                        disabled={isValidating}
+                        disabled={isValidating || disabled}
                     />
                 </Box>
             )}
@@ -80,7 +80,7 @@ function BotValueDefaultInputDisplay({ isValidating, required, change }: TShared
                         value={selectedProvider}
                         onValueChange={setSelectedProvider as (value: TAgentModelName) => void}
                         required={required}
-                        disabled={isValidating}
+                        disabled={isValidating || disabled}
                         options={AGENT_MODELS.map((option) => (
                             <Select.Item key={`default-bot-json-input-agent-${option}`} value={option}>
                                 <Flex items="center" gap="2">
@@ -101,7 +101,7 @@ function BotValueDefaultInputDisplay({ isValidating, required, change }: TShared
                         defaultValue={valuesRef.current["system_prompt"] ?? ""}
                         resize="none"
                         className="h-36"
-                        disabled={isValidating}
+                        disabled={isValidating || disabled}
                         onInput={(e) => setValue("system_prompt")(e.currentTarget.value)}
                         ref={setInputRef("system_prompt")}
                     />
@@ -109,14 +109,14 @@ function BotValueDefaultInputDisplay({ isValidating, required, change }: TShared
             )}
             {inputs.map((input) => (
                 <Box mt="4" key={`default-bot-json-input-${selectedProvider}-${input.name}`}>
-                    <DefaultTypedInput input={input} />
+                    <DefaultTypedInput input={input} disabled={disabled} />
                     {errors[input.name] && <FormErrorMessage error={errors[input.name]} notInForm />}
                 </Box>
             ))}
 
             {change && (
                 <Box mt="4" className="text-center">
-                    <SubmitButton type="button" size="sm" onClick={change} isValidating={isValidating}>
+                    <SubmitButton type="button" size="sm" onClick={change} isValidating={isValidating} disabled={disabled}>
                         {t("common.Save")}
                     </SubmitButton>
                 </Box>

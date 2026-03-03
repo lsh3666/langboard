@@ -1,8 +1,11 @@
 import { Box, Flex, IconComponent, Input, Toast } from "@/components/base";
 import { ApiKeySettingModel } from "@/core/models";
+import { ApiKeyRole } from "@/core/models/roles";
 import useUpdateApiKey from "@/controllers/api/settings/apiKeys/useUpdateApiKey";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
@@ -16,12 +19,16 @@ export interface IApiKeyNameProps {
 function ApiKeyName({ apiKey }: IApiKeyNameProps) {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
+    const { currentUser } = useAppSetting();
+    const apiKeyRoleActions = currentUser.useField("api_key_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(apiKeyRoleActions);
+    const canUpdateApiKey = hasRoleAction(ApiKeyRole.EAction.Update);
     const name = apiKey.useField("name");
     const editorName = `${apiKey.uid}-api-key-name`;
     const { mutateAsync } = useUpdateApiKey(apiKey);
 
     const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => true,
+        canEdit: () => canUpdateApiKey,
         valueType: "input",
         editorName,
         save: (value, endCallback) => {
@@ -59,15 +66,24 @@ function ApiKeyName({ apiKey }: IApiKeyNameProps) {
     return (
         <Box className="text-center">
             {!isEditing ? (
-                <Flex cursor="pointer" justify="center" items="center" gap="1" position="relative" onClick={() => changeMode("edit")}>
+                <Flex
+                    cursor={canUpdateApiKey ? "pointer" : "default"}
+                    justify="center"
+                    items="center"
+                    gap="1"
+                    position="relative"
+                    onClick={() => changeMode("edit")}
+                >
                     <Box as="span" className="max-w-[calc(100%_-_theme(spacing.6))] truncate">
                         {name}
                     </Box>
-                    <Box position="relative">
-                        <Box position="absolute" left="2" className="top-1/2 -translate-y-1/2">
-                            <IconComponent icon="pencil" size="4" />
+                    {canUpdateApiKey && (
+                        <Box position="relative">
+                            <Box position="absolute" left="2" className="top-1/2 -translate-y-1/2">
+                                <IconComponent icon="pencil" size="4" />
+                            </Box>
                         </Box>
-                    </Box>
+                    )}
                 </Flex>
             ) : (
                 <Input
