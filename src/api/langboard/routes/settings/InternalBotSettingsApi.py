@@ -13,13 +13,13 @@ from .Form import CreateInternalBotForm, UpdateInternalBotForm
 
 
 @AppRouter.api.get(
-    "/settings/bots",
+    "/settings/internal-bots",
     tags=["AppSettings.Bot"],
     responses=OpenApiSchema().suc({"internal_bots": [(InternalBot, {"is_setting": True})]}).auth().forbidden().get(),
 )
 @RoleFilter.add(SettingRole, [SettingRoleAction.InternalBotCreate], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
-def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+def get_internal_bots(service: DomainService = DomainService.scope()) -> JsonResponse:
     internal_bots = service.internal_bot.get_api_list(is_setting=True)
 
     return JsonResponse(content={"internal_bots": internal_bots})

@@ -20,7 +20,7 @@ from .Form import CreateBotForm, UpdateBotForm
 )
 @RoleFilter.add(SettingRole, [SettingRoleAction.BotRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
-def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+def get_bots_in_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
     bots = service.bot.get_api_list(is_setting=True)
 
     return JsonResponse(content={"bots": bots})

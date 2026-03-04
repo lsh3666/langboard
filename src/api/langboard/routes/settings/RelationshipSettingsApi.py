@@ -22,7 +22,7 @@ from .Form import (
 )
 @RoleFilter.add(SettingRole, [SettingRoleAction.GlobalRelationshipRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
-def get_all_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
+def get_global_relationships_in_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
     global_relationships = service.app_setting.get_api_global_relationship_list()
 
     return JsonResponse(content={"global_relationships": global_relationships})
