@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import { useTranslation } from "react-i18next";
 
-function BoardSettingsLabelMoreMenuDelete(): JSX.Element {
+function BoardSettingsLabelMoreMenuDelete(): React.JSX.Element {
     const { project } = useBoardSettings();
     const { model: label } = ModelRegistry.ProjectLabel.useContext();
     const [t] = useTranslation();

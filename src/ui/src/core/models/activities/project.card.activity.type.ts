@@ -34,8 +34,9 @@ export interface IProjectCardUpdatedActivity extends IBaseProjectCardActivity<IP
 export interface IProjectCardMovedActivity extends IBaseProjectCardActivity<IProjectCardActivityHistory & { from_column: { name: string } }> {
     activity_type: EProjectActivityType.CardMoved;
 }
-export interface IProjectCardAssignedUsersUpdatedActivity
-    extends IBaseProjectCardActivity<IProjectCardActivityHistory & IUpdatedAssignedUsersInActivityHistory> {
+export interface IProjectCardAssignedUsersUpdatedActivity extends IBaseProjectCardActivity<
+    IProjectCardActivityHistory & IUpdatedAssignedUsersInActivityHistory
+> {
     activity_type: EProjectActivityType.CardAssignedUsersUpdated;
 }
 export interface IProjectCardLabelsUpdatedActivity extends IBaseProjectCardActivity<IProjectCardActivityHistory & IUpdatedLabelsInActivityHistory> {

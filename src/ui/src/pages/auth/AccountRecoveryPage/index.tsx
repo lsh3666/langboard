@@ -13,13 +13,13 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { EHttpStatus } from "@langboard/core/enums";
 
-function AccountRecoveryPage(): JSX.Element {
+function AccountRecoveryPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const location = useLocation();
     const navigate = usePageNavigateRef();
     const [email, setEmail] = useState<string | null>(location.state?.email);
-    const [[form, description], setPage] = useState<[JSX.Element | null, string]>([null, ""]);
+    const [[form, description], setPage] = useState<[React.JSX.Element | null, string]>([null, ""]);
     const { mutate: validateRecoveryTokenMutate } = useValidateRecoveryToken();
     const { mutate: checkEmailMutate } = useAuthEmail();
 

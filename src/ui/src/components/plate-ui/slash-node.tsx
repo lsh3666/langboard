@@ -6,7 +6,6 @@ import { AIChatPlugin } from "@platejs/ai/react";
 import {
     CalendarIcon,
     Code2,
-    GitCompare,
     Heading1Icon,
     Heading2Icon,
     Heading3Icon,
@@ -34,7 +33,6 @@ import {
     InlineComboboxItem,
 } from "@/components/plate-ui/inline-combobox";
 import { useTranslation } from "react-i18next";
-import { PlantUmlPlugin } from "@/components/Editor/plugins/customs/plantuml/PlantUmlPlugin";
 
 type Group = {
     group: string;
@@ -154,9 +152,9 @@ const groups: Group[] = [
                 value: KEYS.equation,
             },
             {
-                icon: <GitCompare />,
-                label: "editor.Plant UML",
-                value: PlantUmlPlugin.key,
+                icon: <Code2 />,
+                label: "editor.Code Drawing",
+                value: KEYS.codeDrawing,
             },
         ].map((item) => ({
             ...item,

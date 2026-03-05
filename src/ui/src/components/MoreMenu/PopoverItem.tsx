@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 export type TMoreMenuPopoverItemProps = TMoreMenuItemProps<React.ComponentProps<typeof Popover.Content>>;
 
-function MoreMenuPopoverItem({ onSave, onOpenChange, ...props }: TMoreMenuPopoverItemProps): JSX.Element {
+function MoreMenuPopoverItem({ onSave, onOpenChange, ...props }: TMoreMenuPopoverItemProps): React.JSX.Element {
     const [isOpened, setIsOpened] = useState(false);
 
     return (
@@ -29,7 +29,7 @@ function MoreMenuPopoverItemDisplay({
     saveText,
     cancelText,
     children,
-}: Omit<TMoreMenuPopoverItemProps, "onSave" | "onOpenChange">): JSX.Element {
+}: Omit<TMoreMenuPopoverItemProps, "onSave" | "onOpenChange">): React.JSX.Element {
     const [t] = useTranslation();
     const { isOpened, setIsOpened, save } = useMoreMenuItem();
     const { isValidating } = useMoreMenu();

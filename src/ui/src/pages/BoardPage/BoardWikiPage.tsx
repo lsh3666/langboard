@@ -9,7 +9,7 @@ import { IBoardRelatedPageProps } from "@/pages/BoardPage/types";
 import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
 import { memo, useEffect } from "react";
 
-export function SkeletonBoardWikiPage(): JSX.Element {
+export function SkeletonBoardWikiPage(): React.JSX.Element {
     return <SkeletonWikiList />;
 }
 

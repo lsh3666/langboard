@@ -3,7 +3,7 @@ import { useAuth } from "@/core/providers/AuthProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { useEffect } from "react";
 
-function HomePage(): JSX.Element {
+function HomePage(): React.JSX.Element {
     const navigate = usePageNavigateRef();
     const { currentUser } = useAuth();
 

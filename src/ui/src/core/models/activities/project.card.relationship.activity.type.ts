@@ -4,11 +4,13 @@ import { IUpdatedRelationshipsInActivityHistory } from "@/core/models/activities
 
 export interface IProjectCardRelationshipActivityHistory extends IProjectCardActivityHistory {}
 
-export interface IBaseProjectCardRelationshipActivity<THistory extends IProjectCardRelationshipActivityHistory>
-    extends IBaseProjectCardActivity<THistory> {}
+export interface IBaseProjectCardRelationshipActivity<
+    THistory extends IProjectCardRelationshipActivityHistory,
+> extends IBaseProjectCardActivity<THistory> {}
 
-export interface IProjectCardRelationshipsUpdatedActivity
-    extends IBaseProjectCardRelationshipActivity<IProjectCardRelationshipActivityHistory & IUpdatedRelationshipsInActivityHistory> {
+export interface IProjectCardRelationshipsUpdatedActivity extends IBaseProjectCardRelationshipActivity<
+    IProjectCardRelationshipActivityHistory & IUpdatedRelationshipsInActivityHistory
+> {
     activity_type: EProjectActivityType.CardRelationshipsUpdated;
 }
 

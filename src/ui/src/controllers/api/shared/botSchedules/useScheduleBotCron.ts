@@ -3,11 +3,12 @@ import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { BaseBotScheduleModel, Project, ProjectCard, ProjectColumn } from "@/core/models";
+import { BaseBotScheduleModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
+import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
 
 export interface IScheduleBotCronForm {
-    scope: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+    scope: TBotRelatedTargetModel;
     interval: string;
     running_type?: BaseBotScheduleModel.ERunningType;
     start_at?: Date;
@@ -19,6 +20,7 @@ const useScheduleBotCron = (params: TBotScheduleRelatedParams, options?: TMutati
 
     let url;
     switch (params.target_table) {
+        case "project":
         case "project_column":
         case "card":
             url = Utils.String.format(Routing.API.BOT.SCHEDULE.SCHEDULE, {

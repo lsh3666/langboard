@@ -4,7 +4,7 @@ import { ButtonVariants, Floating, IconComponent, Tooltip } from "@/components/b
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 
-const SidebarNavItems = memo(({ isFloating, navs }: TSidebarNavItemsProps): JSX.Element => {
+const SidebarNavItems = memo(({ isFloating, navs }: TSidebarNavItemsProps): React.JSX.Element => {
     return (
         <>
             {navs.map((item) => {
@@ -32,7 +32,7 @@ interface ISidebarNavItemProps {
     item: ISidebarNavItem;
 }
 
-const FloatingNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ item, ...props }, ref): JSX.Element => {
+const FloatingNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ item, ...props }, ref): React.JSX.Element => {
     return (
         <Floating.Button.Item>
             <a
@@ -57,7 +57,7 @@ const FloatingNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ i
     );
 });
 
-const SidebarNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ item, ...props }, ref): JSX.Element => {
+const SidebarNavItem = forwardRef<HTMLAnchorElement, ISidebarNavItemProps>(({ item, ...props }, ref): React.JSX.Element => {
     return (
         <a
             {...props}

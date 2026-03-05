@@ -3,7 +3,7 @@ import AccountUserGroupList, { SkeletonAccountUserGroupList } from "@/pages/Acco
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { useEffect } from "react";
 
-export function SkeletonGroupsPage(): JSX.Element {
+export function SkeletonGroupsPage(): React.JSX.Element {
     const [t] = useTranslation();
 
     return (
@@ -14,7 +14,7 @@ export function SkeletonGroupsPage(): JSX.Element {
     );
 }
 
-function GroupsPage(): JSX.Element {
+function GroupsPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
 

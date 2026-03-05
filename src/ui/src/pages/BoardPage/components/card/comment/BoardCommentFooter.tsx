@@ -13,7 +13,7 @@ import { IBoardCommentContextParams } from "@/pages/BoardPage/components/card/co
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardCommentFooter(): JSX.Element {
+function BoardCommentFooter(): React.JSX.Element {
     const { params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { isCurrentEditor } = params;
 

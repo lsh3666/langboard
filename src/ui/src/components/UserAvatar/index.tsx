@@ -10,7 +10,7 @@ import UserAvatarTrigger, { TriggerVariants } from "@/components/UserAvatar/Trig
 import { IUserAvatarProps } from "@/components/UserAvatar/types";
 import UserLikeComponent from "@/components/UserLikeComponent";
 
-const Root = memo(({ userOrBot, customTrigger, ...props }: IUserAvatarProps): JSX.Element => {
+const Root = memo(({ userOrBot, customTrigger, ...props }: IUserAvatarProps): React.JSX.Element => {
     let trigger;
     if (customTrigger) {
         trigger = customTrigger;

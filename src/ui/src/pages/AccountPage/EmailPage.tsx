@@ -6,7 +6,7 @@ import { Flex } from "@/components/base";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { useEffect } from "react";
 
-export function SkeletonEmailPage(): JSX.Element {
+export function SkeletonEmailPage(): React.JSX.Element {
     const [t] = useTranslation();
 
     return (
@@ -21,7 +21,7 @@ export function SkeletonEmailPage(): JSX.Element {
     );
 }
 
-function EmailPage(): JSX.Element {
+function EmailPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
 

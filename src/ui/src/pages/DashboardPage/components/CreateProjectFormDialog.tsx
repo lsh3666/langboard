@@ -13,7 +13,7 @@ export interface ICreateProjectFormDialogProps {
     setOpened: (opened: bool) => void;
 }
 
-function CreateProjectFormDialog({ opened, setOpened }: ICreateProjectFormDialogProps): JSX.Element {
+function CreateProjectFormDialog({ opened, setOpened }: ICreateProjectFormDialogProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { mutate } = useCreateProject();

@@ -5,7 +5,7 @@ import { cn } from "@/core/utils/ComponentUtils";
 import ChatSessionMoreMenu from "@/pages/BoardPage/components/chat/ChatSessionMoreMenu";
 import { useTranslation } from "react-i18next";
 
-function ChatSessionList(): JSX.Element {
+function ChatSessionList(): React.JSX.Element {
     const [t] = useTranslation();
     const { chatSessions, setCurrentSessionUID, isSessionListOpened } = useBoardChat();
 

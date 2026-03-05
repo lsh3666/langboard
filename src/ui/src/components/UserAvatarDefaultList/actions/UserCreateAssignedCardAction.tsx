@@ -12,7 +12,7 @@ export interface IUserAvatarUserCreateAssignedCardActionProps {
     project: Project.TModel;
 }
 
-function UserAvatarUserCreateAssignedCardAction({ user, project }: IUserAvatarUserCreateAssignedCardActionProps): JSX.Element {
+function UserAvatarUserCreateAssignedCardAction({ user, project }: IUserAvatarUserCreateAssignedCardActionProps): React.JSX.Element {
     const { getAvatarHoverCardAttrs } = useUserAvatar();
     const [t] = useTranslation();
     const columns = ProjectColumn.Model.useModels((model) => project.uid === model.project_uid && !model.is_archive, [project]);

@@ -3,7 +3,7 @@ import UserAvatarDefaultViewActivitiesAction from "@/components/UserAvatarDefaul
 import { IUserAvatarDefaultListContext, useUserAvatarDefaultList } from "@/components/UserAvatarDefaultList/Provider";
 import { Project } from "@/core/models";
 
-function UserAvatarDefaultBotList(): JSX.Element {
+function UserAvatarDefaultBotList(): React.JSX.Element {
     const { scopeModels, currentUser } = useUserAvatarDefaultList();
 
     return (

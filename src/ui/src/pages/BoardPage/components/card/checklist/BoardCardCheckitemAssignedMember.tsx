@@ -9,7 +9,7 @@ export interface IBoardCardCheckitemAssignedMemberProps {
     assignedUser: User.TModel;
 }
 
-const BoardCardCheckitemAssignedMember = memo(({ projectUID, cardUID, assignedUser }: IBoardCardCheckitemAssignedMemberProps): JSX.Element => {
+const BoardCardCheckitemAssignedMember = memo(({ projectUID, cardUID, assignedUser }: IBoardCardCheckitemAssignedMemberProps): React.JSX.Element => {
     return (
         <UserAvatar.Root userOrBot={assignedUser} avatarSize="xs">
             <UserAvatarDefaultList

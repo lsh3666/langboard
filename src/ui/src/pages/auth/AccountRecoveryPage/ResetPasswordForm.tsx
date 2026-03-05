@@ -13,7 +13,7 @@ export interface IResetPasswordFormProps {
     backToSignin: () => void;
 }
 
-function ResetPasswordForm({ recoveryToken, backToSignin }: IResetPasswordFormProps): JSX.Element {
+function ResetPasswordForm({ recoveryToken, backToSignin }: IResetPasswordFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const location = useLocation();
     const navigate = usePageNavigateRef();

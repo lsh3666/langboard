@@ -3,7 +3,7 @@ import { LabelModelBadge } from "@/components/LabelBadge";
 import { ProjectLabel } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 
-function BoardCardLabelList(): JSX.Element {
+function BoardCardLabelList(): React.JSX.Element {
     const { card } = useBoardCard();
     const labels = card.useForeignFieldArray("labels");
     ProjectLabel.Model.subscribe("DELETION", `board-card-label-list-${card.uid}`, (uids) => {

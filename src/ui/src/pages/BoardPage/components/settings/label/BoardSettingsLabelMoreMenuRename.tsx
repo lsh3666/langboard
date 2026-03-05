@@ -7,7 +7,7 @@ import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardSettingsLabelMoreMenuRename(): JSX.Element {
+function BoardSettingsLabelMoreMenuRename(): React.JSX.Element {
     const { model: label } = ModelRegistry.ProjectLabel.useContext();
     const { project } = useBoardSettings();
     const [t] = useTranslation();
@@ -64,7 +64,7 @@ interface IBoardSettingsLabelMoreMenuRenameFormProps {
     nameInputRef: React.Ref<HTMLInputElement>;
 }
 
-function BoardSettingsLabelMoreMenuRenameForm({ nameInputRef }: IBoardSettingsLabelMoreMenuRenameFormProps): JSX.Element {
+function BoardSettingsLabelMoreMenuRenameForm({ nameInputRef }: IBoardSettingsLabelMoreMenuRenameFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const { model: label } = ModelRegistry.ProjectLabel.useContext();
     const { save } = MoreMenu.useMoreMenuItem();

@@ -5,7 +5,6 @@ import type { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import {
     CalendarIcon,
     FileCodeIcon,
-    GitCompare,
     Heading1Icon,
     Heading2Icon,
     Heading3Icon,
@@ -24,6 +23,7 @@ import {
     FilmIcon,
     Cable,
     ExternalLink,
+    Code2,
 } from "lucide-react";
 import { KEYS } from "platejs";
 import { type PlateEditor, useEditorRef } from "platejs/react";
@@ -31,7 +31,6 @@ import { DropdownMenu } from "@/components/base";
 import { insertBlock, insertInlineElement } from "@/components/Editor/transforms";
 import { ToolbarButton, ToolbarMenuGroup } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";
-import { PlantUmlPlugin } from "@/components/Editor/plugins/customs/plantuml/PlantUmlPlugin";
 import { INTERNAL_LINK_KEY } from "@/components/Editor/plugins/customs/internal-link/InternalLinkPlugin";
 
 type Group = {
@@ -162,9 +161,9 @@ const groups: Group[] = [
                 value: KEYS.equation,
             },
             {
-                icon: <GitCompare className="size-4" />,
-                label: "editor.Plant UML",
-                value: PlantUmlPlugin.key,
+                icon: <Code2 className="size-4" />,
+                label: "editor.Code Drawing",
+                value: KEYS.codeDrawing,
             },
         ].map((item) => ({
             ...item,

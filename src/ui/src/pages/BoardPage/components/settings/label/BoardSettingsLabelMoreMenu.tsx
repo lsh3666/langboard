@@ -3,7 +3,7 @@ import BoardSettingsLabelMoreMenuChangeDescription from "@/pages/BoardPage/compo
 import BoardSettingsLabelMoreMenuDelete from "@/pages/BoardPage/components/settings/label/BoardSettingsLabelMoreMenuDelete";
 import BoardSettingsLabelMoreMenuRename from "@/pages/BoardPage/components/settings/label/BoardSettingsLabelMoreMenuRename";
 
-function BoardSettingsLabelMoreMenu(): JSX.Element {
+function BoardSettingsLabelMoreMenu(): React.JSX.Element {
     return (
         <MoreMenu.Root modal={false} triggerProps={{ className: "h-8 w-5 sm:size-8" }}>
             <BoardSettingsLabelMoreMenuRename />

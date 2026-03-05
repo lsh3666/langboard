@@ -20,7 +20,7 @@ import BotPlatformSelect from "@/components/bots/BotPlatformSelect";
 import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTypeSelect";
 import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-function InternalBotCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
+function InternalBotCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

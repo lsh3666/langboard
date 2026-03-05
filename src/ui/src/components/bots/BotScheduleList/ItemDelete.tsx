@@ -16,7 +16,7 @@ function BotScheduleListItemDelete({
     schedule,
     variant = "outline",
     className = "border-0 [&:first-child]:rounded-b-none [&:not(:first-child)]:rounded-t-none [&:not(:first-child)]:border-t",
-}: IBotScheduleListItemDeleteProps): JSX.Element {
+}: IBotScheduleListItemDeleteProps): React.JSX.Element {
     const { bot, params } = useBotScheduleList();
     const [t] = useTranslation();
     const [isValidating, setIsValidating] = useState(false);

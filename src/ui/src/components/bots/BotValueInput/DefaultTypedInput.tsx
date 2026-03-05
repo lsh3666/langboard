@@ -1,6 +1,7 @@
 import { Button, Checkbox, Flex, Floating, IconComponent, Label, Select } from "@/components/base";
 import { useBotValueDefaultInput } from "@/components/bots/BotValueInput/DefaultProvider";
 import { API_URL } from "@/constants";
+import { api } from "@/core/helpers/Api";
 import { TAgentFormInput, IStringAgentFormInput, ISelectAgentFormInput, IIntegerAgentFormInput } from "@langboard/core/ai";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useEffect, useState } from "react";
@@ -81,7 +82,7 @@ function DefaultSelectInput({ input, disabled }: { input: ISelectAgentFormInput;
             return;
         }
 
-        const newOptions = await input.getOptions({ values: valuesRef.current, envs: { API_URL } });
+        const newOptions = await input.getOptions({ values: valuesRef.current, envs: { API_URL }, api });
         setOptions(() => newOptions);
         input.options = newOptions;
         if (!newOptions.includes(currentValue)) {

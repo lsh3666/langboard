@@ -55,7 +55,7 @@ export const useCreateEditor = (props: TUseCreateEditor) => {
             if (value) {
                 return editor.getApi(MarkdownPlugin).markdown.deserialize(value.content);
             } else {
-                return "";
+                return [];
             }
         },
         [value]

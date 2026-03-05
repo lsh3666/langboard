@@ -33,7 +33,7 @@ export function SkeletonBoardCommentForm() {
 
 const mention = getMentionOnSelectItem();
 
-const BoardCommentForm = memo((): JSX.Element => {
+const BoardCommentForm = memo((): React.JSX.Element => {
     const { projectUID, card, currentUser, replyRef } = useBoardCard();
     const [t] = useTranslation();
     const projectMembers = card.useForeignFieldArray("project_members");

@@ -13,7 +13,7 @@ import { Utils } from "@langboard/core/utils";
 import { EHttpStatus } from "@langboard/core/enums";
 import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-function UserCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
+function UserCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { mutate } = useCreateUserInSettings();

@@ -19,7 +19,7 @@ export interface IBotScheduleListItemFormProps {
     disabled?: bool;
 }
 
-function BotScheduleListItemForm({ initialValuesMap, valuesMapRef, triggersMapRef, disabled }: IBotScheduleListItemFormProps): JSX.Element {
+function BotScheduleListItemForm({ initialValuesMap, valuesMapRef, triggersMapRef, disabled }: IBotScheduleListItemFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const [runningType, setRunningType] = useState(initialValuesMap?.runningType ?? BaseBotScheduleModel.ERunningType.Infinite);
     const [startAt, setStartAt] = useState(initialValuesMap?.startAt);

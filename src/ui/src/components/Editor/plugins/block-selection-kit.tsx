@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { AIChatPlugin } from "@platejs/ai/react";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
-import { getPluginTypes, KEYS } from "platejs";
+import { getPluginTypes, isHotkey, KEYS } from "platejs";
 import { BlockSelection } from "@/components/plate-ui/block-selection";
 
 export const BlockSelectionKit = [
@@ -15,10 +16,17 @@ export const BlockSelectionKit = [
                     !editor.api.block({ above: true, at: path, match: { type: "tr" } })
                 );
             },
+            onKeyDownSelecting: (editor, e) => {
+                if (isHotkey("mod+j")(e)) {
+                    editor.getApi(AIChatPlugin).aiChat.show();
+                }
+            },
         },
         render: {
             belowRootNodes: (props) => {
-                if (!props.attributes.className?.includes("slate-selectable")) return null;
+                if (!props.attributes.className?.includes("slate-selectable")) {
+                    return null;
+                }
 
                 return <BlockSelection {...(props as any)} />;
             },

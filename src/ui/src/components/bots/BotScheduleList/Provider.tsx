@@ -1,5 +1,6 @@
 import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules/types";
-import { BotModel, BaseBotScheduleModel, ProjectCard, ProjectColumn, Project } from "@/core/models";
+import { BotModel, BaseBotScheduleModel } from "@/core/models";
+import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
 import { createContext, useContext, useEffect, useState } from "react";
 
 export interface IBotScheduleFormMap {
@@ -12,7 +13,7 @@ export interface IBotScheduleFormMap {
 export interface IBotScheduleListContext {
     bot: BotModel.TModel;
     params: TBotScheduleRelatedParams;
-    target: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+    target: TBotRelatedTargetModel;
     copiedForm?: IBotScheduleFormMap;
     setCopiedForm: React.Dispatch<React.SetStateAction<IBotScheduleFormMap | undefined>>;
     isAddMode: bool;
@@ -22,14 +23,14 @@ export interface IBotScheduleListContext {
 interface IBotScheduleListProviderProps {
     bot: BotModel.TModel;
     params: TBotScheduleRelatedParams;
-    target: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+    target: TBotRelatedTargetModel;
     children: React.ReactNode;
 }
 
 const initialContext = {
     bot: {} as BotModel.TModel,
     params: {} as TBotScheduleRelatedParams,
-    target: {} as Project.TModel | ProjectColumn.TModel | ProjectCard.TModel,
+    target: {} as TBotRelatedTargetModel,
     copiedForm: undefined,
     setCopiedForm: () => {},
     isAddMode: false,

@@ -4,7 +4,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ROUTES } from "@/core/routing/constants";
 import { useAuth } from "@/core/providers/AuthProvider";
 
-function WikiActivityDialog(): JSX.Element | null {
+function WikiActivityDialog(): React.JSX.Element | null {
     const navigate = usePageNavigateRef();
     const [projectUID, _, wikiUID] = location.pathname.split("/").slice(2);
     const { currentUser } = useAuth();

@@ -11,12 +11,12 @@ import { Flex } from "@/components/base";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 
-function SignInPage(): JSX.Element {
+function SignInPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const navigate = usePageNavigateRef();
     const location = useLocation();
     const [email, setEmail] = useState("");
-    const [form, setForm] = useState<JSX.Element>();
+    const [form, setForm] = useState<React.JSX.Element>();
     const { mutate } = useAuthEmail();
 
     const { wrapper: wrapperClassName, width: widthClassName } = createTwoSidedSizeClassNames("sm");

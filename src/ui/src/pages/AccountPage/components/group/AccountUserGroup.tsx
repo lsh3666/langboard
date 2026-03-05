@@ -11,7 +11,7 @@ import { Utils } from "@langboard/core/utils";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function SkeletonAccountUserGroup(): JSX.Element {
+export function SkeletonAccountUserGroup(): React.JSX.Element {
     return (
         <Card.Root>
             <Card.Header className="relative">
@@ -33,7 +33,7 @@ export interface IAccountUserGroupProps {
     group: UserGroup.TModel;
 }
 
-const AccountUserGroup = memo(({ group }: IAccountUserGroupProps): JSX.Element => {
+const AccountUserGroup = memo(({ group }: IAccountUserGroupProps): React.JSX.Element => {
     const [t] = useTranslation();
     const [isValidating, setIsValidating] = useState(false);
     const [readOnly, setReadOnly] = useState(true);

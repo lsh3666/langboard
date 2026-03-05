@@ -3,7 +3,7 @@ import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import AccountUserGroup, { SkeletonAccountUserGroup } from "@/pages/AccountPage/components/group/AccountUserGroup";
 import AccountUserGroupAddButton from "@/pages/AccountPage/components/group/AccountUserGroupAddButton";
 
-export function SkeletonAccountUserGroupList(): JSX.Element {
+export function SkeletonAccountUserGroupList(): React.JSX.Element {
     return (
         <Flex direction="col" gap="5">
             <SkeletonAccountUserGroup />
@@ -12,7 +12,7 @@ export function SkeletonAccountUserGroupList(): JSX.Element {
     );
 }
 
-function AccountUserGroupList(): JSX.Element {
+function AccountUserGroupList(): React.JSX.Element {
     const { currentUser } = useAccountSetting();
     const groups = currentUser.useForeignFieldArray("user_groups");
 

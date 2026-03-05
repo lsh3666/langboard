@@ -13,7 +13,7 @@ import GroupsPage, { SkeletonGroupsPage } from "@/pages/AccountPage/GroupsPage";
 import PreferencesPage from "@/pages/AccountPage/PreferencesPage";
 import { useTranslation } from "react-i18next";
 
-function AccountPage(): JSX.Element {
+function AccountPage(): React.JSX.Element {
     const [t] = useTranslation();
     const { currentUser } = useAuth();
     const navigate = usePageNavigateRef();

@@ -11,13 +11,13 @@ import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 
-function ActivatePage(): JSX.Element {
+function ActivatePage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const location = useLocation();
     const { mutate } = useActivateUser();
-    const [description, setDescription] = useState<JSX.Element | null>(null);
+    const [description, setDescription] = useState<React.JSX.Element | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {

@@ -7,7 +7,7 @@ import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardCardChecklistMoreMenuEdit(): JSX.Element {
+function BoardCardChecklistMoreMenuEdit(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: checklist } = ModelRegistry.ProjectChecklist.useContext();
     const [t] = useTranslation();
@@ -76,7 +76,7 @@ interface IBoardCardChecklistMoreMenuEditFormProps {
     titleInputRef: React.Ref<HTMLInputElement>;
 }
 
-function BoardCardChecklistMoreMenuEditForm({ titleInputRef }: IBoardCardChecklistMoreMenuEditFormProps): JSX.Element {
+function BoardCardChecklistMoreMenuEditForm({ titleInputRef }: IBoardCardChecklistMoreMenuEditFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const { model: checklist } = ModelRegistry.ProjectChecklist.useContext();
     const { save } = MoreMenu.useMoreMenuItem();

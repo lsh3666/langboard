@@ -24,7 +24,7 @@ export interface IBoardCardCheckitemProps {
     checkitem: ProjectCheckitem.TModel;
 }
 
-function BoardCardCheckitem({ checkitem }: IBoardCardCheckitemProps): JSX.Element {
+function BoardCardCheckitem({ checkitem }: IBoardCardCheckitemProps): React.JSX.Element {
     const { hasRoleAction } = useBoardCard();
     const outerRef = useRef<HTMLDivElement | null>(null);
     const draggableRef = useRef<HTMLButtonElement | null>(null);

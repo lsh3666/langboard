@@ -8,7 +8,7 @@ import CardRow from "@/pages/DashboardPage/components/CardRow";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ProjectCard } from "@/core/models";
 
-export function SkeletonCardsPage(): JSX.Element {
+export function SkeletonCardsPage(): React.JSX.Element {
     return (
         <>
             {Array.from({ length: 4 }).map((_, index) => (
@@ -31,7 +31,7 @@ export function SkeletonCardsPage(): JSX.Element {
     );
 }
 
-function CardsPage(): JSX.Element {
+function CardsPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const { mutateAsync, cardUIDs, isLastPage, isFetchingRef } = useGetDashboardCards();

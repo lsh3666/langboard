@@ -14,7 +14,7 @@ export interface IReactionCounterProps<TReactionData = unknown> {
     disabled?: bool;
 }
 
-function ReactionCounter({ reactions, toggleCallback, isActiveReaction, disabled }: IReactionCounterProps): JSX.Element {
+function ReactionCounter({ reactions, toggleCallback, isActiveReaction, disabled }: IReactionCounterProps): React.JSX.Element {
     const [t] = useTranslation();
     const reactionOrders: TReactionEmoji[] = [
         "check-mark",
@@ -96,7 +96,13 @@ interface IReactionCounterDockButtonProps extends IBaseReactionCounterButtonProp
 
 type TReactionCounterButtonProps = IReactionCounterListButtonProps | IReactionCounterDockButtonProps;
 
-function ReactionCounterButton({ reaction, reactionData, toggleCallback, isActiveReaction, disabled }: TReactionCounterButtonProps): JSX.Element {
+function ReactionCounterButton({
+    reaction,
+    reactionData,
+    toggleCallback,
+    isActiveReaction,
+    disabled,
+}: TReactionCounterButtonProps): React.JSX.Element {
     const [t] = useTranslation();
     const lottieRef = useRef<LottieRefCurrentProps>(null);
     const isPlayed = useRef(false);

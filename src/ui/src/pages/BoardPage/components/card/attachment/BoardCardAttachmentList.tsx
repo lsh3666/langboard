@@ -27,7 +27,7 @@ export function SkeletonBoardCardAttachmentList() {
     );
 }
 
-function BoardCardAttachmentList(): JSX.Element {
+function BoardCardAttachmentList(): React.JSX.Element {
     const [t] = useTranslation();
     const { projectUID, card, socket, viewportRef } = useBoardCard();
     const { mutate: changeCardAttachmentOrderMutate } = useChangeCardAttachmentOrder();

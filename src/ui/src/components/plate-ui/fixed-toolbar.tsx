@@ -3,12 +3,12 @@
 
 import { cn } from "@/core/utils/ComponentUtils";
 import { Toolbar } from "@/components/plate-ui/toolbar";
-import { useEditorRef } from "platejs/react";
+import { useEditorReadOnly } from "platejs/react";
 
 export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
-    const editor = useEditorRef();
+    const readOnly = useEditorReadOnly();
 
-    if (editor.dom.readOnly) {
+    if (readOnly) {
         return null;
     }
 

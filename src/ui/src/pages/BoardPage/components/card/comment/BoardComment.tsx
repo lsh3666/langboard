@@ -16,7 +16,7 @@ import { IBoardCommentContextParams } from "@/pages/BoardPage/components/card/co
 import { memo, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-export function SkeletonBoardComment({ ref }: { ref?: React.Ref<HTMLDivElement> }): JSX.Element {
+export function SkeletonBoardComment({ ref }: { ref?: React.Ref<HTMLDivElement> }): React.JSX.Element {
     return (
         <Box mt="4" display="grid" gap="2" className="grid-cols-[theme(spacing.8),1fr]" ref={ref}>
             <Skeleton size="8" rounded="full" />
@@ -36,7 +36,7 @@ export interface IBoardCommentProps {
     deletedComment: (commentUID: string) => void;
 }
 
-const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): JSX.Element => {
+const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): React.JSX.Element => {
     const { projectUID, card, currentUser } = useBoardCard();
     const editorName = `${card.uid}-comment-${comment.uid}`;
     const isCurrentEditor = useIsCurrentEditor(editorName);
@@ -103,7 +103,7 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): JSX
     );
 });
 
-function BoardCommentUserAvatar({ projectUID, cardUID }: { projectUID: string; cardUID: string }): JSX.Element {
+function BoardCommentUserAvatar({ projectUID, cardUID }: { projectUID: string; cardUID: string }): React.JSX.Element {
     const { params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { author } = params;
 
@@ -120,7 +120,7 @@ function BoardCommentUserAvatar({ projectUID, cardUID }: { projectUID: string; c
     );
 }
 
-function BoardCommentHeader(): JSX.Element {
+function BoardCommentHeader(): React.JSX.Element {
     const [t] = useTranslation();
     const { model: comment, params } = ModelRegistry.ProjectCardComment.useContext<IBoardCommentContextParams>();
     const { author } = params;
@@ -145,7 +145,7 @@ function BoardCommentHeader(): JSX.Element {
     );
 }
 
-function BoardCommentUserHeader({ user }: { user: User.TModel }): JSX.Element {
+function BoardCommentUserHeader({ user }: { user: User.TModel }): React.JSX.Element {
     const firstname = user.useField("firstname");
     const lastname = user.useField("lastname");
 
@@ -156,7 +156,7 @@ function BoardCommentUserHeader({ user }: { user: User.TModel }): JSX.Element {
     );
 }
 
-function BoardCommentBotHeader({ bot }: { bot: BotModel.TModel }): JSX.Element {
+function BoardCommentBotHeader({ bot }: { bot: BotModel.TModel }): React.JSX.Element {
     const name = bot.useField("name");
 
     return <>{name}</>;

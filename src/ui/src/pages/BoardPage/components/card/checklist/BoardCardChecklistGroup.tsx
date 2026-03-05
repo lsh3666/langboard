@@ -23,7 +23,7 @@ export function SkeletonBoardCardChecklistGroup() {
     );
 }
 
-function BoardCardChecklistGroup(): JSX.Element {
+function BoardCardChecklistGroup(): React.JSX.Element {
     const [t] = useTranslation();
     const { projectUID, card, socket, viewportRef } = useBoardCard();
     const [isOpened, setIsOpened] = useState(false);

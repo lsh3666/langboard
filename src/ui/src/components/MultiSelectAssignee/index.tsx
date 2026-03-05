@@ -44,7 +44,8 @@ const createAssigneeSelectItemCreator =
     });
 
 export interface IPopoverProps
-    extends Omit<IFormProps, "useEditorProps">,
+    extends
+        Omit<IFormProps, "useEditorProps">,
         Pick<
             Required<IFormProps>["useEditorProps"],
             "save" | "canAddNew" | "validateNewItem" | "createNewItemLabel" | "withUserGroups" | "groups" | "filterGroupUser"
@@ -239,7 +240,7 @@ const Form = memo(
                         createTagContent={
                             ((props: TAssigneeSelecItem & { readOnly: bool; label?: string }) => <TagContent {...props} {...tagContentProps} />) as (
                                 props: TSelectItem & { readOnly: bool }
-                            ) => JSX.Element
+                            ) => React.JSX.Element
                         }
                         canAddNew={useEditorProps?.canAddNew}
                         validateNewItem={useEditorProps?.validateNewItem}

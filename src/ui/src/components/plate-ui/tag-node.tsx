@@ -8,7 +8,7 @@ import { IconComponent } from "@/components/base";
 import { MultiSelectPlugin } from "@platejs/tag/react";
 
 export type TTagElementProps = {
-    createTagContent?: (props: TTagElement & { readOnly: bool }) => JSX.Element;
+    createTagContent?: (props: TTagElement & { readOnly: bool }) => React.JSX.Element;
     itemRemovedCallback?: (item: TTagElement) => void;
 };
 

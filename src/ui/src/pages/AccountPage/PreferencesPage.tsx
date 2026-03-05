@@ -5,7 +5,7 @@ import PreferenceNotification from "@/pages/AccountPage/components/preference/Pr
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { useEffect } from "react";
 
-function PreferencesPage(): JSX.Element {
+function PreferencesPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
 

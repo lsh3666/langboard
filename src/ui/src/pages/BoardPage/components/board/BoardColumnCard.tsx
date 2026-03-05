@@ -16,7 +16,7 @@ import { TRowState } from "@/core/helpers/dnd/types";
 import { ROW_IDLE } from "@/core/helpers/dnd/createDndRowEvents";
 import { columnRowDndHelpers } from "@/core/helpers/dnd";
 
-export function SkeletonBoardColumnCard({ ref }: { ref?: React.Ref<HTMLDivElement> }): JSX.Element {
+export function SkeletonBoardColumnCard({ ref }: { ref?: React.Ref<HTMLDivElement> }): React.JSX.Element {
     return (
         <Card.Root className="border-transparent shadow-transparent" ref={ref}>
             <Card.Header className="relative block py-4">

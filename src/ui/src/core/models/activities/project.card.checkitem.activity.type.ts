@@ -11,8 +11,9 @@ export interface IProjectCardCheckitemActivityHistory extends IProjectCardActivi
 export interface IProjectCardCheckitemCreatedActivity extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory> {
     activity_type: EProjectActivityType.CardCheckitemCreated;
 }
-export interface IProjectCardCheckitemTitleChangedActivity
-    extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory & IChangesInActivityHistory> {
+export interface IProjectCardCheckitemTitleChangedActivity extends IBaseProjectCardActivity<
+    IProjectCardCheckitemActivityHistory & IChangesInActivityHistory
+> {
     activity_type: EProjectActivityType.CardCheckitemTitleChanged;
 }
 export interface IProjectCardCheckitemTimerStartedActivity extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory> {
@@ -30,8 +31,9 @@ export interface IProjectCardCheckitemCheckedActivity extends IBaseProjectCardAc
 export interface IProjectCardCheckitemUncheckedActivity extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory> {
     activity_type: EProjectActivityType.CardCheckitemUnchecked;
 }
-export interface IProjectCardCheckitemCardifiedActivity
-    extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory & { cardified_card: { uid: string } }> {
+export interface IProjectCardCheckitemCardifiedActivity extends IBaseProjectCardActivity<
+    IProjectCardCheckitemActivityHistory & { cardified_card: { uid: string } }
+> {
     activity_type: EProjectActivityType.CardCheckitemCardified;
 }
 export interface IProjectCardCheckitemDeletedActivity extends IBaseProjectCardActivity<IProjectCardCheckitemActivityHistory> {

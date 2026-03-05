@@ -10,7 +10,13 @@ export interface ICardEditControlsProps {
     saveDisabled?: bool;
 }
 
-export const CardEditControls = ({ className, isEditing, onSave, onCancel, saveDisabled = false }: ICardEditControlsProps): JSX.Element | null => {
+export const CardEditControls = ({
+    className,
+    isEditing,
+    onSave,
+    onCancel,
+    saveDisabled = false,
+}: ICardEditControlsProps): React.JSX.Element | null => {
     const [t] = useTranslation();
 
     if (!isEditing) {

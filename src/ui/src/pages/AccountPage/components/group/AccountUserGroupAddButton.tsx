@@ -5,7 +5,7 @@ import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function AccountUserGroupAddButton(): JSX.Element {
+function AccountUserGroupAddButton(): React.JSX.Element {
     const [t] = useTranslation();
     const { currentUser } = useAccountSetting();
     const [isValidating, setIsValidating] = useState(false);

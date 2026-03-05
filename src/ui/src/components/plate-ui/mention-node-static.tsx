@@ -1,6 +1,7 @@
 import type { IMentionElement } from "@/components/Editor/plugins/markdown/mention";
-import type { SlateElementProps } from "platejs";
-import { IS_APPLE, KEYS, SlateElement } from "platejs";
+import type { SlateElementProps } from "platejs/static";
+import { IS_APPLE, KEYS } from "platejs";
+import { SlateElement } from "platejs/static";
 import { cn } from "@/core/utils/ComponentUtils";
 import { User } from "@/core/models";
 import UserAvatar from "@/components/UserAvatar";

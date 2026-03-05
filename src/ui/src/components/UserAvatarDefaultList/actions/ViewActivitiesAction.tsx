@@ -15,7 +15,7 @@ export interface IUserAvatarDefaultViewActivitiesActionProps {
     currentUser: AuthUser.TModel;
 }
 
-function UserAvatarDefaultViewActivitiesAction({ scopeModels, currentUser }: IUserAvatarDefaultViewActivitiesActionProps): JSX.Element | null {
+function UserAvatarDefaultViewActivitiesAction({ scopeModels, currentUser }: IUserAvatarDefaultViewActivitiesActionProps): React.JSX.Element | null {
     const { userOrBot, getAvatarHoverCardAttrs } = useUserAvatar();
     const [t] = useTranslation();
     const triggerRef = useRef<HTMLDivElement>(null);

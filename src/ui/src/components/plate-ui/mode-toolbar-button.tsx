@@ -46,9 +46,9 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
                             setReadOnly(true);
 
                             return;
-                        } else {
-                            setReadOnly(false);
                         }
+
+                        setReadOnly(false);
 
                         if (newValue === "editing") {
                             editor.tf.focus();

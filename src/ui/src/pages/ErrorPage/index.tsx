@@ -9,7 +9,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { Utils } from "@langboard/core/utils";
 import { EHttpStatus } from "@langboard/core/enums";
 
-function ErrorPage(): JSX.Element {
+function ErrorPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const { currentUser } = useAuth();

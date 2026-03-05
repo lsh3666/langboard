@@ -9,7 +9,7 @@ import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardCardCheckitemMoreMenuCardify(): JSX.Element {
+function BoardCardCheckitemMoreMenuCardify(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: checkitem } = ModelRegistry.ProjectCheckitem.useContext();
     const [t] = useTranslation();

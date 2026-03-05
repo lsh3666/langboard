@@ -25,7 +25,7 @@ interface IBaseMultiSelectProps {
     listClassName?: string;
     noBadge?: bool;
     createValueText?: (value: string[]) => string;
-    createBadgeWrapper?: (badge: JSX.Element, value: string) => JSX.Element | null;
+    createBadgeWrapper?: (badge: React.JSX.Element, value: string) => React.JSX.Element | null;
     canCreateNew?: bool;
     validateCreatedNewValue?: (value: string) => bool;
     createNewCommandItemLabel?: ((values: string[]) => string) | ((value: string) => { label: string; value: string }[]);
@@ -309,7 +309,7 @@ const MultiSelect = React.memo(
                                         return null;
                                     }
 
-                                    let badge: JSX.Element | null = (
+                                    let badge: React.JSX.Element | null = (
                                         <Badge variant="secondary" className={cn("justify-between gap-1 pl-2 pr-1", badgeClassName)}>
                                             {selection!.label}
                                             <button

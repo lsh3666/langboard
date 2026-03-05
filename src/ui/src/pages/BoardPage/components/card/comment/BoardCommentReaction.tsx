@@ -9,7 +9,7 @@ export interface IBoardCommentReactionProps {
     comment: ProjectCardComment.TModel;
 }
 
-const BoardCommentReaction = ({ comment }: IBoardCommentReactionProps): JSX.Element => {
+const BoardCommentReaction = ({ comment }: IBoardCommentReactionProps): React.JSX.Element => {
     const { projectUID, card, currentUser } = useBoardCard();
     const reactions = comment.useField("reactions");
     const { mutate: reactCardCommentMutate } = useReactCardComment();

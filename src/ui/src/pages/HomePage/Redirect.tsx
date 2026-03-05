@@ -4,7 +4,7 @@ import { ROUTES } from "@/core/routing/constants";
 import { useEffect } from "react";
 import { To } from "react-router";
 
-function Redirect(): JSX.Element {
+function Redirect(): React.JSX.Element {
     const navigate = usePageNavigateRef();
 
     useEffect(() => {

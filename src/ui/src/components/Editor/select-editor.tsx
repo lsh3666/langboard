@@ -31,7 +31,7 @@ type SelectEditorContextValue = {
     defaultValue?: TSelectItem[];
     value?: TSelectItem[];
     onValueChange?: (items: TSelectItem[]) => void;
-    createTagContent?: (props: TSelectItem & { readOnly: bool }) => JSX.Element;
+    createTagContent?: (props: TSelectItem & { readOnly: bool }) => React.JSX.Element;
     canAddNew: bool;
     validateNewItem?: (value: string) => bool;
     createNewItemLabel?: (item: TSelectItem) => React.ReactNode;
@@ -55,7 +55,7 @@ export interface ISelectEditorProviderProps {
     items?: TSelectItem[];
     value?: TSelectItem[];
     onValueChange?: (items: TSelectItem[]) => void;
-    createTagContent?: (props: TSelectItem & { readOnly: bool }) => JSX.Element;
+    createTagContent?: (props: TSelectItem & { readOnly: bool }) => React.JSX.Element;
     canAddNew?: bool;
     validateNewItem?: (value: string) => bool;
     createNewItemLabel?: (item: TSelectItem) => string;

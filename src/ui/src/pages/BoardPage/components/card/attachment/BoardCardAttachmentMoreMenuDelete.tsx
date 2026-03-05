@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useTranslation } from "react-i18next";
 
-function BoardCardAttachmentMoreMenuDelete(): JSX.Element {
+function BoardCardAttachmentMoreMenuDelete(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: attachment } = ModelRegistry.ProjectCardAttachment.useContext();
     const [t] = useTranslation();

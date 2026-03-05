@@ -7,7 +7,7 @@ export interface IBoardActivityDialogProps {
     setIsOpened: (isOpened: bool) => void;
 }
 
-function BoardActivityDialog({ isOpened, setIsOpened }: IBoardActivityDialogProps): JSX.Element | null {
+function BoardActivityDialog({ isOpened, setIsOpened }: IBoardActivityDialogProps): React.JSX.Element | null {
     const [projectUID] = location.pathname.split("/").slice(2);
     const { currentUser } = useAuth();
 

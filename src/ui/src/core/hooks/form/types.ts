@@ -46,27 +46,46 @@ interface IBaseUseFormProps<TVariables = unknown, TData = unknown, TContext = un
     badRequestHandlerCallback?: (errors?: Record<string, string>, focusElement?: string | HTMLInputElement | null) => void;
 }
 
-interface IFormDataUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error, TFormData extends true = true>
-    extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
+interface IFormDataUseFormProps<
+    TVariables = unknown,
+    TData = unknown,
+    TContext = unknown,
+    TError = Error,
+    TFormData extends true = true,
+> extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
     successCallback: (form: TFormDataType<TFormData, TVariables>) => void;
     isFormData: TFormData;
 }
 
-interface IFormUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error, TFormData extends false = false>
-    extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
+interface IFormUseFormProps<
+    TVariables = unknown,
+    TData = unknown,
+    TContext = unknown,
+    TError = Error,
+    TFormData extends false = false,
+> extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
     successCallback: (form: TFormDataType<TFormData, TVariables>) => void;
     isFormData?: TFormData;
 }
 
-interface IBaseMutateUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error, TFormData extends false = false>
-    extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
+interface IBaseMutateUseFormProps<
+    TVariables = unknown,
+    TData = unknown,
+    TContext = unknown,
+    TError = Error,
+    TFormData extends false = false,
+> extends IBaseUseFormProps<TVariables, TData, TContext, TError, TFormData> {
     successCallback?: undefined;
     isFormData?: TFormData;
     mutate: UseMutateFunction<TData, TError, TVariables, TContext>;
 }
 
-interface IMutateErrorCallbackUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error>
-    extends IBaseMutateUseFormProps<TVariables, TData, TContext, TError> {
+interface IMutateErrorCallbackUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error> extends IBaseMutateUseFormProps<
+    TVariables,
+    TData,
+    TContext,
+    TError
+> {
     mutate: UseMutateFunction<TData, TError, TVariables, TContext>;
     mutateOnError?: MutateOptions<TData, TError, TVariables, TContext>["onError"];
     apiErrorHandlers?: undefined;
@@ -74,8 +93,12 @@ interface IMutateErrorCallbackUseFormProps<TVariables = unknown, TData = unknown
     badRequestHandlerCallback?: undefined;
 }
 
-interface IMutateErrorHandlerUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error>
-    extends IBaseMutateUseFormProps<TVariables, TData, TContext, TError> {
+interface IMutateErrorHandlerUseFormProps<TVariables = unknown, TData = unknown, TContext = unknown, TError = Error> extends IBaseMutateUseFormProps<
+    TVariables,
+    TData,
+    TContext,
+    TError
+> {
     mutate: UseMutateFunction<TData, TError, TVariables, TContext>;
     mutateOnError?: undefined;
     apiErrorHandlers?: IApiErrorHandlerMap;

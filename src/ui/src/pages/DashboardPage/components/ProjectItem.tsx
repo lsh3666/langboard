@@ -52,7 +52,7 @@ export interface IProjectItemProps extends React.ComponentPropsWithoutRef<typeof
     updateStarredProjects: React.DispatchWithoutAction;
 }
 
-const ProjectItem = memo(({ project, updateStarredProjects, ...props }: IProjectItemProps): JSX.Element => {
+const ProjectItem = memo(({ project, updateStarredProjects, ...props }: IProjectItemProps): React.JSX.Element => {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { socket } = useDashboard();

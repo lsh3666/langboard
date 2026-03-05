@@ -9,7 +9,7 @@ import { EHttpStatus } from "@langboard/core/enums";
 import { ISignUpFormProps } from "@/pages/auth/SignUpPage/types";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 
-function Overview({ values, moveStep }: Omit<ISignUpFormProps, "initialErrorsRef">): JSX.Element {
+function Overview({ values, moveStep }: Omit<ISignUpFormProps, "initialErrorsRef">): React.JSX.Element {
     const cardContentList: (keyof ISignUpForm)[] = ["email", "industry", "purpose", "affiliation", "position"];
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();

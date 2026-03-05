@@ -3,15 +3,16 @@ import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { BaseBotScheduleModel, ProjectCard, ProjectColumn } from "@/core/models";
+import { BaseBotScheduleModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
+import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
 
 export type TRescheduleBotCronParams = TBotScheduleRelatedParams & {
     schedule_uid: string;
 };
 
 export interface IRescheduleBotCronForm {
-    scope?: ProjectColumn.TModel | ProjectCard.TModel;
+    scope?: TBotRelatedTargetModel;
     interval?: string;
     running_type?: BaseBotScheduleModel.ERunningType;
     start_at?: Date;
@@ -23,6 +24,7 @@ const useRescheduleBotCron = (params: TRescheduleBotCronParams, options?: TMutat
 
     let url;
     switch (params.target_table) {
+        case "project":
         case "project_column":
         case "card":
             url = Utils.String.format(Routing.API.BOT.SCHEDULE.RESCHEDULE, {

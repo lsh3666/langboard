@@ -32,7 +32,7 @@ const stateStyles: { [Key in TColumnState["type"]]: string } = {
     "is-column-over": "",
 };
 
-const BoardCardChecklist = memo(({ checklist, checkitemsMap }: IBoardCardChecklistProps): JSX.Element => {
+const BoardCardChecklist = memo(({ checklist, checkitemsMap }: IBoardCardChecklistProps): React.JSX.Element => {
     const { viewportRef, hasRoleAction } = useBoardCard();
     const outerFullHeightRef = useRef<HTMLDivElement | null>(null);
     const draggableRef = useRef<HTMLButtonElement | null>(null);

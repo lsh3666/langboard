@@ -20,7 +20,7 @@ export interface IPasswordformProps {
     className: string;
 }
 
-function PasswordForm({ signToken, emailToken, email, setEmail, className }: IPasswordformProps): JSX.Element {
+function PasswordForm({ signToken, emailToken, email, setEmail, className }: IPasswordformProps): React.JSX.Element {
     const [t] = useTranslation();
     const location = useLocation();
     const navigate = usePageNavigateRef();

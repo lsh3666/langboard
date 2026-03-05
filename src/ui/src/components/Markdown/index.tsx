@@ -15,7 +15,7 @@ export interface IMarkdownProps extends Omit<MarkdownOptions, "remarkPlugins" | 
     message: IChatContent | { content: string };
 }
 
-const Markdown = memo(({ message, ...mdProps }: IMarkdownProps): JSX.Element => {
+const Markdown = memo(({ message, ...mdProps }: IMarkdownProps): React.JSX.Element => {
     const components: Components = {
         p({ node, ...props }) {
             return <div>{props.children}</div>;

@@ -24,7 +24,7 @@ import { AuthUser } from "@/core/models";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { ApiKeyRole, McpRole, SettingRole } from "@/core/models/roles";
 
-function SettingsProxy(): JSX.Element {
+function SettingsProxy(): React.JSX.Element {
     const { currentUser } = useAuth();
     const socket = useSocket();
     const navigate = usePageNavigateRef();
@@ -104,7 +104,7 @@ function SettingsProxy(): JSX.Element {
     );
 }
 
-function SettingsProxyDisplay({ currentUser }: { currentUser: AuthUser.TModel }): JSX.Element {
+function SettingsProxyDisplay({ currentUser }: { currentUser: AuthUser.TModel }): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const pathname = location.pathname.split("/").slice(0, 3).join("/");

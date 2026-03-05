@@ -11,7 +11,7 @@ export interface IBoardCardAttachmentMoreMenuProps {
     setIsValidating: (value: bool) => void;
 }
 
-function BoardCardAttachmentMoreMenu({ attachment, isValidating, setIsValidating }: IBoardCardAttachmentMoreMenuProps): JSX.Element {
+function BoardCardAttachmentMoreMenu({ attachment, isValidating, setIsValidating }: IBoardCardAttachmentMoreMenuProps): React.JSX.Element {
     return (
         <ModelRegistry.ProjectCardAttachment.Provider model={attachment} params={{ isValidating, setIsValidating }}>
             <MoreMenu.Root triggerProps={{ className: "h-8 w-5 sm:size-8" }}>

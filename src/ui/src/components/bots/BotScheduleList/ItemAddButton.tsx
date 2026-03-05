@@ -7,7 +7,7 @@ import { BaseBotScheduleModel } from "@/core/models";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function BotScheduleListItemAddButton(): JSX.Element {
+function BotScheduleListItemAddButton(): React.JSX.Element {
     const { bot, params, target, copiedForm, isAddMode, setIsAddMode } = useBotScheduleList();
     const [t] = useTranslation();
     const [isValidating, setIsValidating] = useState(false);

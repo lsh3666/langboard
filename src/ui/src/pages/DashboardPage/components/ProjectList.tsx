@@ -7,7 +7,7 @@ import useInfiniteScrollPager from "@/core/hooks/useInfiniteScrollPager";
 import { memo } from "react";
 import InfiniteScroller from "@/components/InfiniteScroller";
 
-export function SkeletonProjectList({ ref }: { ref?: React.Ref<HTMLDivElement> }): JSX.Element {
+export function SkeletonProjectList({ ref }: { ref?: React.Ref<HTMLDivElement> }): React.JSX.Element {
     const skeletonCards = [];
     for (let i = 0; i < 4; ++i) {
         skeletonCards.push(<SkeletonProjectItem key={Utils.String.Token.shortUUID()} />);
@@ -35,7 +35,7 @@ export interface IProjectListProps {
     className?: string;
 }
 
-const ProjectList = memo(({ projects, updateStarredProjects, scrollAreaUpdater, className }: IProjectListProps): JSX.Element | null => {
+const ProjectList = memo(({ projects, updateStarredProjects, scrollAreaUpdater, className }: IProjectListProps): React.JSX.Element | null => {
     const PAGE_SIZE = 16;
     const { items, nextPage, hasMore } = useInfiniteScrollPager({ allItems: projects, size: PAGE_SIZE, updater: scrollAreaUpdater });
 

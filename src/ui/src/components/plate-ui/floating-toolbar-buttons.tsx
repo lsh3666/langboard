@@ -1,7 +1,7 @@
 "use client";
 
 import { KEYS } from "platejs";
-import { useEditorRef } from "platejs/react";
+import { useEditorReadOnly } from "platejs/react";
 import { BoldIcon, Code2Icon, ItalicIcon, StrikethroughIcon, UnderlineIcon, WandSparklesIcon } from "lucide-react";
 import { AIToolbarButton } from "@/components/plate-ui/ai-toolbar-button";
 import { LinkToolbarButton } from "@/components/plate-ui/link-toolbar-button";
@@ -12,12 +12,12 @@ import { TurnIntoToolbarButton } from "@/components/plate-ui/turn-into-toolbar-b
 import { useTranslation } from "react-i18next";
 
 export function FloatingToolbarButtons() {
-    const editor = useEditorRef();
     const [t] = useTranslation();
+    const readOnly = useEditorReadOnly();
 
     return (
         <>
-            {!editor.dom.readOnly && (
+            {!readOnly && (
                 <>
                     <ToolbarGroup>
                         <AIToolbarButton tooltip={t("editor.AI commands")}>
@@ -54,7 +54,7 @@ export function FloatingToolbarButtons() {
                 </>
             )}
 
-            <ToolbarGroup>{!editor.dom.readOnly && <MoreToolbarButton />}</ToolbarGroup>
+            <ToolbarGroup>{!readOnly && <MoreToolbarButton />}</ToolbarGroup>
         </>
     );
 }

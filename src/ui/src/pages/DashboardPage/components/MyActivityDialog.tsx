@@ -7,7 +7,7 @@ export interface IMyActivityDialogProps {
     setOpened: (opened: bool) => void;
 }
 
-function MyActivityDialog({ opened, setOpened }: IMyActivityDialogProps): JSX.Element | null {
+function MyActivityDialog({ opened, setOpened }: IMyActivityDialogProps): React.JSX.Element | null {
     const { currentUser } = useAuth();
 
     if (!currentUser) {

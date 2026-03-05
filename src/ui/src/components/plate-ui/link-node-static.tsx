@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useLink } from "@platejs/link/react";
-import type { SlateElementProps, TLinkElement } from "platejs";
-import { SlateElement } from "platejs";
+import type { TLinkElement } from "platejs";
+import type { SlateElementProps } from "platejs/static";
+import { SlateElement } from "platejs/static";
 import LinkElementDialog from "@/components/plate-ui/link-node-dialog";
 
 export function LinkElementStatic(props: SlateElementProps<TLinkElement>) {

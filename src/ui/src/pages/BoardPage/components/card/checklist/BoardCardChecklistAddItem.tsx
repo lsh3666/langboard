@@ -9,7 +9,7 @@ import { IBoardCardCheckRelatedContextParams } from "@/pages/BoardPage/component
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardCardChecklistAddItem(): JSX.Element {
+function BoardCardChecklistAddItem(): React.JSX.Element {
     const { socket, projectUID, card } = useBoardCard();
     const { model: checklist, params } = ModelRegistry.ProjectChecklist.useContext<IBoardCardCheckRelatedContextParams>();
     const { isValidating, setIsValidating } = params;

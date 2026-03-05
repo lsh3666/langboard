@@ -489,8 +489,7 @@ type ScrollAreaScrollbarAxisPrivateProps = {
 
 type ScrollAreaScrollbarAxisElement = ScrollAreaScrollbarImplElement;
 interface ScrollAreaScrollbarAxisProps
-    extends Omit<ScrollAreaScrollbarImplProps, keyof ScrollAreaScrollbarImplPrivateProps>,
-        ScrollAreaScrollbarAxisPrivateProps {}
+    extends Omit<ScrollAreaScrollbarImplProps, keyof ScrollAreaScrollbarImplPrivateProps>, ScrollAreaScrollbarAxisPrivateProps {}
 
 const ScrollAreaScrollbarX = React.forwardRef<ScrollAreaScrollbarAxisElement, ScrollAreaScrollbarAxisProps>(
     (props: ScopedProps<ScrollAreaScrollbarAxisProps>, forwardedRef) => {
@@ -661,8 +660,7 @@ type ScrollAreaScrollbarImplPrivateProps = {
     onResize(): void;
 };
 interface ScrollAreaScrollbarImplProps
-    extends Omit<PrimitiveDivProps, keyof ScrollAreaScrollbarImplPrivateProps>,
-        ScrollAreaScrollbarImplPrivateProps {}
+    extends Omit<PrimitiveDivProps, keyof ScrollAreaScrollbarImplPrivateProps>, ScrollAreaScrollbarImplPrivateProps {}
 
 const ScrollAreaScrollbarImpl = React.forwardRef<ScrollAreaScrollbarImplElement, ScrollAreaScrollbarImplProps>(
     (props: ScopedProps<ScrollAreaScrollbarImplProps>, forwardedRef) => {

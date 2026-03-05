@@ -8,7 +8,7 @@ import { Utils } from "@langboard/core/utils";
 import { ISignUpFormProps } from "@/pages/auth/SignUpPage/types";
 import { setInitialErrorsWithFocusingElement } from "@/pages/auth/SignUpPage/utils";
 
-function OptionalForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps): JSX.Element {
+function OptionalForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const dataTransferRef = useRef(new DataTransfer());
     const avatarUrlRef = useRef((values as unknown as Record<string, string>).avatarUrl ?? null);

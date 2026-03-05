@@ -24,7 +24,7 @@ import { MentionKit } from "@/components/Editor/plugins/mention-kit";
 import { SlashKit } from "@/components/Editor/plugins/slash-kit";
 import { TableKit } from "@/components/Editor/plugins/table-kit";
 import { TocKit } from "@/components/Editor/plugins/toc-kit";
-import { PlantUmlPlugin } from "@/components/Editor/plugins/customs/plantuml/PlantUmlPlugin";
+import { CodeDrawingKit } from "@/components/Editor/plugins/code-drawing-kit";
 import { InternalLinkKit } from "@/components/Editor/plugins/internal-link-kit";
 
 export const EditorKit = [
@@ -33,6 +33,7 @@ export const EditorKit = [
     // Elements
     ...BasicBlocksKit,
     ...CodeBlockKit,
+    ...CodeDrawingKit,
     ...TableKit,
     ...TocKit,
     ...MediaKit,
@@ -66,7 +67,6 @@ export const EditorKit = [
 
     // Custom
     ...InternalLinkKit,
-    PlantUmlPlugin,
 ];
 
 export type TEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;

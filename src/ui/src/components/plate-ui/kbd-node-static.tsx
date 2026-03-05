@@ -1,6 +1,6 @@
 /* eslint-disable @/max-len */
-import type { SlateLeafProps } from "platejs";
-import { SlateLeaf } from "platejs";
+import type { SlateLeafProps } from "platejs/static";
+import { SlateLeaf } from "platejs/static";
 
 export function KbdLeafStatic(props: SlateLeafProps) {
     return (

@@ -25,7 +25,7 @@ export type DateTimeRenderTriggerProps = {
     setOpen: (open: bool) => void;
 };
 
-function DateTimePicker({ renderTrigger, onChange, ...props }: IDateTimePickerProps): JSX.Element {
+function DateTimePicker({ renderTrigger, onChange, ...props }: IDateTimePickerProps): React.JSX.Element {
     const { timezone, disabled, use12HourFormat } = props;
     const [open, setOpen] = useState(false);
     const [isDialog, setIsDialog] = useState(false);

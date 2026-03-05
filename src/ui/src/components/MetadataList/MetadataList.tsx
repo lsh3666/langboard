@@ -40,7 +40,7 @@ function MetadataList({ form, errorsMap, canEdit }: IMetadataListProps) {
     );
 }
 
-function SkeletonMetadataList(): JSX.Element {
+function SkeletonMetadataList(): React.JSX.Element {
     return <></>;
 }
 
@@ -51,7 +51,7 @@ interface IMetadataListInnerProps {
     canEdit: () => bool;
 }
 
-function MetadataListInner({ form, metadata: record, errorsMap, canEdit }: IMetadataListInnerProps): JSX.Element | null {
+function MetadataListInner({ form, metadata: record, errorsMap, canEdit }: IMetadataListInnerProps): React.JSX.Element | null {
     const metadata = record.useField("metadata");
 
     return (

@@ -7,7 +7,7 @@ import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { useEffect } from "react";
 
-function PasswordPage(): JSX.Element {
+function PasswordPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const { updatedUser } = useAccountSetting();
     const [t] = useTranslation();

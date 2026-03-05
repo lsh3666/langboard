@@ -4,10 +4,10 @@ import { Flex, IconComponent } from "@/components/base";
 interface ISuccessResultProps {
     title: string;
     children: React.ReactNode;
-    buttons: JSX.Element;
+    buttons: React.JSX.Element;
 }
 
-function SuccessResult({ title, children, buttons }: ISuccessResultProps): JSX.Element {
+function SuccessResult({ title, children, buttons }: ISuccessResultProps): React.JSX.Element {
     let buttonWrapperClassNames = "justify-between xs:justify-end";
     if (Children.count(buttons) === 1) {
         buttonWrapperClassNames = "justify-center";

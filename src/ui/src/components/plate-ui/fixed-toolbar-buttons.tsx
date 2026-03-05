@@ -1,7 +1,7 @@
 "use client";
 
 import { KEYS } from "platejs";
-import { useEditorRef } from "platejs/react";
+import { useEditorReadOnly } from "platejs/react";
 import { BoldIcon, Code2Icon, HighlighterIcon, ItalicIcon, StrikethroughIcon, UnderlineIcon, WandSparklesIcon } from "lucide-react";
 import { MoreToolbarButton } from "@/components/plate-ui/more-toolbar-button";
 import { AIToolbarButton } from "@/components/plate-ui/ai-toolbar-button";
@@ -19,10 +19,10 @@ import { TurnIntoToolbarButton } from "@/components/plate-ui/turn-into-toolbar-b
 import { useTranslation } from "react-i18next";
 
 export function FixedToolbarButtons() {
-    const editor = useEditorRef();
     const [t] = useTranslation();
+    const readOnly = useEditorReadOnly();
 
-    if (editor.dom.readOnly) {
+    if (readOnly) {
         return null;
     }
 

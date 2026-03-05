@@ -23,7 +23,7 @@ function LanguageSwitcher({
     hideTriggerIcon,
     size = "default",
     asForm,
-}: ILanguageSwitcherProps): JSX.Element {
+}: ILanguageSwitcherProps): React.JSX.Element {
     const [t, i18n] = useTranslation();
     const curLang = useMemo(() => (asForm ? asForm.initialValue : i18n.language), [asForm, asForm?.initialValue, i18n, i18n.language]);
 

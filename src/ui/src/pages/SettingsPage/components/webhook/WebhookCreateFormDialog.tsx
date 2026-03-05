@@ -10,7 +10,7 @@ import { EHttpStatus } from "@langboard/core/enums";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-function WebhookCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
+function WebhookCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

@@ -58,7 +58,7 @@ function AvatarUploader({
     rootClassName,
     onChange,
     onDeleted,
-}: TAvatarUploaderProps): JSX.Element {
+}: TAvatarUploaderProps): React.JSX.Element {
     const [t] = useTranslation();
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(initialAvatarUrl);
     const handleUpload = useCallback((files: File[] | FileList) => {

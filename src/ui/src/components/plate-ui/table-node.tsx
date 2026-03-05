@@ -6,14 +6,17 @@
 import * as React from "react";
 import { BlockSelectionPlugin, useBlockSelected } from "@platejs/selection/react";
 import { TablePlugin, TableProvider, useTableCellElement, useTableElement, useTableMergeState } from "@platejs/table/react";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CombineIcon, SquareSplitHorizontalIcon, Trash2Icon, XIcon } from "lucide-react";
-import { type TTableCellElement, type TTableElement, type TTableRowElement, KEYS } from "platejs";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CombineIcon, GripVertical, SquareSplitHorizontalIcon, Trash2Icon, XIcon } from "lucide-react";
+import { type TTableCellElement, type TTableElement, type TTableRowElement, KEYS, PathApi, TElement } from "platejs";
 import {
     type PlateElementProps,
     PlateElement,
+    useComposedRef,
     useEditorPlugin,
+    useEditorRef,
     useEditorSelector,
     useElement,
+    useFocusedLast,
     usePluginOption,
     useReadOnly,
     useRemoveNodeButton,
@@ -21,20 +24,27 @@ import {
     withHOC,
 } from "platejs/react";
 import { useElementSelector } from "platejs/react";
-import { Popover } from "@/components/base";
+import { Button, Popover } from "@/components/base";
 import { cn } from "@/core/utils/ComponentUtils";
 import { blockSelectionVariants } from "@/components/plate-ui/block-selection";
 import { Toolbar, ToolbarButton, ToolbarGroup } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";
+import { useDraggable, useDropLine } from "@platejs/dnd";
 
 export const TableElement = withHOC(TableProvider, function TableElement({ children, ...props }: PlateElementProps<TTableElement>) {
     const readOnly = useReadOnly();
+    const isSelectionAreaVisible = usePluginOption(BlockSelectionPlugin, "isSelectionAreaVisible");
+    const hasControls = !readOnly && !isSelectionAreaVisible;
     const { isSelectingCell, marginLeft, props: tableProps } = useTableElement();
 
     const isSelectingTable = useBlockSelected(props.element.id as string);
 
     const content = (
-        <PlateElement {...props} className="-ml-2 overflow-x-auto py-5 *:data-[slot=block-selection]:left-2" style={{ paddingLeft: marginLeft }}>
+        <PlateElement
+            {...props}
+            className={cn("overflow-x-auto py-5", hasControls && "-ml-2 *:data-[slot=block-selection]:left-2")}
+            style={{ paddingLeft: marginLeft }}
+        >
             <div className="group/table relative w-fit">
                 <table
                     className={cn(
@@ -65,11 +75,12 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
     const element = useElement<TTableElement>();
     const { props: buttonProps } = useRemoveNodeButton({ element });
     const collapsedInside = useEditorSelector((editor) => selected && editor.api.isCollapsed(), [selected]);
+    const isFocusedLast = useFocusedLast();
 
     const { canMerge, canSplit } = useTableMergeState();
 
     return (
-        <Popover.Root open={canMerge || canSplit || collapsedInside} modal={false}>
+        <Popover.Root open={isFocusedLast && (canMerge || canSplit || collapsedInside)} modal={false}>
             <Popover.Anchor asChild>{children}</Popover.Anchor>
             <Popover.Content asChild onOpenAutoFocus={(e) => e.preventDefault()} contentEditable={false} {...props}>
                 <Toolbar
@@ -164,21 +175,78 @@ function TableFloatingToolbar({ children, ...props }: React.ComponentProps<typeo
 }
 
 export function TableRowElement(props: PlateElementProps<TTableRowElement>) {
+    const { element } = props;
+    const readOnly = useReadOnly();
     const selected = useSelected();
+    const editor = useEditorRef();
+    const isSelectionAreaVisible = usePluginOption(BlockSelectionPlugin, "isSelectionAreaVisible");
+    const hasControls = !readOnly && !isSelectionAreaVisible;
+
+    const { isDragging, nodeRef, previewRef, handleRef } = useDraggable({
+        element,
+        type: element.type,
+        canDropNode: ({ dragEntry, dropEntry }) => PathApi.equals(PathApi.parent(dragEntry[1]), PathApi.parent(dropEntry[1])),
+        onDropHandler: (_, { dragItem }) => {
+            const dragElement = (dragItem as { element: TElement }).element;
+
+            if (dragElement) {
+                editor.tf.select(dragElement);
+            }
+        },
+    });
 
     return (
         <PlateElement
             {...props}
+            ref={useComposedRef(props.ref, previewRef, nodeRef)}
             as="tr"
-            className="group/row"
+            className={cn("group/row", isDragging && "opacity-50")}
             attributes={{
                 ...props.attributes,
                 "data-selected": selected ? "true" : undefined,
             }}
         >
+            {hasControls && (
+                <td className="w-2 select-none" contentEditable={false}>
+                    <RowDragHandle dragRef={handleRef} />
+                    <RowDropLine />
+                </td>
+            )}
+
             {props.children}
         </PlateElement>
     );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function RowDragHandle({ dragRef }: { dragRef: React.Ref<any> }) {
+    const editor = useEditorRef();
+    const element = useElement();
+
+    return (
+        <Button
+            ref={dragRef}
+            variant="outline"
+            className={cn(
+                "z-51 absolute left-0 top-1/2 h-6 w-4 -translate-y-1/2 p-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+                "cursor-grab active:cursor-grabbing",
+                'group-has-data-[resizing="true"]/row:opacity-0 opacity-0 transition-opacity duration-100 group-hover/row:opacity-100'
+            )}
+            onClick={() => {
+                editor.tf.select(element);
+            }}
+        >
+            <GripVertical className="text-muted-foreground" />
+        </Button>
+    );
+}
+
+function RowDropLine() {
+    const { dropLine } = useDropLine();
+
+    if (!dropLine) return null;
+
+    return <div className={cn("absolute inset-x-0 left-2 z-50 h-0.5 bg-brand/50", dropLine === "top" ? "-top-px" : "-bottom-px")} />;
 }
 
 export function TableCellElement({
@@ -191,10 +259,14 @@ export function TableCellElement({
     const readOnly = useReadOnly();
     const element = props.element;
 
+    const tableId = useElementSelector(([node]) => node.id as string, [], {
+        key: KEYS.table,
+    });
     const rowId = useElementSelector(([node]) => node.id as string, [], {
         key: KEYS.tr,
     });
-    const isSelectingRow = useBlockSelected(rowId);
+    const isSelectingTable = useBlockSelected(tableId);
+    const isSelectingRow = useBlockSelected(rowId) || isSelectingTable;
     const isSelectionAreaVisible = usePluginOption(BlockSelectionPlugin, "isSelectionAreaVisible");
 
     const { borders, colIndex, minHeight, selected, width } = useTableCellElement();

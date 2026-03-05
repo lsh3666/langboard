@@ -2,6 +2,7 @@ import Box, { TBoxProps } from "@/components/base/Box";
 import Flex, { IFlexProps } from "@/components/base/Flex";
 import { cn } from "@/core/utils/ComponentUtils";
 import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
 import { tv, VariantProps } from "tailwind-variants";
 
 export const LoadingVariants = tv(
@@ -50,9 +51,11 @@ export const LoadingVariants = tv(
 export interface ILoadingProps extends IFlexProps, VariantProps<typeof LoadingVariants>, Pick<TBoxProps, "size"> {}
 
 const Loading = forwardRef<HTMLDivElement, ILoadingProps>(({ size = "3", variant, spacing, animate, className, children, ...props }, ref) => {
+    const [t] = useTranslation();
+
     return (
         <Flex justify="center" className={LoadingVariants({ spacing, variant: "none", animate: "none" })} ref={ref} {...props}>
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only">{t("editor.Loading...")}</span>
             <Box
                 size={size}
                 rounded="full"

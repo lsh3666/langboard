@@ -33,7 +33,7 @@ export interface IBoardCardProps {
     viewportRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const BoardCard = memo(({ projectUID, cardUID, currentUser, viewportRef }: IBoardCardProps): JSX.Element => {
+const BoardCard = memo(({ projectUID, cardUID, currentUser, viewportRef }: IBoardCardProps): React.JSX.Element => {
     const { setPageAliasRef } = usePageHeader();
     const { data: cardData, isFetching, error } = useGetCardDetails({ project_uid: projectUID, card_uid: cardUID });
     const [t] = useTranslation();
@@ -93,7 +93,7 @@ const BoardCard = memo(({ projectUID, cardUID, currentUser, viewportRef }: IBoar
     );
 });
 
-export function SkeletonBoardCard(): JSX.Element {
+export function SkeletonBoardCard(): React.JSX.Element {
     return (
         <>
             <Flex
@@ -154,7 +154,7 @@ export function SkeletonBoardCard(): JSX.Element {
     );
 }
 
-function BoardCardResult(): JSX.Element {
+function BoardCardResult(): React.JSX.Element {
     const { card } = useBoardCard();
     const attachments = ProjectCardAttachment.Model.useModels((model) => model.card_uid === card.uid);
     const checklists = ProjectChecklist.Model.useModels((model) => model.card_uid === card.uid);

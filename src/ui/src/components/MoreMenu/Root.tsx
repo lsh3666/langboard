@@ -21,7 +21,7 @@ function MoreMenuRoot({
     triggerIconSize = "4",
     contentProps,
     children,
-}: IMoreMenuRootProps): JSX.Element {
+}: IMoreMenuRootProps): React.JSX.Element {
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);

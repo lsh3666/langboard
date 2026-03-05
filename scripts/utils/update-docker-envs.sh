@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Source utility functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/utils.sh"
+
 CURRENT_DIR=$(basename "$PWD")
 
 if [[ "$CURRENT_DIR" == "langboard" && -d "./docker" ]]; then
@@ -14,6 +18,15 @@ fi
 cd ../
 
 source .env
+
+# Validate external postgres URLs if they are set
+if [ -n "$POSTGRES_EXTERNAL_MAIN_URL" ]; then
+    validate_postgres_url "$POSTGRES_EXTERNAL_MAIN_URL" "POSTGRES_EXTERNAL_MAIN_URL"
+
+    if [ -n "$POSTGRES_EXTERNAL_REPLICA_URL" ]; then
+        validate_postgres_url "$POSTGRES_EXTERNAL_REPLICA_URL" "POSTGRES_EXTERNAL_REPLICA_URL"
+    fi
+fi
 
 # Set OpenBao URL if using openbao-local
 if [[ "$KEY_PROVIDER_TYPE" == "openbao-local" ]]; then

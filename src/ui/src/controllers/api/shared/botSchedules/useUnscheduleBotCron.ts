@@ -3,7 +3,7 @@ import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
+import { ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 
 export type TUnscheduleBotCronParams = TBotScheduleRelatedParams & {
@@ -16,6 +16,7 @@ const useUnscheduleBotCron = (params: TUnscheduleBotCronParams, options?: TMutat
     const unscheduleBotCron = async () => {
         let url;
         switch (params.target_table) {
+            case "project":
             case "project_column":
             case "card":
                 url = Utils.String.format(Routing.API.BOT.SCHEDULE.UNSCHEDULE, {
@@ -37,6 +38,9 @@ const useUnscheduleBotCron = (params: TUnscheduleBotCronParams, options?: TMutat
         });
 
         switch (params.target_table) {
+            case "project":
+                ProjectBotSchedule.Model.deleteModel(params.schedule_uid);
+                break;
             case "project_column":
                 ProjectColumnBotSchedule.Model.deleteModel(params.schedule_uid);
                 break;

@@ -1,13 +1,8 @@
 .PHONY: help init format lint start_docker stop_docker rebuild_docker update_docker
 
-COMPOSE_PREFIX := ./docker/docker-compose
-COMPOSE_ARGS := -f $(COMPOSE_PREFIX).kafka.yaml -f $(COMPOSE_PREFIX).pg.yaml -f $(COMPOSE_PREFIX).redis.yaml -f $(COMPOSE_PREFIX).server.yaml --env-file ./.env
-VAULT_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).vault.yaml
-DOCS_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).docs.yaml
-UI_WATCHER_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ui-watcher.yaml
-OLLAMA_SHARED_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.shared.yaml
-OLLAMA_CPU_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.cpu.yaml $(OLLAMA_SHARED_COMPOSE_ARGS)
-OLLAMA_GPU_COMPOSE_ARGS := -f $(COMPOSE_PREFIX).ollama.gpu.yaml $(OLLAMA_SHARED_COMPOSE_ARGS)
+# Function to get compose args from script
+get_compose_args = $(shell bash scripts/utils/get-compose-args.sh)
+
 UI_DIR := src/ui
 PY_CORE_DIR := src/shared/py
 API_DIR := src/api
@@ -22,25 +17,17 @@ DIM := \033[2m
 BOLD := \033[1m
 NC := \033[0m
 
-COMPOSE_ARGS := $(COMPOSE_ARGS)
 WITH_DOCS ?= false
 WITH_UI_WATCHER ?= false
 WITH_OLLAMA_CPU ?= false
 WITH_OLLAMA_GPU ?= false
 
-ifeq ($(WITH_DOCS), true)
-	COMPOSE_ARGS += $(DOCS_COMPOSE_ARGS)
-endif
-ifeq ($(WITH_UI_WATCHER), true)
-	COMPOSE_ARGS += $(UI_WATCHER_COMPOSE_ARGS)
-endif
-ifeq ($(WITH_OLLAMA_CPU), true)
-	COMPOSE_ARGS += $(OLLAMA_CPU_COMPOSE_ARGS)
-endif
-ifeq ($(WITH_OLLAMA_GPU), true)
-	COMPOSE_ARGS += $(OLLAMA_GPU_COMPOSE_ARGS)
-endif
+# Get compose args from script
+COMPOSE_ARGS := $(call get_compose_args)
 
+
+asdf:
+	@echo $(COMPOSE_ARGS)
 
 check_tools:
 	@command -v yarn >/dev/null 2>&1 || { echo >&2 "$(RED)Yarn is not installed. Aborting.$(NC)"; exit 1; }
@@ -167,11 +154,7 @@ start_docker: ## run Docker in the production environment
 	make init_env
 	mkdir -p ./docker/volumes
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build --remove-orphans; \
-	else \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build --remove-orphans; \
-	fi
+	docker compose $(COMPOSE_ARGS) up -d --build --remove-orphans
 
 rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_docker IMAGES=image_name or IMAGES="image_name1 image_name2")
 	if [ "$(IMAGES)" = "" ]; then \
@@ -182,27 +165,15 @@ rebuild_docker: ## run Docker in the production environment (e.g. make rebuild_d
 	make init_env
 	mkdir -p ./docker/volumes
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
-	else \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans; \
-	fi
+	docker compose $(COMPOSE_ARGS) up -d --build ${IMAGES} --remove-orphans
 
 update_docker: ## update Docker in the production environment
 	make init_env
 	make update_docker_settings
-	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env; then \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
-	else \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans; \
-	fi
+	docker compose $(COMPOSE_ARGS) up -d --no-deps --force-recreate --remove-orphans
 
 stop_docker: ## stop Docker in the production environment
-	@if grep -q "^KEY_PROVIDER_TYPE=openbao-local" .env 2>/dev/null; then \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(VAULT_COMPOSE_ARGS) $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
-	else \
-		docker compose -f $(COMPOSE_PREFIX).yaml $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans; \
-	fi
+	docker compose $(COMPOSE_ARGS) down --rmi all --volumes --remove-orphans
 
 unit_tests: ## run unit tests
 	uv run pytest $(API_DIR)/tests/units
@@ -223,7 +194,7 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 	fi
 
 update_docker_settings: ## update Docker settings
-	bash ./scripts/dockerutils/update-docker-envs.sh
+	bash ./scripts/utils/update-docker-envs.sh
 
 clean_python_cache: ## clean Python cache
 	@echo "Cleaning Python cache..."

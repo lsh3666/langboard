@@ -11,8 +11,9 @@ export interface IProjectCardChecklistActivityHistory extends IProjectCardActivi
 export interface IProjectCardChecklistCreatedActivity extends IBaseProjectCardActivity<IProjectCardChecklistActivityHistory> {
     activity_type: EProjectActivityType.CardChecklistCreated;
 }
-export interface IProjectCardChecklistTitleChangedActivity
-    extends IBaseProjectCardActivity<IProjectCardChecklistActivityHistory & IChangesInActivityHistory> {
+export interface IProjectCardChecklistTitleChangedActivity extends IBaseProjectCardActivity<
+    IProjectCardChecklistActivityHistory & IChangesInActivityHistory
+> {
     activity_type: EProjectActivityType.CardChecklistTitleChanged;
 }
 export interface IProjectCardChecklistCheckedActivity extends IBaseProjectCardActivity<IProjectCardChecklistActivityHistory> {

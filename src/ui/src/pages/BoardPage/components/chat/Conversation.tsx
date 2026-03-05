@@ -14,7 +14,7 @@ export interface IConversationProps {
     chatInputHeight: number;
 }
 
-function Conversation({ chatInputHeight }: IConversationProps): JSX.Element {
+function Conversation({ chatInputHeight }: IConversationProps): React.JSX.Element {
     const { projectUID, scrollToBottomRef, isAtBottomRef, currentSessionUID } = useBoardChat();
     const [t] = useTranslation();
     const [isLoaded, setIsLoaded] = useState(false);

@@ -10,7 +10,7 @@ export interface IMetadataAddButtonProps {
     errorsMap: (messageRef: { message: string }) => IApiErrorHandlerMap;
 }
 
-function MetadataAddButton({ form, errorsMap }: IMetadataAddButtonProps): JSX.Element {
+function MetadataAddButton({ form, errorsMap }: IMetadataAddButtonProps): React.JSX.Element {
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);

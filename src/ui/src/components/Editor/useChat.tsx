@@ -2,11 +2,13 @@
 "use client";
 
 import * as React from "react";
+import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
 import { ISocketContext } from "@/core/providers/SocketProvider";
-import { useChat as useBaseChat } from "@ai-sdk/react";
+import { useChat as useBaseChat, UseChatHelpers } from "@ai-sdk/react";
 import { Utils } from "@langboard/core/utils";
-import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
-import useSocketStreamHandler from "@/core/hooks/useSocketStreamHandler";
+import { ESocketTopic } from "@langboard/core/enums";
+
+export const EDITOR_CHAT_KEY = "chat";
 
 export interface IUseChat {
     socket: ISocketContext;
@@ -19,135 +21,281 @@ export interface IUseChat {
     commonEventData?: Record<string, any>;
 }
 
-export const useChat = (props: IUseChat) => {
-    const { socket, events, commonEventData } = props;
-    const abortControllerRef = React.useRef<AbortController | null>(null);
-    const abort = () => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-            abortControllerRef.current = null;
-        }
-    };
+export type TAIChatOption = UseChatHelpers<UIMessage> & {
+    abort?: () => void;
+};
 
-    const chat = useBaseChat({
-        id: "editor",
-        fetch: async (_, init) => {
-            if (!Utils.Type.isString(init?.body)) {
-                return new Response("Invalid request", { status: EHttpStatus.HTTP_400_BAD_REQUEST });
-            }
+type TUseBaseChat = ReturnType<typeof useBaseChat>;
 
-            const body = JSON.parse(init.body);
+interface IUseEditorChat extends TUseBaseChat {
+    abort: () => void;
+}
 
-            abortControllerRef.current = new AbortController();
+interface ISocketStreamBufferPayload {
+    message?: string;
+}
 
-            const key = Utils.String.Token.generate(8);
+interface ISocketStreamEndPayload extends ISocketStreamBufferPayload {
+    status?: string;
+}
 
-            const stream = createStream({
-                ...props,
-                signal: abortControllerRef.current.signal,
-                key,
-                send: () => {
-                    socket.send({
-                        topic: ESocketTopic.None,
-                        eventName: events.send,
-                        data: {
-                            ...body,
-                            ...(commonEventData ?? {}),
-                            task_id: key,
-                        },
+interface ICreateSocketMessageStreamProps extends Pick<IUseChat, "socket" | "eventKey" | "events"> {
+    taskID: string;
+    payload: Record<string, unknown>;
+    signal?: AbortSignal;
+}
+
+interface ILegacyMessage {
+    role: UIMessage["role"];
+    content: string;
+}
+
+const getMessageContent = (message: UIMessage): string => {
+    const text = message.parts.reduce((currentText, part) => (part.type === "text" ? `${currentText}${part.text}` : currentText), "");
+    if (text.length > 0) {
+        return text;
+    }
+
+    const fallbackContent = (message as unknown as Record<string, unknown>).content;
+    return Utils.Type.isString(fallbackContent) ? fallbackContent : "";
+};
+
+const toLegacyMessages = (messages: UIMessage[]): ILegacyMessage[] => {
+    return messages.map((message) => ({
+        role: message.role,
+        content: getMessageContent(message),
+    }));
+};
+
+const toSafeMessage = (value: unknown): string => (Utils.Type.isString(value) ? value : "");
+
+const createSocketMessageStream = ({
+    socket,
+    eventKey,
+    events,
+    taskID,
+    payload,
+    signal,
+}: ICreateSocketMessageStreamProps): ReadableStream<UIMessageChunk> => {
+    return new ReadableStream<UIMessageChunk>({
+        start(controller) {
+            const textPartID = `${taskID}:text`;
+            const chatEventKey = `plate-chat-${eventKey}:${taskID}`;
+
+            let hasTextStarted = false;
+            let isClosed = false;
+
+            const callbacks = {
+                start: () => {},
+                buffer: (data: ISocketStreamBufferPayload) => {
+                    if (isClosed) {
+                        return;
+                    }
+
+                    const delta = toSafeMessage(data?.message);
+                    if (!delta.length) {
+                        return;
+                    }
+
+                    if (!hasTextStarted) {
+                        controller.enqueue({
+                            type: "text-start",
+                            id: textPartID,
+                        });
+                        hasTextStarted = true;
+                    }
+
+                    controller.enqueue({
+                        type: "text-delta",
+                        id: textPartID,
+                        delta,
                     });
                 },
+                end: (data: ISocketStreamEndPayload) => {
+                    if (isClosed) {
+                        return;
+                    }
+
+                    if (data?.status === "failed") {
+                        emitError(toSafeMessage(data?.message) || "Failed to generate response");
+                        return;
+                    }
+
+                    const finalMessage = toSafeMessage(data?.message);
+                    if (!hasTextStarted && finalMessage.length) {
+                        controller.enqueue({
+                            type: "text-start",
+                            id: textPartID,
+                        });
+                        controller.enqueue({
+                            type: "text-delta",
+                            id: textPartID,
+                            delta: finalMessage,
+                        });
+                        hasTextStarted = true;
+                    }
+
+                    if (hasTextStarted) {
+                        controller.enqueue({
+                            type: "text-end",
+                            id: textPartID,
+                        });
+                    }
+
+                    controller.enqueue({
+                        type: "finish",
+                        finishReason: "stop",
+                    });
+                    closeStream();
+                },
+                error: () => {
+                    if (isClosed) {
+                        return;
+                    }
+
+                    emitError("Socket stream connection failed");
+                },
+            };
+
+            const off = () => {
+                socket.streamOff({
+                    topic: ESocketTopic.None,
+                    event: events.stream,
+                    eventKey: chatEventKey,
+                    callbacks,
+                });
+            };
+
+            const abortHandler = () => {
+                if (isClosed) {
+                    return;
+                }
+
+                socket.send({
+                    topic: ESocketTopic.None,
+                    eventName: events.abort,
+                    data: { task_id: taskID },
+                });
+                closeStream();
+            };
+
+            const cleanup = () => {
+                off();
+                signal?.removeEventListener("abort", abortHandler);
+            };
+
+            const closeStream = () => {
+                if (isClosed) {
+                    return;
+                }
+
+                isClosed = true;
+                cleanup();
+                controller.close();
+            };
+
+            const emitError = (message: string) => {
+                if (isClosed) {
+                    return;
+                }
+
+                if (hasTextStarted) {
+                    controller.enqueue({
+                        type: "text-end",
+                        id: textPartID,
+                    });
+                }
+
+                controller.enqueue({
+                    type: "error",
+                    errorText: message,
+                });
+                controller.enqueue({
+                    type: "finish",
+                    finishReason: "error",
+                });
+                closeStream();
+            };
+
+            signal?.addEventListener("abort", abortHandler);
+
+            socket.stream({
+                topic: ESocketTopic.None,
+                event: events.stream,
+                eventKey: chatEventKey,
+                callbacks,
             });
 
-            return new Response(stream, {
-                headers: {
-                    Connection: "keep-alive",
-                    "Content-Type": "text/plain",
+            const sendResult = socket.send({
+                topic: ESocketTopic.None,
+                eventName: events.send,
+                data: {
+                    ...payload,
+                    task_id: taskID,
                 },
             });
+
+            if (!sendResult.isConnected) {
+                emitError("Socket is not connected");
+            }
         },
     });
+};
+
+export const useChat = (props: IUseChat): IUseEditorChat => {
+    const { socket, eventKey, events, commonEventData } = props;
+
+    const configRef = React.useRef({
+        socket,
+        eventKey,
+        events,
+        commonEventData,
+    });
+    configRef.current = {
+        socket,
+        eventKey,
+        events,
+        commonEventData,
+    };
+
+    const transport = React.useMemo<ChatTransport<UIMessage>>(
+        () => ({
+            sendMessages: async ({ chatId, messages, abortSignal, body }) => {
+                const currentConfig = configRef.current;
+                const taskID = Utils.String.Token.generate(8);
+
+                const payload: Record<string, unknown> = {
+                    ...(body ?? {}),
+                    ...(currentConfig.commonEventData ?? {}),
+                    id: chatId,
+                    messages: toLegacyMessages(messages),
+                };
+
+                return createSocketMessageStream({
+                    socket: currentConfig.socket,
+                    eventKey: currentConfig.eventKey,
+                    events: currentConfig.events,
+                    taskID,
+                    payload,
+                    signal: abortSignal,
+                });
+            },
+            reconnectToStream: async () => null,
+        }),
+        []
+    );
+
+    const chat = useBaseChat({
+        id: `editor:${eventKey}`,
+        transport,
+    });
+
+    const abort = React.useCallback(() => {
+        void chat.stop();
+    }, [chat]);
 
     return {
         ...chat,
         abort,
     };
-};
-
-interface ICreateStreamProps extends Pick<IUseChat, "socket" | "eventKey" | "events"> {
-    signal: AbortSignal;
-    key: string;
-    send: () => void;
-}
-
-const createStream = ({ socket, eventKey, events, signal, key, send }: ICreateStreamProps) => {
-    const encoder = new TextEncoder();
-
-    return new ReadableStream({
-        async start(controller) {
-            const stream = new Promise((resolve) => {
-                const chatEventKey = `plate-chat-${eventKey}:${key}`;
-                let off: (() => void) | undefined = undefined;
-                const { on } = useSocketStreamHandler({
-                    topic: ESocketTopic.None,
-                    eventKey: chatEventKey,
-                    onProps: {
-                        name: events.stream,
-                        callbacks: {
-                            start: () => {},
-                            buffer: (data: { message: string }) => {
-                                if (!data.message.length) {
-                                    return;
-                                }
-
-                                controller.enqueue(encoder.encode(`0:${JSON.stringify(data.message)}\n`));
-                            },
-                            end: (data: { message: string }) => {
-                                const endData = {
-                                    finishReason: "stop",
-                                    usage: {
-                                        promptTokens: 0,
-                                        completionTokens: data.message.length,
-                                    },
-                                };
-
-                                if (!data.message.length) {
-                                    endData.finishReason = "error";
-                                }
-
-                                controller.enqueue(`d:${JSON.stringify(endData)}\n`);
-                                off?.();
-                                resolve(undefined);
-                            },
-                            error: () => {
-                                controller.enqueue(`d:${JSON.stringify({ finishReason: "error" })}\n`);
-                                off?.();
-                                resolve(undefined);
-                            },
-                        },
-                    },
-                });
-
-                const abortHandler = () => {
-                    socket.send({
-                        topic: ESocketTopic.None,
-                        eventName: events.abort,
-                        data: { task_id: key },
-                    });
-                    off?.();
-                    controller.error(new Error("Stream aborted"));
-                };
-
-                signal?.addEventListener("abort", abortHandler);
-
-                off = on();
-
-                send();
-            });
-
-            await stream;
-
-            controller.close();
-        },
-    });
 };

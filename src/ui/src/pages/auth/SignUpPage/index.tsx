@@ -12,12 +12,12 @@ import RequiredForm from "@/pages/auth/SignUpPage/RequiredForm";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 
-function SignUpPage(): JSX.Element {
+function SignUpPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const location = useLocation();
     const navigate = usePageNavigateRef();
-    const [form, setForm] = useState<JSX.Element>();
+    const [form, setForm] = useState<React.JSX.Element>();
     const initialErrorsRef = useRef<Record<string, string>>({});
     const values = location.state ?? {};
 

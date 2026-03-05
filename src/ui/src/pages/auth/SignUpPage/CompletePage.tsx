@@ -10,7 +10,7 @@ import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 
-function CompletePage(): JSX.Element {
+function CompletePage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();

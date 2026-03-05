@@ -27,7 +27,7 @@ export function SkeletonBoardCardDescription() {
     );
 }
 
-const BoardCardDescription = memo((): JSX.Element => {
+const BoardCardDescription = memo((): React.JSX.Element => {
     const { projectUID, card, currentUser, hasRoleAction } = useBoardCard();
     const [t] = useTranslation();
     const { mutateAsync: changeCardDetailsMutateAsync, isPending } = useChangeCardDetails("description", { interceptToast: true });

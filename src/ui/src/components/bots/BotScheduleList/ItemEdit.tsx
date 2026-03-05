@@ -18,7 +18,7 @@ function BotScheduleListItemEdit({
     schedule,
     variant = "outline",
     className = "border-0 [&:first-child]:rounded-b-none [&:not(:first-child)]:rounded-t-none [&:not(:first-child)]:border-t",
-}: IBotScheduleListItemEditProps): JSX.Element {
+}: IBotScheduleListItemEditProps): React.JSX.Element {
     const { bot, params, target } = useBotScheduleList();
     const [t] = useTranslation();
     const [isValidating, setIsValidating] = useState(false);

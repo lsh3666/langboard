@@ -39,7 +39,7 @@ export function SkeletonBoardCardAttachment() {
     );
 }
 
-function BoardCardAttachment({ attachment, openPreview }: IBoardCardAttachmentProps): JSX.Element {
+function BoardCardAttachment({ attachment, openPreview }: IBoardCardAttachmentProps): React.JSX.Element {
     const { hasRoleAction } = useBoardCard();
     const [state, setState] = useState<TSingleRowState>(SINGLE_ROW_IDLE);
     const order = attachment.useField("order");

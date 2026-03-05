@@ -10,7 +10,7 @@ export interface IFormErrorMessageProps {
     notInForm?: bool;
 }
 
-function FormErrorMessage({ error, icon, wrapperClassName, messageClassName, notInForm }: IFormErrorMessageProps): JSX.Element | null {
+function FormErrorMessage({ error, icon, wrapperClassName, messageClassName, notInForm }: IFormErrorMessageProps): React.JSX.Element | null {
     const [t] = useTranslation();
 
     const comp = (

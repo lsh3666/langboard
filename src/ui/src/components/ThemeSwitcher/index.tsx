@@ -17,7 +17,7 @@ const themes: Record<string, string> = {
     system: "contrast",
 };
 
-function ThemeSwitcher({ variant, triggerType, buttonClassNames, hideTriggerIcon, size = "default" }: IThemeSwitcherProps): JSX.Element {
+function ThemeSwitcher({ variant, triggerType, buttonClassNames, hideTriggerIcon, size = "default" }: IThemeSwitcherProps): React.JSX.Element {
     const { theme, setTheme } = useTheme();
     const [t] = useTranslation();
 

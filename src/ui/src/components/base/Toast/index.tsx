@@ -12,7 +12,7 @@ export type { ToastT as IToast };
 
 type AreaProps = React.ComponentProps<typeof Toaster>;
 type TExternalToast = Omit<ExternalToast, "action" | "actionButtonStyle" | "cancel" | "cancelButtonStyle"> & {
-    actions?: JSX.Element[];
+    actions?: React.JSX.Element[];
     useCloseButton?: bool | true;
 };
 type TPromise<Data = any> = Promise<Data> | (() => Promise<Data>);

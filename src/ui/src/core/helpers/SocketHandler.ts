@@ -23,8 +23,11 @@ interface IBaseUseSocketHandlerProps<TResponse, TRawResponse, TEvent> {
     };
 }
 
-interface INoneTopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse>
-    extends IBaseUseSocketHandlerProps<TResponse, TRawResponse, Exclude<TEventName, TDefaultEvents>> {
+interface INoneTopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse> extends IBaseUseSocketHandlerProps<
+    TResponse,
+    TRawResponse,
+    Exclude<TEventName, TDefaultEvents>
+> {
     topic: ESocketTopic.None;
     topicId?: never;
     sendProps?: {
@@ -33,20 +36,29 @@ interface INoneTopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse>
     };
 }
 
-interface IGlobalTopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse>
-    extends IBaseUseSocketHandlerProps<TResponse, TRawResponse, Exclude<TEventName, TDefaultEvents>> {
+interface IGlobalTopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse> extends IBaseUseSocketHandlerProps<
+    TResponse,
+    TRawResponse,
+    Exclude<TEventName, TDefaultEvents>
+> {
     topic: ESocketTopic.Global;
     topicId?: never;
 }
 
-interface ITopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse>
-    extends IBaseUseSocketHandlerProps<TResponse, TRawResponse, Exclude<TEventName, TDefaultEvents>> {
+interface ITopicUseSocketHandlerProps<TResponse, TRawResponse = TResponse> extends IBaseUseSocketHandlerProps<
+    TResponse,
+    TRawResponse,
+    Exclude<TEventName, TDefaultEvents>
+> {
     topic: Exclude<ESocketTopic, ESocketTopic.None>;
     topicId: string;
 }
 
-interface IDefaultEventsUseSocketHandlerProps<TResponse, TRawResponse = TResponse>
-    extends IBaseUseSocketHandlerProps<TResponse, TRawResponse, TDefaultEvents> {
+interface IDefaultEventsUseSocketHandlerProps<TResponse, TRawResponse = TResponse> extends IBaseUseSocketHandlerProps<
+    TResponse,
+    TRawResponse,
+    TDefaultEvents
+> {
     topic?: never;
     topicId?: never;
     onProps?: {

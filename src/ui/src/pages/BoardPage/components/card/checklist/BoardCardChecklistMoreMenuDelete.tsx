@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useTranslation } from "react-i18next";
 
-function BoardCardChecklistMoreMenuDelete(): JSX.Element {
+function BoardCardChecklistMoreMenuDelete(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: checklist } = ModelRegistry.ProjectChecklist.useContext();
     const [t] = useTranslation();

@@ -43,7 +43,7 @@ const getCurrentPage = (pageRoute?: string): TBoardViewType => {
     }
 };
 
-const BoardProxy = memo((): JSX.Element => {
+const BoardProxy = memo((): React.JSX.Element => {
     const { setPageAliasRef } = usePageHeader();
     const socket = useSocket();
     const navigate = usePageNavigateRef();
@@ -109,7 +109,7 @@ interface IBoardProxyDisplayProps {
     isFetching: bool;
 }
 
-function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDisplayProps): JSX.Element {
+function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDisplayProps): React.JSX.Element {
     const [t] = useTranslation();
     const { setPageAliasRef } = usePageHeader();
     const socket = useSocket();

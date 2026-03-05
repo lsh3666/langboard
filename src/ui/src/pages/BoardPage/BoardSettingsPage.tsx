@@ -10,7 +10,7 @@ import BoardSettingsUserList from "@/pages/BoardPage/components/settings/BoardSe
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { EHttpStatus } from "@langboard/core/enums";
 
-export function SkeletonBoardSettingsPage(): JSX.Element {
+export function SkeletonBoardSettingsPage(): React.JSX.Element {
     return (
         <Flex direction="col" gap="3" p={{ initial: "4", md: "6", lg: "8" }} items="center">
             <Box w="full" className="max-w-screen-sm">

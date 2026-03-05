@@ -94,8 +94,7 @@ const Default = forwardRef<HTMLTableElement, ITableInfiniteScrollerProps>(
 );
 
 export interface IWithBodyScrollerProps
-    extends Omit<ITableInfiniteScrollerProps, "scrollable">,
-        Pick<React.ComponentProps<typeof ScrollArea.Root>, "mutable"> {
+    extends Omit<ITableInfiniteScrollerProps, "scrollable">, Pick<React.ComponentProps<typeof ScrollArea.Root>, "mutable"> {
     innerClassName?: string;
 }
 

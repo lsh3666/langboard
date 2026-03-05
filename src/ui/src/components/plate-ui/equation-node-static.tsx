@@ -1,9 +1,10 @@
 /* eslint-disable quotes */
 /* eslint-disable @/max-len */
-import type { SlateElementProps, TEquationElement } from "platejs";
+import type { TEquationElement } from "platejs";
+import type { SlateElementProps } from "platejs/static";
 import { getEquationHtml } from "@platejs/math";
 import { RadicalIcon } from "lucide-react";
-import { SlateElement } from "platejs";
+import { SlateElement } from "platejs/static";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
 

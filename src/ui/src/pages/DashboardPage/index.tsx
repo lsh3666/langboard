@@ -15,7 +15,7 @@ import { Project } from "@/core/models";
 import { useTranslation } from "react-i18next";
 import { SkeletonProjecTabs } from "@/pages/DashboardPage/components/ProjectTabs";
 
-const DashboardProxy = memo((): JSX.Element => {
+const DashboardProxy = memo((): React.JSX.Element => {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [pageType, tabName] = location.pathname.split("/").slice(2);

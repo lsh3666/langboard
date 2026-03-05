@@ -13,7 +13,7 @@ export interface ICardRowProps extends React.HTMLAttributes<HTMLTableRowElement>
     card: ProjectCard.TModel;
 }
 
-function CardRow({ card, ...props }: ICardRowProps): JSX.Element | null {
+function CardRow({ card, ...props }: ICardRowProps): React.JSX.Element | null {
     const navigate = usePageNavigateRef();
     const title = card.useField("title");
     const columnName = card.useField("project_column_name");

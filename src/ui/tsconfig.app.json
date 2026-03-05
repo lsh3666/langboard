@@ -20,6 +20,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "allowJs": true,
 
     /* Linting */
     "strict": true,
@@ -27,7 +28,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    "types": ["@langboard/core/global"]
+    "types": ["@langboard/core/global", "react", "react-dom", "vite/client", "node"]
   },
   "include": ["src"]
 }

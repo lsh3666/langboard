@@ -27,7 +27,7 @@ export function SkeletonBoardCommentList() {
     );
 }
 
-function BoardCommentList(): JSX.Element {
+function BoardCommentList(): React.JSX.Element {
     const { projectUID, card } = useBoardCard();
     const { data: commentsData, error, isFetching } = useGetCardComments({ project_uid: projectUID, card_uid: card.uid });
     const navigate = usePageNavigateRef();
@@ -52,7 +52,7 @@ function BoardCommentList(): JSX.Element {
     return <>{!commentsData || isFetching ? <SkeletonBoardCommentList /> : <BoardCommentListResult />}</>;
 }
 
-function BoardCommentListResult(): JSX.Element {
+function BoardCommentListResult(): React.JSX.Element {
     const { card, viewportRef } = useBoardCard();
     const [t] = useTranslation();
     const PAGE_SIZE = 10;

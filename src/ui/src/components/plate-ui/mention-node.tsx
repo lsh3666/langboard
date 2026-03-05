@@ -40,7 +40,6 @@ export function MentionElement(
     const focused = useFocused();
     const mounted = useMounted();
     const mentioned = mentionables.find((userOrBot) => userOrBot.uid === element.key) ?? User.Model.createUnknownUser();
-
     const readOnly = useReadOnly();
 
     let customName;

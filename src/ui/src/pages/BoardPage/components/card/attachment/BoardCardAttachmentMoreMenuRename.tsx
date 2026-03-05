@@ -7,7 +7,7 @@ import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-function BoardCardAttachmentMoreMenuRename(): JSX.Element {
+function BoardCardAttachmentMoreMenuRename(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: attachment } = ModelRegistry.ProjectCardAttachment.useContext();
     const [t] = useTranslation();
@@ -70,7 +70,7 @@ interface IBoardCardAtthcmentMoreMenuRenameFormProps {
     nameInputRef: React.Ref<HTMLInputElement>;
 }
 
-function BoardCardAtthcmentMoreMenuRenameForm({ nameInputRef }: IBoardCardAtthcmentMoreMenuRenameFormProps): JSX.Element {
+function BoardCardAtthcmentMoreMenuRenameForm({ nameInputRef }: IBoardCardAtthcmentMoreMenuRenameFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const { model: attachment } = ModelRegistry.ProjectCardAttachment.useContext();
     const { save } = MoreMenu.useMoreMenuItem();

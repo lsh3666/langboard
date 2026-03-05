@@ -1,6 +1,6 @@
 import { Box, Flex, Loading, ScrollArea } from "@/components/base";
 import InfiniteScroller from "@/components/InfiniteScroller";
-import { BotLogModel, BotModel, Project, ProjectCard, ProjectColumn } from "@/core/models";
+import { BotLogModel, BotModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useMemo, useRef } from "react";
 import useGetBotLogs from "@/controllers/api/shared/botLogs/useGetBotLogs";
@@ -8,11 +8,12 @@ import { TBotLogRelatedParams } from "@/controllers/api/shared/botLogs/types";
 import { BotLogListProvider } from "@/components/bots/BotLogList/Provider";
 import BotLogListItem from "@/components/bots/BotLogList/Item";
 import { useTranslation } from "react-i18next";
+import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
 
 export interface IBotLogListProps {
     bot: BotModel.TModel;
     params: TBotLogRelatedParams;
-    target: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+    target: TBotRelatedTargetModel;
 }
 
 function BotLogList({ bot, params, target }: IBotLogListProps) {

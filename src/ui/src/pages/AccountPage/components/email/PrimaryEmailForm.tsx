@@ -5,7 +5,7 @@ import useChangePrimaryEmail from "@/controllers/api/account/useChangePrimaryEma
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 
-export function SkeletonPrimaryEmailForm(): JSX.Element {
+export function SkeletonPrimaryEmailForm(): React.JSX.Element {
     const [t] = useTranslation();
 
     return (
@@ -22,7 +22,7 @@ export function SkeletonPrimaryEmailForm(): JSX.Element {
     );
 }
 
-function PrimaryEmailForm(): JSX.Element {
+function PrimaryEmailForm(): React.JSX.Element {
     const { currentUser, updatedUser, isValidating, setIsValidating } = useAccountSetting();
     const [t] = useTranslation();
     const [open, setOpen] = useState(false);

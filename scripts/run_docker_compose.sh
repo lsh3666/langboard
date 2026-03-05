@@ -18,31 +18,33 @@ if ! command -v docker >/dev/null 2>&1 || ! command -v docker-compose >/dev/null
     exit 1
 fi
 
-COMPOSE_PREFIX="./docker/docker-compose"
-COMPOSE_ARGS="-f $COMPOSE_PREFIX.kafka.yaml -f $COMPOSE_PREFIX.pg.yaml -f $COMPOSE_PREFIX.redis.yaml -f $COMPOSE_PREFIX.server.yaml --env-file ./.env"
-DOCS_COMPOSE_ARGS="-f $COMPOSE_PREFIX.docs.yaml"
-UI_WATCHER_COMPOSE_ARGS="-f $COMPOSE_PREFIX.ui-watcher.yaml"
-OLLAMA_SHARED_COMPOSE_ARGS="-f $COMPOSE_PREFIX.ollama.shared.yaml"
-OLLAMA_CPU_COMPOSE_ARGS="-f $COMPOSE_PREFIX.ollama.cpu.yaml $OLLAMA_SHARED_COMPOSE_ARGS"
-OLLAMA_GPU_COMPOSE_ARGS="-f $COMPOSE_PREFIX.ollama.gpu.yaml $OLLAMA_SHARED_COMPOSE_ARGS"
-
-
-for arg in "$@"; do
-    if [[ "$arg" == "docs" ]]; then
-        COMPOSE_ARGS="$COMPOSE_ARGS $DOCS_COMPOSE_ARGS"
-    elif [[ "$arg" == "ui-watcher" ]]; then
-        COMPOSE_ARGS="$COMPOSE_ARGS $UI_WATCHER_COMPOSE_ARGS"
-    elif [[ "$arg" == "ollama-cpu" ]]; then
-        COMPOSE_ARGS="$COMPOSE_ARGS $OLLAMA_CPU_COMPOSE_ARGS"
-    elif [[ "$arg" == "ollama-gpu" ]]; then
-        COMPOSE_ARGS="$COMPOSE_ARGS $OLLAMA_GPU_COMPOSE_ARGS"
-    fi
-done
-
 cd ../
 
 if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-docker compose -f $COMPOSE_PREFIX.yaml $COMPOSE_ARGS up -d --build
+# Set environment variables for get-compose-args.sh
+export WITH_DOCS="false"
+export WITH_UI_WATCHER="false"
+export WITH_OLLAMA_CPU="false"
+export WITH_OLLAMA_GPU="false"
+
+# Parse arguments to set compose options
+for arg in "$@"; do
+    if [[ "$arg" == "docs" ]]; then
+        export WITH_DOCS="true"
+    elif [[ "$arg" == "ui-watcher" ]]; then
+        export WITH_UI_WATCHER="true"
+    elif [[ "$arg" == "ollama-cpu" ]]; then
+        export WITH_OLLAMA_CPU="true"
+    elif [[ "$arg" == "ollama-gpu" ]]; then
+        export WITH_OLLAMA_GPU="true"
+    fi
+done
+
+# Get compose args from script
+COMPOSE_ARGS=$(bash scripts/utils/get-compose-args.sh)
+
+# Run docker compose
+docker compose $COMPOSE_ARGS up -d --build

@@ -10,7 +10,7 @@ export interface IUserPreferenceLanguageSwitcherProps extends Omit<React.Compone
     currentUser: AuthUser.TModel;
 }
 
-function UserPreferenceLanguageSwitcher({ currentUser, ...props }: IUserPreferenceLanguageSwitcherProps): JSX.Element {
+function UserPreferenceLanguageSwitcher({ currentUser, ...props }: IUserPreferenceLanguageSwitcherProps): React.JSX.Element {
     const [isValidating, setIsValidating] = useState(false);
     const [t, i18n] = useTranslation();
     const { mutateAsync } = useUpdatePreferredLanguage({ interceptToast: true });

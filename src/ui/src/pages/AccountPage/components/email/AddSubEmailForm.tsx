@@ -6,7 +6,7 @@ import useForm from "@/core/hooks/form/useForm";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import { Utils } from "@langboard/core/utils";
 
-export function SkeletonAddSubEmailForm(): JSX.Element {
+export function SkeletonAddSubEmailForm(): React.JSX.Element {
     const [t] = useTranslation();
 
     return (
@@ -22,7 +22,7 @@ export function SkeletonAddSubEmailForm(): JSX.Element {
     );
 }
 
-function AddSubEmailForm(): JSX.Element {
+function AddSubEmailForm(): React.JSX.Element {
     const { currentUser, updatedUser, isValidating, setIsValidating } = useAccountSetting();
     const [t] = useTranslation();
     const { mutate } = useAddNewEmail();

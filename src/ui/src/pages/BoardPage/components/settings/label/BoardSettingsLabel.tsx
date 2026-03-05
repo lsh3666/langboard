@@ -17,7 +17,7 @@ export interface IBoardSettingsLabelProps {
     label: ProjectLabel.TModel;
 }
 
-function BoardSettingsLabel({ label }: IBoardSettingsLabelProps): JSX.Element {
+function BoardSettingsLabel({ label }: IBoardSettingsLabelProps): React.JSX.Element {
     const [state, setState] = useState<TSingleRowState>(SINGLE_ROW_IDLE);
     const order = label.useField("order");
     const outerRef = useRef<HTMLDivElement | null>(null);

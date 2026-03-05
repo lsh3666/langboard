@@ -7,7 +7,7 @@ import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import { EHttpStatus } from "@langboard/core/enums";
 
-export function SkeletonEmails(): JSX.Element {
+export function SkeletonEmails(): React.JSX.Element {
     return (
         <Box>
             <Flex gap="3" p="3">
@@ -26,7 +26,7 @@ export function SkeletonEmails(): JSX.Element {
     );
 }
 
-function EmailList(): JSX.Element {
+function EmailList(): React.JSX.Element {
     const { currentUser, updatedUser, isValidating, setIsValidating } = useAccountSetting();
     const [t] = useTranslation();
     const { mutate: deleteSubEmailMutate } = useDeleteSubEmail();

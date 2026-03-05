@@ -52,6 +52,11 @@ const useToggleEditingByClickOutside = (boxAttr: string, changeMode: (mode: "edi
     );
     const stopEditing = useCallback(
         (event: React.MouseEvent | CustomEvent | MouseEvent) => {
+            const ignoreUntil = (window as Window & { __lbIgnoreStopEditingUntil?: number }).__lbIgnoreStopEditingUntil ?? 0;
+            if (ignoreUntil > Date.now()) {
+                return;
+            }
+
             const target = event.target as HTMLElement;
             if (
                 (Utils.Type.isBool(isEditing) && !isEditing) ||

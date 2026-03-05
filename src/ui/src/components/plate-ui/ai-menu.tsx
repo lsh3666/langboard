@@ -22,32 +22,32 @@ import {
     X,
 } from "lucide-react";
 import { type NodeEntry, type SlateEditor, isHotkey, NodeApi } from "platejs";
-import { useEditorPlugin, useHotkeys, usePluginOption } from "platejs/react";
+import { useEditorPlugin, useFocusedLast, useHotkeys, usePluginOption } from "platejs/react";
 import { type PlateEditor, useEditorRef } from "platejs/react";
 import { cn } from "@/core/utils/ComponentUtils";
-import { IUseChat, useChat } from "@/components/Editor/useChat";
 import { Button, Command, Popover } from "@/components/base";
 import { AIChatEditor } from "@/components/plate-ui/ai-chat-editor";
 import { useTranslation } from "react-i18next";
+import { EDITOR_CHAT_KEY, TAIChatOption } from "@/components/Editor/useChat";
 
-export interface IAIMenuProps extends IUseChat {}
-
-export function AIMenu(props: IAIMenuProps) {
+export function AIMenu() {
     const [t] = useTranslation();
     const { api, editor } = useEditorPlugin(AIChatPlugin);
-    const open = usePluginOption(AIChatPlugin, "open");
     const mode = usePluginOption(AIChatPlugin, "mode");
+    const toolName = usePluginOption(AIChatPlugin, "toolName");
     const streaming = usePluginOption(AIChatPlugin, "streaming");
     const isSelecting = useIsSelecting();
-
+    const isFocusedLast = useFocusedLast();
+    const open = usePluginOption(AIChatPlugin, "open") && isFocusedLast;
     const [value, setValue] = React.useState("");
+    const [input, setInput] = React.useState("");
 
-    const chat = useChat(props);
-
-    const { input, messages, setInput, status } = chat;
+    const chat = usePluginOption(AIChatPlugin, EDITOR_CHAT_KEY) as TAIChatOption | undefined;
+    const messages = chat?.messages ?? [];
+    const status = chat?.status ?? "ready";
     const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null);
 
-    const content = useLastAssistantMessage()?.content;
+    const content = useLastAssistantMessage()?.parts.find((part) => part.type === "text")?.text;
 
     React.useEffect(() => {
         if (streaming) {
@@ -73,7 +73,6 @@ export function AIMenu(props: IAIMenuProps) {
     };
 
     useEditorChat({
-        chat,
         onOpenBlockSelection: (blocks: NodeEntry[]) => {
             show(editor.api.toDOMNode(blocks.at(-1)![0])!);
         },
@@ -100,12 +99,20 @@ export function AIMenu(props: IAIMenuProps) {
     useHotkeys("esc", () => {
         api.aiChat.stop();
 
-        chat.abort();
+        chat?.abort?.();
     });
 
     const isLoading = status === "streaming" || status === "submitted";
 
     if (isLoading && mode === "insert") {
+        return null;
+    }
+
+    if (toolName === "comment") {
+        return null;
+    }
+
+    if (toolName === "edit" && mode === "chat" && isLoading) {
         return null;
     }
 
@@ -149,7 +156,8 @@ export function AIMenu(props: IAIMenuProps) {
                                 }
                                 if (isHotkey("enter")(e) && !e.shiftKey && !value) {
                                     e.preventDefault();
-                                    void api.aiChat.submit();
+                                    void api.aiChat.submit(input);
+                                    setInput("");
                                 }
                             }}
                             onValueChange={setInput}
@@ -161,7 +169,7 @@ export function AIMenu(props: IAIMenuProps) {
 
                     {!isLoading && (
                         <Command.List>
-                            <AIMenuItems setValue={setValue} />
+                            <AIMenuItems input={input} setInput={setInput} setValue={setValue} />
                         </Command.List>
                     )}
                 </Command.Root>
@@ -177,7 +185,13 @@ const aiChatItems = {
         icon: <Check className="size-4" />,
         label: "editor.Accept",
         value: "accept",
-        onSelect: ({ editor }) => {
+        onSelect: ({ aiEditor, editor }) => {
+            const { mode, toolName } = editor.getOptions(AIChatPlugin);
+
+            if (mode === "chat" && toolName === "generate") {
+                return editor.getTransforms(AIChatPlugin).aiChat.replaceSelection(aiEditor);
+            }
+
             editor.getTransforms(AIChatPlugin).aiChat.accept();
             editor.tf.focus({ edge: "end" });
         },
@@ -186,14 +200,14 @@ const aiChatItems = {
         icon: <PenLine className="size-4" />,
         label: "editor.Continue writing",
         value: "continueWrite",
-        onSelect: ({ editor }) => {
+        onSelect: ({ editor, input }) => {
             const ancestorNode = editor.api.block({ highest: true });
 
             if (!ancestorNode) return;
 
             const isEmpty = NodeApi.string(ancestorNode[0]).trim().length === 0;
 
-            void editor.getApi(AIChatPlugin).aiChat.submit({
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
                 mode: "insert",
                 prompt: isEmpty
                     ? `<Document>
@@ -201,6 +215,7 @@ const aiChatItems = {
 </Document>
 Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
                     : "Continue writing AFTER <Block> ONLY ONE SENTENCE. DONT REPEAT THE TEXT.",
+                toolName: "generate",
             });
         },
     },
@@ -218,9 +233,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <SmileIcon className="size-4" />,
         label: "editor.Emojify",
         value: "emojify",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Emojify",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Add a small number of contextually relevant emojis within each block only. You may insert emojis, but do not remove, replace, or rewrite existing text, and do not modify Markdown syntax, links, or line breaks.",
+                toolName: "edit",
             });
         },
     },
@@ -228,12 +244,13 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <BadgeHelp className="size-4" />,
         label: "editor.Explain",
         value: "explain",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
                 prompt: {
                     default: "Explain {editor}",
                     selecting: "Explain",
                 },
+                toolName: "generate",
             });
         },
     },
@@ -241,9 +258,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <Check className="size-4" />,
         label: "editor.Fix spelling & grammar",
         value: "fixSpelling",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Fix spelling and grammar",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Fix spelling, grammar, and punctuation errors within each block only, without changing meaning, tone, or adding new information.",
+                toolName: "edit",
             });
         },
     },
@@ -251,9 +269,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <Wand className="size-4" />,
         label: "editor.Improve writing",
         value: "improveWriting",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Improve the writing",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Improve the writing for clarity and flow, without changing meaning or adding new information.",
+                toolName: "edit",
             });
         },
     },
@@ -262,6 +281,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         label: "editor.Insert below",
         value: "insertBelow",
         onSelect: ({ aiEditor, editor }) => {
+            /** Format: 'none' Fix insert table */
             void editor.getTransforms(AIChatPlugin).aiChat.insertBelow(aiEditor, { format: "none" });
         },
     },
@@ -269,9 +289,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <ListPlus className="size-4" />,
         label: "editor.Make longer",
         value: "makeLonger",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Make longer",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Make the content longer by elaborating on existing ideas within each block only, without changing meaning or adding new information.",
+                toolName: "edit",
             });
         },
     },
@@ -279,9 +300,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <ListMinus className="size-4" />,
         label: "editor.Make shorter",
         value: "makeShorter",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Make shorter",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Make the content shorter by reducing verbosity within each block only, without changing meaning or removing essential information.",
+                toolName: "edit",
             });
         },
     },
@@ -297,9 +319,10 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <FeatherIcon className="size-4" />,
         label: "editor.Simplify language",
         value: "simplifyLanguage",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
-                prompt: "Simplify the language",
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
+                prompt: "Simplify the language by using clearer and more straightforward wording within each block only, without changing meaning or adding new information.",
+                toolName: "edit",
             });
         },
     },
@@ -307,13 +330,14 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         icon: <Album className="size-4" />,
         label: "editor.Add a summary",
         value: "summarize",
-        onSelect: ({ editor }) => {
-            void editor.getApi(AIChatPlugin).aiChat.submit({
+        onSelect: ({ editor, input }) => {
+            void editor.getApi(AIChatPlugin).aiChat.submit(input, {
                 mode: "insert",
                 prompt: {
                     default: "Summarize {editor}",
                     selecting: "Summarize",
                 },
+                toolName: "generate",
             });
         },
     },
@@ -335,7 +359,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
         filterItems?: bool;
         items?: { label: string; value: string }[];
         shortcut?: string;
-        onSelect?: ({ aiEditor, editor }: { aiEditor: SlateEditor; editor: PlateEditor }) => void;
+        onSelect?: ({ aiEditor, editor, input }: { aiEditor: SlateEditor; editor: PlateEditor; input: string }) => void;
     }
 >;
 
@@ -370,15 +394,23 @@ const menuStateItems: Record<
     ],
     selectionSuggestion: [
         {
-            items: [aiChatItems.replace, aiChatItems.insertBelow, aiChatItems.discard, aiChatItems.tryAgain],
+            items: [aiChatItems.accept, aiChatItems.discard, aiChatItems.insertBelow, aiChatItems.tryAgain],
         },
     ],
 };
 
-export const AIMenuItems = ({ setValue }: { setValue: (value: string) => void }) => {
+export const AIMenuItems = ({
+    input,
+    setInput,
+    setValue,
+}: {
+    input: string;
+    setInput: (value: string) => void;
+    setValue: (value: string) => void;
+}) => {
     const [t] = useTranslation();
     const editor = useEditorRef();
-    const { messages } = usePluginOption(AIChatPlugin, "chat");
+    const { messages } = usePluginOption(AIChatPlugin, EDITOR_CHAT_KEY);
     const aiEditor = usePluginOption(AIChatPlugin, "aiEditor")!;
     const isSelecting = useIsSelecting();
 
@@ -414,8 +446,10 @@ export const AIMenuItems = ({ setValue }: { setValue: (value: string) => void })
                             onSelect={() => {
                                 menuItem.onSelect?.({
                                     aiEditor,
-                                    editor: editor,
+                                    editor,
+                                    input,
                                 });
+                                setInput("");
                             }}
                         >
                             {menuItem.icon}
@@ -430,7 +464,8 @@ export const AIMenuItems = ({ setValue }: { setValue: (value: string) => void })
 
 export function AILoadingBar() {
     const [t] = useTranslation();
-    const chat = usePluginOption(AIChatPlugin, "chat");
+    const toolName = usePluginOption(AIChatPlugin, "toolName");
+    const chat = usePluginOption(AIChatPlugin, EDITOR_CHAT_KEY);
     const mode = usePluginOption(AIChatPlugin, "mode");
 
     const { status } = chat;
@@ -439,23 +474,55 @@ export function AILoadingBar() {
 
     const isLoading = status === "streaming" || status === "submitted";
 
-    const visible = isLoading && mode === "insert";
+    const handleComments = (_: "accept" | "reject") => {
+        api.aiChat.hide();
+    };
 
-    if (!visible) return null;
+    useHotkeys("esc", () => {
+        api.aiChat.stop();
+    });
 
-    return (
-        <div
-            className={cn(
-                "absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-md border border-border bg-muted px-3 py-1.5 text-sm text-muted-foreground shadow-md transition-all duration-300"
-            )}
-        >
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-            <span>{t(`editor.${status === "submitted" ? "Thinking..." : "Writing..."}`)}</span>
-            <Button size="sm" variant="ghost" className="flex items-center gap-1 text-xs" onClick={() => api.aiChat.stop()}>
-                <PauseIcon className="h-4 w-4" />
-                {t("editor.Stop")}
-                <kbd className="ml-1 rounded bg-border px-1 font-mono text-[10px] text-muted-foreground shadow-sm">{t("editor.Esc")}</kbd>
-            </Button>
-        </div>
-    );
+    if (isLoading && (mode === "insert" || toolName === "comment" || (toolName === "edit" && mode === "chat"))) {
+        return (
+            <div
+                className={cn(
+                    "absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded-md border border-border bg-muted px-3 py-1.5 text-sm text-muted-foreground shadow-md transition-all duration-300"
+                )}
+            >
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                <span>{status === "submitted" ? t("editor.Thinking") : t("editor.Writing")}</span>
+                <Button size="sm" variant="ghost" className="flex items-center gap-1 text-xs" onClick={() => api.aiChat.stop()}>
+                    <PauseIcon className="h-4 w-4" />
+                    {t("editor.Stop")}
+                    <kbd className="ml-1 rounded bg-border px-1 font-mono text-[10px] text-muted-foreground shadow-sm">{t("editor.Esc")}</kbd>
+                </Button>
+            </div>
+        );
+    }
+
+    if (toolName === "comment" && status === "ready") {
+        return (
+            <div
+                className={cn(
+                    "absolute bottom-4 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-0 rounded-xl border border-border/50 bg-popover p-1 text-sm text-muted-foreground shadow-xl backdrop-blur-sm",
+                    "p-3"
+                )}
+            >
+                {/* Header with controls */}
+                <div className="flex w-full items-center justify-between gap-3">
+                    <div className="flex items-center gap-5">
+                        <Button size="sm" disabled={isLoading} onClick={() => handleComments("accept")}>
+                            {t("editor.Accept")}
+                        </Button>
+
+                        <Button size="sm" disabled={isLoading} onClick={() => handleComments("reject")}>
+                            {t("editor.Reject")}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return null;
 }

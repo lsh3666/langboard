@@ -8,34 +8,37 @@ if ($null -eq $docker) {
     Exit 1
 }
 
-$COMPOSE_PREFIX = ".\docker\docker-compose"
-$COMPOSE_ARGS = "-f $COMPOSE_PREFIX.kafka.yaml -f $COMPOSE_PREFIX.pg.yaml -f $COMPOSE_PREFIX.redis.yaml -f $COMPOSE_PREFIX.server.yaml --env-file .\.env"
-$DOCS_COMPOSE_ARGS = "-f $COMPOSE_PREFIX.docs.yaml"
-$UI_WATCHER_COMPOSE_ARGS = "-f $COMPOSE_PREFIX.ui-watcher.yaml"
-$OLLAMA_SHARED_COMPOSE_ARGS = "-f $COMPOSE_PREFIX.ollama.shared.yaml"
-$OLLAMA_CPU_COMPOSE_ARGS = "-f $COMPOSE_PREFIX.ollama.cpu.yaml $OLLAMA_SHARED_COMPOSE_ARGS"
-$OLLAMA_GPU_COMPOSE_ARGS = "-f $COMPOSE_PREFIX.ollama.gpu.yaml $OLLAMA_SHARED_COMPOSE_ARGS"
-
-foreach ($arg in $args) {
-    if ($arg -eq "docs") {
-        $COMPOSE_ARGS += " $DOCS_COMPOSE_ARGS"
-    }
-    elseif ($arg -eq "ui-watcher") {
-        $COMPOSE_ARGS += " $UI_WATCHER_COMPOSE_ARGS"
-    }
-    elseif ($arg -eq "ollama-cpu") {
-        $COMPOSE_ARGS += " $OLLAMA_CPU_COMPOSE_ARGS"
-    }
-    elseif ($arg -eq "ollama-gpu") {
-        $COMPOSE_ARGS += " $OLLAMA_GPU_COMPOSE_ARGS"
-    }
-}
-
 if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env" -Force | Out-Null
 }
 
-docker compose -f "$COMPOSE_PREFIX.yaml" $COMPOSE_ARGS up -d --build
+# Set environment variables for get-compose-args.ps1
+$env:WITH_DOCS = "false"
+$env:WITH_UI_WATCHER = "false"
+$env:WITH_OLLAMA_CPU = "false"
+$env:WITH_OLLAMA_GPU = "false"
+
+# Parse arguments to set compose options
+foreach ($arg in $args) {
+    if ($arg -eq "docs") {
+        $env:WITH_DOCS = "true"
+    }
+    elseif ($arg -eq "ui-watcher") {
+        $env:WITH_UI_WATCHER = "true"
+    }
+    elseif ($arg -eq "ollama-cpu") {
+        $env:WITH_OLLAMA_CPU = "true"
+    }
+    elseif ($arg -eq "ollama-gpu") {
+        $env:WITH_OLLAMA_GPU = "true"
+    }
+}
+
+# Get compose args from script
+$COMPOSE_ARGS = & ".\scripts\utils\get-compose-args.ps1"
+
+# Run docker compose
+docker compose $COMPOSE_ARGS up -d --build
 
 Write-Host ""
 Pause

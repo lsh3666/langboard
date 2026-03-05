@@ -22,7 +22,7 @@ export interface IChatSidebarProps {
     ref: React.RefObject<HTMLDivElement | null>;
 }
 
-const ChatSidebar = memo(({ ref }: IChatSidebarProps): JSX.Element => {
+const ChatSidebar = memo(({ ref }: IChatSidebarProps): React.JSX.Element => {
     const [t] = useTranslation();
     const { chatResizableSidebar } = useBoardController();
     const [state, setState] = useState<TDroppableAreaState>(DROPPABLE_AREA_IDLE);

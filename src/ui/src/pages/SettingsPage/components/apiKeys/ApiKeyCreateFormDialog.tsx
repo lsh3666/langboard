@@ -14,7 +14,7 @@ import { Utils } from "@langboard/core/utils";
 import { ApiKeySettingModel } from "@/core/models";
 import { ISharedSettingsModalProps } from "@/pages/SettingsPage/types";
 
-function ApiKeyCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): JSX.Element {
+function ApiKeyCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const [isValidating, setIsValidating] = useState(false);

@@ -10,7 +10,8 @@ export const BlockPlaceholderKit = [
             placeholders: {
                 [KEYS.p]: "Type something...",
             },
-            query: ({ path }) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            query: ({ path }: { path: any }) => {
                 return path.length === 1;
             },
         },

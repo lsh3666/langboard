@@ -1,6 +1,6 @@
 import { Box, Flex, Loading, ScrollArea } from "@/components/base";
 import InfiniteScroller from "@/components/InfiniteScroller";
-import { BotModel, Project, ProjectCard, ProjectCardBotSchedule, ProjectColumn, ProjectColumnBotSchedule } from "@/core/models";
+import { BotModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef } from "react";
 import BotScheduleListItemAddButton from "@/components/bots/BotScheduleList/ItemAddButton";
@@ -9,17 +9,22 @@ import useGetBotSchedules from "@/controllers/api/shared/botSchedules/useGetBotS
 import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules/types";
 import { BotScheduleListProvider } from "@/components/bots/BotScheduleList/Provider";
 import { TPickedModelClass, TBotScheduleModelName, TBotScheduleModel } from "@/core/models/ModelRegistry";
+import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
 
 export interface IBotScheduleListProps {
     bot: BotModel.TModel;
     params: TBotScheduleRelatedParams;
-    target: Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+    target: TBotRelatedTargetModel;
 }
 
 function BotScheduleList({ params, ...props }: IBotScheduleListProps) {
     let scheduleModel;
     let filterModel;
     switch (params.target_table) {
+        case "project":
+            scheduleModel = ProjectBotSchedule.Model;
+            filterModel = (model: ProjectBotSchedule.TModel) => model.project_uid === props.target.uid;
+            break;
         case "project_column":
             scheduleModel = ProjectColumnBotSchedule.Model;
             filterModel = (model: ProjectColumnBotSchedule.TModel) => model.project_column_uid === props.target.uid;
@@ -47,7 +52,7 @@ interface IBotScheduleListDisplayProps extends IBotScheduleListProps {
     filterModel: (model: TBotScheduleModel<TBotScheduleModelName>) => bool;
 }
 
-function BotScheduleListDisplay({ bot, params, target, ScheduleModel, filterModel }: IBotScheduleListDisplayProps): JSX.Element {
+function BotScheduleListDisplay({ bot, params, target, ScheduleModel, filterModel }: IBotScheduleListDisplayProps): React.JSX.Element {
     const { mutateAsync, isLastPage, isFetchingRef } = useGetBotSchedules(bot.uid, { ...params, target_uid: target.uid });
     const viewportRef = useRef<HTMLDivElement | null>(null);
     const schedules = ScheduleModel.useModels((model) => model.bot_uid === bot.uid && filterModel(model));

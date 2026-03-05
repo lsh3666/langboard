@@ -9,7 +9,7 @@ export interface IAccountUserGroupDeleteButtonProps {
     group: UserGroup.TModel;
 }
 
-function AccountUserGroupDeleteButton({ group }: IAccountUserGroupDeleteButtonProps): JSX.Element {
+function AccountUserGroupDeleteButton({ group }: IAccountUserGroupDeleteButtonProps): React.JSX.Element {
     const { isValidating, setIsValidating } = useAccountSetting();
     const [t] = useTranslation();
     const { mutate } = useDeleteUserGroup(group);

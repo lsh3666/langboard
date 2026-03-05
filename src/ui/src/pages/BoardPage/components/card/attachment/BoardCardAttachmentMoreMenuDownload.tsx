@@ -5,7 +5,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { IBoardCardAttachmentContextParams } from "@/pages/BoardPage/components/card/attachment/types";
 import { useTranslation } from "react-i18next";
 
-function BoardCardAttachmentMoreMenuDownload(): JSX.Element {
+function BoardCardAttachmentMoreMenuDownload(): React.JSX.Element {
     const [t] = useTranslation();
     const { model: attachment } = ModelRegistry.ProjectCardAttachment.useContext<IBoardCardAttachmentContextParams>();
     const { setIsOpened } = useMoreMenu();

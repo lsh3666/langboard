@@ -17,7 +17,7 @@ export interface IBotTriggerConditionProps {
     conditionType: EBotTriggerCondition;
 }
 
-function BotTriggerCondition({ category, conditionType }: IBotTriggerConditionProps): JSX.Element {
+function BotTriggerCondition({ category, conditionType }: IBotTriggerConditionProps): React.JSX.Element {
     const { botScope } = useBotTriggerConditionList();
 
     if (!botScope) {

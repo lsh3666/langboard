@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useTranslation } from "react-i18next";
 
-function BoardCardCheckitemMoreDelete(): JSX.Element {
+function BoardCardCheckitemMoreDelete(): React.JSX.Element {
     const { projectUID, card, sharedClassNames } = useBoardCard();
     const { model: checkitem } = ModelRegistry.ProjectCheckitem.useContext();
     const [t] = useTranslation();

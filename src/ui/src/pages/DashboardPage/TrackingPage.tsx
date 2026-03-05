@@ -8,7 +8,7 @@ import TrackingRow from "@/pages/DashboardPage/components/TrackingRow";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ProjectCheckitem } from "@/core/models";
 
-export function SkeletonTrackingPage(): JSX.Element {
+export function SkeletonTrackingPage(): React.JSX.Element {
     return (
         <>
             {Array.from({ length: 4 }).map((_, index) => (
@@ -34,7 +34,7 @@ export function SkeletonTrackingPage(): JSX.Element {
     );
 }
 
-function TrackingPage(): JSX.Element {
+function TrackingPage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const { mutateAsync, checkitemUIDs, isLastPage, isFetchingRef } = useGetTrackingList();

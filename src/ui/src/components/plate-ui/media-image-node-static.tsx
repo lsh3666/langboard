@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SlateElementProps, TCaptionProps, TImageElement, TResizableProps } from "platejs";
-import { NodeApi, SlateElement } from "platejs";
+import type { TCaptionProps, TImageElement, TResizableProps } from "platejs";
+import type { SlateElementProps } from "platejs/static";
+import { NodeApi } from "platejs";
+import { SlateElement } from "platejs/static";
 import { cn } from "@/core/utils/ComponentUtils";
 import CachedImage from "@/components/CachedImage";
 

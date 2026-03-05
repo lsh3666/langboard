@@ -6,7 +6,7 @@ import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import { useTranslation } from "react-i18next";
 
-function BoardSettingsChatTemplateMoreMenuDelete(): JSX.Element {
+function BoardSettingsChatTemplateMoreMenuDelete(): React.JSX.Element {
     const { project } = useBoardSettings();
     const { model: chatTemplate } = ModelRegistry.ChatTemplateModel.useContext();
     const [t] = useTranslation();

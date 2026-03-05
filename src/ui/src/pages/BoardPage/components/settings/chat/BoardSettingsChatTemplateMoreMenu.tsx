@@ -8,7 +8,7 @@ export interface IBoardSettingsChatTemplateMoreMenuProps {
     chatTemplate: ChatTemplateModel.TModel;
 }
 
-function BoardSettingsChatTemplateMoreMenu({ chatTemplate }: IBoardSettingsChatTemplateMoreMenuProps): JSX.Element {
+function BoardSettingsChatTemplateMoreMenu({ chatTemplate }: IBoardSettingsChatTemplateMoreMenuProps): React.JSX.Element {
     return (
         <ModelRegistry.ChatTemplateModel.Provider model={chatTemplate}>
             <MoreMenu.Root triggerProps={{ className: "h-8 w-5 sm:size-8" }}>

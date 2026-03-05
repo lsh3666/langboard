@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useEditorPlugin, useEditorSelector, usePlateState } from "platejs/react";
+import { useEditorPlugin, useEditorSelector, usePlateState, usePluginOption } from "platejs/react";
 import { AIChatPlugin } from "@platejs/ai/react";
 import { KEYS } from "platejs";
 import { BLOCK_CONTEXT_MENU_ID, BlockMenuPlugin, BlockSelectionPlugin, useBlockSelectionNodes } from "@platejs/selection/react";
@@ -16,8 +16,10 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
     const [t] = useTranslation();
     const { api, editor } = useEditorPlugin(BlockMenuPlugin);
     const [value, setValue] = useState<Value>(null);
-    const [readOnly] = usePlateState("readOnly");
     const isTouch = useIsTouchDevice();
+    const [readOnly] = usePlateState("readOnly");
+    const openId = usePluginOption(BlockMenuPlugin, "openId");
+    const isOpen = openId === BLOCK_CONTEXT_MENU_ID;
     const tableRelatedKeys: string[] = [TablePlugin.key, TableCellPlugin.key, TableRowPlugin.key];
     const tableRelatedSelected = useEditorSelector((editor) => editor.api.some({ match: { type: tableRelatedKeys } }), []);
     const tableRelatedSelectedInBlock = useBlockSelectionNodes()?.some(([node]) => node && node.type && tableRelatedKeys.includes(node.type));
@@ -74,65 +76,67 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
             >
                 <div className="w-full">{children}</div>
             </ContextMenu.Trigger>
-            <ContextMenu.Content
-                className="w-64"
-                onCloseAutoFocus={(e) => {
-                    e.preventDefault();
-                    editor.getApi(BlockSelectionPlugin).blockSelection.focus();
+            {isOpen && (
+                <ContextMenu.Content
+                    className="w-64"
+                    onCloseAutoFocus={(e) => {
+                        e.preventDefault();
+                        editor.getApi(BlockSelectionPlugin).blockSelection.focus();
 
-                    if (value === "askAI") {
-                        editor.getApi(AIChatPlugin).aiChat.show();
-                    }
+                        if (value === "askAI") {
+                            editor.getApi(AIChatPlugin).aiChat.show();
+                        }
 
-                    setValue(null);
-                }}
-            >
-                <ContextMenu.Group>
-                    <ContextMenu.Item
-                        onClick={() => {
-                            setValue("askAI");
-                        }}
-                    >
-                        {t("editor.Ask AI")}
-                    </ContextMenu.Item>
-                    <ContextMenu.Item
-                        onClick={() => {
-                            editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
-                            editor.tf.focus();
-                        }}
-                    >
-                        {t("editor.Delete")}
-                    </ContextMenu.Item>
-                    <ContextMenu.Item
-                        onClick={() => {
-                            editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
-                        }}
-                    >
-                        {t("editor.Duplicate")}
-                        {/* <ContextMenu.Shortcut>⌘ + D</ContextMenu.Shortcut> */}
-                    </ContextMenu.Item>
-                    <ContextMenu.Sub>
-                        <ContextMenu.SubTrigger disabled={tableSelected}>{t("editor.Turn into")}</ContextMenu.SubTrigger>
-                        <ContextMenu.SubContent className="w-48">
-                            <ContextMenu.Item onClick={() => handleTurnInto(KEYS.p)}>{t("editor.Paragraph")}</ContextMenu.Item>
+                        setValue(null);
+                    }}
+                >
+                    <ContextMenu.Group>
+                        <ContextMenu.Item
+                            onClick={() => {
+                                setValue("askAI");
+                            }}
+                        >
+                            {t("editor.Ask AI")}
+                        </ContextMenu.Item>
+                        <ContextMenu.Item
+                            onClick={() => {
+                                editor.getTransforms(BlockSelectionPlugin).blockSelection.removeNodes();
+                                editor.tf.focus();
+                            }}
+                        >
+                            {t("editor.Delete")}
+                        </ContextMenu.Item>
+                        <ContextMenu.Item
+                            onClick={() => {
+                                editor.getTransforms(BlockSelectionPlugin).blockSelection.duplicate();
+                            }}
+                        >
+                            {t("editor.Duplicate")}
+                            {/* <ContextMenu.Shortcut>⌘ + D</ContextMenu.Shortcut> */}
+                        </ContextMenu.Item>
+                        <ContextMenu.Sub>
+                            <ContextMenu.SubTrigger disabled={tableSelected}>{t("editor.Turn into")}</ContextMenu.SubTrigger>
+                            <ContextMenu.SubContent className="w-48">
+                                <ContextMenu.Item onClick={() => handleTurnInto(KEYS.p)}>{t("editor.Paragraph")}</ContextMenu.Item>
 
-                            <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h1)}>{t("editor.Heading 1")}</ContextMenu.Item>
-                            <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h2)}>{t("editor.Heading 2")}</ContextMenu.Item>
-                            <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h3)}>{t("editor.Heading 3")}</ContextMenu.Item>
-                            <ContextMenu.Item onClick={() => handleTurnInto(KEYS.blockquote)}>{t("editor.Blockquote")}</ContextMenu.Item>
-                        </ContextMenu.SubContent>
-                    </ContextMenu.Sub>
-                </ContextMenu.Group>
+                                <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h1)}>{t("editor.Heading 1")}</ContextMenu.Item>
+                                <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h2)}>{t("editor.Heading 2")}</ContextMenu.Item>
+                                <ContextMenu.Item onClick={() => handleTurnInto(KEYS.h3)}>{t("editor.Heading 3")}</ContextMenu.Item>
+                                <ContextMenu.Item onClick={() => handleTurnInto(KEYS.blockquote)}>{t("editor.Blockquote")}</ContextMenu.Item>
+                            </ContextMenu.SubContent>
+                        </ContextMenu.Sub>
+                    </ContextMenu.Group>
 
-                <ContextMenu.Group>
-                    <ContextMenu.Item onClick={() => editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(1)}>
-                        {t("editor.Indent")}
-                    </ContextMenu.Item>
-                    <ContextMenu.Item onClick={() => editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(-1)}>
-                        {t("editor.Outdent")}
-                    </ContextMenu.Item>
-                </ContextMenu.Group>
-            </ContextMenu.Content>
+                    <ContextMenu.Group>
+                        <ContextMenu.Item onClick={() => editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(1)}>
+                            {t("editor.Indent")}
+                        </ContextMenu.Item>
+                        <ContextMenu.Item onClick={() => editor.getTransforms(BlockSelectionPlugin).blockSelection.setIndent(-1)}>
+                            {t("editor.Outdent")}
+                        </ContextMenu.Item>
+                    </ContextMenu.Group>
+                </ContextMenu.Content>
+            )}
         </ContextMenu.Root>
     );
 }

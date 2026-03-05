@@ -22,12 +22,14 @@ export interface IProjectCardCommentUpdatedActivity extends IBaseProjectCardActi
 export interface IProjectCardCommentDeletedActivity extends IBaseProjectCardActivity<IProjectCardCommentActivityHistory> {
     activity_type: EProjectActivityType.CardCommentDeleted;
 }
-export interface IProjectCardCommentReactedActivity
-    extends IBaseProjectCardActivity<IProjectCardCommentActivityHistory & { reaction_type: TReactionEmoji }> {
+export interface IProjectCardCommentReactedActivity extends IBaseProjectCardActivity<
+    IProjectCardCommentActivityHistory & { reaction_type: TReactionEmoji }
+> {
     activity_type: EProjectActivityType.CardCommentReacted;
 }
-export interface IProjectCardCommentUnreactedActivity
-    extends IBaseProjectCardActivity<IProjectCardCommentActivityHistory & { reaction_type: TReactionEmoji }> {
+export interface IProjectCardCommentUnreactedActivity extends IBaseProjectCardActivity<
+    IProjectCardCommentActivityHistory & { reaction_type: TReactionEmoji }
+> {
     activity_type: EProjectActivityType.CardCommentUnreacted;
 }
 

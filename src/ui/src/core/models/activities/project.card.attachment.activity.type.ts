@@ -12,8 +12,9 @@ export interface IProjectCardAttachmentActivityHistory extends IProjectCardActiv
 export interface IProjectCardAttachmentUploadedActivity extends IBaseProjectCardActivity<IProjectCardAttachmentActivityHistory> {
     activity_type: EProjectActivityType.CardAttachmentUploaded;
 }
-export interface IProjectCardAttachmentNameChangedActivity
-    extends IBaseProjectCardActivity<IProjectCardAttachmentActivityHistory & IChangesInActivityHistory> {
+export interface IProjectCardAttachmentNameChangedActivity extends IBaseProjectCardActivity<
+    IProjectCardAttachmentActivityHistory & IChangesInActivityHistory
+> {
     activity_type: EProjectActivityType.CardAttachmentNameChanged;
 }
 export interface IProjectCardAttachmentDeletedActivity extends IBaseProjectCardActivity<IProjectCardAttachmentActivityHistory> {

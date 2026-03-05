@@ -14,7 +14,7 @@ export interface ITrackingRowProps extends React.HTMLAttributes<HTMLTableRowElem
     checkitem: ProjectCheckitem.TModel;
 }
 
-function TrackingRow({ checkitem, className, ...props }: ITrackingRowProps): JSX.Element | null {
+function TrackingRow({ checkitem, className, ...props }: ITrackingRowProps): React.JSX.Element | null {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const projectUIDRef = useRef("");

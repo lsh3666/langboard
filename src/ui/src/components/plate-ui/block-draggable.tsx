@@ -201,15 +201,36 @@ const DragHandle = React.memo(function DragHandle({
                     }}
                     onMouseDown={(e) => {
                         resetPreview();
-                        if (e.button !== 0 || e.shiftKey) return; // Only left mouse button
+                        if ((e.button !== 0 && e.button !== 2) || e.shiftKey) return;
 
-                        const elements = createDragPreviewElements(editor, {
-                            currentBlock: element,
-                        });
+                        const blockSelection = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ sort: true });
+
+                        let selectionNodes = blockSelection.length > 0 ? blockSelection : editor.api.blocks({ mode: "highest" });
+
+                        // If current block is not in selection, use it as the starting point
+                        if (!selectionNodes.some(([node]) => node.id === element.id)) {
+                            selectionNodes = [[element, editor.api.findPath(element)!]];
+                        }
+
+                        // Process selection nodes to include list children
+                        const blocks = expandListItemsWithChildren(editor, selectionNodes).map(([node]) => node);
+
+                        try {
+                            if (blockSelection.length === 0) {
+                                editor.tf.blur();
+                                editor.tf.collapse();
+                            }
+                        } catch (error) {
+                            // Ignore error caused by collapsing an unfocused editor
+                        }
+
+                        const elements = createDragPreviewElements(editor, blocks);
                         previewRef.current?.append(...elements);
                         previewRef.current?.classList.remove("hidden");
                         previewRef.current?.classList.add("opacity-0");
                         editor.setOption(DndPlugin, "multiplePreviewRef", previewRef);
+
+                        editor.getApi(BlockSelectionPlugin).blockSelection.set(blocks.map((block) => block.id as string));
                     }}
                     onMouseEnter={() => {
                         if (isDragging) return;
@@ -241,6 +262,7 @@ const DragHandle = React.memo(function DragHandle({
                     onMouseUp={() => {
                         resetPreview();
                     }}
+                    data-plate-prevent-deselect
                     role="button"
                 >
                     <GripVertical className="text-muted-foreground" />
@@ -273,24 +295,7 @@ const DropLine = React.memo(function DropLine({ className, ...props }: React.Com
     );
 });
 
-const createDragPreviewElements = (editor: PlateEditor, { currentBlock }: { currentBlock: TElement }): HTMLElement[] => {
-    const blockSelection = editor.getApi(BlockSelectionPlugin).blockSelection.getNodes({ sort: true });
-
-    let selectionNodes = blockSelection.length > 0 ? blockSelection : editor.api.blocks({ mode: "highest" });
-
-    // If current block is not in selection, use it as the starting point
-    if (!selectionNodes.some(([node]) => node.id === currentBlock.id)) {
-        selectionNodes = [[currentBlock, editor.api.findPath(currentBlock)!]];
-    }
-
-    // Process selection nodes to include list children
-    const sortedNodes = expandListItemsWithChildren(editor, selectionNodes).map(([node]) => node);
-
-    if (blockSelection.length === 0) {
-        editor.tf.blur();
-        editor.tf.collapse();
-    }
-
+const createDragPreviewElements = (editor: PlateEditor, blocks: TElement[]): HTMLElement[] => {
     const elements: HTMLElement[] = [];
     const ids: string[] = [];
 
@@ -311,12 +316,15 @@ const createDragPreviewElements = (editor: PlateEditor, { currentBlock }: { curr
     };
 
     const resolveElement = (node: TElement, index: number) => {
-        const domNode = editor.api.toDOMNode(node)!;
+        const domNode = editor.api.toDOMNode(node);
+        if (!domNode) return;
+
         const newDomNode = domNode.cloneNode(true) as HTMLElement;
 
         // Apply visual compensation for horizontal scroll
         const applyScrollCompensation = (original: Element, cloned: HTMLElement) => {
             const scrollLeft = original.scrollLeft;
+
             if (scrollLeft > 0) {
                 // Create a wrapper to handle the scroll offset
                 const scrollWrapper = document.createElement("div");
@@ -350,18 +358,23 @@ const createDragPreviewElements = (editor: PlateEditor, { currentBlock }: { curr
         wrapper.append(newDomNode);
         wrapper.style.display = "flow-root";
 
-        const lastDomNode = sortedNodes[index - 1];
+        const lastDomNode = blocks[index - 1];
 
         if (lastDomNode) {
-            const lastDomNodeRect = editor.api.toDOMNode(lastDomNode)!.parentElement!.getBoundingClientRect();
+            const lastNodeElement = editor.api.toDOMNode(lastDomNode);
+            const lastParent = lastNodeElement?.parentElement;
+            const currentParent = domNode.parentElement;
 
-            const domNodeRect = domNode.parentElement!.getBoundingClientRect();
+            if (lastParent && currentParent) {
+                const lastDomNodeRect = lastParent.getBoundingClientRect();
+                const domNodeRect = currentParent.getBoundingClientRect();
 
-            const distance = domNodeRect.top - lastDomNodeRect.bottom;
+                const distance = domNodeRect.top - lastDomNodeRect.bottom;
 
-            // Check if the two elements are adjacent (touching each other)
-            if (distance > 15) {
-                wrapper.style.marginTop = `${distance}px`;
+                // Check if the two elements are adjacent (touching each other)
+                if (distance > 15) {
+                    wrapper.style.marginTop = `${distance}px`;
+                }
             }
         }
 
@@ -369,7 +382,9 @@ const createDragPreviewElements = (editor: PlateEditor, { currentBlock }: { curr
         elements.push(wrapper);
     };
 
-    sortedNodes.forEach((node, index) => resolveElement(node, index));
+    blocks.forEach((node, index) => {
+        resolveElement(node, index);
+    });
 
     editor.setOption(DndPlugin, "draggingId", ids);
 
@@ -386,11 +401,15 @@ const calculatePreviewTop = (
         element: TElement;
     }
 ): number => {
-    const child = editor.api.toDOMNode(element)!;
-    const editable = editor.api.toDOMNode(editor)!;
+    const child = editor.api.toDOMNode(element);
+    const editable = editor.api.toDOMNode(editor);
     const firstSelectedChild = blocks[0];
 
-    const firstDomNode = editor.api.toDOMNode(firstSelectedChild)!;
+    const firstDomNode = editor.api.toDOMNode(firstSelectedChild);
+    if (!(child instanceof HTMLElement) || !(editable instanceof HTMLElement) || !(firstDomNode instanceof HTMLElement)) {
+        return 0;
+    }
+
     // Get editor's top padding
     const editorPaddingTop = Number(window.getComputedStyle(editable).paddingTop.replace("px", ""));
 

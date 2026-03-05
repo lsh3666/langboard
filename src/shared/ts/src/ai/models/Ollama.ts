@@ -4,7 +4,7 @@ import axios from "axios";
 
 export const OLLAMA_DEFAULT_VALUE = "default";
 
-export const getOllamaModels = async ({ values, envs }: TGetModelOptions) => {
+export const getOllamaModels = async ({ values, envs, api: existingApi }: TGetModelOptions) => {
     if (!values.base_url) {
         return [];
     }
@@ -19,9 +19,13 @@ export const getOllamaModels = async ({ values, envs }: TGetModelOptions) => {
     }
 
     const availableModels: string[] = [];
-    const api = axios.create({
-        baseURL,
-    });
+    const api =
+        existingApi ||
+        axios.create({
+            baseURL,
+            withCredentials: true,
+        });
+
     try {
         const response = await api.get(listEndpoint);
 

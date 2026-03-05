@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 export type TMoreMenuDrawerItemProps = TMoreMenuItemProps<React.ComponentProps<typeof Drawer.Content>>;
 
-function MoreMenuDrawerItem({ onSave, onOpenChange, ...props }: TMoreMenuDrawerItemProps): JSX.Element {
+function MoreMenuDrawerItem({ onSave, onOpenChange, ...props }: TMoreMenuDrawerItemProps): React.JSX.Element {
     const [isOpened, setIsOpened] = useState(false);
 
     return (
@@ -29,7 +29,7 @@ function MoreMenuDrawerItemDisplay({
     saveText,
     cancelText,
     children,
-}: Omit<TMoreMenuDrawerItemProps, "onSave" | "onOpenChange">): JSX.Element {
+}: Omit<TMoreMenuDrawerItemProps, "onSave" | "onOpenChange">): React.JSX.Element {
     const [t] = useTranslation();
     const { isOpened, setIsOpened, save } = useMoreMenuItem();
     const { isValidating } = useMoreMenu();

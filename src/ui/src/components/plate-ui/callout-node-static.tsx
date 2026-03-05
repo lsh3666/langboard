@@ -1,8 +1,8 @@
 /* eslint-disable quotes */
 /* eslint-disable @/max-len */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SlateElementProps } from "platejs";
-import { SlateElement } from "platejs";
+import type { SlateElementProps } from "platejs/static";
+import { SlateElement } from "platejs/static";
 import { cn } from "@/core/utils/ComponentUtils";
 
 export function CalloutElementStatic({ children, className, ...props }: SlateElementProps) {

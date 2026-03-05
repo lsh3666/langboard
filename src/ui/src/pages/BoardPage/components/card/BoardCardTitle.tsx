@@ -18,7 +18,7 @@ export function SkeletonBoardCardTitle() {
     );
 }
 
-function BoardCardTitle(): JSX.Element {
+function BoardCardTitle(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const { projectUID, card, hasRoleAction } = useBoardCard();
     const [t] = useTranslation();

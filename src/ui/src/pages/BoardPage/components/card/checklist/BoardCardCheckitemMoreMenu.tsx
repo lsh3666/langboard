@@ -4,7 +4,7 @@ import BoardCardCheckitemMoreMenuEdit from "@/pages/BoardPage/components/card/ch
 import MoreMenu from "@/components/MoreMenu";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 
-function BoardCardCheckitemMoreMenu(): JSX.Element {
+function BoardCardCheckitemMoreMenu(): React.JSX.Element {
     const { model: checkitem } = ModelRegistry.ProjectCheckitem.useContext();
     const cardifieidCards = checkitem.useForeignFieldArray("cardified_card");
 

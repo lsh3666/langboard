@@ -25,7 +25,7 @@ interface IPreferenceNotificationRecursiveProps {
     deep: number;
 }
 
-function PreferenceNotificationRecursive({ typeMap, deep }: IPreferenceNotificationRecursiveProps): JSX.Element {
+function PreferenceNotificationRecursive({ typeMap, deep }: IPreferenceNotificationRecursiveProps): React.JSX.Element {
     const { currentUser } = useAccountSetting();
     const [t] = useTranslation();
 

@@ -16,7 +16,7 @@ function HedaerNavItems({
     deactivatedClass,
     shardClass,
     setDropdownMenuOpenedRef,
-}: THeaderNavItemsProps & IDropdownMenuNavProps): JSX.Element {
+}: THeaderNavItemsProps & IDropdownMenuNavProps): React.JSX.Element {
     return (
         <>
             {navs.map((item) => {
@@ -48,7 +48,7 @@ interface IHeaderNavItemProps extends Omit<THeaderNavItemsProps, "isMobile" | "n
     item: IHeaderNavItem;
 }
 
-function AccordionNav({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): JSX.Element {
+function AccordionNav({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): React.JSX.Element {
     const key = Utils.Type.isString(item.name) ? Utils.String.Token.reactKey(item.name) : Utils.String.Token.shortUUID();
     const subProps = {
         isMobile: true as false,
@@ -77,7 +77,7 @@ function AccordionNav({ item, setIsOpen, activatedClass, deactivatedClass, shard
     );
 }
 
-function DropdownMenuNav({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): JSX.Element {
+function DropdownMenuNav({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): React.JSX.Element {
     const [isOpened, setIsOpened] = useState(false);
     const setDropdownMenuOpenedRef = useRef(setIsOpened);
     setDropdownMenuOpenedRef.current = setIsOpened;
@@ -109,7 +109,7 @@ function DropdownMenuNav({ item, setIsOpen, activatedClass, deactivatedClass, sh
     );
 }
 
-function AccordionNavItem({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): JSX.Element {
+function AccordionNavItem({ item, setIsOpen, activatedClass, deactivatedClass, shardClass }: IHeaderNavItemProps): React.JSX.Element {
     const ariaCurrent = item.active ? "page" : undefined;
     const handleClick = useCallback(() => {
         setIsOpen!(false);
@@ -128,7 +128,7 @@ function AccordionNavItem({ item, setIsOpen, activatedClass, deactivatedClass, s
     );
 }
 
-function NavLinkItem({ item, activatedClass, deactivatedClass, shardClass, setDropdownMenuOpenedRef }: IHeaderNavItemProps): JSX.Element {
+function NavLinkItem({ item, activatedClass, deactivatedClass, shardClass, setDropdownMenuOpenedRef }: IHeaderNavItemProps): React.JSX.Element {
     const ariaCurrent = item.active ? "page" : undefined;
     const handleClick = useCallback(() => {
         setDropdownMenuOpenedRef?.current(false);

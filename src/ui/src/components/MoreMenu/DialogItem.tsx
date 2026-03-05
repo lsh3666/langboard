@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export type TMoreMenuDialogItemProps = TMoreMenuItemProps<React.ComponentProps<typeof Dialog.Content>>;
 
-function MoreMenuDialogItem({ onSave, onOpenChange, ...props }: TMoreMenuDialogItemProps): JSX.Element {
+function MoreMenuDialogItem({ onSave, onOpenChange, ...props }: TMoreMenuDialogItemProps): React.JSX.Element {
     const [isOpened, setIsOpened] = useState(false);
 
     return (
@@ -28,7 +28,7 @@ function MoreMenuDialogItemDisplay({
     saveText,
     cancelText,
     children,
-}: Omit<TMoreMenuDialogItemProps, "onSave" | "onOpenChange">): JSX.Element {
+}: Omit<TMoreMenuDialogItemProps, "onSave" | "onOpenChange">): React.JSX.Element {
     const [t] = useTranslation();
     const { isOpened, setIsOpened, save } = useMoreMenuItem();
     const { isValidating } = useMoreMenu();

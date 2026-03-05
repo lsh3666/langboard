@@ -15,7 +15,7 @@ export interface ISendResetLinkFormProps {
     backToSignin: () => void;
 }
 
-function SendResetLinkForm({ signToken, emailToken, backToSignin }: ISendResetLinkFormProps): JSX.Element {
+function SendResetLinkForm({ signToken, emailToken, backToSignin }: ISendResetLinkFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const location = useLocation();

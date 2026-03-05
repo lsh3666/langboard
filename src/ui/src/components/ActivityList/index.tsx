@@ -65,7 +65,7 @@ function ActivityList({ form, ...props }: IActivityListProps) {
     );
 }
 
-function ActivityListDisplay({ as, currentUser, outerClassName, outerStyle, viewType }: Omit<IActivityListProps, "form">): JSX.Element {
+function ActivityListDisplay({ as, currentUser, outerClassName, outerStyle, viewType }: Omit<IActivityListProps, "form">): React.JSX.Element {
     const [t] = useTranslation();
     const {
         models: activities,

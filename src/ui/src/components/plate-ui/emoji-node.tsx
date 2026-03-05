@@ -15,6 +15,8 @@ import {
     InlineComboboxItem,
 } from "@/components/plate-ui/inline-combobox";
 
+const TRAILING_COLON_REGEX = /:$/;
+
 export function EmojiInputElement(props: PlateElementProps) {
     const { children, editor, element } = props;
     const data = usePluginOption(EmojiPlugin, "data")!;
@@ -25,7 +27,7 @@ export function EmojiInputElement(props: PlateElementProps) {
     const filteredEmojis = React.useMemo(() => {
         if (debouncedValue.trim().length === 0) return [];
 
-        return EmojiInlineIndexSearch.getInstance(data).search(debouncedValue.replace(/:$/, "")).get();
+        return EmojiInlineIndexSearch.getInstance(data).search(debouncedValue.replace(TRAILING_COLON_REGEX, "")).get();
     }, [data, debouncedValue]);
 
     return (

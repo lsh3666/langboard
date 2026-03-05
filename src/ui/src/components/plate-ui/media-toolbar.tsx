@@ -4,7 +4,7 @@ import * as React from "react";
 import type { WithRequiredKey } from "platejs";
 import { FloatingMedia as FloatingMediaPrimitive, FloatingMediaStore, useFloatingMediaValue, useImagePreviewValue } from "@platejs/media/react";
 import { Link, Trash2Icon } from "lucide-react";
-import { useEditorRef, useEditorSelector, useElement, useReadOnly, useRemoveNodeButton, useSelected } from "platejs/react";
+import { useEditorRef, useEditorSelector, useElement, useFocusedLast, useReadOnly, useRemoveNodeButton, useSelected } from "platejs/react";
 import { Button, ButtonVariants, Popover, Separator } from "@/components/base";
 import { CaptionButton } from "@/components/plate-ui/caption";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,10 @@ export function MediaToolbar({ children, plugin }: { children: React.ReactNode; 
     const editor = useEditorRef();
     const readOnly = useReadOnly();
     const selected = useSelected();
-
+    const isFocusedLast = useFocusedLast();
     const selectionCollapsed = useEditorSelector((editor) => !editor.api.isExpanded(), []);
     const isImagePreviewOpen = useImagePreviewValue("isOpen", editor.id);
-    const isOpen = !readOnly && selected && selectionCollapsed && !isImagePreviewOpen;
+    const isOpen = isFocusedLast && !readOnly && selected && selectionCollapsed && !isImagePreviewOpen;
     const isEditing = useFloatingMediaValue("isEditing");
 
     React.useEffect(() => {

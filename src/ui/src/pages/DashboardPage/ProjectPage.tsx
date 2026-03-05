@@ -15,7 +15,7 @@ interface IProjectPageProps {
     scrollAreaUpdater: [number, React.DispatchWithoutAction];
 }
 
-const ProjectPage = memo(({ currentTab, updateStarredProjects, scrollAreaUpdater }: IProjectPageProps): JSX.Element => {
+const ProjectPage = memo(({ currentTab, updateStarredProjects, scrollAreaUpdater }: IProjectPageProps): React.JSX.Element => {
     const { setPageAliasRef } = usePageHeader();
     const navigate = usePageNavigateRef();
     const { currentUser } = useDashboard();

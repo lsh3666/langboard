@@ -13,7 +13,7 @@ export interface IBotScheduleListItemProps {
     schedule: BaseBotScheduleModel.TModel;
 }
 
-function BotScheduleListItem({ schedule }: IBotScheduleListItemProps): JSX.Element {
+function BotScheduleListItem({ schedule }: IBotScheduleListItemProps): React.JSX.Element {
     const { setCopiedForm, setIsAddMode } = useBotScheduleList();
     const [t] = useTranslation();
     const runningType = schedule.useField("running_type");
@@ -86,7 +86,7 @@ interface IBotScheduleListItemSectionProps {
     children: React.ReactNode;
 }
 
-function BotScheduleListItemSection({ title, children }: IBotScheduleListItemSectionProps): JSX.Element {
+function BotScheduleListItemSection({ title, children }: IBotScheduleListItemSectionProps): React.JSX.Element {
     return (
         <Flex items="start" gap="1.5">
             <Box className="w-20 text-gray-500">{title}</Box>

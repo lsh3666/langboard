@@ -1,6 +1,5 @@
 "use client";
 
-import { PlantUmlPlugin } from "@/components/Editor/plugins/customs/plantuml/PlantUmlPlugin";
 import type { AutoformatRule } from "@platejs/autoformat";
 import {
     autoformatArrow,
@@ -12,6 +11,7 @@ import {
     autoformatSmartQuotes,
 } from "@platejs/autoformat";
 import { insertEmptyCodeBlock } from "@platejs/code-block";
+import { CODE_DRAWING_TYPE_ARRAY, CodeDrawingType, VIEW_MODE } from "@platejs/code-drawing";
 import { toggleList } from "@platejs/list";
 import { KEYS } from "platejs";
 
@@ -159,18 +159,25 @@ const autoformatBlocks: AutoformatRule[] = [
             });
         },
     },
-    {
-        match: "$$uml",
-        mode: "block",
-        type: PlantUmlPlugin.key,
-        format: (editor) => {
-            editor.tf.setNodes({ type: PlantUmlPlugin.key });
-            editor.tf.insertNodes({
-                children: [{ text: "" }],
-                type: KEYS.p,
-            });
-        },
-    },
+    ...CODE_DRAWING_TYPE_ARRAY.map(
+        (codeDrawingType) =>
+            ({
+                match: `$$${codeDrawingType}`,
+                mode: "block",
+                type: KEYS.codeDrawing,
+                format: (editor) => {
+                    editor.tf.setNodes({
+                        type: KEYS.codeDrawing,
+                        children: [{ text: "" }],
+                        data: {
+                            drawingType: codeDrawingType as unknown as CodeDrawingType,
+                            drawingMode: VIEW_MODE.Both,
+                            code: "",
+                        },
+                    });
+                },
+            }) as AutoformatRule
+    ),
 ];
 
 const autoformatLists: AutoformatRule[] = [

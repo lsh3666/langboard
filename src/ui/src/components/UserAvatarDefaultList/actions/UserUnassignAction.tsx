@@ -12,7 +12,7 @@ export interface IUserAvatarUserUnassignActionProps {
     setIsAssignee: React.Dispatch<React.SetStateAction<bool>>;
 }
 
-function UserAvatarUserUnassignAction({ project, setIsAssignee }: IUserAvatarUserUnassignActionProps): JSX.Element {
+function UserAvatarUserUnassignAction({ project, setIsAssignee }: IUserAvatarUserUnassignActionProps): React.JSX.Element {
     const { userOrBot, getAvatarHoverCardAttrs } = useUserAvatar();
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);

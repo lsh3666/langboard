@@ -9,7 +9,7 @@ import { Utils } from "@langboard/core/utils";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 
-function ProfilePage(): JSX.Element {
+function ProfilePage(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
     const { currentUser, updatedUser } = useAccountSetting();
     const [t] = useTranslation();

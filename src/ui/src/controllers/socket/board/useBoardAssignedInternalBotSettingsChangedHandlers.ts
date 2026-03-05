@@ -10,8 +10,8 @@ export interface IBoardAssignedInternalBotSettingsChangedResponse {
     prompt: string;
 }
 
-export interface IUseBoardAssignedInternalBotSettingsChangedHandlersProps
-    extends IBaseUseSocketHandlersProps<IBoardAssignedInternalBotSettingsChangedResponse> {
+// eslint-disable-next-line @/max-len
+export interface IUseBoardAssignedInternalBotSettingsChangedHandlersProps extends IBaseUseSocketHandlersProps<IBoardAssignedInternalBotSettingsChangedResponse> {
     project: Project.TModel;
 }
 

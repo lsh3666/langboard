@@ -15,7 +15,7 @@ export interface IEmailFormProps {
     className: string;
 }
 
-function EmailForm({ signToken, setEmail, className }: IEmailFormProps): JSX.Element {
+function EmailForm({ signToken, setEmail, className }: IEmailFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { mutate } = useAuthEmail();

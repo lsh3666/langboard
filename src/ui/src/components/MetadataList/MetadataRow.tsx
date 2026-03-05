@@ -16,7 +16,7 @@ export interface IMetadataRowProps {
     canEdit: () => bool;
 }
 
-function MetadataRow({ form, keyName, value, errorsMap, canEdit }: IMetadataRowProps): JSX.Element {
+function MetadataRow({ form, keyName, value, errorsMap, canEdit }: IMetadataRowProps): React.JSX.Element {
     const [t] = useTranslation();
     const { mutateAsync: saveMetadataMutateAsync } = useSaveMetadata(form, { interceptToast: true });
     const { mutateAsync: deleteMetadataMutateAsync } = useDeleteMetadata(form, { interceptToast: true });

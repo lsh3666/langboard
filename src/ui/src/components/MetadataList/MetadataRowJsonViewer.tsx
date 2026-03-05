@@ -13,7 +13,7 @@ export interface IMetadataRowJsonViewerProps {
     canEdit: () => bool;
 }
 
-function MetadataRowJsonViewer({ valueInputRef, handleValueInput, currentValue, canEdit }: IMetadataRowJsonViewerProps): JSX.Element {
+function MetadataRowJsonViewer({ valueInputRef, handleValueInput, currentValue, canEdit }: IMetadataRowJsonViewerProps): React.JSX.Element {
     const [t] = useTranslation();
     const [currentObject, setCurrentObject] = useState(Utils.String.isJsonString(currentValue) ? JSON.parse(currentValue) : {});
     const [currentJSON, setCurrentJSON] = useState(

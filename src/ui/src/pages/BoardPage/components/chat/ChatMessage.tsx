@@ -7,7 +7,7 @@ export interface IChatMessageProps {
     chatMessage: ChatMessageModel.TModel;
 }
 
-function ChatMessage({ chatMessage }: IChatMessageProps): JSX.Element {
+function ChatMessage({ chatMessage }: IChatMessageProps): React.JSX.Element {
     const message = chatMessage.useField("message");
     const isReceived = chatMessage.useField("is_received");
     const isPending = chatMessage.useField("isPending");

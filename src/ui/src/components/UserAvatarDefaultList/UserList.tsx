@@ -51,7 +51,7 @@ const getNotificationForm = (scopeModels: IUserAvatarDefaultListContext["scopeMo
     return { type, form, specificUID };
 };
 
-function UserAvatarDefaultUserList({ user }: IUserAvatarDefaultUserListProps): JSX.Element {
+function UserAvatarDefaultUserList({ user }: IUserAvatarDefaultUserListProps): React.JSX.Element {
     const { getAvatarHoverCardAttrs } = useUserAvatar();
     const { scopeModels, currentUser, hasRoleAction, isAssignee, setIsAssignee } = useUserAvatarDefaultList();
     const [t] = useTranslation();

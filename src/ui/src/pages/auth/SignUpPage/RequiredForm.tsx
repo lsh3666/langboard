@@ -10,7 +10,7 @@ import { ISignUpFormProps } from "@/pages/auth/SignUpPage/types";
 import { setInitialErrorsWithFocusingElement } from "@/pages/auth/SignUpPage/utils";
 import { Utils } from "@langboard/core/utils";
 
-function RequiredForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps): JSX.Element {
+function RequiredForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const { mutate: existsEmailMutate } = useSignUpExistsEmail();
     const { errors, setErrors, isValidating, handleSubmit, formRef, formDataRef, focusComponentRef } = useForm({
