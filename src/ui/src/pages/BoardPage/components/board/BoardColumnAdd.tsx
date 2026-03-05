@@ -5,7 +5,7 @@ import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
-import { BoardColumnTitleInput } from "@/pages/BoardPage/components/board/BoardColumnTitle";
+import { BoardColumnNameInput } from "@/pages/BoardPage/components/board/BoardColumnName";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -57,12 +57,12 @@ const BoardColumnAdd = memo(() => {
                     className={cn(sharedRootClassNames, "justify-start rounded-md border-2 border-dashed bg-card p-4 text-card-foreground shadow")}
                     onClick={() => changeMode("edit")}
                 >
-                    {t("board.Add Column")}
+                    {t("board.Add column")}
                 </Button>
             ) : (
                 <Card.Root className={cn(sharedRootClassNames, "w-80 flex-shrink-0 snap-center")}>
                     <Card.Header className="flex flex-row items-start space-y-0 pb-1 pt-4 text-left font-semibold">
-                        <BoardColumnTitleInput
+                        <BoardColumnNameInput
                             isEditing={true}
                             canEdit={true}
                             changeMode={changeMode}

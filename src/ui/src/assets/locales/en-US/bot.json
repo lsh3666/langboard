@@ -36,10 +36,6 @@
       "started": "Running",
       "stopped": "Stopped"
     },
-    "cronScopes": {
-      "project_column": "Project column",
-      "card": "Card"
-    },
     "cronHeaders": {
       "Interval": "Interval",
       "Type": "Type",

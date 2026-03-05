@@ -53,7 +53,7 @@ function AdditionalForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps
                 <AutoComplete
                     selectedValue={values.industry}
                     onValueChange={setIndustry}
-                    items={User.INDUSTRIES.map((industry) => ({ value: industry, label: t(`auth.industries.${industry}`) }))}
+                    items={User.INDUSTRIES.map((industry) => ({ value: industry, label: t(`user.industries.${industry}`) }))}
                     emptyMessage={industryRef.current ?? ""}
                     required
                     disabled={isValidating}
@@ -66,7 +66,7 @@ function AdditionalForm({ values, moveStep, initialErrorsRef }: ISignUpFormProps
                 <AutoComplete
                     selectedValue={values.purpose}
                     onValueChange={setPurpose}
-                    items={User.PURPOSES.map((purpose) => ({ value: purpose, label: t(`auth.purposes.${purpose}`) }))}
+                    items={User.PURPOSES.map((purpose) => ({ value: purpose, label: t(`user.purposes.${purpose}`) }))}
                     emptyMessage={purposeRef.current ?? ""}
                     required
                     disabled={isValidating}

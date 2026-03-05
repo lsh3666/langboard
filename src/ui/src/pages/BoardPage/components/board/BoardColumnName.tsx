@@ -11,12 +11,12 @@ import { useTranslation } from "react-i18next";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import { ProjectRole } from "@/core/models/roles";
 
-export interface IBoardColumnTitleProps {
+export interface IBoardColumnNameProps {
     isDragging: bool;
     column: ProjectColumn.TModel;
 }
 
-const BoardColumnTitle = memo(({ isDragging, column }: IBoardColumnTitleProps) => {
+const BoardColumnName = memo(({ isDragging, column }: IBoardColumnNameProps) => {
     const { selectCardViewType } = useBoardController();
     const { project, hasRoleAction } = useBoard();
     const [t] = useTranslation();
@@ -66,7 +66,7 @@ const BoardColumnTitle = memo(({ isDragging, column }: IBoardColumnTitleProps) =
     });
 
     return (
-        <BoardColumnTitleInput
+        <BoardColumnNameInput
             isEditing={isEditing}
             viewClassName={canEdit ? "cursor-text" : ""}
             canEdit={!isDragging && canEdit}
@@ -78,9 +78,9 @@ const BoardColumnTitle = memo(({ isDragging, column }: IBoardColumnTitleProps) =
         />
     );
 });
-BoardColumnTitle.displayName = "Board.ColumnTitle";
+BoardColumnName.displayName = "Board.ColumnName";
 
-export interface IBoardColumnTitleInput {
+export interface IBoardColumnNameInput {
     isEditing: bool;
     viewClassName?: string;
     canEdit: bool;
@@ -91,8 +91,8 @@ export interface IBoardColumnTitleInput {
     inputRef: React.Ref<HTMLInputElement>;
 }
 
-export const BoardColumnTitleInput = memo(
-    ({ isEditing, viewClassName, canEdit, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnTitleInput) => {
+export const BoardColumnNameInput = memo(
+    ({ isEditing, viewClassName, canEdit, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
         const [t] = useTranslation();
         const handleStartEditing = useCallback(
             (e: React.MouseEvent) => {
@@ -144,7 +144,7 @@ export const BoardColumnTitleInput = memo(
                             "h-7 rounded-none border-x-0 border-t-0 p-0 pb-1 text-base font-semibold",
                             "focus-visible:border-b-primary focus-visible:ring-0"
                         )}
-                        placeholder={t("board.Enter a title")}
+                        placeholder={t("board.Enter a name")}
                         disabled={disabled}
                         defaultValue={columnName}
                         onClick={handleInputClick}
@@ -156,6 +156,6 @@ export const BoardColumnTitleInput = memo(
         );
     }
 );
-BoardColumnTitleInput.displayName = "Board.ColumnTitleInput";
+BoardColumnNameInput.displayName = "Board.ColumnNameInput";
 
-export default BoardColumnTitle;
+export default BoardColumnName;

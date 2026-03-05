@@ -3,7 +3,7 @@
   "Create Admin MCP Server": "Create Admin MCP Server",
   "MCP Server": "MCP Server",
   "MCP Server Configuration": "MCP Server Configuration",
-  "Copy Config": "Copy Config",
+  "Copy config": "Copy config",
   "Available Tools ({count})": "Available Tools ({{count}})",
   "View Input Schema": "View Input Schema",
   "{count} tools": "{{count}} tools"

@@ -83,7 +83,7 @@ services:
     build:
       context: ../
       target: base
-    command: uv run ${PROJECT_NAME} run:broker --concurrency ${BROKER_CONCURRENCY}
+    command: uv run ${PROJECT_NAME} run:broker
 
   socket:
     init: true

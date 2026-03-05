@@ -1,10 +1,9 @@
 from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
 from langboard_shared.core.broker import Broker
-from pydantic import Field
 
 
 class RunBrokerCommandOptions(BaseCommandOptions):
-    concurrency: int = Field(default=1, description="Number of workers to run")
+    pass
 
 
 class RunBrokerCommand(BaseCommand):
@@ -36,5 +35,5 @@ class RunBrokerCommand(BaseCommand):
     def store_type(self) -> type[bool] | type[str]:
         return bool
 
-    def execute(self, options: RunBrokerCommandOptions) -> None:
+    def execute(self, _: RunBrokerCommandOptions) -> None:
         Broker.start(argv=["worker", "--loglevel=info", "--concurrency=1", "--pool=solo"])

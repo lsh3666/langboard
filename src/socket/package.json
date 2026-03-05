@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "main": "index.js",
-  "license": "Elastic License 2.0 (ELv2)",
+  "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint . --ext .ts,.js --ignore-pattern .rollup.cache/ --ignore-pattern node_modules/ --ignore-pattern dist/",

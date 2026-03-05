@@ -140,7 +140,7 @@ function UserSettingRole({ user, fullAccessEmails }: { user: User.TModel; fullAc
                 return messageRef.message;
             },
             success: () => {
-                return t("successes.Role updated successfully.");
+                return t("successes.User setting roles updated successfully.");
             },
             finally: () => {
                 setIsValidating(false);
@@ -169,7 +169,7 @@ function UserSettingRole({ user, fullAccessEmails }: { user: User.TModel; fullAc
                 return messageRef.message;
             },
             success: () => {
-                return t("successes.Role updated successfully.");
+                return t("successes.User setting roles updated successfully.");
             },
             finally: () => {
                 setIsValidating(false);
@@ -215,7 +215,7 @@ function UserSettingRole({ user, fullAccessEmails }: { user: User.TModel; fullAc
                 return messageRef.message;
             },
             success: () => {
-                return t("successes.Role updated successfully.");
+                return t("successes.User setting roles updated successfully.");
             },
             finally: () => {
                 setIsValidating(false);

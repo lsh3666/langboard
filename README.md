@@ -1,6 +1,7 @@
-# Langboard
+﻿# Langboard
 
-Langboard is an **AI Agent Orchestration Platform** that empowers organizations to build, manage, and monitor multi-agent workflows with **human-in-the-loop (HITL) controls**.
+Langboard is an **AI Agent Orchestration Platform** that helps organizations run AI workflows with operational control and human oversight.
+
 Unlike traditional automation tools or fully autonomous agent experiments (e.g., AutoGPT, BabyAGI), Langboard strikes the balance between **AI autonomy** and **human governance**, ensuring safe, scalable, and enterprise-ready AI orchestration.
 
 ---
@@ -9,16 +10,17 @@ Unlike traditional automation tools or fully autonomous agent experiments (e.g.,
 
 AI systems are powerful, but not infallible. Even state-of-the-art large language models (LLMs) hallucinate, misinterpret context, or act unpredictably. Langboard was created with a simple principle:
 
-> **“AI should act, but humans must approve.”**
+> **"AI should act, but humans must approve."**
 
-Langboard’s mission is to enable enterprises to harness AI efficiency without sacrificing reliability, compliance, or accountability.
+Langboard's mission is to enable enterprises to harness AI efficiency without sacrificing reliability, compliance, or accountability.
 
 ---
 
 ## 🚀 Quick Start
 
-- For Windows users
+- Prerequisite: Install **Docker** and **Docker Compose** first.
 
+- For Windows users
   - You can run one of `quickstart.ps1`, `quickstart-ollama-cpu.ps1`, and `quickstart-ollama-gpu.ps1` in `scripts` directory with powershell
     - If the system opens Notepad when you double-click the files, you should select 'Run with powershell' by right-click menu.
   - You can run powershell scripts below
@@ -31,7 +33,6 @@ Langboard’s mission is to enable enterprises to harness AI efficiency without 
   ```
 
 - For other OS users,
-
   - You can double-click one of `quickstart.sh`, `quickstart-ollama-cpu.sh`, and `quickstart-ollama-gpu.sh` in `scripts` directory
   - You can run bash scripts below
 
@@ -42,65 +43,86 @@ Langboard’s mission is to enable enterprises to harness AI efficiency without 
   ./quickstart-ollama-gpu.sh   # if you want GPU mode
   ```
 
-## ✨ Core Features
+---
 
-1. **Kanban Board Interface**
+## ✨ Platform Overview
 
-   - Inspired by Trello, Langboard visualizes workflows as columns (stages) and cards (tasks).
-   - Each card represents an AI-driven process, with real-time status updates.
-   - Intuitive UX allows non-technical teams to manage complex AI pipelines.
+1. **Kanban-native workspace**
+   - Manage work through boards, columns, and cards.
+   - Built-in checklists, comments, attachments, labels, relationships, and wiki pages.
 
-2. **Multi-Agent Collaboration**
+2. **Real-time collaboration**
+   - Socket-based updates across boards, cards, wiki, notifications, and bot events.
+   - Live editor session events and streaming responses for AI interactions.
 
-   - Multiple specialized AI agents work together as a team.
-   - Example: a **Content Writer Agent** drafts text → a **Design Agent** generates images → final output is submitted to a **Human Approver**.
-   - Supports delegation, task splitting, and cooperative workflows.
+3. **AI-assisted work execution**
+   - Project bots and internal bots can run tasks, schedules, and scoped automations.
+   - Editor chat/copilot flows are available for card and wiki writing workflows.
 
-3. **Human-in-the-Loop (Reaction Approval)**
+---
 
-   - Critical actions pause until a human approves.
-   - Example: before writing to an internal database or calling an external API, Langboard shows a “Pending Approval” card.
-   - Human approvers can **approve** or **reject** with a single click.
+## 🤖 AI Orchestration with Langflow
 
-4. **LangGraph & LangChain Orchestration**
+- Supported bot platforms: `default`, `Langflow`, `n8n`.
+- Langflow running modes: `endpoint` and `flow_json`.
+- Flow execution endpoints: `/api/v1/run/{anypath}` and `/api/v1/webhook/{anypath}`.
+- Built-in packaged flows include `default`, `ollama`, and `lm_studio`.
 
-   - Built on LangChain with planned integration of LangGraph for **stateful, interruptible workflows**.
-   - Each Kanban column can map to a LangGraph node, supporting branching, conditional flows, and long-running processes.
+---
 
-5. **Observability & Monitoring**
+## 🧩 MCP Integration
 
-   - All agent actions are logged and visualized.
-   - Prompts, responses, and tool calls are traceable via Langfuse-style dashboards.
-   - Enhances debugging, compliance, and reliability.
+- Embedded **FastMCP** server is mounted at `/mcp` (streamable HTTP transport).
+- MCP tool groups support admin/global and user-scoped governance.
+- Requests must include `X-MCP-Tool-Group-UID` for tool-group validation.
+- Middleware enforces authentication, ownership checks, and MCP role permissions.
+- Built-in MCP tools cover project, card, bot, activity, and metadata operations.
 
-6. **Retrieval-Augmented Generation (RAG) Search**
+---
 
-   - Embeds task data into vector databases for semantic retrieval.
-   - Allows context-rich search across ongoing and past tasks.
+## 🔐 API Keys and Key Vault
 
-7. **Customizable AI Agents**
+- API key lifecycle operations include create, update, activate/deactivate, expiration, and delete.
+- IP whitelist validation and API key usage logging are built in.
+- Key material is issued through `KeyVault` providers.
+- Supported providers: **OpenBao**, **HashiCorp Vault**, **AWS KMS**, **Azure Key Vault**.
 
-   - Modular “Template Agents” (nicknamed _Mon_) can be plugged into workflows.
-   - Supports domain-specific AI customization (finance, healthcare, legal, etc.).
+---
+
+## 🛡️ Governance and Access Control
+
+- Role-based controls are applied to settings, API keys, MCP, bots, and user management.
+- Route-level authorization is enforced through auth and role filters.
+- Central settings APIs cover users, bots/internal bots, webhooks, API keys, MCP tool groups, and global relationships.
 
 ---
 
 ## 🏗️ Architecture
 
-- **Frontend:** Kanban-style board, real-time collaboration.
-- **Backend:** Langboard Orchestrator → LangGraph (planned) → LangChain / LangFlow / external AI tools.
-- **Human-in-the-loop:** Interrupt gates at predefined workflow steps.
-- **Integrations:** External APIs, vector databases, and custom tools.
-- **Deployment:** SaaS, On-premises (VPC), or Full On-premises with network isolation.
+Langboard combines five operational layers:
+
+- **Workspace layer**: board-centric collaboration and AI-assisted editing UI.
+- **Application layer**: API and Socket services for orchestration and real-time events.
+- **Flow layer**: Langflow runtime service for flow execution and webhooks.
+- **Tool layer**: MCP gateway with role-aware tool access and tool-group boundaries.
+- **Data and security layer**: PostgreSQL (+ replica/PgBouncer), Redis, Kafka, and KeyVault providers.
+
+---
+
+## 🚚 Deployment Options
+
+Langboard ships as a containerized stack with core services for `server`, `ui`, `api`, `socket`, `flows`, and `celeryworker`.
+
+- Data and messaging services: PostgreSQL, PgBouncer, Redis, Kafka.
+- Optional services: OpenBao (`KEY_PROVIDER_TYPE=openbao-local`) and Ollama CPU/GPU profiles.
 
 ---
 
 ## 🆚 Differentiation
 
-- **vs Palantir**: Langboard is not a closed black-box platform for governments/enterprises. It’s modular, source-available, and customizable for any organization.
-- **vs DeepAuto**: DeepAuto focuses on full automation (Query Router, LongContext AI). Langboard emphasizes human approval and governance.
-- **vs LangChain (library)**: Langboard provides a **UI-driven orchestration layer** with Kanban visualization and collaboration.
-- **vs Flowise / LangFlow (open-source UI)**: These tools are great for prototyping, but lack enterprise features such as RBAC, audit logs, SSO, and approval gates. Langboard extends them into a production-grade solution.
+- **vs raw AI libraries**: Langboard adds a collaborative workspace and governance controls, not just SDK primitives.
+- **vs standalone flow builders**: Langboard keeps Langflow compatibility while adding user roles, API key governance, and MCP policy boundaries.
+- **vs generic automation tools**: Langboard is built around board collaboration plus AI execution, not only background jobs.
 
 ---
 
@@ -110,11 +132,8 @@ Langboard is distributed under a **source-available license inspired by Elastic 
 
 - ✅ Internal use: free and unlimited.
 - ❌ No SaaS resale: cannot be offered as a hosted service without a commercial license.
-- ⚖️ Commercial license required: for SaaS, resale, or bundled enterprise products.
-- 🌐 GitHub Sponsors supported: sponsorship is voluntary support, not a substitute for a license.
-
-> **Special Clause (valid until April 30, 2025):**
-> Organizations subscribing to the **lowest-tier paid plan via GitHub Sponsors** before April 30, 2025, are eligible for a **3-year fixed-price commercial license** at the current plan rate, protected against future price increases.
+- ⚖️ Commercial license required: for SaaS, resale, or bundled enterprise offerings.
+- 🌐 GitHub Sponsors support is voluntary and does not replace a commercial license.
 
 See [LICENSE](./LICENSE) for full details.
 
@@ -124,7 +143,7 @@ See [LICENSE](./LICENSE) for full details.
 
 Contributions are welcome!
 
-- Fork the repo and submit pull requests.
+- Fork the repository and submit pull requests.
 - Report issues and request features.
 - Participate in discussions and share workflow templates.
 
@@ -135,11 +154,8 @@ Please follow our [contribution guidelines](./CONTRIBUTING.md).
 ## ❤️ Sponsorship
 
 Langboard development is sustained through **GitHub Sponsors**.
-If you find Langboard valuable, please consider supporting us:
 
 👉 [Sponsor Langboard on GitHub](https://github.com/sponsors/yamonco)
-
-Sponsors may receive acknowledgments, early previews, or priority feedback opportunities.
 
 ---
 
@@ -148,11 +164,3 @@ Sponsors may receive acknowledgments, early previews, or priority feedback oppor
 For **commercial license inquiries**, **enterprise deployment**, or **partnerships**, please reach out to:
 
 📩 [yamon@yamon.io](mailto:yamon@yamon.io)
-
----
-
-🔥 With Langboard, you get the **efficiency of AI agents + the reliability of human governance** — all in one orchestration platform.
-
----
-
-Would you like me to **package this README with LICENSE.md** into a polished GitHub repo starter (ready-to-push format)? That way you can drop it directly into your Langboard repository.

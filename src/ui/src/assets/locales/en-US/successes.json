@@ -1,7 +1,5 @@
 {
   "Role updated successfully.": "Role updated successfully.",
-  "All permissions granted.": "All permissions granted.",
-  "All permissions revoked.": "All permissions revoked.",
   "Column added successfully.": "Column added successfully.",
   "Chat session renamed successfully.": "Chat session renamed successfully.",
   "Chat session deleted successfully.": "Chat session deleted successfully.",
@@ -48,7 +46,6 @@
   "Assigned members updated and invited new users successfully.": "Assigned members updated and invited new users successfully.",
   "Column name changed successfully.": "Column name changed successfully.",
   "Column deleted successfully.": "Column deleted successfully.",
-  "Assigned bots updated successfully.": "Assigned bots updated successfully.",
   "Member roles updated successfully.": "Member roles updated successfully.",
   "Internal bot changed successfully.": "Internal bot changed successfully.",
   "Internal bot settings changed successfully.": "Internal bot settings changed successfully.",
@@ -73,6 +70,8 @@
   "User deleted successfully.": "User deleted successfully.",
   "User first name changed successfully.": "User first name changed successfully.",
   "User last name changed successfully.": "User last name changed successfully.",
+  "User admin status changed successfully.": "User admin status changed successfully.",
+  "User setting roles updated successfully.": "User setting roles updated successfully.",
   "Bot created successfully.": "Bot created successfully.",
   "Bot avatar uploaded successfully.": "Bot avatar uploaded successfully.",
   "Bot avatar changed successfully.": "Bot avatar changed successfully.",
@@ -83,7 +82,6 @@
   "Bot platform changed successfully.": "Bot platform changed successfully.",
   "Bot platform running type changed successfully.": "Bot platform running type changed successfully.",
   "Bot IP whitelist changed successfully.": "Bot IP whitelist changed successfully.",
-  "Bot prompt changed successfully.": "Bot prompt changed successfully.",
   "Bot API key changed successfully.": "Bot API key changed successfully.",
   "Bot App API token generated successfully.": "Bot App API token generated successfully.",
   "Bot trigger condition changed successfully.": "Bot trigger condition changed successfully.",
@@ -117,10 +115,10 @@
   "MCP tool group description changed successfully.": "MCP tool group description changed successfully.",
   "MCP tool group tools changed successfully.": "MCP tool group tools updated successfully.",
   "MCP tool group deleted successfully.": "MCP tool group deleted successfully.",
+  "Selected MCP tool groups deleted successfully.": "Selected MCP tool groups deleted successfully.",
   "Content changed successfully.": "Content changed successfully.",
   "New wiki page created successfully.": "New wiki page created successfully.",
   "Wiki page deleted successfully.": "Wiki page deleted successfully.",
   "Public state changed successfully.": "Public state changed successfully.",
-  "Assigned bots and members updated successfully.": "Assigned bots and members updated successfully.",
-  "Model deleted successfully.": "Model deleted successfully."
+  "Assigned bots and members updated successfully.": "Assigned bots and members updated successfully."
 }

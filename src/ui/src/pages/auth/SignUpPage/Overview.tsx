@@ -85,7 +85,7 @@ function Overview({ values, moveStep }: Omit<ISignUpFormProps, "initialErrorsRef
         if (key === "industry") {
             return t(`user.industries.${value}`);
         } else if (key === "purpose") {
-            return t(`auth.purposes.${value}`);
+            return t(`user.purposes.${value}`);
         } else {
             return value;
         }

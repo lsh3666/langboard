@@ -75,7 +75,7 @@ function McpToolGroupDetailsDisplay() {
                     <h3 className="text-sm font-semibold">{t("mcp.MCP Server Configuration")}</h3>
                     <Button variant="outline" size="sm" className="gap-2" onClick={handleCopy}>
                         <IconComponent icon={copied ? "check" : "copy"} size="4" />
-                        {t(copied ? "common.Copied." : "mcp.Copy Config")}
+                        {t(copied ? "common.Copied." : "mcp.Copy config")}
                     </Button>
                 </Flex>
 

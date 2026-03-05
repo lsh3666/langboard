@@ -46,7 +46,7 @@ function BoardSettingsChatTemplateMoreMenuEdit() {
         });
 
         Toast.Add.promise(promise, {
-            loading: t("project.settings.Updating..."),
+            loading: t("common.Updating..."),
             error: (error) => {
                 const messageRef = { message: "" };
                 const { handle } = setupApiErrorHandler({}, messageRef);

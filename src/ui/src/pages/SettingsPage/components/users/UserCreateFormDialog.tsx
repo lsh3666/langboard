@@ -180,7 +180,7 @@ function UserCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps):
                                 <Input type="hidden" name="industry" ref={industryInputRef} />
                                 <AutoComplete
                                     onValueChange={setIndustry}
-                                    items={User.INDUSTRIES.map((industry) => ({ value: industry, label: t(`auth.industries.${industry}`) }))}
+                                    items={User.INDUSTRIES.map((industry) => ({ value: industry, label: t(`user.industries.${industry}`) }))}
                                     emptyMessage={industryRef.current ?? ""}
                                     disabled={isValidating}
                                     placeholder={t("user.What industry are you in?")}
@@ -194,7 +194,7 @@ function UserCreateFormDialog({ opened, setOpened }: ISharedSettingsModalProps):
                                 <Input type="hidden" name="purpose" ref={purposeInputRef} />
                                 <AutoComplete
                                     onValueChange={setPurpose}
-                                    items={User.PURPOSES.map((purpose) => ({ value: purpose, label: t(`auth.purposes.${purpose}`) }))}
+                                    items={User.PURPOSES.map((purpose) => ({ value: purpose, label: t(`user.purposes.${purpose}`) }))}
                                     emptyMessage={purposeRef.current ?? ""}
                                     disabled={isValidating}
                                     placeholder={t("user.What is your purpose for using {app}?")}
