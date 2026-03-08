@@ -31,6 +31,13 @@ if [ -z "${POSTGRES_EXTERNAL_MAIN_URL}" ]; then
     COMPOSE_ARGS+=" -f ${COMPOSE_PREFIX}.pg.yaml"
 fi
 
+# Backup service is enabled by default
+WITH_DB_BACKUP="${WITH_DB_BACKUP:-true}"
+WITH_DB_BACKUP="${WITH_DB_BACKUP,,}"
+if [ "${WITH_DB_BACKUP}" = "true" ]; then
+    COMPOSE_ARGS+=" -f ${COMPOSE_PREFIX}.backup.yaml"
+fi
+
 COMPOSE_ARGS+=" -f ${COMPOSE_PREFIX}.redis.yaml -f ${COMPOSE_PREFIX}.server.yaml --env-file ./.env"
 
 # Optional compose args

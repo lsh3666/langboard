@@ -60,6 +60,12 @@ if ([string]::IsNullOrEmpty($env:POSTGRES_EXTERNAL_MAIN_URL)) {
     $COMPOSE_ARGS += " -f ${COMPOSE_PREFIX}.pg.yaml"
 }
 
+# Backup service is enabled by default
+$withDbBackup = if ([string]::IsNullOrEmpty($env:WITH_DB_BACKUP)) { "true" } else { $env:WITH_DB_BACKUP.ToLowerInvariant() }
+if ($withDbBackup -eq "true") {
+    $COMPOSE_ARGS += " -f ${COMPOSE_PREFIX}.backup.yaml"
+}
+
 $COMPOSE_ARGS += " -f ${COMPOSE_PREFIX}.redis.yaml -f ${COMPOSE_PREFIX}.server.yaml --env-file .\.env"
 
 # Optional compose args

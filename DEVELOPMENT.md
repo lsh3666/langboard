@@ -287,6 +287,8 @@ make stop_docker WITH_DOCS=true WITH_UI_WATCHER=true WITH_OLLAMA_GPU=true
 | DB_TCP_USER_TIMEOUT                    | **int (Optional)**    | Default: `1000`<br>Value must be set in milliseconds                                                                                     |
 | POSTGRES_EXTERNAL_MAIN_URL             | **string (Optional)** | External primary PostgreSQL URL (`postgresql://...`). If set, Docker Postgres services are skipped and this becomes `MAIN_DATABASE_URL`. |
 | POSTGRES_EXTERNAL_REPLICA_URL          | **string (Optional)** | External read-only PostgreSQL URL (`postgresql://...`). Fallback: `REPLICA` -> `MAIN` -> internal readonly URL.                          |
+| DB_BACKUP_UPLOAD_URL                   | **string (Optional)** | If set, db-backup uploads generated `.tar.gz` files to this URL after saving locally.                                                    |
+| DB_BACKUP_UPLOAD_HEADERS               | **string (Optional)** | Optional HTTP headers for backup upload. Multiple headers are separated by `\|`. Example: `Authorization: Bearer token\|X-Api-Key: key`. |
 | POSTGRES_USER                          | **string**            | Used to run docker to build `postgresql`                                                                                                 |
 | POSTGRES_PASSWORD                      | **string**            |                                                                                                                                          |
 | POSTGRES_REPLICATION_USER              | **string**            |                                                                                                                                          |

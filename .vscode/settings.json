@@ -12,9 +12,8 @@
     "source.fixAll": "always"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "javascript.format.enable": false,
-  "typescript.format.enable": false,
-  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.format.enabled": false,
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
   "python.analysis.importFormat": "relative",
   "tailwindCSS.experimental.configFile": "./src/ui/tailwind.config.js",
   "ruff.codeAction.disableRuleComment": {
@@ -49,5 +48,8 @@
   },
   "[yaml]": {
     "editor.indentSize": 2
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

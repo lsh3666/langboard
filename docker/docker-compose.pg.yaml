@@ -73,25 +73,6 @@ services:
       - db
     restart: always
 
-  db-backup:
-    init: true
-    build:
-      context: ./db_backup
-    container_name: ${PROJECT_NAME}_db_backup
-    env_file:
-      - ./envs/.db_backup.env
-    volumes:
-      - ./volumes/db_backup:/backup
-      - ./db_backup/backup.sh:/scripts/backup.sh
-      - ./envs/.db_backup.env:/scripts/.env
-      - ./db_backup/cron.tab:/etc/cron.d/cron.tab
-      - ./volumes/logs/db_backup:/logs:rw
-    networks:
-      - net
-    depends_on:
-      - db
-    restart: always
-
 volumes:
   pgdata:
     driver: local

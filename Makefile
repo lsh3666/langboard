@@ -1,7 +1,7 @@
 .PHONY: help init format lint start_docker stop_docker rebuild_docker update_docker
 
 # Function to get compose args from script
-get_compose_args = $(shell bash scripts/utils/get-compose-args.sh)
+get_compose_args = $(shell WITH_DOCS=$(WITH_DOCS) WITH_UI_WATCHER=$(WITH_UI_WATCHER) WITH_OLLAMA_CPU=$(WITH_OLLAMA_CPU) WITH_OLLAMA_GPU=$(WITH_OLLAMA_GPU) WITH_DB_BACKUP=$(WITH_DB_BACKUP) bash scripts/utils/get-compose-args.sh)
 
 UI_DIR := src/ui
 PY_CORE_DIR := src/shared/py
@@ -21,6 +21,7 @@ WITH_DOCS ?= false
 WITH_UI_WATCHER ?= false
 WITH_OLLAMA_CPU ?= false
 WITH_OLLAMA_GPU ?= false
+WITH_DB_BACKUP ?= true
 
 # Get compose args from script
 COMPOSE_ARGS := $(call get_compose_args)
