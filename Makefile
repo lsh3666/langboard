@@ -27,9 +27,6 @@ WITH_DB_BACKUP ?= true
 COMPOSE_ARGS := $(call get_compose_args)
 
 
-asdf:
-	@echo $(COMPOSE_ARGS)
-
 check_tools:
 	@command -v yarn >/dev/null 2>&1 || { echo >&2 "$(RED)Yarn is not installed. Aborting.$(NC)"; exit 1; }
 	@command -v docker >/dev/null 2>&1 || { echo >&2 "$(RED)Docker is not installed. Aborting.$(NC)"; exit 1; }
