@@ -1,4 +1,5 @@
-import { Checkbox, Table } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Table from "@/components/base/Table";
 import { IFlexProps } from "@/components/base/Flex";
 import { GlobalRelationshipType } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

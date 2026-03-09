@@ -1,4 +1,7 @@
-import { Checkbox, Flex, Label, Toast } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Label from "@/components/base/Label";
+import Toast from "@/components/base/Toast";
 import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
 import useUpdateProjectUserRoles from "@/controllers/api/board/settings/useUpdateProjectUserRoles";

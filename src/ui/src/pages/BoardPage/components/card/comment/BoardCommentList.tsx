@@ -1,4 +1,5 @@
-import { Box, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import useGetCardComments from "@/controllers/api/card/comment/useGetCardComments";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

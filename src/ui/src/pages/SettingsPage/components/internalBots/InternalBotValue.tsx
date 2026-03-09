@@ -1,4 +1,6 @@
-import { Alert, Box, Toast } from "@/components/base";
+import Alert from "@/components/base/Alert";
+import Box from "@/components/base/Box";
+import Toast from "@/components/base/Toast";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";

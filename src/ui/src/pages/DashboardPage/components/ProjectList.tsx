@@ -1,7 +1,7 @@
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 import ProjectItem, { SkeletonProjectItem } from "@/pages/DashboardPage/components/ProjectItem";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import { Project } from "@/core/models";
 import useInfiniteScrollPager from "@/core/hooks/useInfiniteScrollPager";
 import { memo } from "react";

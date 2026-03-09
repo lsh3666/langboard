@@ -1,4 +1,5 @@
-import { Breadcrumb, Flex } from "@/components/base";
+import Breadcrumb from "@/components/base/Breadcrumb";
+import Flex from "@/components/base/Flex";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { BotModel } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

@@ -1,4 +1,15 @@
-import { Avatar, Box, Button, Checkbox, Dialog, Flex, Floating, IconComponent, Label, Select, SubmitButton, Toast } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Label from "@/components/base/Label";
+import Select from "@/components/base/Select";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useChangeProjectInternalBot from "@/controllers/api/board/settings/useChangeProjectInternalBot";
 import useChangeProjectInternalBotSettings from "@/controllers/api/board/settings/useChangeProjectInternalBotSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

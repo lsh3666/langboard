@@ -8,7 +8,7 @@ import { ToolbarButton } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";
 import { DropdownMenuProps } from "@radix-ui/react-dropdown-menu";
 import { useEditorRef } from "platejs/react";
-import { DropdownMenu } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
 
 export function LinkToolbarButton(props: DropdownMenuProps) {
     const [t] = useTranslation();

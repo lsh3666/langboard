@@ -1,4 +1,10 @@
-import { Button, Flex, Floating, IconComponent, Popover, SubmitButton, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useCreateCardChecklist from "@/controllers/api/card/checklist/useCreateCardChecklist";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ProjectRole } from "@/core/models/roles";

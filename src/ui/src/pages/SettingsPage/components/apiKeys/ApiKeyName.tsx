@@ -1,4 +1,8 @@
-import { Box, Flex, IconComponent, Input, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Toast from "@/components/base/Toast";
 import { ApiKeySettingModel } from "@/core/models";
 import { ApiKeyRole } from "@/core/models/roles";
 import useUpdateApiKey from "@/controllers/api/settings/apiKeys/useUpdateApiKey";

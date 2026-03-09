@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/base";
+import Skeleton from "@/components/base/Skeleton";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 
 export function SkeletonBoardCardColumnName() {

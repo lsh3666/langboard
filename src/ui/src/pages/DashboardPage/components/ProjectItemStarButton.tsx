@@ -1,4 +1,5 @@
-import { Button, IconComponent } from "@/components/base";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
 import useToggleStarProject from "@/controllers/api/dashboard/useToggleStarProject";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

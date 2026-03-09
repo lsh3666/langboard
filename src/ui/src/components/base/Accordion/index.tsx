@@ -48,4 +48,4 @@ const Content = React.forwardRef<
 
 Content.displayName = AccordionPrimitive.Content.displayName;
 
-export { Content, Item, Root, Trigger };
+export default { Content, Item, Root, Trigger };

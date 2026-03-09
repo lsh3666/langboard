@@ -1,4 +1,4 @@
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import { TSharedInfiniteScrollerProps } from "@/components/InfiniteScroller/types";
 import useInfiniteScrollerLoaderObserver from "@/components/InfiniteScroller/useInfiniteScrollerLoaderObserver";
 import { Utils } from "@langboard/core/utils";

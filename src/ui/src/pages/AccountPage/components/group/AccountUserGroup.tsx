@@ -1,5 +1,9 @@
 import MultiSelectAssignee, { IFormProps, TSaveHandler } from "@/components/MultiSelectAssignee";
-import { Box, Card, Flex, Skeleton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import Skeleton from "@/components/base/Skeleton";
+import Toast from "@/components/base/Toast";
 import { EMAIL_REGEX } from "@/constants";
 import useUpdateUserGroupAssignedEmails from "@/controllers/api/account/useUpdateUserGroupAssignedEmails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

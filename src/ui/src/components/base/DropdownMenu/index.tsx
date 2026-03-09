@@ -233,7 +233,7 @@ const useOpenState = () => {
     };
 };
 
-export {
+export default {
     CheckboxItem,
     Content,
     Group,

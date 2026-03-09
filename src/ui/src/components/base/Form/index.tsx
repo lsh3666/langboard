@@ -670,6 +670,14 @@ const Message = FormMessage;
 const ValidityState = FormValidityState;
 const Submit = FormSubmit;
 
-export { Control, createFormScope, Field, Label, Message, Root, Submit, ValidityState };
-
+export default {
+    Control,
+    createFormScope,
+    Field,
+    Label,
+    Message,
+    Root,
+    Submit,
+    ValidityState,
+};
 export type { FormControlProps, FormFieldProps, FormLabelProps, FormMessageProps, FormProps, FormSubmitProps, FormValidityStateProps };

@@ -1,4 +1,5 @@
-import { ColorPicker, Toast } from "@/components/base";
+import ColorPicker from "@/components/base/ColorPicker";
+import Toast from "@/components/base/Toast";
 import useChangeProjectLabelDetails from "@/controllers/api/board/settings/useChangeProjectLabelDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

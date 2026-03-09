@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from "react-i18next";
-import { Box, Button, Checkbox, Dialog, Floating, Form, Label, SubmitButton, Toast, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Dialog from "@/components/base/Dialog";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Label from "@/components/base/Label";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { useEffect, useRef, useState } from "react";
 import useCreateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useCreateMcpToolGroup";

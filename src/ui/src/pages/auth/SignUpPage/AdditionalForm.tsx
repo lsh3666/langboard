@@ -1,7 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import FormErrorMessage from "@/components/FormErrorMessage";
-import { AutoComplete, Button, Flex, Form, Input, SubmitButton } from "@/components/base";
+import AutoComplete from "@/components/base/AutoComplete";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
+import SubmitButton from "@/components/base/SubmitButton";
 import { ISignUpForm } from "@/controllers/api/auth/useSignUp";
 import useForm from "@/core/hooks/form/useForm";
 import { User } from "@/core/models";

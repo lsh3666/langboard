@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosError, isAxiosError } from "axios";
 import { t } from "i18next";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { Utils } from "@langboard/core/utils";
 import { EHttpStatus } from "@langboard/core/enums";
 

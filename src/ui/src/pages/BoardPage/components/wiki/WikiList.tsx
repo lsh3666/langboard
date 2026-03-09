@@ -1,5 +1,9 @@
-import { Box, Button, Flex, IconComponent, Skeleton, Tabs } from "@/components/base";
-import { useTabsContext } from "@/components/base/Tabs";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
+import Tabs from "@/components/base/Tabs";
 import useGrabbingScrollHorizontal from "@/core/hooks/useGrabbingScrollHorizontal";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { useBoardWiki } from "@/core/providers/BoardWikiProvider";
@@ -53,7 +57,7 @@ interface IWikiListDisplayProps {
 function WikiListDisplay({ wikiUID }: IWikiListDisplayProps) {
     const [t] = useTranslation();
     const { wikis, canAccessWiki, modeType, setModeType, wikiTabListId } = useBoardWiki();
-    const { updateUI } = useTabsContext();
+    const { updateUI } = Tabs.useTabsContext();
     const { onPointerDown } = useGrabbingScrollHorizontal(wikiTabListId);
     const handleDeleteMode = useCallback(() => {
         setModeType(modeType === "delete" ? "view" : "delete");

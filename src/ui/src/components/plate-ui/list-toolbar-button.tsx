@@ -6,7 +6,7 @@ import { List, ListOrdered, ListTodoIcon } from "lucide-react";
 import { ToolbarButton, ToolbarSplitButton, ToolbarSplitButtonPrimary, ToolbarSplitButtonSecondary } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";
 import { useEditorRef, useEditorSelector } from "platejs/react";
-import { DropdownMenu } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
 import { useIndentTodoToolBarButton, useIndentTodoToolBarButtonState } from "@platejs/list/react";
 
 const INDENT_LIST = [

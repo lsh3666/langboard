@@ -1,4 +1,7 @@
-import { Checkbox, Flex, Toast, Tooltip } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import useUpdateUserInSettings from "@/controllers/api/settings/users/useUpdateUserInSettings";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";

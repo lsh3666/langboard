@@ -1,4 +1,8 @@
-import { Button, Flex, Popover, SubmitButton, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import BotScheduleListItemForm, { IBotScheduleTriggersMap } from "@/components/bots/BotScheduleList/ItemForm";
 import { IBotScheduleFormMap, useBotScheduleList } from "@/components/bots/BotScheduleList/Provider";
 import useScheduleBotCron from "@/controllers/api/shared/botSchedules/useScheduleBotCron";

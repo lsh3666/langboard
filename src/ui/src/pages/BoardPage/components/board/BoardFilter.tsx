@@ -1,4 +1,13 @@
-import { Button, Checkbox, DropdownMenu, Flex, IconComponent, Input, Label, Popover, ScrollArea, Skeleton } from "@/components/base";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Label from "@/components/base/Label";
+import Popover from "@/components/base/Popover";
+import ScrollArea from "@/components/base/ScrollArea";
+import Skeleton from "@/components/base/Skeleton";
 import UserAvatar from "@/components/UserAvatar";
 import { IFilterMap, useBoard } from "@/core/providers/BoardProvider";
 import { ROUTES } from "@/core/routing/constants";

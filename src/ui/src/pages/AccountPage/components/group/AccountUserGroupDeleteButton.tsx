@@ -1,4 +1,6 @@
-import { Button, IconComponent, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Toast from "@/components/base/Toast";
 import useDeleteUserGroup from "@/controllers/api/account/useDeleteUserGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { UserGroup } from "@/core/models";

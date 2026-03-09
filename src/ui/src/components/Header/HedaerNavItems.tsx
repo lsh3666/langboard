@@ -1,5 +1,7 @@
 import { IHeaderNavItem, THeaderNavItemsProps } from "@/components/Header/types";
-import { Accordion, DropdownMenu, NavigationMenu } from "@/components/base";
+import Accordion from "@/components/base/Accordion";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import NavigationMenu from "@/components/base/NavigationMenu";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef, useState } from "react";

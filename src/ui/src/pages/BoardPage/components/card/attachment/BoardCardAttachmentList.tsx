@@ -1,4 +1,6 @@
-import { Button, Collapsible, Flex } from "@/components/base";
+import Button from "@/components/base/Button";
+import Collapsible from "@/components/base/Collapsible";
+import Flex from "@/components/base/Flex";
 import ImagePreviewDialog from "@/components/ImagePreviewDialog";
 import useChangeCardAttachmentOrder from "@/controllers/api/card/attachment/useChangeCardAttachmentOrder";
 import { singleDndHelpers } from "@/core/helpers/dnd";

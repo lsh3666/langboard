@@ -1,4 +1,11 @@
-import { Box, Button, Collapsible, Dialog, Flex, IconComponent, ScrollArea, Textarea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Collapsible from "@/components/base/Collapsible";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import ScrollArea from "@/components/base/ScrollArea";
+import Textarea from "@/components/base/Textarea";
 import useGetProjectChatTemplates from "@/controllers/api/board/chat/useGetProjectChatTemplates";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ChatTemplateModel } from "@/core/models";

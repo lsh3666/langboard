@@ -1,4 +1,5 @@
-import { Box, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
 import { useTranslation } from "react-i18next";
 import { BotTriggerConditionListProvider, useBotTriggerConditionList } from "@/components/bots/BotTriggerConditionList/Provider";
 import BotTriggerCondition from "@/components/bots/BotTriggerConditionList/Condition";

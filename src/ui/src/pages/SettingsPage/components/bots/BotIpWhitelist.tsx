@@ -1,4 +1,7 @@
-import { Checkbox, Flex, Label, Toast } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Label from "@/components/base/Label";
+import Toast from "@/components/base/Toast";
 import MultiSelect from "@/components/MultiSelect";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

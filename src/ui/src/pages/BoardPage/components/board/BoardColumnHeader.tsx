@@ -1,4 +1,4 @@
-import { Card } from "@/components/base";
+import Card from "@/components/base/Card";
 import { ProjectColumn } from "@/core/models";
 import BoardColumnMoreMenu from "@/pages/BoardPage/components/board/BoardColumnMoreMenu";
 import BoardColumnName from "@/pages/BoardPage/components/board/BoardColumnName";

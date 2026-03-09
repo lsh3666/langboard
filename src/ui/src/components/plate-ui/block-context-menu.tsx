@@ -6,7 +6,7 @@ import { AIChatPlugin } from "@platejs/ai/react";
 import { KEYS } from "platejs";
 import { BLOCK_CONTEXT_MENU_ID, BlockMenuPlugin, BlockSelectionPlugin, useBlockSelectionNodes } from "@platejs/selection/react";
 import { useIsTouchDevice } from "@/core/hooks/useIsTouchDevice";
-import { ContextMenu } from "@/components/base";
+import ContextMenu from "@/components/base/ContextMenu";
 import { TableCellPlugin, TablePlugin, TableRowPlugin } from "@platejs/table/react";
 import { useTranslation } from "react-i18next";
 

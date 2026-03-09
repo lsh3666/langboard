@@ -1,4 +1,7 @@
-import { Box, Button, Dialog, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Toast from "@/components/base/Toast";
 import React from "react";
 import { t } from "i18next";
 

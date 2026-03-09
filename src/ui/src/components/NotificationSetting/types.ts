@@ -1,4 +1,4 @@
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { ILucideIconProps } from "@/components/base/IconComponent";
 import { TToggleSpecificScopedNotificationSettingsForm } from "@/controllers/api/notification/settings/types";
 import { AuthUser } from "@/core/models";

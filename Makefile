@@ -187,6 +187,9 @@ init_env: ## initialize the .env file from .env.example if it does not exist
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
 	fi
+	@if [ ! -d ./docker/volumes ]; then \
+		mkdir -p ./docker/volumes; \
+	fi
 	@if [ ! -f ./docker/volumes/.vault-credentials ]; then \
 		touch ./docker/volumes/.vault-credentials; \
 	fi

@@ -17,7 +17,9 @@ import { PlateElement, useEditorRef, useEditorSelector, useElement, useFocusedLa
 import debounce from "lodash/debounce.js";
 import { Trash2, DownloadIcon } from "lucide-react";
 import { useIsMobile } from "@/core/hooks/useIsMobile";
-import { Button, Popover, Select } from "@/components/base";
+import Button from "@/components/base/Button";
+import Popover from "@/components/base/Popover";
+import Select from "@/components/base/Select";
 import { useTranslation } from "react-i18next";
 
 function useCodeDrawingElement({ element }: { element: TCodeDrawingElement }) {

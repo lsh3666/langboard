@@ -1,4 +1,8 @@
-import { Box, Button, Flex, IconComponent, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
 import CachedImage from "@/components/CachedImage";
 import { singleDndHelpers } from "@/core/helpers/dnd";
 import { SINGLE_ROW_IDLE } from "@/core/helpers/dnd/createDndSingleRowEvents";

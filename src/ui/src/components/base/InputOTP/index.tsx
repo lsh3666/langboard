@@ -57,4 +57,12 @@ const Separator = React.forwardRef<React.ComponentRef<"div">, React.ComponentPro
 ));
 Separator.displayName = "InputOTPSeparator";
 
-export { Group, REGEXP_ONLY_CHARS, REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS, Root, Separator, Slot };
+export default {
+    Group,
+    REGEXP_ONLY_CHARS,
+    REGEXP_ONLY_DIGITS,
+    REGEXP_ONLY_DIGITS_AND_CHARS,
+    Root,
+    Separator,
+    Slot,
+};

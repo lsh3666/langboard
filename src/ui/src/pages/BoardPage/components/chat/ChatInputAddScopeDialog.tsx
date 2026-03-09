@@ -1,4 +1,9 @@
-import { Button, Dialog, Flex, IconComponent, Input, Tabs } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Tabs from "@/components/base/Tabs";
 import { ProjectCard, ProjectColumn, ProjectWiki } from "@/core/models";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";
 import { TBoardViewType, useBoardController } from "@/core/providers/BoardController";

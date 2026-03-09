@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, DataTable } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import DataTable from "@/components/base/DataTable";
 import { TDataTableColumn } from "@/components/base/DataTable/types";
 import { TGetListForm } from "@/controllers/api/shared/types";
 import { IUseGetPaginatedListProps } from "@/controllers/api/shared/useGetPaginatedList";

@@ -1,4 +1,5 @@
-import { SubmitButton, Toast } from "@/components/base";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useCreateUserGroup from "@/controllers/api/account/useCreateUserGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";

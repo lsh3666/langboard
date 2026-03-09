@@ -1,5 +1,8 @@
 import ActivityList from "@/components/ActivityList";
-import { Box, Button, IconComponent, Popover } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";

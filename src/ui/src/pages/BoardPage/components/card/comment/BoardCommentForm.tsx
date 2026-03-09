@@ -1,4 +1,10 @@
-import { Box, Button, Drawer, Flex, Form, Skeleton, SubmitButton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Drawer from "@/components/base/Drawer";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import Skeleton from "@/components/base/Skeleton";
+import SubmitButton from "@/components/base/SubmitButton";
 import UserAvatar from "@/components/UserAvatar";
 import { useTranslation } from "react-i18next";
 import { memo, useCallback, useMemo, useRef, useState, useEffect } from "react";

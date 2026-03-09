@@ -4,7 +4,7 @@ import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { To } from "react-router";
 import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import { ROUTES } from "@/core/routing/constants";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { useTranslation } from "react-i18next";
 import { useBoardController } from "@/core/providers/BoardController";
 import useSearchFilters, { ISearchFilterMap } from "@/core/hooks/useSearchFilters";

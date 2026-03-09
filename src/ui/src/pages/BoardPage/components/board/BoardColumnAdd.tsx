@@ -1,4 +1,8 @@
-import { Box, Button, Card, ScrollArea, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Card from "@/components/base/Card";
+import ScrollArea from "@/components/base/ScrollArea";
+import Toast from "@/components/base/Toast";
 import useCreateProjectColumn from "@/controllers/api/board/useCreateProjectColumn";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

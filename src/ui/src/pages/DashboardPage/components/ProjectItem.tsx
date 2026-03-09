@@ -1,6 +1,8 @@
 import { memo, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, Flex, Skeleton } from "@/components/base";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import Skeleton from "@/components/base/Skeleton";
 import { ROUTES } from "@/core/routing/constants";
 import { Utils } from "@langboard/core/utils";
 import { Project, ProjectColumn } from "@/core/models";

@@ -182,7 +182,7 @@ const Shortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>
 };
 Shortcut.displayname = "MenubarShortcut";
 
-export {
+export default {
     CheckboxItem,
     Content,
     Group,

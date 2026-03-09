@@ -12,7 +12,7 @@ import {
     AlertDialogTitle,
 } from "@/components/plate-ui/alert-dialog";
 import { useTranslation } from "react-i18next";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 
 export interface IInternalLinkElementProps {
     isOpened: bool;

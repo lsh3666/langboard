@@ -1,4 +1,9 @@
-import { Button, DateTimePicker, Flex, Floating, IconComponent, Select } from "@/components/base";
+import Button from "@/components/base/Button";
+import DateTimePicker from "@/components/base/DateTimePicker";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Select from "@/components/base/Select";
 import { IBotScheduleFormMap } from "@/components/bots/BotScheduleList/Provider";
 import Cron from "@/components/Cron";
 import { BaseBotScheduleModel } from "@/core/models";

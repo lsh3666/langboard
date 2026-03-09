@@ -4,7 +4,7 @@ import type { TTagElement } from "platejs";
 import type { PlateElementProps } from "platejs/react";
 import { PlateElement, useFocused, useReadOnly, useSelected } from "platejs/react";
 import { cn } from "@/core/utils/ComponentUtils";
-import { IconComponent } from "@/components/base";
+import IconComponent from "@/components/base/IconComponent";
 import { MultiSelectPlugin } from "@platejs/tag/react";
 
 export type TTagElementProps = {

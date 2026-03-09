@@ -8,4 +8,8 @@ const Trigger = CollapsiblePrimitive.CollapsibleTrigger;
 
 const Content = CollapsiblePrimitive.CollapsibleContent;
 
-export { Root, Trigger, Content };
+export default {
+    Root,
+    Trigger,
+    Content,
+};

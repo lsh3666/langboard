@@ -4,7 +4,8 @@ import ApiKeyName from "@/pages/SettingsPage/components/apiKeys/ApiKeyName";
 import ApiKeyActivation from "@/pages/SettingsPage/components/apiKeys/ApiKeyActivation";
 import ApiKeyCreatedAt from "@/pages/SettingsPage/components/apiKeys/ApiKeyCreatedAt";
 import ApiKeyMoreMenu from "@/pages/SettingsPage/components/apiKeys/ApiKeyMoreMenu";
-import { Checkbox, Flex } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
 import { Utils } from "@langboard/core/utils";
 
 export interface IApiKeyListProps {

@@ -1,4 +1,6 @@
-import { Button, Flex, IconComponent } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
 

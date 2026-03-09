@@ -1,6 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { Fragment } from "react/jsx-runtime";
-import { Badge, Box, Card, Flex, IconComponent, Separator, Skeleton, SubmitButton, Toast } from "@/components/base";
+import Badge from "@/components/base/Badge";
+import Box from "@/components/base/Box";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Separator from "@/components/base/Separator";
+import Skeleton from "@/components/base/Skeleton";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useAddNewEmail from "@/controllers/api/account/useAddNewEmail";
 import useDeleteSubEmail from "@/controllers/api/account/useDeleteSubEmail";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

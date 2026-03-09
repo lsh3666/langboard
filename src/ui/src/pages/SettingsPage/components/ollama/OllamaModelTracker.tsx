@@ -1,4 +1,9 @@
-import { Box, Flex, Progress, Separator, Toast, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Progress from "@/components/base/Progress";
+import Separator from "@/components/base/Separator";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import useGetOllamaModelList from "@/controllers/api/settings/ollama/useGetOllamaModelList";
 import usePullOllamaModelHandlers from "@/controllers/socket/settings/ollama/usePullOllamaModelHandlers";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";

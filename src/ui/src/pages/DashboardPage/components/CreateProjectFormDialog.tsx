@@ -1,6 +1,12 @@
 import { useTranslation } from "react-i18next";
 import FormErrorMessage from "@/components/FormErrorMessage";
-import { AutoComplete, Button, Dialog, Floating, Form, Input, SubmitButton } from "@/components/base";
+import AutoComplete from "@/components/base/AutoComplete";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
+import SubmitButton from "@/components/base/SubmitButton";
 import useCreateProject from "@/controllers/api/dashboard/useCreateProject";
 import useForm from "@/core/hooks/form/useForm";
 import { Project } from "@/core/models";

@@ -1,4 +1,5 @@
-import { SubmitButton, Toast } from "@/components/base";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useCreateProjectLabel from "@/controllers/api/board/settings/useCreateProjectLabel";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";

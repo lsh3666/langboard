@@ -1,4 +1,9 @@
-import { Button, DateTimePicker, Flex, IconComponent, Skeleton, SubmitButton } from "@/components/base";
+import Button from "@/components/base/Button";
+import DateTimePicker from "@/components/base/DateTimePicker";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
+import SubmitButton from "@/components/base/SubmitButton";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ProjectRole } from "@/core/models/roles";

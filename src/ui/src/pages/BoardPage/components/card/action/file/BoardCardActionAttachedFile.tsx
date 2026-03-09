@@ -1,4 +1,8 @@
-import { Box, Button, Flex, IconComponent, Progress } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Progress from "@/components/base/Progress";
 import useUploadCardAttachment from "@/controllers/api/card/attachment/useUploadCardAttachment";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { Utils } from "@langboard/core/utils";

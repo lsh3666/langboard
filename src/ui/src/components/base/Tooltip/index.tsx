@@ -79,4 +79,12 @@ function withTooltip<T extends React.ElementType>(Component: T) {
     };
 }
 
-export { DEFAULT_DURATION, Content, Provider, Root, Trigger, Portal, withTooltip };
+export default {
+    DEFAULT_DURATION,
+    Content,
+    Provider,
+    Root,
+    Trigger,
+    Portal,
+    withTooltip,
+};

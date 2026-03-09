@@ -1,4 +1,7 @@
-import { Box, Card, Textarea, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Card from "@/components/base/Card";
+import Textarea from "@/components/base/Textarea";
+import Toast from "@/components/base/Toast";
 import useChangeUserGroupName from "@/controllers/api/account/useChangeUserGroupName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

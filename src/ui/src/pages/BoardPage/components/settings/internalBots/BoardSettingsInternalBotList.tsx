@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { InternalBotModel } from "@/core/models";
 import BoardSettingsInternalBot from "@/pages/BoardPage/components/settings/internalBots/BoardSettingsInternalBot";
 import { memo } from "react";

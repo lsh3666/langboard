@@ -1,7 +1,12 @@
 import { useTranslation } from "react-i18next";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { QUERY_NAMES } from "@/constants";
-import { Box, Button, Flex, Floating, Form, SubmitButton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import SubmitButton from "@/components/base/SubmitButton";
 import useAuthEmail from "@/controllers/api/auth/useAuthEmail";
 import useForm from "@/core/hooks/form/useForm";
 import { ROUTES } from "@/core/routing/constants";

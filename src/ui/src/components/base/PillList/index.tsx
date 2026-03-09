@@ -63,4 +63,9 @@ const ItemContent = forwardRef<HTMLDivElement, IPillListItemContentProps>(({ cla
     return <div ref={ref} className={cn(PillListItemContentVariants({ ...variants }), className)} {...props} />;
 });
 
-export { Root, ItemRoot, ItemTitle, ItemContent };
+export default {
+    Root,
+    ItemRoot,
+    ItemTitle,
+    ItemContent,
+};

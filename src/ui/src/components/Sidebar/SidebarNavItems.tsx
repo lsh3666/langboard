@@ -1,6 +1,9 @@
 import { forwardRef, memo } from "react";
 import { ISidebarNavItem, TSidebarNavItemsProps } from "@/components/Sidebar/types";
-import { ButtonVariants, Floating, IconComponent, Tooltip } from "@/components/base";
+import { ButtonVariants } from "@/components/base/Button";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Tooltip from "@/components/base/Tooltip";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 

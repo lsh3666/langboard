@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import BoardCardActionAttachedFile from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachedFile";
 import { IAttachedFile } from "@/pages/BoardPage/components/card/action/types";
 import { memo } from "react";

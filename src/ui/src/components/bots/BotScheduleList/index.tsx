@@ -1,4 +1,7 @@
-import { Box, Flex, Loading, ScrollArea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Loading from "@/components/base/Loading";
+import ScrollArea from "@/components/base/ScrollArea";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import { BotModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { Utils } from "@langboard/core/utils";

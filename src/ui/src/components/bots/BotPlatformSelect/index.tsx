@@ -1,4 +1,5 @@
-import { Floating, Select } from "@/components/base";
+import Floating from "@/components/base/Floating";
+import Select from "@/components/base/Select";
 import { EBotPlatform } from "@langboard/core/ai";
 import { useTranslation } from "react-i18next";
 

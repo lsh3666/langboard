@@ -1,4 +1,10 @@
-import { Button, Checkbox, Flex, Toast, Tooltip, Box, Popover } from "@/components/base";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
+import Box from "@/components/base/Box";
+import Popover from "@/components/base/Popover";
 import IconComponent from "@/components/base/IconComponent";
 import useUpdateUserInSettings from "@/controllers/api/settings/users/useUpdateUserInSettings";
 import useUpdateUserSettingRole from "@/controllers/api/settings/users/useUpdateUserSettingRole";

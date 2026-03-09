@@ -1,4 +1,10 @@
-import { Box, Button, Flex, Popover, SubmitButton, Toast, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
 import MultiSelect from "@/components/MultiSelect";
 import useUpdateMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useUpdateMcpToolGroup";

@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { LabelModelBadge } from "@/components/LabelBadge";
 import { ProjectLabel } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";

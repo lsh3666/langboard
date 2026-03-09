@@ -4,7 +4,7 @@ import useInfiniteScrollerVirtualizer from "@/components/InfiniteScroller/useInf
 import { TSharedInfiniteScrollerProps } from "@/components/InfiniteScroller/types";
 import { composeRefs } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 function chunkArray<T>(array: T[], size: number): T[][] {

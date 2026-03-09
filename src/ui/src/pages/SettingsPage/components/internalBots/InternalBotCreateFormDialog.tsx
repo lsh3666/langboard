@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from "react-i18next";
-import { Alert, Box, Button, Dialog, Floating, Form, Select, SubmitButton, Toast } from "@/components/base";
+import Alert from "@/components/base/Alert";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Select from "@/components/base/Select";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ROUTES } from "@/core/routing/constants";

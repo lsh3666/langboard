@@ -1,6 +1,7 @@
 import { forwardRef, memo, useEffect, useRef, useState } from "react";
 import { VariantProps, tv } from "tailwind-variants";
-import { Skeleton, SuspenseComponent } from "@/components/base";
+import Skeleton from "@/components/base/Skeleton";
+import SuspenseComponent from "@/components/base/SuspenseComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { DimensionMap } from "@/core/utils/VariantUtils";
 

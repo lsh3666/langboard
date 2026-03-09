@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { PeriodProps, PeriodType } from "@/components/Cron/types";
-import { Flex, Select } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import Select from "@/components/base/Select";
 import { useTranslation } from "react-i18next";
 
 interface IBaseOptionType {

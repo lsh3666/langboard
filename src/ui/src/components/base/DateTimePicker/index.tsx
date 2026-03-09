@@ -7,10 +7,10 @@
 
 import * as React from "react";
 import { useState } from "react";
-import * as Popover from "@/components/base/Popover";
+import Popover from "@/components/base/Popover";
 import Calendar, { ICalendarProps } from "@/components/base/Calendar";
 import { ScreenMap } from "@/core/utils/VariantUtils";
-import * as Dialog from "@/components/base/Dialog";
+import Dialog from "@/components/base/Dialog";
 import { measureComponentHeight } from "@/core/utils/ComponentUtils";
 
 export interface IDateTimePickerProps extends ICalendarProps {

@@ -10,7 +10,8 @@ import { useEquationElement, useEquationInput } from "@platejs/math/react";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { CornerDownLeftIcon, RadicalIcon } from "lucide-react";
 import { createPrimitiveComponent, PlateElement, useEditorRef, useEditorSelector, useElement, useReadOnly, useSelected } from "platejs/react";
-import { Button, Popover } from "@/components/base";
+import Button from "@/components/base/Button";
+import Popover from "@/components/base/Popover";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
 

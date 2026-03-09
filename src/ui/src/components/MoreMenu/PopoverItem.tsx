@@ -1,4 +1,8 @@
-import { Button, DropdownMenu, Flex, Popover, SubmitButton } from "@/components/base";
+import Button from "@/components/base/Button";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Flex from "@/components/base/Flex";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
 import { MoreMenuItemProvider, useMoreMenuItem } from "@/components/MoreMenu/ItemProvider";
 import { useMoreMenu } from "@/components/MoreMenu/Provider";
 import { TMoreMenuItemProps } from "@/components/MoreMenu/types";

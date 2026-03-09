@@ -4,7 +4,7 @@ import useInfiniteScrollerVirtualizer from "@/components/InfiniteScroller/useInf
 import { TSharedInfiniteScrollerProps } from "@/components/InfiniteScroller/types";
 import { composeRefs } from "@/core/utils/ComponentUtils";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 
 export interface IDefaultInfiniteScrollerProps extends TSharedInfiniteScrollerProps<React.ReactElement> {
     as?: React.ElementType;

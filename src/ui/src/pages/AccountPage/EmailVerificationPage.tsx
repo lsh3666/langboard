@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 import { QUERY_NAMES } from "@/constants";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useVerifyNewEmail from "@/controllers/api/account/useVerifyNewEmail";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useAuth } from "@/core/providers/AuthProvider";

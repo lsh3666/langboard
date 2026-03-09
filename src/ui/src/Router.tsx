@@ -1,6 +1,6 @@
 import { Await, createBrowserRouter, Navigate, RouteObject } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import { SuspenseComponent } from "@/components/base";
+import SuspenseComponent from "@/components/base/SuspenseComponent";
 import { ROUTES } from "@/core/routing/constants";
 import { memo, Suspense } from "react";
 import useAuthStore from "@/core/stores/AuthStore";

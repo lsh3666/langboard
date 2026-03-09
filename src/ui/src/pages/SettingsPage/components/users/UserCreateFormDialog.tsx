@@ -1,5 +1,15 @@
 import { useTranslation } from "react-i18next";
-import { AutoComplete, Box, Button, Dialog, Flex, Floating, Form, Input, SubmitButton, Switch, Toast } from "@/components/base";
+import AutoComplete from "@/components/base/AutoComplete";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
+import SubmitButton from "@/components/base/SubmitButton";
+import Switch from "@/components/base/Switch";
+import Toast from "@/components/base/Toast";
 import { useRef } from "react";
 import useCreateUserInSettings from "@/controllers/api/settings/users/useCreateUserInSettings";
 import { ROUTES } from "@/core/routing/constants";

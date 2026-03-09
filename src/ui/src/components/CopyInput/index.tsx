@@ -1,4 +1,6 @@
-import { IconComponent, Input, Toast } from "@/components/base";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Toast from "@/components/base/Toast";
 import { copyToClipboard, selectAllText } from "@/core/utils/ComponentUtils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

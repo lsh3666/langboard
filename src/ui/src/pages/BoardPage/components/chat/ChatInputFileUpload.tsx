@@ -1,4 +1,6 @@
-import { Button, IconComponent, Input } from "@/components/base";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";
 import { useTranslation } from "react-i18next";
 import { useChatInput } from "@/pages/BoardPage/components/chat/ChatInputProvider";

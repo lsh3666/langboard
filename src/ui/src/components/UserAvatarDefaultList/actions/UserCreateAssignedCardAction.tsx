@@ -1,4 +1,10 @@
-import { Button, Flex, Input, Popover, Select, SubmitButton, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Input from "@/components/base/Input";
+import Popover from "@/components/base/Popover";
+import Select from "@/components/base/Select";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import UserAvatar from "@/components/UserAvatar";
 import { useUserAvatar } from "@/components/UserAvatar/Provider";
 import useCreateCard from "@/controllers/api/board/useCreateCard";

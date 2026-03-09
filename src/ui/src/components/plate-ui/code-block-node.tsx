@@ -7,7 +7,9 @@ import { BracesIcon, Check, CheckIcon, CopyIcon } from "lucide-react";
 import { type TCodeBlockElement, type TCodeSyntaxLeaf, NodeApi } from "platejs";
 import { type PlateElementProps, type PlateLeafProps, PlateElement, PlateLeaf } from "platejs/react";
 import { useEditorRef, useElement, useReadOnly } from "platejs/react";
-import { Button, Command, Popover } from "@/components/base";
+import Button from "@/components/base/Button";
+import Command from "@/components/base/Command";
+import Popover from "@/components/base/Popover";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
 

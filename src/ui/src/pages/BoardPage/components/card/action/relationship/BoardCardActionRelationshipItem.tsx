@@ -1,4 +1,5 @@
-import { Button, Flex } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ProjectCard, ProjectCardRelationship } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";

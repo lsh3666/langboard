@@ -1,4 +1,6 @@
-import { Flex, Floating, Toast } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import Toast from "@/components/base/Toast";
 import MoreMenu from "@/components/MoreMenu";
 import useUpdateProjectChatTemplate from "@/controllers/api/board/chat/useUpdateProjectChatTemplate";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

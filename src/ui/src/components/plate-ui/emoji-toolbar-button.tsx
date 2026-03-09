@@ -21,7 +21,8 @@ import {
     StarIcon,
     XIcon,
 } from "lucide-react";
-import { Button, Tooltip } from "@/components/base";
+import Button from "@/components/base/Button";
+import Tooltip from "@/components/base/Tooltip";
 import { cn } from "@/core/utils/ComponentUtils";
 import { ToolbarButton } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";

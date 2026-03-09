@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import CustomSelect from "@/components/Cron/CustomSelect";
 import { UNITS } from "@/components/Cron/constants";
 import { MonthDaysProps } from "@/components/Cron/types";
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { useTranslation } from "react-i18next";
 
 function MonthDays(props: MonthDaysProps) {

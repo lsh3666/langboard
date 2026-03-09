@@ -198,9 +198,9 @@ const useForm = <TVariables = unknown, TData = unknown, TContext = unknown, TErr
         mutate(formDataRef.current as TVariables, {
             onSuccess: mutateOnSuccess,
             onError,
-            onSettled: (data, error, variables, context) => {
+            onSettled: (data, error, variables, onMutateResult, context) => {
                 setIsValidating(false);
-                mutateOnSettled?.(data, error, variables, context);
+                mutateOnSettled?.(data, error, variables, onMutateResult, context);
             },
         });
     };

@@ -1,4 +1,6 @@
-import { Button, Flex, Separator } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Separator from "@/components/base/Separator";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";

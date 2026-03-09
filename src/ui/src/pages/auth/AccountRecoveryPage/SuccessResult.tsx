@@ -1,5 +1,6 @@
 import { Children } from "react";
-import { Flex, IconComponent } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 
 interface ISuccessResultProps {
     title: string;

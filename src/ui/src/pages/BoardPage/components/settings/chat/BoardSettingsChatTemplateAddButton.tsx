@@ -1,4 +1,5 @@
-import { SubmitButton, Toast } from "@/components/base";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useCreateProjectChatTemplate from "@/controllers/api/board/chat/useCreateProjectChatTemplate";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";

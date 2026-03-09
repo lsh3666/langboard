@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import BoardSettingsBasic from "@/pages/BoardPage/components/settings/BoardSettingsBasic";
 import BoardSettingsOther from "@/pages/BoardPage/components/settings/BoardSettingsOther";

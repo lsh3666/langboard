@@ -1,4 +1,4 @@
-import { Dialog } from "@/components/base";
+import Dialog from "@/components/base/Dialog";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useBoardController } from "@/core/providers/BoardController";

@@ -1,4 +1,9 @@
-import { Button, Dialog, Flex, IconComponent, ScrollArea, Textarea } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import ScrollArea from "@/components/base/ScrollArea";
+import Textarea from "@/components/base/Textarea";
 import { useTranslation } from "react-i18next";
 import JsonView from "@uiw/react-json-view";
 import { vscodeTheme } from "@uiw/react-json-view/vscode";

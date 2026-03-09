@@ -1,6 +1,11 @@
 import { memo, useEffect, useMemo, useReducer } from "react";
 import { add as addDate, intervalToDuration, differenceInSeconds } from "date-fns";
-import { Box, Button, Flex, IconComponent, Popover, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import Toast from "@/components/base/Toast";
 import { ProjectCheckitem } from "@/core/models";
 import { useTranslation } from "react-i18next";
 import { Utils } from "@langboard/core/utils";

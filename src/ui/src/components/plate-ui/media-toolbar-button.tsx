@@ -20,7 +20,9 @@ import {
     AlertDialogTitle,
 } from "@/components/plate-ui/alert-dialog";
 import { ToolbarSplitButton, ToolbarSplitButtonPrimary, ToolbarSplitButtonSecondary } from "@/components/plate-ui/toolbar";
-import { DropdownMenu, Floating, Toast } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Floating from "@/components/base/Floating";
+import Toast from "@/components/base/Toast";
 import { useTranslation } from "react-i18next";
 
 const MEDIA_CONFIG: Record<

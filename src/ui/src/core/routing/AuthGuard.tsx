@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { RedirectToSignIn } from "@/core/helpers/AuthHelper";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { ROUTES } from "@/core/routing/constants";

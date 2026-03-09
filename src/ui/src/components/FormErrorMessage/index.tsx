@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { Box, Flex, Form, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 
 export interface IFormErrorMessageProps {

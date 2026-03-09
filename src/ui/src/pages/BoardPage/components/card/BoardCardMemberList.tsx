@@ -1,5 +1,5 @@
 import MultiSelectAssignee, { IFormProps, TSaveHandler } from "@/components/MultiSelectAssignee";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useUpdateCardAssignedUsers from "@/controllers/api/card/useUpdateCardAssignedUsers";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { User } from "@/core/models";

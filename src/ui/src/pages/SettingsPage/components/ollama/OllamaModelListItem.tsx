@@ -1,4 +1,11 @@
-import { Box, Button, Flex, Floating, IconComponent, Popover, SubmitButton, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Tooltip from "@/components/base/Tooltip";
 import useGetOllamaModelList from "@/controllers/api/settings/ollama/useGetOllamaModelList";
 import useCopyOllamaModelHandlers from "@/controllers/socket/settings/ollama/useCopyOllamaModelHandlers";
 import useDeleteOllamaModelHandlers from "@/controllers/socket/settings/ollama/useDeleteOllamaModelHandlers";

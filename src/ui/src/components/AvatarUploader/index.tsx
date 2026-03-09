@@ -3,8 +3,14 @@ import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import { VariantProps } from "tailwind-variants";
 import FormErrorMessage from "@/components/FormErrorMessage";
-import { Avatar, Box, Dock, Flex, Form, IconComponent, Input, Tooltip } from "@/components/base";
-import { AvatarVariants } from "@/components/base/Avatar";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Dock from "@/components/base/Dock";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Tooltip from "@/components/base/Tooltip";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 
@@ -20,7 +26,7 @@ interface IBaseAvatarUploaderProps {
     isValidating?: bool;
     disabled?: bool;
     canRevertUrl?: bool;
-    avatarSize?: VariantProps<typeof AvatarVariants>["size"];
+    avatarSize?: VariantProps<typeof Avatar.Variants>["size"];
     hideDock?: bool;
     notInForm?: bool;
     rootClassName?: string;

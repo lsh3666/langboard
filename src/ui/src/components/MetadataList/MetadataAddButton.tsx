@@ -1,4 +1,9 @@
-import { Button, Flex, Input, Popover, SubmitButton, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Input from "@/components/base/Input";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import { TMetadataForm } from "@/controllers/api/metadata/types";
 import useSaveMetadata from "@/controllers/api/metadata/useSaveMetadata";
 import setupApiErrorHandler, { IApiErrorHandlerMap } from "@/core/helpers/setupApiErrorHandler";

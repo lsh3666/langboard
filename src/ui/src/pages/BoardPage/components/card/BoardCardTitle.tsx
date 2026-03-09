@@ -1,4 +1,10 @@
-import { Button, Dialog, Flex, IconComponent, Skeleton, Textarea, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
+import Textarea from "@/components/base/Textarea";
+import Toast from "@/components/base/Toast";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

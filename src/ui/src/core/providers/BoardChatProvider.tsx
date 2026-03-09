@@ -4,7 +4,7 @@ import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import useBoardChatSentHandlers from "@/controllers/socket/board/chat/useBoardChatSentHandlers";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { useTranslation } from "react-i18next";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useBoardChatStreamHandlers from "@/controllers/socket/board/chat/useBoardChatStreamHandlers";
 import { IChatContent } from "@/core/models/Base";
 import useTaskAbortedHandlers from "@/controllers/socket/global/useTaskAbortedHandlers";

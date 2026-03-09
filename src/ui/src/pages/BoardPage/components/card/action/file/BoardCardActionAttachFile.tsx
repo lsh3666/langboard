@@ -1,4 +1,12 @@
-import { Box, Button, Flex, IconComponent, Input, Popover, ScrollArea, SubmitButton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Popover from "@/components/base/Popover";
+import ScrollArea from "@/components/base/ScrollArea";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { Utils } from "@langboard/core/utils";
 import BoardCardActionAttachedFileList from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachedFileList";

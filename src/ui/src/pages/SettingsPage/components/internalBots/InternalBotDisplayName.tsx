@@ -1,4 +1,8 @@
-import { Box, Flex, IconComponent, Input, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Toast from "@/components/base/Toast";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

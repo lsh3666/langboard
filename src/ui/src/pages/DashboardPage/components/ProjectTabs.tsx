@@ -1,6 +1,8 @@
 import { memo, useReducer } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Skeleton, Tabs } from "@/components/base";
+import Box from "@/components/base/Box";
+import Skeleton from "@/components/base/Skeleton";
+import Tabs from "@/components/base/Tabs";
 import { ROUTES } from "@/core/routing/constants";
 import { Utils } from "@langboard/core/utils";
 import ProjectList, { SkeletonProjectList } from "@/pages/DashboardPage/components/ProjectList";

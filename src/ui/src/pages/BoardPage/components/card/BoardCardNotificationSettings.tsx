@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import NotificationSetting from "@/components/NotificationSetting";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { memo } from "react";

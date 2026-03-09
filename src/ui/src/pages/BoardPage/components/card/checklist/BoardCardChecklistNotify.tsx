@@ -1,4 +1,4 @@
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import MultiSelectAssignee, { IFormProps, TSaveHandler } from "@/components/MultiSelectAssignee";
 import useNotifyCardChecklist from "@/controllers/api/card/checklist/useNotifyCardChecklist";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -1,4 +1,7 @@
-import { Checkbox, Flex, Toast, Tooltip } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import useActivateApiKey from "@/controllers/api/settings/apiKeys/useActivateApiKey";
 import useDeactivateApiKey from "@/controllers/api/settings/apiKeys/useDeactivateApiKey";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

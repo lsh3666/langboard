@@ -1,4 +1,5 @@
-import { Checkbox, Toast } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Toast from "@/components/base/Toast";
 import useToggleCardCheckitemChecked from "@/controllers/api/card/checkitem/useToggleCardCheckitemChecked";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

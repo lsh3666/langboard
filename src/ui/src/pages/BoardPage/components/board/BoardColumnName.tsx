@@ -1,4 +1,5 @@
-import { Input, Toast } from "@/components/base";
+import Input from "@/components/base/Input";
+import Toast from "@/components/base/Toast";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useChangeProjectColumnName from "@/controllers/api/board/useChangeProjectColumnName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

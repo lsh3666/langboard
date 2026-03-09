@@ -1,6 +1,8 @@
 import { forwardRef } from "react";
 import FormErrorMessage from "@/components/FormErrorMessage";
-import { Floating, Form, Input } from "@/components/base";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
 
 interface IBasePasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     name?: string;

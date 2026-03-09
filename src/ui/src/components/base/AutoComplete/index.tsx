@@ -1,14 +1,14 @@
 import { Command as CommandPrimitive } from "cmdk";
 import { useMemo, useRef, useState } from "react";
-import * as Command from "@/components/base/Command";
-import * as Popover from "@/components/base/Popover";
+import Command from "@/components/base/Command";
+import Popover from "@/components/base/Popover";
 import Skeleton from "@/components/base/Skeleton";
 import { cn } from "@/core/utils/ComponentUtils";
 import IconComponent from "@/components/base/IconComponent";
 import Flex from "@/components/base/Flex";
 import Box from "@/components/base/Box";
 import { Utils } from "@langboard/core/utils";
-import { Floating } from "@/components/base";
+import Floating from "@/components/base/Floating";
 
 export interface IAutorCompleteProps {
     selectedValue?: string;

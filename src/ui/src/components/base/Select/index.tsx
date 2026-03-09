@@ -121,4 +121,15 @@ const Separator = React.forwardRef<
 >(({ className, ...props }, ref) => <SelectPrimitive.Separator ref={ref} className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />);
 Separator.displayName = SelectPrimitive.Separator.displayName;
 
-export { Content, Group, Item, Label, Root, ScrollDownButton, ScrollUpButton, Separator, Trigger, Value };
+export default {
+    Content,
+    Group,
+    Item,
+    Label,
+    Root,
+    ScrollDownButton,
+    ScrollUpButton,
+    Separator,
+    Trigger,
+    Value,
+};

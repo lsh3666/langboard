@@ -1,6 +1,8 @@
 import * as React from "react";
 import { ArrowDown } from "lucide-react";
-import { Box, Button, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
 import { useAutoScroll } from "@/core/hooks/useAutoScroll";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";

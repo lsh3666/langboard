@@ -1,4 +1,8 @@
-import { Button, Flex, Floating, Popover, SubmitButton } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
 import usePullOllamaModelHandlers from "@/controllers/socket/settings/ollama/usePullOllamaModelHandlers";
 import { getOllamaModelStore } from "@/core/stores/OllamaModelStore";
 import { useRef, useState } from "react";

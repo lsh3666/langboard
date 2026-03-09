@@ -1,4 +1,4 @@
-import { Dialog } from "@/components/base";
+import Dialog from "@/components/base/Dialog";
 import ActivityList from "@/components/ActivityList";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ROUTES } from "@/core/routing/constants";

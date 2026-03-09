@@ -11,7 +11,7 @@ import { Fzf } from "fzf";
 import { PlusIcon } from "lucide-react";
 import { isHotkey, KEYS, TTagElement } from "platejs";
 import { Plate, useEditorContainerRef, useEditorRef, usePlateEditor } from "platejs/react";
-import { Popover } from "@/components/base";
+import Popover from "@/components/base/Popover";
 import { Editor, EditorContainer } from "@/components/plate-ui/editor";
 import { TagElement } from "@/components/plate-ui/tag-node";
 import { Trans } from "react-i18next";

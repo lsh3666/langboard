@@ -1,7 +1,10 @@
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Avatar, Button, ButtonProps, IconComponent, Tooltip } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Button, { type ButtonProps } from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Tooltip from "@/components/base/Tooltip";
 import MessageLoading from "@/components/Chat/MessageLoading";
 import { cn, copyToClipboard } from "@/core/utils/ComponentUtils";
 import Markdown from "@/components/Markdown";

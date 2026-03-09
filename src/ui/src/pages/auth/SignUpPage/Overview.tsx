@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, Box, Button, Card, Flex, SubmitButton } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import SubmitButton from "@/components/base/SubmitButton";
 import useSignUp, { ISignUpForm } from "@/controllers/api/auth/useSignUp";
 import useForm from "@/core/hooks/form/useForm";
 import { ROUTES } from "@/core/routing/constants";

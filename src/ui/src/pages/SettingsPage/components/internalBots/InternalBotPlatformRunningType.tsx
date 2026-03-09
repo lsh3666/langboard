@@ -1,4 +1,5 @@
-import { Box, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Toast from "@/components/base/Toast";
 import BotPlatformRunningTypeSelect from "@/components/bots/BotPlatformRunningTypeSelect";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -2,7 +2,8 @@ import { forwardRef } from "react";
 import CachedImage from "@/components/CachedImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
-import { Box, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
 
 interface IBaseFormOnlyLayoutProps {
     size?: "default" | "sm" | "lg";

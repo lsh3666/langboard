@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { User } from "@/core/models";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
 import BoardSettingsMemberRole from "@/pages/BoardPage/components/settings/roles/BoardSettingsMemberRole";

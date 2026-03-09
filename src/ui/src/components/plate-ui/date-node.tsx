@@ -3,7 +3,8 @@
 import type { TDateElement } from "platejs";
 import type { PlateElementProps } from "platejs/react";
 import { PlateElement, useReadOnly } from "platejs/react";
-import { Popover, Calendar } from "@/components/base";
+import Calendar from "@/components/base/Calendar";
+import Popover from "@/components/base/Popover";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/core/utils/ComponentUtils";
 

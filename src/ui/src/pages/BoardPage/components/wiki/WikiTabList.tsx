@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import useChangeWikiOrder from "@/controllers/api/wiki/useChangeWikiOrder";
 import { singleDndHelpers } from "@/core/helpers/dnd";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -1,4 +1,6 @@
-import { Box, Textarea, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Textarea from "@/components/base/Textarea";
+import Toast from "@/components/base/Toast";
 import useChangeWikiDetails from "@/controllers/api/wiki/useChangeWikiDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

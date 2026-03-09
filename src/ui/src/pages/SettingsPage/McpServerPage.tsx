@@ -1,4 +1,8 @@
-import { Button, Flex, IconComponent, Tabs, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Tabs from "@/components/base/Tabs";
+import Toast from "@/components/base/Toast";
 import useGetMcpToolList from "@/controllers/api/mcp/getMcpToolList";
 import useDeleteSelectedMcpToolGroups from "@/controllers/api/settings/mcpToolGroups/useDeleteSelectedMcpToolGroups";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

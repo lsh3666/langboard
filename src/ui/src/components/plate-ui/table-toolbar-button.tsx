@@ -6,7 +6,7 @@ import { TablePlugin, useTableMergeState } from "@platejs/table/react";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Combine, Grid3x3Icon, Table, Trash2Icon, Ungroup, XIcon } from "lucide-react";
 import { KEYS } from "platejs";
 import { useEditorPlugin, useEditorSelector } from "platejs/react";
-import { DropdownMenu } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
 import { cn } from "@/core/utils/ComponentUtils";
 import { ToolbarButton } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";

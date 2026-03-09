@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as Button from "@/components/base/Floating/Button";
-import * as Form from "@/components/base/Form";
+import Form from "@/components/base/Form";
 import BaseInput, { InputProps } from "@/components/base/Input";
 import BaseLabel from "@/components/base/Label";
 import BaseTextarea, { type TextareaProps as BaseTextareaProps } from "@/components/base/Textarea";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
-import { Select } from "@/components/base";
+import Select from "@/components/base/Select";
 
 export interface TextareaProps extends BaseTextareaProps {}
 
@@ -118,4 +118,12 @@ const LabelSelect = ({ label, id, options, className, contentClassName, ref, ...
 };
 LabelSelect.displayName = "FloatingLabelSelect";
 
-export { Button, Input, Label, LabelInput, LabelTextarea, LabelSelect, Textarea };
+export default {
+    Button,
+    Input,
+    Label,
+    LabelInput,
+    LabelTextarea,
+    LabelSelect,
+    Textarea,
+};

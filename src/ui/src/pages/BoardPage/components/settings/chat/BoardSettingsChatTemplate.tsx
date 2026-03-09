@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { ChatTemplateModel } from "@/core/models";
 import BoardSettingsChatTemplateMoreMenu from "@/pages/BoardPage/components/settings/chat/BoardSettingsChatTemplateMoreMenu";
 import { memo } from "react";

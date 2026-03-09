@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useGetProjectChatMessages from "@/controllers/api/board/chat/useGetProjectChatMessages";
-import { Box, Loading } from "@/components/base";
+import Box from "@/components/base/Box";
+import Loading from "@/components/base/Loading";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";
 import { ChatMessageList } from "@/components/Chat/ChatMessageList";
 import { ChatMessageModel } from "@/core/models";

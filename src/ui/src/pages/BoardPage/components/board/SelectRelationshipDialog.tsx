@@ -1,4 +1,8 @@
-import { Box, Button, Dialog, Flex, ScrollArea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import ScrollArea from "@/components/base/ScrollArea";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { useBoardController } from "@/core/providers/BoardController";

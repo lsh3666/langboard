@@ -1,6 +1,8 @@
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
-import { Button, ButtonProps, DropdownMenu, IconComponent } from "@/components/base";
+import Button, { type ButtonProps } from "@/components/base/Button";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 
 export interface IThemeSwitcherProps {

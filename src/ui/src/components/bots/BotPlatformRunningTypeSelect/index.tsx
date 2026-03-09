@@ -1,4 +1,5 @@
-import { Floating, Select } from "@/components/base";
+import Floating from "@/components/base/Floating";
+import Select from "@/components/base/Select";
 import { AVAILABLE_RUNNING_TYPES_BY_PLATFORM, EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { useTranslation } from "react-i18next";
 

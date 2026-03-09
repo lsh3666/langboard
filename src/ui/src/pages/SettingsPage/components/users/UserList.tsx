@@ -1,4 +1,4 @@
-import { Checkbox } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
 import { User } from "@/core/models";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { useTranslation } from "react-i18next";

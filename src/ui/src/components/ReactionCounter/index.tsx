@@ -1,4 +1,9 @@
-import { Button, Dock, Flex, IconComponent, Popover, AnimatedEmoji } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dock from "@/components/base/Dock";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import AnimatedEmoji from "@/components/base/AnimatedEmoji";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 import { LottieRefCurrentProps } from "lottie-react";

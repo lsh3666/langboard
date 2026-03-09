@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/core/utils/ComponentUtils";
-import * as Tooltip from "@/components/base/Tooltip";
+import Tooltip from "@/components/base/Tooltip";
 import Flex, { IFlexProps } from "@/components/base/Flex";
 import Box from "@/components/base/Box";
 
@@ -178,4 +178,21 @@ const FlexCaption = React.forwardRef<HTMLDivElement, IFlexProps>(({ className, .
 ));
 FlexCaption.displayName = "TableFlexCaption";
 
-export { Body, Caption, Cell, Footer, Head, Header, Root, Row, FlexRoot, FlexHeader, FlexBody, FlexFooter, FlexRow, FlexHead, FlexCell, FlexCaption };
+export default {
+    Body,
+    Caption,
+    Cell,
+    Footer,
+    Head,
+    Header,
+    Root,
+    Row,
+    FlexRoot,
+    FlexHeader,
+    FlexBody,
+    FlexFooter,
+    FlexRow,
+    FlexHead,
+    FlexCell,
+    FlexCaption,
+};

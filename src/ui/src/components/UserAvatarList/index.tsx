@@ -1,5 +1,11 @@
-import { Box, Button, Flex, HoverCard, ScrollArea, Separator, Skeleton } from "@/components/base";
-import { AvatarVariants } from "@/components/base/Avatar";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import HoverCard from "@/components/base/HoverCard";
+import ScrollArea from "@/components/base/ScrollArea";
+import Separator from "@/components/base/Separator";
+import Skeleton from "@/components/base/Skeleton";
 import { LabelBadge } from "@/components/LabelBadge";
 import UserAvatar from "@/components/UserAvatar";
 import { IUserAvatarProps } from "@/components/UserAvatar/types";
@@ -30,7 +36,7 @@ export const SkeletonUserAvatarList = ({ count, size, spacing = "none", classNam
     return (
         <Flex className={cn("rtl:space-x-reverse", SPACING_MAP[spacing])}>
             {Array.from({ length: count }).map(() => (
-                <Skeleton key={Utils.String.Token.shortUUID()} display="inline-block" className={cn(AvatarVariants({ size }), className)} />
+                <Skeleton key={Utils.String.Token.shortUUID()} display="inline-block" className={cn(Avatar.Variants({ size }), className)} />
             ))}
         </Flex>
     );
@@ -108,7 +114,7 @@ const UserAvatarMoreList = memo(({ maxVisible, userOrBots, size = "default", lis
                 ) : (
                     <Button
                         variant="secondary"
-                        className={cn(AvatarVariants({ size }), "z-10 m-0 border-none p-0")}
+                        className={cn(Avatar.Variants({ size }), "z-10 m-0 border-none p-0")}
                         onClick={() => setIsOpened(!isOpened)}
                     >
                         +{moreUsersCountText}

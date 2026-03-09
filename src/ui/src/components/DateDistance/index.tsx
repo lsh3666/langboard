@@ -1,4 +1,4 @@
-import { Tooltip } from "@/components/base";
+import Tooltip from "@/components/base/Tooltip";
 import useUpdateDateDistance from "@/core/hooks/useUpdateDateDistance";
 import { Utils } from "@langboard/core/utils";
 

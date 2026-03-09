@@ -1,4 +1,6 @@
-import { Box, Label, Switch } from "@/components/base";
+import Box from "@/components/base/Box";
+import Label from "@/components/base/Label";
+import Switch from "@/components/base/Switch";
 import { ENotificationChannel } from "@/core/models/types/notification.type";
 import { cn } from "@/core/utils/ComponentUtils";
 import { memo, useState } from "react";

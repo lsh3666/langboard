@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from "react-i18next";
-import { Box, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
 import { Utils } from "@langboard/core/utils";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";

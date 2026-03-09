@@ -1,4 +1,7 @@
-import { Box, Button, Card, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
 import BotScheduleListItemDelete from "@/components/bots/BotScheduleList/ItemDelete";
 import BotScheduleListItemEdit from "@/components/bots/BotScheduleList/ItemEdit";
 import { useBotScheduleList } from "@/components/bots/BotScheduleList/Provider";

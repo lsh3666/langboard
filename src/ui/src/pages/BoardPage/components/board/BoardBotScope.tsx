@@ -1,4 +1,8 @@
-import { Button, Dialog, Drawer, Flex, ScrollArea } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Drawer from "@/components/base/Drawer";
+import Flex from "@/components/base/Flex";
+import ScrollArea from "@/components/base/ScrollArea";
 import BotLogList from "@/components/bots/BotLogList";
 import BotScheduleList from "@/components/bots/BotScheduleList";
 import BotTriggerConditionList from "@/components/bots/BotTriggerConditionList";

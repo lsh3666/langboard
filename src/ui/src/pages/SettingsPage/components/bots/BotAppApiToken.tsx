@@ -1,4 +1,9 @@
-import { Button, Dialog, Flex, Floating, IconComponent, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Toast from "@/components/base/Toast";
 import CopyInput from "@/components/CopyInput";
 import useGenerateNewBotApiToken from "@/controllers/api/settings/bots/useGenerateNewBotApiToken";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

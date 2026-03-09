@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from "react-i18next";
-import { Box, Button, Checkbox, Dialog, Flex, Floating, Form, Label, Select, SubmitButton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import Form from "@/components/base/Form";
+import Label from "@/components/base/Label";
+import Select from "@/components/base/Select";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { useRef, useState } from "react";
 import useCreateApiKey from "@/controllers/api/settings/apiKeys/useCreateApiKey";

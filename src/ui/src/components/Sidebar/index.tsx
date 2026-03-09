@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SidebarNavItems from "@/components/Sidebar/SidebarNavItems";
 import { ISidebarProps } from "@/components/Sidebar/types";
-import { Box, Button, Floating, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 

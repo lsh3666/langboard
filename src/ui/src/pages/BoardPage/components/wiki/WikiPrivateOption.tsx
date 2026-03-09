@@ -1,4 +1,8 @@
-import { Flex, Label, Skeleton, Switch, Toast } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import Label from "@/components/base/Label";
+import Skeleton from "@/components/base/Skeleton";
+import Switch from "@/components/base/Switch";
+import Toast from "@/components/base/Toast";
 import { SkeletonUserAvatarList } from "@/components/UserAvatarList";
 import useChangeWikiPublic from "@/controllers/api/wiki/useChangeWikiPublic";
 import useUpdateWikiAssignees from "@/controllers/api/wiki/useUpdateWikiAssignees";

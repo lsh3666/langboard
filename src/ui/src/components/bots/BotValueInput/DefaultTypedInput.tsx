@@ -1,4 +1,10 @@
-import { Button, Checkbox, Flex, Floating, IconComponent, Label, Select } from "@/components/base";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Label from "@/components/base/Label";
+import Select from "@/components/base/Select";
 import { useBotValueDefaultInput } from "@/components/bots/BotValueInput/DefaultProvider";
 import { API_URL } from "@/constants";
 import { api } from "@/core/helpers/Api";

@@ -1,4 +1,4 @@
-import { Popover } from "@/components/base";
+import Popover from "@/components/base/Popover";
 import NotificationSetting from "@/components/NotificationSetting";
 import UserAvatar from "@/components/UserAvatar";
 import UserAvatarUserCreateAssignedCardAction from "@/components/UserAvatarDefaultList/actions/UserCreateAssignedCardAction";

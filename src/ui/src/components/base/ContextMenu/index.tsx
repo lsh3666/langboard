@@ -185,4 +185,20 @@ const Shortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>
 };
 Shortcut.displayName = "ContextMenuShortcut";
 
-export { CheckboxItem, Content, Group, Item, Label, Portal, RadioGroup, RadioItem, Root, Separator, Shortcut, Sub, SubContent, SubTrigger, Trigger };
+export default {
+    CheckboxItem,
+    Content,
+    Group,
+    Item,
+    Label,
+    Portal,
+    RadioGroup,
+    RadioItem,
+    Root,
+    Separator,
+    Shortcut,
+    Sub,
+    SubContent,
+    SubTrigger,
+    Trigger,
+};

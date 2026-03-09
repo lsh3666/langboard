@@ -24,7 +24,8 @@ import {
     withHOC,
 } from "platejs/react";
 import { useElementSelector } from "platejs/react";
-import { Button, Popover } from "@/components/base";
+import Button from "@/components/base/Button";
+import Popover from "@/components/base/Popover";
 import { cn } from "@/core/utils/ComponentUtils";
 import { blockSelectionVariants } from "@/components/plate-ui/block-selection";
 import { Toolbar, ToolbarButton, ToolbarGroup } from "@/components/plate-ui/toolbar";

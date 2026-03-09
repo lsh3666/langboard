@@ -1,4 +1,6 @@
-import { Box, Flex, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Tooltip from "@/components/base/Tooltip";
 import { IModelMap, TPickedModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
 import { memo } from "react";

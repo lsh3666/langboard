@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import useChangeProjectLabelOrder from "@/controllers/api/board/settings/useChangeProjectLabelOrder";
 import { singleDndHelpers } from "@/core/helpers/dnd";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

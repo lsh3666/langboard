@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { Box, Button, Floating, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
 import useResizeEvent from "@/core/hooks/useResizeEvent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { ScreenMap } from "@/core/utils/VariantUtils";

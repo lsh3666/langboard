@@ -1,4 +1,7 @@
-import { Button, Flex, IconComponent, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Toast from "@/components/base/Toast";
 import useGetBots from "@/controllers/api/settings/bots/useGetBots";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { BotModel } from "@/core/models";

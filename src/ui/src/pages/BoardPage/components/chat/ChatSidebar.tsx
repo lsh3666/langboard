@@ -1,6 +1,9 @@
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Button, Flex, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import Conversation from "@/pages/BoardPage/components/chat/Conversation";
 import ChatInput from "@/pages/BoardPage/components/chat/ChatInput";
 import ChatSessionList from "@/pages/BoardPage/components/chat/ChatSessionList";

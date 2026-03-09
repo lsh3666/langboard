@@ -1,4 +1,5 @@
-import { DropdownMenu, Toast } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Toast from "@/components/base/Toast";
 import { useMoreMenu } from "@/components/MoreMenu/Provider";
 import useDownloadFile from "@/core/hooks/useDownloadFile";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

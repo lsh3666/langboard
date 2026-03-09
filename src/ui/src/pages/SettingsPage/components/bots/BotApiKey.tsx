@@ -1,4 +1,5 @@
-import { Box, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Toast from "@/components/base/Toast";
 import PasswordInput from "@/components/PasswordInput";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

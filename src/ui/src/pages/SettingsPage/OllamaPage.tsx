@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import useGetOllamaModelList from "@/controllers/api/settings/ollama/useGetOllamaModelList";
 import useGetOllamaRunningModelList from "@/controllers/api/settings/ollama/useGetOllamaRunningModelList";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";

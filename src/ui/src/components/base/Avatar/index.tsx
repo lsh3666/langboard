@@ -5,7 +5,7 @@ import * as React from "react";
 import { type VariantProps, tv } from "tailwind-variants";
 import { cn } from "@/core/utils/ComponentUtils";
 
-export const AvatarVariants = tv(
+const Variants = tv(
     {
         base: "relative flex shrink-0 overflow-hidden rounded-full",
         variants: {
@@ -29,13 +29,13 @@ export const AvatarVariants = tv(
     }
 );
 
-export interface IAvatarProps extends AvatarPrimitive.AvatarProps, VariantProps<typeof AvatarVariants> {}
+export interface IAvatarProps extends AvatarPrimitive.AvatarProps, VariantProps<typeof Variants> {}
 
 type TAvatarProps = React.ForwardRefExoticComponent<IAvatarProps & React.RefAttributes<HTMLSpanElement>>;
 
 const Root = React.memo(
     React.forwardRef<React.ComponentRef<TAvatarProps>, React.ComponentPropsWithoutRef<TAvatarProps>>(({ className, size, ...props }, ref) => (
-        <AvatarPrimitive.Root ref={ref} className={cn("select-none", AvatarVariants({ size }), className)} {...props} />
+        <AvatarPrimitive.Root ref={ref} className={cn("select-none", Variants({ size }), className)} {...props} />
     ))
 );
 Root.displayName = AvatarPrimitive.Root.displayName;
@@ -62,4 +62,9 @@ const Fallback = React.memo(
 );
 Fallback.displayName = AvatarPrimitive.Fallback.displayName;
 
-export { Fallback, Image, Root };
+export default {
+    Variants,
+    Fallback,
+    Image,
+    Root,
+};

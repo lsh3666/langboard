@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { formatValue, parsePartArray, partToString } from "@/components/Cron/converter";
 import { Clicks, CustomSelectProps } from "@/components/Cron/types";
 import { sort } from "@/components/Cron/utils";
-import { Select } from "@/components/base";
+import Select from "@/components/base/Select";
 import MultiSelect from "@/components/MultiSelect";
 import { useTranslation } from "react-i18next";
 

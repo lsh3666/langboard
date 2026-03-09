@@ -5,7 +5,11 @@ import ResizableSidebar, { IResizableSidebarProps } from "@/components/Resizable
 import Sidebar from "@/components/Sidebar";
 import { ISidebarNavItem } from "@/components/Sidebar/types";
 import { cn } from "@/core/utils/ComponentUtils";
-import { Box, Button, Flex, IconComponent, ScrollArea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import ScrollArea from "@/components/base/ScrollArea";
 import useScrollToTop from "@/core/hooks/useScrollToTop";
 
 interface IBaseDashboardStyledLayoutProps {

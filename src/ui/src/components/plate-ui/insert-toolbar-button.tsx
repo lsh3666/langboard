@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { KEYS } from "platejs";
 import { type PlateEditor, useEditorRef } from "platejs/react";
-import { DropdownMenu } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
 import { insertBlock, insertInlineElement } from "@/components/Editor/transforms";
 import { ToolbarButton, ToolbarMenuGroup } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";

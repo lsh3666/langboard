@@ -1,4 +1,5 @@
-import { Box, Textarea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Textarea from "@/components/base/Textarea";
 import { useBoardAddCard } from "@/core/providers/BoardAddCardProvider";
 import { cn, measureTextAreaHeight } from "@/core/utils/ComponentUtils";
 import { memo, useState } from "react";

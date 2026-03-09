@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";
 import AccountUserGroup, { SkeletonAccountUserGroup } from "@/pages/AccountPage/components/group/AccountUserGroup";
 import AccountUserGroupAddButton from "@/pages/AccountPage/components/group/AccountUserGroupAddButton";

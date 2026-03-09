@@ -1,4 +1,7 @@
-import { Box, Button, Collapsible, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Collapsible from "@/components/base/Collapsible";
+import Flex from "@/components/base/Flex";
 import useChangeCardChecklistOrder from "@/controllers/api/card/checklist/useChangeCardChecklistOrder";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ProjectCheckitem, ProjectChecklist } from "@/core/models";

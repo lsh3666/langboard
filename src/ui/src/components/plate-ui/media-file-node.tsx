@@ -9,7 +9,7 @@ import { FileUp, LoaderCircle } from "lucide-react";
 import { PlateElement, useReadOnly, withHOC } from "platejs/react";
 import { Caption, CaptionTextarea } from "@/components/plate-ui/caption";
 import { useTranslation } from "react-i18next";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useDownloadFile from "@/core/hooks/useDownloadFile";
 
 export const FileElement = withHOC(ResizableProvider, function FileElement(props: PlateElementProps<TFileElement>) {

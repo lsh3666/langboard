@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import AddSubEmailForm, { SkeletonAddSubEmailForm } from "@/pages/AccountPage/components/email/AddSubEmailForm";
 import EmailList, { SkeletonEmails } from "@/pages/AccountPage/components/email/EmailList";
 import PrimaryEmailForm, { SkeletonPrimaryEmailForm } from "@/pages/AccountPage/components/email/PrimaryEmailForm";
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { useEffect } from "react";
 

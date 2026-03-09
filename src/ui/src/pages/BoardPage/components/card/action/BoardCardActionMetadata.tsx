@@ -1,4 +1,7 @@
-import { Box, Button, Dialog, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import IconComponent from "@/components/base/IconComponent";
 import { MetadataList } from "@/components/MetadataList";
 import MetadataAddButton from "@/components/MetadataList/MetadataAddButton";
 import { ProjectRole } from "@/core/models/roles";

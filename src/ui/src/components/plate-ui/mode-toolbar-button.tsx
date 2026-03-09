@@ -4,7 +4,7 @@ import * as React from "react";
 import { type DropdownMenuProps, DropdownMenuItemIndicator } from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, EyeIcon, PenIcon } from "lucide-react";
 import { useEditorRef, usePlateState } from "platejs/react";
-import { DropdownMenu } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
 import { ToolbarButton } from "@/components/plate-ui/toolbar";
 import { useTranslation } from "react-i18next";
 

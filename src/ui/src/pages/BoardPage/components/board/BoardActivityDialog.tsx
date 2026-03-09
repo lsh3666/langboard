@@ -1,4 +1,4 @@
-import { Dialog } from "@/components/base";
+import Dialog from "@/components/base/Dialog";
 import ActivityList from "@/components/ActivityList";
 import { useAuth } from "@/core/providers/AuthProvider";
 

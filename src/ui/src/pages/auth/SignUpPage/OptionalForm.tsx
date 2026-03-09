@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import AvatarUploader from "@/components/AvatarUploader";
-import { Button, Flex, Form, Input, SubmitButton } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
+import SubmitButton from "@/components/base/SubmitButton";
 import useForm from "@/core/hooks/form/useForm";
 import { ROUTES } from "@/core/routing/constants";
 import { Utils } from "@langboard/core/utils";

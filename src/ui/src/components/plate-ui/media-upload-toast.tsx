@@ -3,7 +3,7 @@
 import * as React from "react";
 import { PlaceholderPlugin, UploadErrorCode } from "@platejs/media/react";
 import { usePluginOption } from "platejs/react";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { useTranslation } from "react-i18next";
 
 export function MediaUploadToast() {

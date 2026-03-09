@@ -57,4 +57,12 @@ function Ellipsis({ className, ...props }: React.ComponentProps<"span">) {
 }
 Ellipsis.displayName = "BreadcrumbEllipsis";
 
-export { Root, List, Item, Link, Page, Separator, Ellipsis };
+export default {
+    Root,
+    List,
+    Item,
+    Link,
+    Page,
+    Separator,
+    Ellipsis,
+};

@@ -1,4 +1,12 @@
-import { Box, Button, Checkbox, Flex, IconComponent, PillList, Popover, SubmitButton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import PillList from "@/components/base/PillList";
+import Popover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useDeleteMcpToolGroup from "@/controllers/api/settings/mcpToolGroups/useDeleteMcpToolGroup";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";

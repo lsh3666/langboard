@@ -1,4 +1,9 @@
-import { Badge, Box, Button, Collapsible, Flex, IconComponent } from "@/components/base";
+import Badge from "@/components/base/Badge";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Collapsible from "@/components/base/Collapsible";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import DateDistance from "@/components/DateDistance";
 import { BotLogModel } from "@/core/models";
 import { useMemo } from "react";

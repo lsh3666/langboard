@@ -35,4 +35,7 @@ function Item({ children }: { children: React.ReactNode }) {
     );
 }
 
-export { Root, Item };
+export default {
+    Root,
+    Item,
+};

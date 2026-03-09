@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 import PasswordInput from "@/components/PasswordInput";
-import { Button, Flex, Form, SubmitButton } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import SubmitButton from "@/components/base/SubmitButton";
 import useRecoveryPassword from "@/controllers/api/auth/useRecoveryPassword";
 import useForm from "@/core/hooks/form/useForm";
 import SuccessResult from "@/pages/auth/AccountRecoveryPage/SuccessResult";

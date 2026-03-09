@@ -4,7 +4,7 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
-import * as Popover from "@/components/base/Popover";
+import Popover from "@/components/base/Popover";
 import Button, { ButtonProps } from "@/components/base/Button";
 import Input from "@/components/base/Input";
 import Flex from "@/components/base/Flex";

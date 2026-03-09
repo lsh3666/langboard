@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import PasswordInput from "@/components/PasswordInput";
-import { Box, Flex, Form, SubmitButton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useChangePassword from "@/controllers/api/account/useChangePassword";
 import useForm from "@/core/hooks/form/useForm";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";

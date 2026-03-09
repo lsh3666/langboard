@@ -1,4 +1,6 @@
-import { Box, Flex, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Skeleton from "@/components/base/Skeleton";
 import DateDistance from "@/components/DateDistance";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";

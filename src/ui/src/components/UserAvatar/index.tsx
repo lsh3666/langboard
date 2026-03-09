@@ -1,7 +1,13 @@
 /* eslint-disable @/max-len */
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import React, { forwardRef, memo } from "react";
-import { Avatar, Box, Card, Flex, IconComponent, Popover, Separator } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import Separator from "@/components/base/Separator";
 import { BotModel, User } from "@/core/models";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";

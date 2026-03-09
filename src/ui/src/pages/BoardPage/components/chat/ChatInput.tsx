@@ -1,4 +1,8 @@
-import { Button, Flex, IconComponent, Textarea, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Textarea from "@/components/base/Textarea";
+import Toast from "@/components/base/Toast";
 import useUploadProjectChatAttachment from "@/controllers/api/board/chat/useUploadProjectChatAttachment";
 import useBoardChatCancelHandlers from "@/controllers/socket/board/chat/useBoardChatCancelHandlers";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";

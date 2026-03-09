@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Router from "@/Router";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { AuthProvider } from "@/core/providers/AuthProvider";
 import { SocketProvider } from "@/core/providers/SocketProvider";
 import "@/i18n";

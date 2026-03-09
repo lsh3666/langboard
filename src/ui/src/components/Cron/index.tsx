@@ -9,7 +9,8 @@ import WeekDays from "@/components/Cron/fields/WeekDays";
 import { CronProps, PeriodType } from "@/components/Cron/types";
 import { setError, usePrevious } from "@/components/Cron/utils";
 import { useTranslation } from "react-i18next";
-import { Button, Flex } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
 
 function Cron(props: CronProps) {
     const [t] = useTranslation();

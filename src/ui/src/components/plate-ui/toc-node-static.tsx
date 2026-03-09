@@ -5,7 +5,7 @@ import { type Heading, BaseTocPlugin, isHeading } from "@platejs/toc";
 import { cva } from "class-variance-authority";
 import { NodeApi } from "platejs";
 import { SlateElement } from "platejs/static";
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { useTranslation } from "react-i18next";
 
 const headingItemVariants = cva(

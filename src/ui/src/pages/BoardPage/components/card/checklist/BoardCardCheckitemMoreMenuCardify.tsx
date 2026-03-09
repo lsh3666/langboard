@@ -1,4 +1,6 @@
-import { Floating, Select, Toast } from "@/components/base";
+import Floating from "@/components/base/Floating";
+import Select from "@/components/base/Select";
+import Toast from "@/components/base/Toast";
 import MoreMenu from "@/components/MoreMenu";
 import { useMoreMenu } from "@/components/MoreMenu/Provider";
 import useCardifyCardCheckitem from "@/controllers/api/card/checkitem/useCardifyCardCheckitem";

@@ -1,7 +1,9 @@
 import React, { cloneElement, forwardRef, isValidElement } from "react";
 import { useVirtualizer, VirtualItem, Virtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/core/utils/ComponentUtils";
-import { Box, ScrollArea, Table } from "@/components/base";
+import Box from "@/components/base/Box";
+import ScrollArea from "@/components/base/ScrollArea";
+import Table from "@/components/base/Table";
 import { Utils } from "@langboard/core/utils";
 import { TSharedInfiniteScrollerProps } from "@/components/InfiniteScroller/types";
 import useInfiniteScrollerVirtualizer from "@/components/InfiniteScroller/useInfiniteScrollerVirtualizer";

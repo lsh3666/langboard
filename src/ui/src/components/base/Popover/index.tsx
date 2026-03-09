@@ -26,4 +26,10 @@ const Content = React.forwardRef<
 ));
 Content.displayName = PopoverPrimitive.Content.displayName;
 
-export { Content, ContentVariants, Root, Trigger, Anchor };
+export default {
+    Content,
+    ContentVariants,
+    Root,
+    Trigger,
+    Anchor,
+};

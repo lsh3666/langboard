@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 import { AGENT_MODELS, TAgentModelName } from "@langboard/core/ai";
-import { Box, Flex, Floating, IconComponent, Select, SubmitButton, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Floating from "@/components/base/Floating";
+import IconComponent from "@/components/base/IconComponent";
+import Select from "@/components/base/Select";
+import SubmitButton from "@/components/base/SubmitButton";
+import Tooltip from "@/components/base/Tooltip";
 import { useTranslation } from "react-i18next";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import { TSharedBotValueInputProps } from "@/components/bots/BotValueInput/types";

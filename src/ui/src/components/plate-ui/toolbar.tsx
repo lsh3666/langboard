@@ -5,7 +5,9 @@ import * as React from "react";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import { type VariantProps, cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
-import { DropdownMenu, Separator, Tooltip } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Separator from "@/components/base/Separator";
+import Tooltip from "@/components/base/Tooltip";
 import { cn } from "@/core/utils/ComponentUtils";
 
 export function Toolbar({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Root>) {

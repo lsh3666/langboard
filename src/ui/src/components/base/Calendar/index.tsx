@@ -33,8 +33,8 @@ import {
 import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Clock } from "lucide-react";
 import { DayPicker, Matcher, TZDate } from "react-day-picker";
 import Button, { ButtonVariants } from "@/components/base/Button";
-import * as Popover from "@/components/base/Popover";
-import * as ScrollArea from "@/components/base/ScrollArea";
+import Popover from "@/components/base/Popover";
+import ScrollArea from "@/components/base/ScrollArea";
 import { cn } from "@/core/utils/ComponentUtils";
 
 const AM_VALUE = 0;

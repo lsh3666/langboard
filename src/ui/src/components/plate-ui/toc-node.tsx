@@ -5,7 +5,7 @@ import type { PlateElementProps } from "platejs/react";
 import { useTocElement, useTocElementState } from "@platejs/toc/react";
 import { cva } from "class-variance-authority";
 import { PlateElement } from "platejs/react";
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { useTranslation } from "react-i18next";
 
 const headingItemVariants = cva(

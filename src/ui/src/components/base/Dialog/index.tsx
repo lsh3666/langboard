@@ -5,7 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
-import * as ScrollArea from "@/components/base/ScrollArea";
+import ScrollArea from "@/components/base/ScrollArea";
 import { motion } from "framer-motion";
 import { getEditorStore } from "@/core/stores/EditorStore";
 
@@ -186,4 +186,16 @@ const Description = React.forwardRef<
 >(({ className, ...props }, ref) => <DialogPrimitive.Description ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />);
 Description.displayName = DialogPrimitive.Description.displayName;
 
-export { Close, CloseButton, Content, Description, Footer, Header, Overlay, Portal, Root, Title, Trigger };
+export default {
+    Close,
+    CloseButton,
+    Content,
+    Description,
+    Footer,
+    Header,
+    Overlay,
+    Portal,
+    Root,
+    Title,
+    Trigger,
+};

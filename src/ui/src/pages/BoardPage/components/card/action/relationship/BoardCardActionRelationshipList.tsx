@@ -1,4 +1,5 @@
-import { Flex, ScrollArea } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import ScrollArea from "@/components/base/ScrollArea";
 import { ProjectCardRelationship } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { useBoardController } from "@/core/providers/BoardController";

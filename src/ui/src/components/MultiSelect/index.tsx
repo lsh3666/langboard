@@ -3,7 +3,11 @@
 
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
-import { Badge, Box, Command, Flex, IconComponent } from "@/components/base";
+import Badge from "@/components/base/Badge";
+import Box from "@/components/base/Box";
+import Command from "@/components/base/Command";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useFloating, autoUpdate, offset, shift, limitShift, hide, flip, size } from "@floating-ui/react-dom";
 import { Utils } from "@langboard/core/utils";

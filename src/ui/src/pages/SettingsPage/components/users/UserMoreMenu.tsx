@@ -1,4 +1,5 @@
-import { Box, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Toast from "@/components/base/Toast";
 import MoreMenu from "@/components/MoreMenu";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useDeleteUserInSettings from "@/controllers/api/settings/users/useDeleteUserInSettings";

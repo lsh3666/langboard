@@ -1,4 +1,5 @@
-import { Box, Collapsible } from "@/components/base";
+import Box from "@/components/base/Box";
+import Collapsible from "@/components/base/Collapsible";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useState } from "react";
 

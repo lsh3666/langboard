@@ -1,5 +1,6 @@
 import AvatarUploader from "@/components/AvatarUploader";
-import { Flex, Toast } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
 import useUpdateBot from "@/controllers/api/settings/bots/useUpdateBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";

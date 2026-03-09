@@ -1,4 +1,7 @@
-import { Box, Button, Flex, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
 import { API_URL, APP_NAME } from "@/constants";
 import { McpToolGroup } from "@/core/models";

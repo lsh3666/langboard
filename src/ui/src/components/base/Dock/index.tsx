@@ -5,7 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import React, { useRef } from "react";
 import { VariantProps, tv } from "tailwind-variants";
-import * as Tooltip from "@/components/base/Tooltip";
+import Tooltip from "@/components/base/Tooltip";
 import { ButtonProps } from "@/components/base/Button";
 import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
@@ -174,4 +174,9 @@ function Button({ buttonProps, dockIconProps, title, titleSide, icon, children }
     return <Icon {...dockIconProps}>{iconComp}</Icon>;
 }
 
-export { DockVariants, Icon, Button, Root };
+export default {
+    DockVariants,
+    Icon,
+    Button,
+    Root,
+};

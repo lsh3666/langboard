@@ -1,4 +1,6 @@
-import { Button, DropdownMenu, IconComponent } from "@/components/base";
+import Button from "@/components/base/Button";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import IconComponent from "@/components/base/IconComponent";
 import { GlobalRelationshipType } from "@/core/models";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { useState } from "react";

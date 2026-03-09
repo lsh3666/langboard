@@ -1,4 +1,4 @@
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { AuthUser, User } from "@/core/models";

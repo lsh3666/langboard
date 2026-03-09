@@ -1,4 +1,6 @@
-import { Box, Button, Flex } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
 import useGetCards from "@/controllers/api/board/useGetCards";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ROUTES } from "@/core/routing/constants";

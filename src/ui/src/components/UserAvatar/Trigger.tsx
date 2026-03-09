@@ -1,6 +1,8 @@
 /* eslint-disable @/max-len */
 import { memo } from "react";
-import { Avatar, Flex, IconComponent } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import { BotModel, User } from "@/core/models";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";

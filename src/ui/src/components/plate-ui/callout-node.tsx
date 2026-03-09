@@ -7,7 +7,7 @@ import * as React from "react";
 import { useCalloutEmojiPicker } from "@platejs/callout/react";
 import { useEmojiDropdownMenuState } from "@platejs/emoji/react";
 import { PlateElement } from "platejs/react";
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { cn } from "@/core/utils/ComponentUtils";
 import { EmojiPicker, EmojiPopover } from "@/components/plate-ui/emoji-toolbar-button";
 

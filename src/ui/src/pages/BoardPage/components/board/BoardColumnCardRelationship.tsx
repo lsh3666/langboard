@@ -1,4 +1,4 @@
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { ProjectCardRelationship } from "@/core/models";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { useBoardController } from "@/core/providers/BoardController";

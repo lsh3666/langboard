@@ -133,4 +133,9 @@ Add.promise = function <ToastData>(
 Add.dismiss = toast.dismiss;
 Add.loading = (message: string | React.ReactNode, data?: TExternalToast): string | number => toast.loading(message, createToastData(data));
 
-export { ActionList, Add, Area, useSonner as useToast };
+export default {
+    ActionList,
+    Add,
+    Area,
+    useToast: useSonner,
+};

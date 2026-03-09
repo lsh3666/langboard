@@ -1,4 +1,7 @@
-import { Box, Button, IconComponent, Popover } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
 import CopyInput from "@/components/CopyInput";
 import { PUBLIC_UI_URL } from "@/constants";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";

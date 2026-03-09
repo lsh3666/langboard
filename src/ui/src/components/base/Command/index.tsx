@@ -1,10 +1,10 @@
 /* eslint-disable @/max-len */
 "use client";
 
-import { type DialogProps } from "@radix-ui/react-dialog";
+import type { DialogProps } from "@radix-ui/react-dialog";
 import { Command as Primitive } from "cmdk";
 import * as React from "react";
-import * as BaseDialog from "@/components/base/Dialog";
+import BaseDialog from "@/components/base/Dialog";
 import IconComponent from "@/components/base/IconComponent";
 import { cn } from "@/core/utils/ComponentUtils";
 import { tv } from "tailwind-variants";
@@ -20,7 +20,7 @@ const Root = React.forwardRef<React.ComponentRef<typeof Primitive>, React.Compon
 );
 Root.displayName = Primitive.displayName;
 
-interface CommandDialogProps extends DialogProps {}
+export interface CommandDialogProps extends DialogProps {}
 
 const Dialog = ({ children, ...props }: CommandDialogProps) => {
     return (
@@ -99,4 +99,32 @@ const Shortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>
 };
 Shortcut.displayName = "CommandShortcut";
 
-export { Dialog, Empty, GroupVariants, Group, Input, ItemVariants, Item, List, Primitive, Root, Separator, Shortcut };
+type TCommandModule = {
+    Dialog: (props: CommandDialogProps) => React.JSX.Element;
+    Empty: typeof Empty;
+    GroupVariants: typeof GroupVariants;
+    Group: typeof Group;
+    Input: typeof Input;
+    ItemVariants: typeof ItemVariants;
+    Item: typeof Item;
+    List: typeof List;
+    Primitive: typeof Primitive;
+    Root: typeof Root;
+    Separator: typeof Separator;
+    Shortcut: typeof Shortcut;
+};
+
+export default {
+    Dialog,
+    Empty,
+    GroupVariants,
+    Group,
+    Input,
+    ItemVariants,
+    Item,
+    List,
+    Primitive,
+    Root,
+    Separator,
+    Shortcut,
+} as TCommandModule;

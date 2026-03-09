@@ -1,4 +1,4 @@
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";

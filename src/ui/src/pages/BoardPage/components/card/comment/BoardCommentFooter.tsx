@@ -1,4 +1,8 @@
-import { Button, Flex, Separator, SubmitButton, Toast } from "@/components/base";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Separator from "@/components/base/Separator";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useDeleteCardComment from "@/controllers/api/card/comment/useDeleteCardComment";
 import useUpdateCardComment from "@/controllers/api/card/comment/useUpdateCardComment";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

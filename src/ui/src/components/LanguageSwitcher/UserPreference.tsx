@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useUpdatePreferredLanguage from "@/controllers/api/account/useUpdatePreferredLanguage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -1,4 +1,9 @@
-import { Box, Button, Flex, IconComponent, Input, Label } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import Label from "@/components/base/Label";
 import CachedImage from "@/components/CachedImage";
 import { useEffect, useMemo, useState } from "react";
 import mimeTypes from "react-native-mime-types";

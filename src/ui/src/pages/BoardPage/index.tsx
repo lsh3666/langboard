@@ -2,7 +2,7 @@ import { memo, Suspense, useCallback, useEffect, useMemo, useState } from "react
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router";
 import { DashboardStyledLayout } from "@/components/Layout";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { ROUTES } from "@/core/routing/constants";
 import ChatSidebar from "@/pages/BoardPage/components/chat/ChatSidebar";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

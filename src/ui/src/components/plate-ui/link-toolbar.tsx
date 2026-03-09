@@ -17,7 +17,8 @@ import { cva } from "class-variance-authority";
 import { ExternalLink, Link, Text, Unlink } from "lucide-react";
 import { KEYS } from "platejs";
 import { useEditorRef, useEditorSelection, useFormInputProps, usePluginOption } from "platejs/react";
-import { ButtonVariants, Separator } from "@/components/base";
+import { ButtonVariants } from "@/components/base/Button";
+import Separator from "@/components/base/Separator";
 import { useTranslation } from "react-i18next";
 
 const popoverVariants = cva("z-50 w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden");

@@ -1,4 +1,5 @@
-import { Flex, IconComponent } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import { useEffect, useState } from "react";
 import mimeTypes from "react-native-mime-types";
 

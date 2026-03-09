@@ -1,4 +1,5 @@
-import { Box, Dialog } from "@/components/base";
+import Box from "@/components/base/Box";
+import Dialog from "@/components/base/Dialog";
 import { MetadataList } from "@/components/MetadataList";
 import MetadataAddButton from "@/components/MetadataList/MetadataAddButton";
 import { ROUTES } from "@/core/routing/constants";

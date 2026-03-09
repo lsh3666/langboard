@@ -1,5 +1,8 @@
 import { useCallback, useEffect } from "react";
-import { Box, Flex, Loading, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Loading from "@/components/base/Loading";
+import Skeleton from "@/components/base/Skeleton";
 import { Utils } from "@langboard/core/utils";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import useGetDashboardCards from "@/controllers/api/dashboard/useGetDashboardCards";

@@ -1,4 +1,6 @@
-import { Box, Floating, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Floating from "@/components/base/Floating";
+import Toast from "@/components/base/Toast";
 import useUpdateInternalBot from "@/controllers/api/settings/internalBots/useUpdateInternalBot";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";

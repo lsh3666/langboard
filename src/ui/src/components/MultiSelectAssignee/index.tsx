@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { Button, Flex, IconComponent, Popover as BasePopover, ButtonProps, SubmitButton, DropdownMenu } from "@/components/base";
+import Button, { type ButtonProps } from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import BasePopover from "@/components/base/Popover";
+import SubmitButton from "@/components/base/SubmitButton";
+import DropdownMenu from "@/components/base/DropdownMenu";
 import {
     ISelectEditorProviderProps,
     SelectEditor,

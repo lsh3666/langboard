@@ -1,4 +1,7 @@
-import { Box, Checkbox, Label, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Checkbox from "@/components/base/Checkbox";
+import Label from "@/components/base/Label";
+import Toast from "@/components/base/Toast";
 import { useBotTriggerConditionList } from "@/components/bots/BotTriggerConditionList/Provider";
 import useCreateBotScope from "@/controllers/api/shared/botScopes/useCreateBotScope";
 import useToggleBotScopeTriggerCondition from "@/controllers/api/shared/botScopes/useToggleBotScopeTriggerCondition";

@@ -265,4 +265,11 @@ const Content = React.forwardRef<HTMLDivElement, TabsContentProps>(({ className,
 });
 Content.displayName = "TabsContent";
 
-export { Provider, useTabsContext, List, Trigger, Content, TabsVariants };
+export default {
+    Provider,
+    useTabsContext,
+    List,
+    Trigger,
+    Content,
+    TabsVariants,
+};

@@ -1,4 +1,9 @@
-import { Button, Card, Collapsible, Flex, IconComponent, ShineBorder } from "@/components/base";
+import Button from "@/components/base/Button";
+import Card from "@/components/base/Card";
+import Collapsible from "@/components/base/Collapsible";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import ShineBorder from "@/components/base/ShineBorder";
 import { UserAvatarList } from "@/components/UserAvatarList";
 import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import { useBoardController } from "@/core/providers/BoardController";

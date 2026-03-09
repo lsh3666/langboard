@@ -1,4 +1,4 @@
-import { IconComponent } from "@/components/base";
+import IconComponent from "@/components/base/IconComponent";
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/Chat/ChatBubble";
 import { ChatMessageModel } from "@/core/models";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";

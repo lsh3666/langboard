@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import useGetMcpToolGroups from "@/controllers/api/settings/mcpToolGroups/useGetMcpToolGroups";
 import { McpToolGroup } from "@/core/models";
-import { Box, Flex, PillList } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import PillList from "@/components/base/PillList";
 import McpToolGroupListItem from "@/pages/SettingsPage/components/mcpToolGroups/McpToolGroupListItem";
 import McpToolGroupDetails from "@/pages/SettingsPage/components/mcpToolGroups/McpToolGroupDetails";
 import { ModelRegistry } from "@/core/models/ModelRegistry";

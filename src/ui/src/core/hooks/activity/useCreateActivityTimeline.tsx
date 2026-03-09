@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Avatar, Box, Flex, IconComponent, Skeleton, Tooltip } from "@/components/base";
+import Avatar from "@/components/base/Avatar";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
+import Tooltip from "@/components/base/Tooltip";
 import DateDistance from "@/components/DateDistance";
 import { CollapsibleVersionHistoryPlate } from "@/components/Editor/version-history-plate";
 import UserAvatar from "@/components/UserAvatar";

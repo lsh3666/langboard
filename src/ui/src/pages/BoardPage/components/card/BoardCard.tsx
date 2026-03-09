@@ -1,4 +1,9 @@
-import { Box, Dialog, Flex, ShineBorder, Skeleton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import ShineBorder from "@/components/base/ShineBorder";
+import Skeleton from "@/components/base/Skeleton";
+import Toast from "@/components/base/Toast";
 import useGetCardDetails from "@/controllers/api/card/useGetCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { BoardCardProvider, useBoardCard } from "@/core/providers/BoardCardProvider";

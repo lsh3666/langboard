@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeMathjax from "rehype-mathjax";
 import MarkdownCodeBlock from "@/components/Markdown/CodeBlock";
 import { IChatContent } from "@/core/models/Base";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import MarkdownDateBlock from "@/components/Markdown/DateBlock";
 import rehypeRaw from "rehype-raw";
 import { cn } from "@/core/utils/ComponentUtils";

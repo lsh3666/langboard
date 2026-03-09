@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Box } from "@/components/base";
+import Box from "@/components/base/Box";
 import PreferenceLanguage from "@/pages/AccountPage/components/preference/PreferenceLanguage";
 import PreferenceNotification from "@/pages/AccountPage/components/preference/PreferenceNotification";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";

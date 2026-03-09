@@ -1,4 +1,5 @@
-import { ButtonProps, DropdownMenu } from "@/components/base";
+import { type ButtonProps } from "@/components/base/Button";
+import DropdownMenu from "@/components/base/DropdownMenu";
 
 interface IBaseMoreMenuItemProps<TContent> {
     modal?: bool;

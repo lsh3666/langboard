@@ -1,5 +1,5 @@
 import MultiSelectAssignee, { TSaveHandler } from "@/components/MultiSelectAssignee";
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import { EMAIL_REGEX } from "@/constants";
 import useUpdateProjectAssignedUsers from "@/controllers/api/board/useUpdateProjectAssignedUsers";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -1,4 +1,10 @@
-import { Box, Button, IconComponent, Skeleton, Tabs, Toast, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import IconComponent from "@/components/base/IconComponent";
+import Skeleton from "@/components/base/Skeleton";
+import Tabs from "@/components/base/Tabs";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import useDeleteWiki from "@/controllers/api/wiki/useDeleteWiki";
 import { singleDndHelpers } from "@/core/helpers/dnd";
 import { SINGLE_ROW_IDLE } from "@/core/helpers/dnd/createDndSingleRowEvents";

@@ -1,4 +1,6 @@
-import { Box, Flex, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Skeleton from "@/components/base/Skeleton";
 import { SkeletonUserAvatarList } from "@/components/UserAvatarList";
 
 function SkeletonBoardCardCheckitem() {

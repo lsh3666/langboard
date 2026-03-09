@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    AnimatedList,
-    Box,
-    Button,
-    Card,
-    Flex,
-    IconComponent,
-    Label,
-    Loading,
-    Popover,
-    ScrollArea,
-    Select,
-    Switch,
-    Toast,
-    Tooltip,
-} from "@/components/base";
+import AnimatedList from "@/components/base/AnimatedList";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Label from "@/components/base/Label";
+import Loading from "@/components/base/Loading";
+import Popover from "@/components/base/Popover";
+import ScrollArea from "@/components/base/ScrollArea";
+import Select from "@/components/base/Select";
+import Switch from "@/components/base/Switch";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import DateDistance from "@/components/DateDistance";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import UserAvatar from "@/components/UserAvatar";

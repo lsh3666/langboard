@@ -1,4 +1,5 @@
-import { Flex, Toast } from "@/components/base";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
 import MetadataRow from "@/components/MetadataList/MetadataRow";
 import { TMetadataForm } from "@/controllers/api/metadata/types";
 import useGetMetadata from "@/controllers/api/metadata/useGetMetadata";

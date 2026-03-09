@@ -7,7 +7,7 @@ import { ROUTES } from "@/core/routing/constants";
 import { Utils } from "@langboard/core/utils";
 import EmailForm from "@/pages/auth/SignInPage/EmailForm";
 import PasswordForm from "@/pages/auth/SignInPage/PasswordForm";
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 

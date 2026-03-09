@@ -1,4 +1,8 @@
-import { Box, DropdownMenu, Flex, IconComponent, Tooltip } from "@/components/base";
+import Box from "@/components/base/Box";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Tooltip from "@/components/base/Tooltip";
 import UserAvatar from "@/components/UserAvatar";
 import UserAvatarDefaultList from "@/components/UserAvatarDefaultList";
 import useBoardUIBotScopeConditionsUpdatedHandlers from "@/controllers/socket/board/botScopes/useBoardUIBotScopeTriggerConditionsUpdatedHandlers";

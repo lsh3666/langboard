@@ -1,4 +1,5 @@
-import { Floating, Toast } from "@/components/base";
+import Floating from "@/components/base/Floating";
+import Toast from "@/components/base/Toast";
 import MoreMenu from "@/components/MoreMenu";
 import useChangeCardChecklistTitle from "@/controllers/api/card/checklist/useChangeCardChecklistTitle";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

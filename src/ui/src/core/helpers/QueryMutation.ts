@@ -48,10 +48,10 @@ export const useQueryMutation = (queryClient: QueryClient = useQueryClient()) =>
             {
                 mutationKey,
                 mutationFn,
-                onSettled: (data, error, variables, context) => {
+                onSettled: (data, error, variables, onMutateResult, context) => {
                     queryClient.invalidateQueries({ queryKey: mutationKey });
                     if (options.onSettled) {
-                        options.onSettled(data, error, variables, context);
+                        options.onSettled(data, error, variables, onMutateResult, context);
                     }
                 },
                 ...options,

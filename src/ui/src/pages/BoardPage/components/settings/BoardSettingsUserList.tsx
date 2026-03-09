@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import NotificationSetting from "@/components/NotificationSetting";
 import { AuthUser, Project } from "@/core/models";
 import BoardSettingsSection from "@/pages/BoardPage/components/settings/BoardSettingsSection";

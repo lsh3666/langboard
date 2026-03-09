@@ -1,4 +1,4 @@
-import { PillList } from "@/components/base";
+import PillList from "@/components/base/PillList";
 import { InternalBotModel } from "@/core/models";
 import InternalBot from "@/pages/SettingsPage/components/internalBots/InternalBot";
 

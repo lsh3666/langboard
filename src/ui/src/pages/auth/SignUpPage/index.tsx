@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 import { FormOnlyLayout } from "@/components/Layout";
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { ISignUpForm } from "@/controllers/api/auth/useSignUp";
 import { ROUTES } from "@/core/routing/constants";
 import AdditionalForm from "@/pages/auth/SignUpPage/AdditionalForm";

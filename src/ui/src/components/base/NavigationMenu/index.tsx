@@ -101,4 +101,14 @@ const Indicator = React.forwardRef<
 ));
 Indicator.displayName = NavigationMenuPrimitive.Indicator.displayName;
 
-export { Content, Indicator, Item, Link, List, Root, Trigger, TriggerStyle, Viewport };
+export default {
+    Content,
+    Indicator,
+    Item,
+    Link,
+    List,
+    Root,
+    Trigger,
+    TriggerStyle,
+    Viewport,
+};

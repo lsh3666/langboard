@@ -1,4 +1,5 @@
-import { Button, Table } from "@/components/base";
+import Button from "@/components/base/Button";
+import Table from "@/components/base/Table";
 import DateDistance from "@/components/DateDistance";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ProjectCard, ProjectCheckitem } from "@/core/models";

@@ -1,4 +1,7 @@
-import { Checkbox, Flex, Label, ScrollArea } from "@/components/base";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Label from "@/components/base/Label";
+import ScrollArea from "@/components/base/ScrollArea";
 import { ProjectLabel } from "@/core/models";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import BoardCardActionLabel from "@/pages/BoardPage/components/card/action/label/BoardCardActionLabel";

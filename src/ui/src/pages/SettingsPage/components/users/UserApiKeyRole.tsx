@@ -1,4 +1,10 @@
-import { Button, Checkbox, Flex, Toast, Box, Popover, Tooltip } from "@/components/base";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import Toast from "@/components/base/Toast";
+import Box from "@/components/base/Box";
+import Popover from "@/components/base/Popover";
+import Tooltip from "@/components/base/Tooltip";
 import IconComponent from "@/components/base/IconComponent";
 import useUpdateUserApiKeyRole from "@/controllers/api/settings/users/useUpdateUserApiKeyRole";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

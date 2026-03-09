@@ -1,4 +1,11 @@
-import { AutoComplete, Box, Flex, Form, Input, Label, SubmitButton, Textarea } from "@/components/base";
+import AutoComplete from "@/components/base/AutoComplete";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Form from "@/components/base/Form";
+import Input from "@/components/base/Input";
+import Label from "@/components/base/Label";
+import SubmitButton from "@/components/base/SubmitButton";
+import Textarea from "@/components/base/Textarea";
 import FormErrorMessage from "@/components/FormErrorMessage";
 import useChangeProjectDetails from "@/controllers/api/board/settings/useChangeProjectDetails";
 import useForm from "@/core/hooks/form/useForm";

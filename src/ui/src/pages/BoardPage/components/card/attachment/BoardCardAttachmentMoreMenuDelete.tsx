@@ -1,4 +1,5 @@
-import { Box, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Toast from "@/components/base/Toast";
 import MoreMenu from "@/components/MoreMenu";
 import useDeleteCardAttachment from "@/controllers/api/card/attachment/useDeleteCardAttachment";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

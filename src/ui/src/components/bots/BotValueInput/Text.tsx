@@ -1,4 +1,4 @@
-import { Floating } from "@/components/base";
+import Floating from "@/components/base/Floating";
 import { TSharedBotValueInputProps } from "@/components/bots/BotValueInput/types";
 
 function BotValueTextInput({ value, label, newValueRef, disabled, change, required, ref }: TSharedBotValueInputProps) {

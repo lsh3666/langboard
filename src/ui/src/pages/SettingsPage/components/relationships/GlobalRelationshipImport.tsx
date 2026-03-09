@@ -1,4 +1,12 @@
-import { Button, Dialog, Flex, IconComponent, Input, SubmitButton, Table, Toast, Tooltip } from "@/components/base";
+import Button from "@/components/base/Button";
+import Dialog from "@/components/base/Dialog";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Input from "@/components/base/Input";
+import SubmitButton from "@/components/base/SubmitButton";
+import Table from "@/components/base/Table";
+import Toast from "@/components/base/Toast";
+import Tooltip from "@/components/base/Tooltip";
 import { GlobalRelationshipType } from "@/core/models";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { Utils } from "@langboard/core/utils";

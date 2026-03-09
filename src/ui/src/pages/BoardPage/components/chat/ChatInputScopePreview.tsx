@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Badge, Flex, Tooltip } from "@/components/base";
+import Badge from "@/components/base/Badge";
+import Flex from "@/components/base/Flex";
+import Tooltip from "@/components/base/Tooltip";
 import { useBoardChat } from "@/core/providers/BoardChatProvider";
 import { useMemo } from "react";
 import { ProjectCard, ProjectColumn, ProjectWiki } from "@/core/models";

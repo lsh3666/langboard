@@ -28,4 +28,9 @@ const Content = React.forwardRef<
 ));
 Content.displayName = HoverCardPrimitive.Content.displayName;
 
-export { Content, Root, Trigger, Portal };
+export default {
+    Content,
+    Root,
+    Trigger,
+    Portal,
+};

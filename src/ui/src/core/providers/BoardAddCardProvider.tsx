@@ -1,4 +1,4 @@
-import { Toast } from "@/components/base";
+import Toast from "@/components/base/Toast";
 import useCreateCard from "@/controllers/api/board/useCreateCard";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";

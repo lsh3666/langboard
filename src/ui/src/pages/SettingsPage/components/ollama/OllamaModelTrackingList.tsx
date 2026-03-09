@@ -1,4 +1,4 @@
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import useOllamaModelStore from "@/core/stores/OllamaModelStore";
 import OllamaModelTracker from "@/pages/SettingsPage/components/ollama/OllamaModelTracker";
 

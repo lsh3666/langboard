@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { Utils } from "@langboard/core/utils";
 import { TInternalLinkableModel, TInternalLinkElement } from "@/components/Editor/plugins/customs/internal-link/InternalLinkPlugin";
 import { IInternalLinkInputComboboxItemProps, InternalLinkInputComboboxItem } from "@/components/plate-ui/internal-link-input-combobox-item";
-import { IconComponent } from "@/components/base";
+import IconComponent from "@/components/base/IconComponent";
 import { ProjectCard, ProjectWiki } from "@/core/models";
 import InternalLinkElementDialog from "@/components/plate-ui/internal-link-node-dialog";
 

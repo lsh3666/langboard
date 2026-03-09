@@ -10,7 +10,8 @@ import { EditorKit } from "@/components/Editor/editor-kit";
 import { MarkdownPlugin } from "@platejs/markdown";
 import { cloneDeep } from "lodash";
 import { EditorDataProvider, TEditorDataProviderProps } from "@/core/providers/EditorDataProvider";
-import { Box, Collapsible } from "@/components/base";
+import Box from "@/components/base/Box";
+import Collapsible from "@/components/base/Collapsible";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useTranslation } from "react-i18next";
 

@@ -1,7 +1,7 @@
 import CustomSelect from "@/components/Cron/CustomSelect";
 import { UNITS } from "@/components/Cron/constants";
 import { MinutesProps } from "@/components/Cron/types";
-import { Flex } from "@/components/base";
+import Flex from "@/components/base/Flex";
 import { useTranslation } from "react-i18next";
 
 export default function Minutes(props: MinutesProps) {

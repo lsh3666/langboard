@@ -175,4 +175,11 @@ const Line = React.forwardRef<HTMLHRElement, TimelineLineProps>(({ className, do
 });
 Line.displayName = "TimelineLine";
 
-export { Content, Dot, Heading, Item, Line, Root };
+export default {
+    Content,
+    Dot,
+    Heading,
+    Item,
+    Line,
+    Root,
+};

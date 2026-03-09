@@ -6,7 +6,12 @@ import BoardColumnCard, { BoardColumnCardShadow, SkeletonBoardColumnCard } from 
 import { useBoard } from "@/core/providers/BoardProvider";
 import { ProjectColumn } from "@/core/models";
 import { BoardAddCardProvider } from "@/core/providers/BoardAddCardProvider";
-import { Box, Card, Flex, ScrollArea, ShineBorder, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Card from "@/components/base/Card";
+import Flex from "@/components/base/Flex";
+import ScrollArea from "@/components/base/ScrollArea";
+import ShineBorder from "@/components/base/ShineBorder";
+import Skeleton from "@/components/base/Skeleton";
 import BoardColumnHeader from "@/pages/BoardPage/components/board/BoardColumnHeader";
 import { cn } from "@/core/utils/ComponentUtils";
 import BoardColumnAddCard from "@/pages/BoardPage/components/board/BoardColumnAddCard";

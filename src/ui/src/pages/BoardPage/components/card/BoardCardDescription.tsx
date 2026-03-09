@@ -1,4 +1,6 @@
-import { Box, Skeleton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Skeleton from "@/components/base/Skeleton";
+import Toast from "@/components/base/Toast";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";

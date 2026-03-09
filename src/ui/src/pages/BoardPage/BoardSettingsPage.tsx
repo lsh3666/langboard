@@ -1,5 +1,7 @@
 import { memo, useEffect } from "react";
-import { Box, Flex, Skeleton } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import Skeleton from "@/components/base/Skeleton";
 import { ROUTES } from "@/core/routing/constants";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { IBoardRelatedPageProps } from "@/pages/BoardPage/types";

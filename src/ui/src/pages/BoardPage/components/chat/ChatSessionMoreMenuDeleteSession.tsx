@@ -1,4 +1,6 @@
-import { DropdownMenu, IconComponent, Toast } from "@/components/base";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import IconComponent from "@/components/base/IconComponent";
+import Toast from "@/components/base/Toast";
 import { useMoreMenu } from "@/components/MoreMenu/Provider";
 import useDeleteProjectChatSession from "@/controllers/api/board/chat/useDeleteProejctChatSession";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";

@@ -6,7 +6,9 @@ import BoardColumn, { SkeletonBoardColumn } from "@/pages/BoardPage/components/b
 import { bindAll } from "bind-event-listener";
 import { CleanupFn } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
 import { useBoard } from "@/core/providers/BoardProvider";
-import { Box, Flex, ScrollArea } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import ScrollArea from "@/components/base/ScrollArea";
 import BoardColumnAdd from "@/pages/BoardPage/components/board/BoardColumnAdd";
 import useChangeProjectColumnOrder from "@/controllers/api/board/useChangeProjectColumnOrder";
 import useChangeCardOrder from "@/controllers/api/board/useChangeCardOrder";

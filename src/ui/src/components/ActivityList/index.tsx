@@ -1,4 +1,7 @@
-import { Box, Button, Flex, Loading } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Flex from "@/components/base/Flex";
+import Loading from "@/components/base/Loading";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import { TGetActivitiesForm } from "@/controllers/api/shared/types";
 import useCreateActivityTimeline, { TActivityViewType } from "@/core/hooks/activity/useCreateActivityTimeline";

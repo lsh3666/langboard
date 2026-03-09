@@ -17,7 +17,8 @@ import {
     usePluginOption,
 } from "platejs/react";
 import { useSelected } from "platejs/react";
-import { Button, Tooltip } from "@/components/base";
+import Button from "@/components/base/Button";
+import Tooltip from "@/components/base/Tooltip";
 import { useTranslation } from "react-i18next";
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];

@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Button, Command, Flex, IconComponent, Popover, Skeleton, SubmitButton, Toast } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Command from "@/components/base/Command";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Popover from "@/components/base/Popover";
+import Skeleton from "@/components/base/Skeleton";
+import SubmitButton from "@/components/base/SubmitButton";
+import Toast from "@/components/base/Toast";
 import useChangePrimaryEmail from "@/controllers/api/account/useChangePrimaryEmail";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { useAccountSetting } from "@/core/providers/AccountSettingProvider";

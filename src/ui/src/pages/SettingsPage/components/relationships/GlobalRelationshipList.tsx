@@ -1,4 +1,9 @@
-import { Box, Button, Checkbox, Flex, IconComponent, Loading } from "@/components/base";
+import Box from "@/components/base/Box";
+import Button from "@/components/base/Button";
+import Checkbox from "@/components/base/Checkbox";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
+import Loading from "@/components/base/Loading";
 import InfiniteScroller from "@/components/InfiniteScroller";
 import useInfiniteScrollPager from "@/core/hooks/useInfiniteScrollPager";
 import useScrollToTop from "@/core/hooks/useScrollToTop";

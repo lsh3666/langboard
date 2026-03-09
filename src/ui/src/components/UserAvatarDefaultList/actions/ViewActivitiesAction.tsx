@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Popover } from "@/components/base";
+import Popover from "@/components/base/Popover";
 import { AuthUser, Project } from "@/core/models";
 import ActivityList from "@/components/ActivityList";
 import { useTranslation } from "react-i18next";

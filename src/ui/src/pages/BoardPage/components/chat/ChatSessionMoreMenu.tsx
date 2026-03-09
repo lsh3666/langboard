@@ -1,4 +1,4 @@
-import { Button } from "@/components/base";
+import Button from "@/components/base/Button";
 import { TIconName, TIconProps } from "@/components/base/IconComponent";
 import MoreMenu from "@/components/MoreMenu";
 import { ChatSessionModel } from "@/core/models";

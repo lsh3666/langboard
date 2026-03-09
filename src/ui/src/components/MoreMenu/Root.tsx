@@ -1,4 +1,6 @@
-import { Button, ButtonProps, DropdownMenu, IconComponent } from "@/components/base";
+import Button, { type ButtonProps } from "@/components/base/Button";
+import DropdownMenu from "@/components/base/DropdownMenu";
+import IconComponent from "@/components/base/IconComponent";
 import { TIconName } from "@/components/base/IconComponent";
 import { MoreMenuProvider } from "@/components/MoreMenu/Provider";
 import useHandleInteractOutside from "@/core/hooks/useHandleInteractOutside";
