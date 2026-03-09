@@ -57,4 +57,7 @@ const routes: RouteObject[] = [
     },
 ];
 
-export default routes;
+export default {
+    routes,
+    loadInitially: true,
+};
