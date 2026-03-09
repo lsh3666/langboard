@@ -72,5 +72,5 @@ const routes: RouteObject[] = [
 
 export default {
     routes,
-    loadInitially: false,
+    loadInitially: true,
 };

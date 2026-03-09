@@ -1,7 +1,9 @@
 import { Outlet, RouteObject } from "react-router";
 import { ProtectedAuthRoute } from "@/core/routing/ProtectedAuthRoute";
 import { ROUTES } from "@/core/routing/constants";
-import SignInPage from "@/pages/auth/SignInPage";
+import { lazy } from "react";
+
+const SignInPage = lazy(() => import("./index"));
 
 const routes: RouteObject[] = [
     {

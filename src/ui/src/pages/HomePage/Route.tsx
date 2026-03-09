@@ -1,7 +1,9 @@
 import { ROUTES } from "@/core/routing/constants";
-import Redirect from "@/pages/HomePage/Redirect";
+import { lazy } from "react";
 import { RouteObject } from "react-router";
-import HomePage from "@/pages/HomePage";
+
+const Redirect = lazy(() => import("./Redirect"));
+const HomePage = lazy(() => import("./index"));
 
 const routes: RouteObject[] = [
     {

@@ -1,6 +1,8 @@
 import { RouteObject } from "react-router";
 import { ROUTES } from "@/core/routing/constants";
-import ErrorPage from "@/pages/ErrorPage";
+import { lazy } from "react";
+
+const ErrorPage = lazy(() => import("./index"));
 
 const routes: RouteObject[] = [
     {

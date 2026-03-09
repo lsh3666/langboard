@@ -1,8 +1,10 @@
 import { Navigate, Outlet, RouteObject } from "react-router";
 import { AuthGuard } from "@/core/routing/AuthGuard";
 import { ROUTES } from "@/core/routing/constants";
-import ModalPage from "@/pages/DashboardPage/ModalPage";
-import DashboardProxy from "@/pages/DashboardPage";
+import { lazy } from "react";
+
+const ModalPage = lazy(() => import("./ModalPage"));
+const DashboardProxy = lazy(() => import("./index"));
 
 const routes: RouteObject[] = [
     {
@@ -17,14 +19,6 @@ const routes: RouteObject[] = [
             {
                 index: true,
                 element: <Navigate to={ROUTES.DASHBOARD.PROJECTS.ALL} />,
-            },
-            {
-                path: ROUTES.DASHBOARD.CARDS,
-                element: <></>,
-            },
-            {
-                path: ROUTES.DASHBOARD.CARDS,
-                element: <></>,
             },
             {
                 path: ROUTES.DASHBOARD.CARDS,
