@@ -21,13 +21,26 @@ function InternalBotsPage() {
     const { isValidating } = useAppSetting();
     const { botUID } = useParams();
     const [bot, setBot] = useState<InternalBotModel.TModel | null>(null);
+    const [mounted, setMounted] = useState(false);
     const { mutateAsync: getInternalBotsMutateAsync } = useGetInternalBots();
 
     useEffect(() => {
+        const initialize = async () => {
+            await getInternalBotsMutateAsync({});
+            setMounted(true);
+        };
+
+        initialize();
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) {
+            return;
+        }
+
         if (!botUID) {
             setPageAliasRef.current("Internal Bots");
             setBot(null);
-            getInternalBotsMutateAsync({});
             return;
         }
 
@@ -39,11 +52,15 @@ function InternalBotsPage() {
         }
 
         setBot(targetBot);
-    }, [botUID]);
+    }, [mounted, botUID]);
 
     const openCreateDialog = () => {
         navigate(ROUTES.SETTINGS.CREATE_INTERNAL_BOT);
     };
+
+    if (!mounted) {
+        return null;
+    }
 
     return (
         <>

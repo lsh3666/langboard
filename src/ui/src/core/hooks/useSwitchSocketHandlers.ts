@@ -4,7 +4,7 @@ import { ISocketContext } from "@/core/providers/SocketProvider";
 import { getTopicWithId } from "@/core/stores/SocketStore";
 import { Utils } from "@langboard/core/utils";
 import { ESocketTopic } from "@langboard/core/enums";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TSocketHandler = ReturnType<typeof useSocketHandler<any, any>> | ReturnType<typeof useSocketStreamHandler>;
@@ -16,13 +16,13 @@ export interface IUseSwitchSocketHandlersProps {
 }
 
 const useSwitchSocketHandlers = ({ socket, handlers, dependencies }: IUseSwitchSocketHandlersProps) => {
-    handlers = Utils.Type.isArray(handlers) ? handlers : [handlers];
+    const handlerList = useMemo(() => (Utils.Type.isArray(handlers) ? handlers : [handlers]), [handlers]);
     const [subscribedTopics, setSubscribedTopics] = useState<ESocketTopic[]>([]);
 
     useEffect(() => {
         const notifiers: [ESocketTopic, string, string][] = [];
-        for (let i = 0; i < handlers.length; ++i) {
-            const { topic, topicId } = getTopicWithId(handlers[i]);
+        for (let i = 0; i < handlerList.length; ++i) {
+            const { topic, topicId } = getTopicWithId(handlerList[i]);
 
             const key = Utils.String.Token.uuid();
             notifiers.push([topic, topicId, key]);
@@ -31,20 +31,22 @@ const useSwitchSocketHandlers = ({ socket, handlers, dependencies }: IUseSwitchS
                 topicId: topicId as never,
                 key,
                 notifier: (subscribedTopicId, isSubscribed) => {
-                    if (
-                        subscribedTopicId !== topicId ||
-                        (isSubscribed && subscribedTopics.includes(topic)) ||
-                        (!isSubscribed && !subscribedTopics.includes(topic))
-                    ) {
+                    if (subscribedTopicId !== topicId) {
                         return;
                     }
 
                     setSubscribedTopics((prev) => {
-                        const newTopics = prev.filter((t) => t !== topic);
+                        const existed = prev.includes(topic);
+                        if ((isSubscribed && existed) || (!isSubscribed && !existed)) {
+                            return prev;
+                        }
+
+                        const newTopics = prev.filter((targetTopic) => targetTopic !== topic);
                         if (isSubscribed) {
                             newTopics.push(topic);
                         }
-                        return [...newTopics];
+
+                        return newTopics;
                     });
                 },
             });
@@ -56,12 +58,12 @@ const useSwitchSocketHandlers = ({ socket, handlers, dependencies }: IUseSwitchS
                 socket.unsubscribeTopicNotifier({ topic, topicId: topicId as never, key });
             }
         };
-    }, [subscribedTopics, setSubscribedTopics]);
+    }, [handlerList, socket]);
 
     useEffect(() => {
         const offs: (() => void)[] = [];
-        for (let i = 0; i < handlers.length; ++i) {
-            const { topic, on } = handlers[i];
+        for (let i = 0; i < handlerList.length; ++i) {
+            const { topic, on } = handlerList[i];
             if (!topic || !subscribedTopics.includes(topic)) {
                 continue;
             }
@@ -74,7 +76,7 @@ const useSwitchSocketHandlers = ({ socket, handlers, dependencies }: IUseSwitchS
                 offs[i]();
             }
         };
-    }, [subscribedTopics, ...(dependencies ?? [])]);
+    }, [handlerList, subscribedTopics, ...(dependencies ?? [])]);
 
     return { subscribedTopics };
 };

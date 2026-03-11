@@ -73,7 +73,7 @@ export const DataTableProvider = ({ itemsPerPage = 10, totalRecords, onPaginated
 
             onPaginated?.();
         },
-        [state, location, navigate, onPaginated]
+        [state, location, onPaginated]
     );
 
     useEffect(() => {

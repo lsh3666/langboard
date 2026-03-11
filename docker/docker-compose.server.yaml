@@ -58,6 +58,7 @@ services:
     volumes:
       - ../src/api/${PROJECT_NAME}:/app/src/api/${PROJECT_NAME}
       - ../src/shared/py:/app/src/shared/py
+      - shared-py-venv:/app/shared/py/.venv
       - ../src/resources:/app/src/resources
       - ../pyproject.toml:/app/pyproject.toml
       - ../uv.lock:/app/uv.lock
@@ -123,6 +124,7 @@ services:
     volumes:
       - ../src/flows/${PROJECT_NAME}_flows:/app/src/flows/${PROJECT_NAME}_flows
       - ../src/shared/py:/app/src/shared/py
+      - shared-py-venv:/app/shared/py/.venv
       - ../src/resources:/app/src/resources
       - ../src/flows/pyproject.toml:/app/src/flows/pyproject.toml
       - ../src/flows/uv.lock:/app/src/flows/uv.lock
@@ -137,3 +139,7 @@ services:
     networks:
       - net
     restart: always
+
+volumes:
+  shared-py-venv:
+    driver: local

@@ -57,7 +57,7 @@ const BoardSettingsLabelList = memo(() => {
                 );
             },
         });
-    }, [flatLabels, labelsMap]);
+    }, [changeProjectLabelOrderMutate, labelsMap, project]);
 
     return (
         <>

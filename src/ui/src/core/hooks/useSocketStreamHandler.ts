@@ -21,13 +21,13 @@ interface IBaseUseSocketStreamHandlerProps {
 
 const useSocketStreamHandler = (props: IBaseUseSocketStreamHandlerProps) => {
     const socket = useSocketOutsideProvider();
-    const { onProps, eventKey } = props;
+    const { topic, topicId, onProps, eventKey } = props;
+    const eventName = onProps.params ? Utils.String.format(onProps.name, onProps.params) : onProps.name;
+    const callbacks = onProps.callbacks;
     const on = () => {
-        const eventName = onProps.params ? Utils.String.format(onProps.name, onProps.params) : onProps.name;
-        const { callbacks } = onProps;
         socket.stream({
-            topic: props.topic as never,
-            topicId: props.topicId,
+            topic: topic as never,
+            topicId,
             event: eventName,
             eventKey,
             callbacks,
@@ -35,18 +35,18 @@ const useSocketStreamHandler = (props: IBaseUseSocketStreamHandlerProps) => {
 
         return () => {
             socket.streamOff({
-                topic: props.topic as never,
-                topicId: props.topicId,
+                topic: topic as never,
+                topicId,
                 event: eventName,
-                eventKey: eventKey,
+                eventKey,
                 callbacks,
             });
         };
     };
 
     return {
-        topic: props.topic,
-        topicId: props.topicId,
+        topic,
+        topicId,
         eventKey,
         on,
     };

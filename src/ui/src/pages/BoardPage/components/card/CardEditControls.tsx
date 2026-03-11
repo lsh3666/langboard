@@ -26,7 +26,7 @@ export const CardEditControls = ({
     }
 
     return (
-        <Flex className={cn("gap-2 px-4 py-2", "transition-all duration-200 ease-in-out", className)} justify="end" items="center">
+        <Flex className={cn("gap-2 px-4 py-2 transition-all duration-200 ease-in-out", className)} justify="end" items="center">
             <Flex className="gap-2">
                 <Button variant="outline" size="sm" onClick={onCancel} className="gap-1">
                     <IconComponent icon="x" size="4" />

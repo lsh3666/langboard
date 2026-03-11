@@ -182,7 +182,7 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
                     navigate(ROUTES.DASHBOARD.PROJECTS.ALL, { replace: true });
                 },
             }),
-        [project, navigate]
+        [project]
     );
     const boardAssignedInternalBotChangedHandlers = useMemo(
         () =>
@@ -223,23 +223,27 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
             }),
         [project, isBoardChatAvailableHandlers]
     );
+    const handlers = useMemo(
+        () => [
+            isBoardChatAvailableHandlers,
+            boardAssignedUsersUpdatedHandlers,
+            projectDeletedHandlers,
+            boardAssignedInternalBotChangedHandlers,
+            internalBotUpdatedHandlers,
+        ],
+        [
+            isBoardChatAvailableHandlers,
+            boardAssignedUsersUpdatedHandlers,
+            projectDeletedHandlers,
+            boardAssignedInternalBotChangedHandlers,
+            internalBotUpdatedHandlers,
+        ]
+    );
 
     const { subscribedTopics } = useSwitchSocketHandlers({
         socket,
-        handlers: [
-            isBoardChatAvailableHandlers,
-            boardAssignedUsersUpdatedHandlers,
-            projectDeletedHandlers,
-            boardAssignedInternalBotChangedHandlers,
-            internalBotUpdatedHandlers,
-        ],
-        dependencies: [
-            isBoardChatAvailableHandlers,
-            boardAssignedUsersUpdatedHandlers,
-            projectDeletedHandlers,
-            boardAssignedInternalBotChangedHandlers,
-            internalBotUpdatedHandlers,
-        ],
+        handlers,
+        dependencies: handlers,
     });
 
     useEffect(() => {

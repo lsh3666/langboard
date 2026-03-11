@@ -6,7 +6,7 @@ import useInternalBotUpdatedHandlers from "@/controllers/socket/global/useIntern
 import useSelectedGlobalRelationshipsDeletedHandlers from "@/controllers/socket/global/useSelectedGlobalRelationshipsDeletedHandlers";
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { useSocket } from "@/core/providers/SocketProvider";
-import { createContext } from "react";
+import { createContext, useMemo } from "react";
 
 interface IGlobalSocketHandlersSubscriberProps {
     children: React.ReactNode;
@@ -22,10 +22,8 @@ export const GlobalSocketHandlersSubscriber = ({ children }: IGlobalSocketHandle
     const internalBotCreatedHandlers = useInternalBotCreatedHandlers({});
     const internalBotUpdatedHandlers = useInternalBotUpdatedHandlers({});
     const internalBotDeletedHandlers = useInternalBotDeletedHandlers({});
-
-    useSwitchSocketHandlers({
-        socket,
-        handlers: [
+    const handlers = useMemo(
+        () => [
             botCreatedHandlers,
             globalRelationshipCreatedHandlers,
             selectedGlobalRelationshipsDeletedHandlers,
@@ -33,6 +31,19 @@ export const GlobalSocketHandlersSubscriber = ({ children }: IGlobalSocketHandle
             internalBotUpdatedHandlers,
             internalBotDeletedHandlers,
         ],
+        [
+            botCreatedHandlers,
+            globalRelationshipCreatedHandlers,
+            selectedGlobalRelationshipsDeletedHandlers,
+            internalBotCreatedHandlers,
+            internalBotUpdatedHandlers,
+            internalBotDeletedHandlers,
+        ]
+    );
+
+    useSwitchSocketHandlers({
+        socket,
+        handlers,
     });
 
     return <GlobalSocketHandlersSubscriberContext.Provider value={{}}>{children}</GlobalSocketHandlersSubscriberContext.Provider>;

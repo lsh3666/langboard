@@ -89,7 +89,7 @@ function BoardCardAttachmentList(): React.JSX.Element {
                 );
             },
         });
-    }, [flatAttachments, attachmentsMap]);
+    }, [attachmentsMap, card, changeCardAttachmentOrderMutate, projectUID]);
 
     return (
         <>
@@ -110,7 +110,7 @@ function BoardCardAttachmentList(): React.JSX.Element {
                                 <BoardCardAttachment
                                     key={`board-card-${card.uid}-attachment-${attachment.uid}`}
                                     attachment={attachment}
-                                    openPreview={() => openPreview(i)}
+                                    openPreview={() => openPreview(i + 5)}
                                 />
                             ))}
                         </Flex>

@@ -14,6 +14,7 @@ export interface IEditorDataContext {
     currentUser: AuthUser.TModel;
     mentionables: TUserLikeModel[];
     linkables: TInternalLinkableModel[];
+    editorType: TEditorType;
     form?: any;
     socketEvents?: ReturnType<typeof createEditorSocketEvents>;
     chatEventKey?: string;
@@ -84,6 +85,7 @@ const initialContext = {
     currentUser: {} as AuthUser.TModel,
     mentionables: [],
     linkables: [],
+    editorType: "view" as TEditorType,
     createInternalLink: () => () => {},
 };
 
@@ -171,6 +173,7 @@ export const EditorDataProvider = ({
                 currentUser,
                 mentionables,
                 linkables,
+                editorType,
                 form,
                 socketEvents,
                 chatEventKey,

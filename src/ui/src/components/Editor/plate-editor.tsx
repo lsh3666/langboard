@@ -14,6 +14,7 @@ interface IBasePlateEditorProps extends Omit<TUseCreateEditor, "plugins"> {
     setValue?: (value: IEditorContent) => void;
     variant?: React.ComponentProps<typeof Editor>["variant"];
     className?: string;
+    containerClassName?: string;
     editorRef?: React.RefObject<TEditor | null>;
     editorComponentRef?: React.Ref<HTMLDivElement>;
     placeholder?: string;
@@ -44,6 +45,7 @@ function EditorWrapper({
     readOnly,
     variant = "ai",
     className,
+    containerClassName,
     setValue,
     editorRef,
     editorComponentRef,
@@ -78,7 +80,7 @@ function EditorWrapper({
                     });
                 }}
             >
-                <EditorContainer>
+                <EditorContainer className={containerClassName}>
                     <Editor variant={variant} className={className} placeholder={placeholder} readOnly={readOnly} ref={editorComponentRef} />
                 </EditorContainer>
             </Plate>

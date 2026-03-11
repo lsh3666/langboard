@@ -78,39 +78,43 @@ export type TUseSocketHandlerProps<TResponse, TRawResponse = TResponse> =
 
 const useSocketHandler = <TResponse, TRawResponse = TResponse, TRequest = unknown>(props: TUseSocketHandlerProps<TResponse, TRawResponse>) => {
     const socket = useSocketOutsideProvider();
-    const { onProps, sendProps, eventKey } = props;
+    const { topic, topicId, onProps, sendProps, eventKey } = props;
+    const onCallback = onProps?.callback;
+    const onResponseConverter = onProps?.responseConverter;
+    const onEventName = onProps ? (onProps.params ? Utils.String.format(onProps.name, onProps.params) : onProps.name) : undefined;
+    const sendEventName = sendProps ? (sendProps.params ? Utils.String.format(sendProps.name, sendProps.params) : sendProps.name) : undefined;
+    const hasSendProps = !!sendProps;
     const on = () => {
-        if (!onProps) {
+        if (!onEventName) {
             return () => {};
         }
 
-        const eventName = onProps.params ? Utils.String.format(onProps.name, onProps.params) : onProps.name;
         const event = (data: TResponse | TRawResponse) => {
             let newData;
-            if (onProps.responseConverter) {
-                newData = onProps.responseConverter(data as TRawResponse);
+            if (onResponseConverter) {
+                newData = onResponseConverter(data as TRawResponse);
             } else {
                 newData = data as unknown as TResponse;
             }
 
-            onProps.callback?.(newData);
+            onCallback?.(newData);
         };
 
         socket.on<TResponse>({
-            topic: props.topic as never,
-            topicId: props.topicId,
-            event: eventName,
+            topic: topic as never,
+            topicId,
+            event: onEventName,
             eventKey,
             callback: event,
         });
 
         return () => {
             socket.off({
-                topic: props.topic as never,
-                topicId: props.topicId,
-                event: eventName,
-                eventKey: eventKey,
-                callback: event,
+                topic: topic as never,
+                topicId,
+                event: onEventName,
+                eventKey,
+                callback: event as unknown as (data: unknown) => void,
             });
         };
     };
@@ -120,24 +124,23 @@ const useSocketHandler = <TResponse, TRawResponse = TResponse, TRequest = unknow
     ) => TUseSocketHandlerProps<TResponse, TRawResponse>["sendProps"] extends undefined ? undefined : ReturnType<typeof socket.send> = (
         data: TRequest
     ) => {
-        if (!sendProps) {
+        if (!hasSendProps || !sendEventName) {
             return undefined as unknown as TUseSocketHandlerProps<TResponse, TRawResponse>["sendProps"] extends undefined
                 ? undefined
                 : ReturnType<typeof socket.send>;
         }
 
-        const eventName = sendProps.params ? Utils.String.format(sendProps.name, sendProps.params) : sendProps.name;
         return socket.send({
-            topic: props.topic as never,
-            topicId: props.topicId,
-            eventName,
+            topic: topic as never,
+            topicId,
+            eventName: sendEventName,
             data,
         });
     };
 
     return {
-        topic: props.topic,
-        topicId: props.topicId,
+        topic,
+        topicId,
         eventKey,
         send,
         on,

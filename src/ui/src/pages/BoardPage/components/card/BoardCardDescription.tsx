@@ -145,13 +145,25 @@ const BoardCardDescription = memo((): React.JSX.Element => {
 
     return (
         <Box data-card-description>
-            {isEditing && <CardEditControls isEditing={isEditing} onSave={handleSave} onCancel={handleCancel} saveDisabled={isPending} />}
+            {isEditing && (
+                <CardEditControls
+                    isEditing={isEditing}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                    saveDisabled={isPending}
+                    className={cn(
+                        "sticky top-[calc(theme(spacing.16)_+_theme(spacing.3))] z-[90]",
+                        "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm"
+                    )}
+                />
+            )}
             <Box onPointerDown={startEditing}>
                 <PlateEditor
                     value={initialEditorValue}
                     mentionables={mentionables}
                     linkables={cards}
                     currentUser={currentUser}
+                    containerClassName="overflow-y-visible"
                     className={cn("h-full min-h-[calc(theme(spacing.56)_-_theme(spacing.8))]", isEditing ? "px-6 py-3" : "")}
                     readOnly={!isEditing}
                     editorType="card-description"

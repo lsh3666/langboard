@@ -12,7 +12,7 @@ import useDeleteOllamaModelHandlers from "@/controllers/socket/settings/ollama/u
 import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { useSocket } from "@/core/providers/SocketProvider";
 import { getOllamaModelStore, useOllamaModel } from "@/core/stores/OllamaModelStore";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface IOllamaModelListItemProps {
@@ -43,7 +43,8 @@ function OllamaModelListItem({ name }: IOllamaModelListItemProps) {
             getOllamaModelStore().deleteModel(name);
         },
     });
-    useSwitchSocketHandlers({ socket, handlers: [copiedHandlers, deletedHandlers] });
+    const handlers = useMemo(() => [copiedHandlers, deletedHandlers], [copiedHandlers, deletedHandlers]);
+    useSwitchSocketHandlers({ socket, handlers });
 
     if (!model) {
         return null;

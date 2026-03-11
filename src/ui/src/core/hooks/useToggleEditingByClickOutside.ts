@@ -1,15 +1,31 @@
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef } from "react";
 
+const DRAG_THRESHOLD_PX = 6;
+
+const hasSelectionInsideBox = (box: Element | null) => {
+    if (!box) {
+        return false;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return false;
+    }
+
+    const { anchorNode, focusNode } = selection;
+    return !!anchorNode && !!focusNode && box.contains(anchorNode) && box.contains(focusNode);
+};
+
 const useToggleEditingByClickOutside = (boxAttr: string, changeMode: (mode: "edit" | "view") => void, isEditing?: bool) => {
     const isDraggingRef = useRef(false);
-    const draggingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const startEditing = useCallback(
-        (event: React.MouseEvent | CustomEvent | MouseEvent) => {
+        (event: React.PointerEvent | PointerEvent | React.MouseEvent | MouseEvent | CustomEvent) => {
             const target = event.target as HTMLElement;
+            const box = target.closest(boxAttr);
             if (
                 isEditing ||
-                !target.closest(boxAttr) ||
+                !box ||
                 target.closest("a") ||
                 target.closest("video") ||
                 target.closest("embed") ||
@@ -22,31 +38,45 @@ const useToggleEditingByClickOutside = (boxAttr: string, changeMode: (mode: "edi
                 return;
             }
 
-            const onEnd = () => {
-                document.removeEventListener("pointerup", onEnd);
+            if ("button" in event && event.button !== 0) {
+                return;
+            }
 
-                if (isDraggingRef.current) {
+            const startX = "clientX" in event ? event.clientX : 0;
+            const startY = "clientY" in event ? event.clientY : 0;
+
+            const onMove = (moveEvent: PointerEvent) => {
+                if (Math.abs(moveEvent.clientX - startX) > DRAG_THRESHOLD_PX || Math.abs(moveEvent.clientY - startY) > DRAG_THRESHOLD_PX) {
+                    isDraggingRef.current = true;
+                }
+            };
+
+            const cleanup = () => {
+                document.removeEventListener("pointermove", onMove);
+                document.removeEventListener("pointerup", onEnd);
+                document.removeEventListener("pointercancel", onCancel);
+            };
+
+            const onEnd = () => {
+                cleanup();
+
+                if (isDraggingRef.current || hasSelectionInsideBox(box)) {
                     isDraggingRef.current = false;
-                    if (draggingTimeoutRef.current) {
-                        clearTimeout(draggingTimeoutRef.current);
-                        draggingTimeoutRef.current = null;
-                    }
                     return;
                 }
 
                 changeMode("edit");
             };
 
-            document.addEventListener("pointerup", onEnd);
+            const onCancel = () => {
+                cleanup();
+                isDraggingRef.current = false;
+            };
 
             isDraggingRef.current = false;
-            draggingTimeoutRef.current = setTimeout(() => {
-                isDraggingRef.current = true;
-                if (draggingTimeoutRef.current) {
-                    clearTimeout(draggingTimeoutRef.current);
-                    draggingTimeoutRef.current = null;
-                }
-            }, 100);
+            document.addEventListener("pointermove", onMove);
+            document.addEventListener("pointerup", onEnd);
+            document.addEventListener("pointercancel", onCancel);
         },
         [changeMode, isEditing]
     );

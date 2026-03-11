@@ -86,7 +86,7 @@ class Env:
 
     @property
     def DOMAIN(self) -> str | None:
-        return self.__get_from_cache("DOMAIN", None)
+        return self.__get_from_cache("DOMAIN", None) if self.ENVIRONMENT != "development" else "localhost"
 
     @property
     def UI_REDIRECT_URL(self) -> str:

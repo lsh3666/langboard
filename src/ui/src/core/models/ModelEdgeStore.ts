@@ -1,56 +1,22 @@
 import type { IModelMap, TPickedModel, TPickedModelClass } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
 import { useEffect, useMemo, useReducer, useState } from "react";
+import {
+    createSubscriptionMap,
+    notifyModelEdge,
+    subscribeModelEdge,
+    TConnectedSubscriptionContext,
+    TConnectedSubscribeContext,
+    TDisconnectedSubscriptionContext,
+    TDisconnectedSubscribeContext,
+    TEdgeMap,
+    TSubscriptionContext,
+    TSubscribeContext,
+    TSubscriptionMap,
+    unsubscribeModelEdge,
+} from "@/core/models/base/modelEdgeSubscriptions";
 
 type TCommonModel = TPickedModel<keyof IModelMap>;
-type TChildEdgeMap<TChild> = Partial<Record<keyof IModelMap, TChild>>;
-
-type TParentEdgeMap<TChild> = {
-    [uid: string]: TChildEdgeMap<TChild>;
-};
-
-type TEdgeMap<TChild> = Partial<Record<keyof IModelMap, TParentEdgeMap<TChild>>>;
-
-type TSubscriptionMap = {
-    CONNECTED: TEdgeMap<{ [key: string]: (uids: string[]) => void }>;
-    DISCONNECTED: TEdgeMap<{ [uid: string]: { [key: string]: () => void } }>;
-};
-
-interface IBaseSubscriptionContext {
-    event: keyof TSubscriptionMap;
-    key: string;
-    source: TCommonModel;
-}
-
-type TConnectedSubscriptionContext = IBaseSubscriptionContext & {
-    event: "CONNECTED";
-    targetClass: TPickedModelClass<keyof IModelMap>;
-};
-
-type TDisconnectedSubscriptionContext = IBaseSubscriptionContext & {
-    event: "DISCONNECTED";
-    target: TCommonModel;
-};
-
-type TConnectedSubscribeContext = TConnectedSubscriptionContext & {
-    callback: (uids: string[]) => void;
-};
-
-type TDisconnectedSubscribeContext = TDisconnectedSubscriptionContext & {
-    callback: () => void;
-};
-
-type TConnectedNotifyContext = Omit<TConnectedSubscriptionContext, "key"> & {
-    uids: string[];
-};
-
-type TDisconnectedNotifyContext = Omit<TDisconnectedSubscriptionContext, "key" | "target"> & {
-    target: { modelName: keyof IModelMap; uid: string };
-};
-
-type TSubscriptionContext = TConnectedSubscriptionContext | TDisconnectedSubscriptionContext;
-type TSubscribeContext = TConnectedSubscribeContext | TDisconnectedSubscribeContext;
-type TNotifyContext = TConnectedNotifyContext | TDisconnectedNotifyContext;
 
 class _ModelEdgeStore {
     #edgeMap: TEdgeMap<Set<string>>;
@@ -58,10 +24,7 @@ class _ModelEdgeStore {
 
     constructor() {
         this.#edgeMap = {};
-        this.#subscriptions = {
-            CONNECTED: {},
-            DISCONNECTED: {},
-        };
+        this.#subscriptions = createSubscriptionMap();
     }
 
     public addEdge(source: TCommonModel, targets: TCommonModel | TCommonModel[]) {
@@ -114,11 +77,15 @@ class _ModelEdgeStore {
                 return;
             }
 
-            this.#notify({
-                event: "CONNECTED",
-                source,
-                targetClass: constructor,
-                uids,
+            notifyModelEdge({
+                subscriptions: this.#subscriptions,
+                convertModelName: this.#convertModelName,
+                context: {
+                    event: "CONNECTED",
+                    source,
+                    targetClass: constructor,
+                    uids,
+                },
             });
 
             delete notifierMap[modelName];
@@ -154,10 +121,14 @@ class _ModelEdgeStore {
                 }
 
                 children.delete(uid);
-                this.#notify({
-                    event: "DISCONNECTED",
-                    source,
-                    target: { modelName, uid },
+                notifyModelEdge({
+                    subscriptions: this.#subscriptions,
+                    convertModelName: this.#convertModelName,
+                    context: {
+                        event: "DISCONNECTED",
+                        source,
+                        target: { modelName, uid },
+                    },
                 });
             });
             return;
@@ -177,10 +148,14 @@ class _ModelEdgeStore {
                 const target = targets[i];
                 const targetUID = Utils.Type.isString(target) ? target : target.uid;
                 children.delete(targetUID);
-                this.#notify({
-                    event: "DISCONNECTED",
-                    source,
-                    target: { modelName, uid: targetUID },
+                notifyModelEdge({
+                    subscriptions: this.#subscriptions,
+                    convertModelName: this.#convertModelName,
+                    context: {
+                        event: "DISCONNECTED",
+                        source,
+                        target: { modelName, uid: targetUID },
+                    },
                 });
             }
             return;
@@ -199,10 +174,14 @@ class _ModelEdgeStore {
 
             const children = targetMap[targetModelName];
             children.delete(target.uid);
-            this.#notify({
-                event: "DISCONNECTED",
-                source,
-                target: { modelName: targetModelName, uid: target.uid },
+            notifyModelEdge({
+                subscriptions: this.#subscriptions,
+                convertModelName: this.#convertModelName,
+                context: {
+                    event: "DISCONNECTED",
+                    source,
+                    target: { modelName: targetModelName, uid: target.uid },
+                },
             });
         }
     }
@@ -210,60 +189,21 @@ class _ModelEdgeStore {
     public subscribe(context: TConnectedSubscribeContext): () => void;
     public subscribe(context: TDisconnectedSubscribeContext): () => void;
     public subscribe(context: TSubscribeContext): () => void {
-        const { event, key, source, callback } = context;
-        const sourceModelName = this.#convertModelName(source.MODEL_NAME);
-        let targetMap;
-        let targetModelName: keyof IModelMap;
-        if (event === "CONNECTED") {
-            targetModelName = this.#convertModelName(context.targetClass.MODEL_NAME);
-
-            targetMap = Utils.Object.getDeepRecordMap(true, this.#subscriptions.CONNECTED, sourceModelName, source.uid, targetModelName);
-            targetMap[key] = callback;
-            return () => {
-                this.unsubscribe({
-                    event: "CONNECTED",
-                    key,
-                    source,
-                    targetClass: context.targetClass,
-                });
-            };
-        }
-
-        targetModelName = this.#convertModelName(context.target.MODEL_NAME);
-
-        targetMap = Utils.Object.getDeepRecordMap(
-            true,
-            this.#subscriptions.DISCONNECTED,
-            sourceModelName,
-            source.uid,
-            targetModelName,
-            context.target.uid
-        );
-        targetMap[key] = callback;
-
-        return () => {
-            this.unsubscribe({
-                event: "DISCONNECTED",
-                key,
-                source,
-                target: context.target,
-            });
-        };
+        return subscribeModelEdge({
+            subscriptions: this.#subscriptions,
+            convertModelName: this.#convertModelName,
+            context,
+        });
     }
 
     public unsubscribe(context: TConnectedSubscriptionContext): void;
     public unsubscribe(context: TDisconnectedSubscriptionContext): void;
     public unsubscribe(context: TSubscriptionContext): void {
-        const { event, key, source } = context;
-        const sourceModelName = this.#convertModelName(source.MODEL_NAME);
-        let targetModelName;
-        if (event === "CONNECTED") {
-            targetModelName = this.#convertModelName(context.targetClass.MODEL_NAME);
-            Utils.Object.deleteDeepRecordMap(this.#subscriptions.CONNECTED, sourceModelName, source.uid, targetModelName, key);
-        } else {
-            targetModelName = this.#convertModelName(context.target.MODEL_NAME);
-            Utils.Object.deleteDeepRecordMap(this.#subscriptions.DISCONNECTED, sourceModelName, source.uid, targetModelName, context.target.uid, key);
-        }
+        unsubscribeModelEdge({
+            subscriptions: this.#subscriptions,
+            convertModelName: this.#convertModelName,
+            context,
+        });
     }
 
     public useModels<TTargetClass extends TPickedModelClass<keyof IModelMap>>(
@@ -371,37 +311,12 @@ class _ModelEdgeStore {
         return model;
     }
 
-    #convertModelName(name: keyof IModelMap): keyof IModelMap {
+    #convertModelName = (name: keyof IModelMap): keyof IModelMap => {
         if (name === "AuthUser") {
             return "User";
         }
         return name;
-    }
-
-    #notify(context: TNotifyContext): void {
-        const { event, source } = context;
-        const sourceModelName = this.#convertModelName(source.MODEL_NAME);
-        let subscriptions;
-        if (event === "CONNECTED") {
-            const targetModelName = this.#convertModelName(context.targetClass.MODEL_NAME);
-            subscriptions = Utils.Object.getDeepRecordMap(false, this.#subscriptions.CONNECTED, sourceModelName, source.uid, targetModelName);
-        } else {
-            const { modelName, uid } = context.target;
-            subscriptions = Utils.Object.getDeepRecordMap(false, this.#subscriptions.DISCONNECTED, sourceModelName, source.uid, modelName, uid);
-        }
-
-        if (!subscriptions) {
-            return;
-        }
-
-        Object.values(subscriptions).forEach((callback) => {
-            if (event === "CONNECTED") {
-                callback(context.uids);
-            } else {
-                (callback as () => void)();
-            }
-        });
-    }
+    };
 }
 
 const ModelEdgeStore = new _ModelEdgeStore();

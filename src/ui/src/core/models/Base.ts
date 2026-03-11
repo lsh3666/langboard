@@ -4,14 +4,22 @@ import { create, StoreApi, UseBoundStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { produce } from "immer";
 import { useEffect, useState } from "react";
-import useSocketHandler from "@/core/helpers/SocketHandler";
-import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";
 import { Utils } from "@langboard/core/utils";
 import createFakeModel from "@/core/models/FakeModel";
-import { getTopicWithId } from "@/core/stores/SocketStore";
 import { ModelRegistry, IModelMap, TPickedModel } from "@/core/models/ModelRegistry";
-import ModelEdgeStore from "@/core/models/ModelEdgeStore";
-import { ESocketTopic } from "@langboard/core/enums";
+import {
+    getForeignModelArray,
+    pickForeignModels,
+    syncForeignModelEdges,
+    useForeignModelArray,
+    useForeignModelOne,
+} from "@/core/models/base/modelEdges";
+import {
+    clearModelSocketSubscriptions,
+    subscribeModelSocketEvents,
+    TModelSocketHandlerFactory,
+    unsubscribeModelSocketEvents,
+} from "@/core/models/base/socketSubscriptions";
 
 export interface IEditorContent {
     content: string;
@@ -44,20 +52,12 @@ type TModelStoreMap = {
     };
 };
 
-type TModelSocketSubscriptionMap = {
-    [TModelName in keyof IModelMap]: {
-        [uid: string]: [ESocketTopic, string, string, (() => void)[]][];
-    };
-};
-
 export abstract class BaseModel<TModel extends IBaseModel> {
-    static readonly #SOCKET = useSocketOutsideProvider();
     static readonly #MODELS: Partial<TModelStoreMap> = {};
     static readonly #NOTIFIERS: IModelNotifiersMap = {
         CREATION: {},
         DELETION: {},
     };
-    static readonly #socketSubscriptions: Partial<TModelSocketSubscriptionMap> = {};
     #store: TStateStore<TModel>;
 
     public static get FOREIGN_MODELS(): Record<string, keyof IModelMap> {
@@ -69,13 +69,18 @@ export abstract class BaseModel<TModel extends IBaseModel> {
     }
 
     constructor(model: Record<string, any>) {
-        const foreignModels = this.#parseForeignModels(model);
+        const foreignModels = pickForeignModels(model, this.#getConstructor().FOREIGN_MODELS);
         this.#store = create(
             immer(() => ({
                 ...model,
             }))
         ) as any;
-        this.#buildEdges(foreignModels);
+        syncForeignModelEdges({
+            source: this as any,
+            model: foreignModels,
+            foreignModels: this.#getConstructor().FOREIGN_MODELS,
+            isModelInstance: (value): value is TPickedModel<keyof IModelMap> => value instanceof BaseModel,
+        });
     }
 
     public static fromOne<TDerived extends typeof BaseModel<any>, TModel extends IBaseModel>(
@@ -399,16 +404,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
     }
 
     public static unsubscribeSocketEvents(uid: string) {
-        const modelName = this.MODEL_NAME;
-        if (!BaseModel.#socketSubscriptions[modelName]?.[uid]) {
-            return;
-        }
-
-        BaseModel.#socketSubscriptions[modelName][uid].forEach(([topic, topicId, key, offs]) => {
-            offs.forEach((off) => off());
-            BaseModel.#SOCKET.unsubscribeTopicNotifier({ topic, topicId: topicId as never, key });
-        });
-        delete BaseModel.#socketSubscriptions[modelName][uid];
+        unsubscribeModelSocketEvents(this.MODEL_NAME, uid);
     }
 
     public static cleanUp() {
@@ -417,7 +413,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         delete BaseModel.#MODELS[modelName];
         delete BaseModel.#NOTIFIERS.CREATION[modelName];
         delete BaseModel.#NOTIFIERS.DELETION[modelName];
-        delete BaseModel.#socketSubscriptions[modelName];
+        clearModelSocketSubscriptions(modelName);
     }
 
     static #notify<TModelName extends keyof IModelMap>(
@@ -532,7 +528,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         type TModelName = TDerived["FOREIGN_MODELS"][TKey];
         type TForeignModel = TModelName extends keyof IModelMap ? InstanceType<IModelMap[TModelName]["Model"]> : never;
         const modelName = this.#getConstructor().FOREIGN_MODELS[field as string];
-        const fieldValue = ModelEdgeStore.useModels(this as any, ModelRegistry[modelName].Model, dependencies);
+        const fieldValue = useForeignModelArray<TForeignModel>(this as any, modelName, dependencies);
 
         return fieldValue as TForeignModel[];
     }
@@ -545,12 +541,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         type TModelName = TDerived["FOREIGN_MODELS"][TKey];
         type TForeignModel = TModelName extends keyof IModelMap ? InstanceType<IModelMap[TModelName]["Model"]> : never;
         const modelName = this.#getConstructor().FOREIGN_MODELS[field as string];
-        const models = ModelEdgeStore.useModels(this as any, ModelRegistry[modelName].Model, dependencies);
-        const [fieldValue, setFieldValue] = useState(models[0] || null);
-
-        useEffect(() => {
-            setFieldValue(models[0] || null);
-        }, [models]);
+        const fieldValue = useForeignModelOne<TForeignModel>(this as any, modelName, dependencies);
 
         return fieldValue as TForeignModel;
     }
@@ -563,13 +554,18 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         type TModelName = TDerived["FOREIGN_MODELS"][TKey];
         type TForeignModel = TModelName extends keyof IModelMap ? InstanceType<IModelMap[TModelName]["Model"]> : never;
         const modelName = this.#getConstructor().FOREIGN_MODELS[field as string];
-        const fieldValue = ModelEdgeStore.getModels(this as any, ModelRegistry[modelName].Model);
+        const fieldValue = getForeignModelArray<TForeignModel>(this as any, modelName);
 
         return fieldValue as TForeignModel[];
     }
 
     protected update<TUpdateModel extends Partial<TModel | TPickedModel<keyof IModelMap>>>(model: TUpdateModel) {
-        this.#buildEdges(model);
+        syncForeignModelEdges({
+            source: this as any,
+            model: model as Record<string, any>,
+            foreignModels: this.#getConstructor().FOREIGN_MODELS,
+            isModelInstance: (value): value is TPickedModel<keyof IModelMap> => value instanceof BaseModel,
+        });
         model = this.#getConstructor().convertModel(model);
 
         this.#store.setState(
@@ -589,128 +585,12 @@ export abstract class BaseModel<TModel extends IBaseModel> {
         );
     }
 
-    protected subscribeSocketEvents(events: ((props: any) => ReturnType<typeof useSocketHandler<any, any, any>>)[], props: any) {
-        const modelName = this.#getConstructor().MODEL_NAME;
-        if (!BaseModel.#socketSubscriptions[modelName]) {
-            BaseModel.#socketSubscriptions[modelName] = {};
-        }
-
-        if (!BaseModel.#socketSubscriptions[modelName][this.uid]) {
-            BaseModel.#socketSubscriptions[modelName][this.uid] = [];
-        }
-
-        const topicMap: Partial<Record<ESocketTopic, Record<string, ReturnType<typeof useSocketHandler>["on"][]>>> = {};
-        const currentSubscriptions: [ESocketTopic, string, string, (() => void)[]][] = [];
-        for (let i = 0; i < events.length; ++i) {
-            const handlers = events[i](props);
-            const { topic, topicId } = getTopicWithId(handlers);
-            if (!topic || !topicId) {
-                continue;
-            }
-
-            if (!topicMap[topic]) {
-                topicMap[topic] = {};
-            }
-
-            if (!topicMap[topic][topicId]) {
-                topicMap[topic][topicId] = [];
-            }
-
-            topicMap[topic][topicId].push(handlers.on);
-        }
-
-        Object.entries(topicMap).forEach(([topic, topicIdMap]) => {
-            Object.entries(topicIdMap!).forEach(([topicId, handlers]) => {
-                const key = Utils.String.Token.uuid();
-                const offs: (() => void)[] = [];
-                const subscription: [ESocketTopic, string, string, (() => void)[]] = [topic, topicId, key, offs];
-                BaseModel.#SOCKET.subscribeTopicNotifier({
-                    topic,
-                    topicId: topicId as never,
-                    key,
-                    notifier: (subscribedTopicId, isSubscribed) => {
-                        if (topicId !== subscribedTopicId) {
-                            return;
-                        }
-
-                        if (isSubscribed) {
-                            for (let i = 0; i < handlers.length; ++i) {
-                                offs.push(handlers[i]());
-                            }
-                        } else {
-                            offs.forEach((off) => off());
-                            offs.splice(0);
-                        }
-                    },
-                });
-
-                currentSubscriptions.push(subscription);
-                BaseModel.#socketSubscriptions[modelName]![this.uid].push(subscription);
-            });
-        });
-
-        return () => {
-            if (!BaseModel.#socketSubscriptions[modelName]?.[this.uid]) {
-                return;
-            }
-
-            for (let i = 0; i < BaseModel.#socketSubscriptions[modelName][this.uid].length; ++i) {
-                const subscription = BaseModel.#socketSubscriptions[modelName][this.uid][i];
-                const currentSubscriptionIndex = currentSubscriptions.indexOf(subscription);
-                if (currentSubscriptionIndex === -1) {
-                    continue;
-                }
-
-                const [topic, topicId, key, offs] = subscription;
-                offs.forEach((off) => off());
-                BaseModel.#SOCKET.unsubscribeTopicNotifier({ topic, topicId: topicId as never, key });
-                BaseModel.#socketSubscriptions[modelName][this.uid].splice(i, 1);
-                currentSubscriptions.splice(currentSubscriptionIndex, 1);
-                --i;
-            }
-
-            Object.keys(topicMap).forEach((topic) => {
-                delete topicMap[topic];
-            });
-        };
-    }
-
-    #parseForeignModels(model: Record<string, any>) {
-        const foreignModels: Record<string, any> = {};
-        Object.keys(this.#getConstructor().FOREIGN_MODELS).forEach((key) => {
-            if (!model[key]) {
-                return;
-            }
-
-            foreignModels[key] = model[key];
-        });
-
-        return foreignModels;
-    }
-
-    #buildEdges(model: Record<string, any>) {
-        const foreignModels = this.#getConstructor().FOREIGN_MODELS;
-        Object.keys(foreignModels).forEach((key) => {
-            if (!model[key]) {
-                return;
-            }
-
-            const modelName = foreignModels[key];
-            if (!Utils.Type.isArray(model[key])) {
-                model[key] = [model[key]];
-            }
-
-            const oldModels = ModelEdgeStore.getModels(this as any, ModelRegistry[modelName].Model);
-            ModelEdgeStore.removeEdge(this as any, oldModels);
-
-            const foreigns = model[key] as (BaseModel<any> | IBaseModel)[];
-            const rawModels = foreigns.filter((subModel) => !(subModel instanceof BaseModel));
-            const models = ModelRegistry[modelName].Model.fromArray(rawModels as any);
-
-            const allModels = [...(foreigns.filter((m) => m instanceof BaseModel) as TPickedModel<keyof IModelMap>[]), ...models];
-            ModelEdgeStore.addEdge(this as any, allModels);
-
-            delete model[key];
+    protected subscribeSocketEvents<TProps>(events: TModelSocketHandlerFactory<any>[], props: TProps) {
+        return subscribeModelSocketEvents({
+            modelName: this.#getConstructor().MODEL_NAME,
+            uid: this.uid,
+            events,
+            props,
         });
     }
 

@@ -35,30 +35,28 @@ export interface IUseRowOrderChangedHandlersProps extends IBaseUseSocketHandlers
     topicId: string;
 }
 
+const ROW_ORDER_CHANGED_CONFIG = {
+    ProjectCard: {
+        onEventName: SocketEvents.SERVER.BOARD.CARD.ORDER_CHANGED,
+        targetModel: ProjectCard.Model,
+        targetModelColumn: "project_column_uid",
+        topic: ESocketTopic.Board,
+    },
+    ProjectCheckitem: {
+        onEventName: SocketEvents.SERVER.BOARD.CARD.CHECKITEM.ORDER_CHANGED,
+        targetModel: ProjectCheckitem.Model,
+        targetModelColumn: "checklist_uid",
+        topic: ESocketTopic.BoardCard,
+    },
+} as const;
+
 const useRowOrderChangedHandlers = ({ callback, type, params, topicId }: IUseRowOrderChangedHandlersProps) => {
-    let onEventName = "";
+    const { onEventName, targetModel, targetModelColumn, topic } = ROW_ORDER_CHANGED_CONFIG[type];
     const sendEventName = "";
-    let targetModel;
-    let targetModelColumn;
-    let topic = ESocketTopic.None;
-    switch (type) {
-        case "ProjectCard":
-            onEventName = SocketEvents.SERVER.BOARD.CARD.ORDER_CHANGED;
-            targetModel = ProjectCard.Model;
-            targetModelColumn = "project_column_uid";
-            topic = ESocketTopic.Board;
-            break;
-        case "ProjectCheckitem":
-            onEventName = SocketEvents.SERVER.BOARD.CARD.CHECKITEM.ORDER_CHANGED;
-            targetModel = ProjectCheckitem.Model;
-            targetModelColumn = "checklist_uid";
-            topic = ESocketTopic.BoardCard;
-            break;
-    }
 
     return useSocketHandler({
         topic,
-        topicId: topicId,
+        topicId,
         eventKey: `${new Utils.String.Case(type).toKebab()}-row-order-changed`,
         onProps: {
             name: onEventName,

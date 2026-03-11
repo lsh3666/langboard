@@ -1,15 +1,15 @@
-import useUserUpdatedHandlers from "@/controllers/socket/user/useUserUpdatedHandlers";
 import { BaseModel, IBaseModel } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
 import createFakeModel from "@/core/models/FakeModel";
-import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";
-import { Utils } from "@langboard/core/utils";
-import { ESocketTopic } from "@langboard/core/enums";
+import useUserUpdatedHandlers from "@/controllers/socket/user/useUserUpdatedHandlers";
 import useUserDeletedHandlers from "@/controllers/socket/user/useUserDeletedHandlers";
-import { SettingRole, ApiKeyRole, McpRole } from "@/core/models/roles";
 import useUserApiKeyRolesUpdatedHandlers from "@/controllers/socket/user/useUserApiKeyRolesUpdatedHandlers";
 import useUserSettingRolesUpdatedHandlers from "@/controllers/socket/user/useUserSettingRolesUpdatedHandlers";
 import useUserMcpRolesUpdatedHandlers from "@/controllers/socket/user/useUserMcpRolesUpdatedHandlers";
+import { subscribeModelSocketTopic, unsubscribeModelSocketTopic } from "@/core/models/base/socketSubscriptions";
+import { Utils } from "@langboard/core/utils";
+import { ESocketTopic } from "@langboard/core/enums";
+import { SettingRole, ApiKeyRole, McpRole } from "@/core/models/roles";
 
 export interface Interface extends IBaseModel {
     type: "user" | "unknown" | "bot" | "group_email";
@@ -310,17 +310,16 @@ class User<TInherit extends Interface = Interface> extends BaseModel<TInherit & 
         User.#pendingSubscribers.push(this.uid);
 
         User.#subscribeTimeout = setTimeout(() => {
-            const socket = useSocketOutsideProvider();
             const userUIDs = User.#pendingSubscribers.splice(0);
             User.#subscribedUserUIDs.push(...userUIDs);
 
-            socket.subscribe(ESocketTopic.User, userUIDs);
+            subscribeModelSocketTopic(ESocketTopic.User, userUIDs);
 
             for (let i = 0; i < userUIDs.length; ++i) {
                 const uid = userUIDs[i];
                 User.subscribe("DELETION", uid, (uids) => {
                     if (uids.includes(uid)) {
-                        socket.unsubscribe(ESocketTopic.User, [uid]);
+                        unsubscribeModelSocketTopic(ESocketTopic.User, [uid]);
                     }
                 });
             }

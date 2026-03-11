@@ -1,13 +1,13 @@
 import * as AuthUser from "@/core/models/AuthUser";
 import * as User from "@/core/models/User";
+import useMetadataDeletedHandlers from "@/controllers/socket/metadata/useMetadataDeletedHandlers";
+import useMetadataUpdatedHandlers from "@/controllers/socket/metadata/useMetadataUpdatedHandlers";
+import useBoardWikiAssigneesUpdatedHandlers from "@/controllers/socket/wiki/useBoardWikiAssigneesUpdatedHandlers";
+import useBoardWikiDetailsChangedHandlers from "@/controllers/socket/wiki/useBoardWikiDetailsChangedHandlers";
+import useBoardWikiPublicChangedHandlers from "@/controllers/socket/wiki/useBoardWikiPublicChangedHandlers";
 import { BaseModel, IBaseModel, IEditorContent } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
-import useBoardWikiPublicChangedHandlers from "@/controllers/socket/wiki/useBoardWikiPublicChangedHandlers";
-import useBoardWikiDetailsChangedHandlers from "@/controllers/socket/wiki/useBoardWikiDetailsChangedHandlers";
-import useBoardWikiAssigneesUpdatedHandlers from "@/controllers/socket/wiki/useBoardWikiAssigneesUpdatedHandlers";
-import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";
-import useMetadataUpdatedHandlers from "@/controllers/socket/metadata/useMetadataUpdatedHandlers";
-import useMetadataDeletedHandlers from "@/controllers/socket/metadata/useMetadataDeletedHandlers";
+import { unsubscribeModelSocketTopic } from "@/core/models/base/socketSubscriptions";
 import { ESocketTopic } from "@langboard/core/enums";
 
 export interface Interface extends IBaseModel {
@@ -43,7 +43,6 @@ class ProjectWiki extends BaseModel<IStore> {
     constructor(model: Record<string, unknown>) {
         super(model);
 
-        // Public handlers
         this.subscribeSocketEvents([useBoardWikiDetailsChangedHandlers], {
             projectUID: this.project_uid,
             wiki: this,
@@ -147,8 +146,7 @@ class ProjectWiki extends BaseModel<IStore> {
     }
 
     public changeToPrivate() {
-        const socket = useSocketOutsideProvider();
-        socket.unsubscribe(ESocketTopic.BoardWikiPrivate, [this.uid]);
+        unsubscribeModelSocketTopic(ESocketTopic.BoardWikiPrivate, [this.uid]);
 
         this.title = "";
         this.content = undefined;

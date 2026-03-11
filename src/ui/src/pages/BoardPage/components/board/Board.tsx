@@ -149,7 +149,7 @@ function BoardDisplay({ scrollableRef }: { scrollableRef: React.RefObject<HTMLDi
                 );
             },
         });
-    }, [columns, cardsMap, chatResizableSidebar]);
+    }, [cardsMap, changeCardOrderMutate, changeColumnOrderMutate, chatResizableSidebar, columns, forceUpdate, project]);
 
     // Panning the board
     useEffect(() => {

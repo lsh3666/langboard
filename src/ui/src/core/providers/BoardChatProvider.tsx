@@ -11,6 +11,7 @@ import useTaskAbortedHandlers from "@/controllers/socket/global/useTaskAbortedHa
 import useGetProjectChatSessions from "@/controllers/api/board/chat/useGetProjectChatSessions";
 import useBoardChatSessionCreatedHandlers from "@/controllers/socket/board/chat/useBoardChatSessionCreatedHandlers";
 import { TChatScope } from "@langboard/core/types";
+import { Utils } from "@langboard/core/utils";
 
 export interface IBoardChatContext {
     projectUID: string;
@@ -63,24 +64,37 @@ const BoardChatContext = createContext<IBoardChatContext>(initialContext);
 export const BoardChatProvider = ({ projectUID, bot, children }: IBoardChatProviderProps): React.ReactNode => {
     const socket = useSocket();
     const [t] = useTranslation();
-    const [isSending, setIsSending] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
+    const [isSending, setIsSendingState] = useState(false);
+    const [isUploading, setIsUploadingState] = useState(false);
     const [isSessionListOpened, setIsSessionListOpened] = useState(false);
     const [selectedScope, setSelectedScope] = useState<[TChatScope, string] | undefined>(undefined);
     const chatTaskIdRef = useRef<string | null>(null);
     const scrollToBottomRef = useRef<() => void>(() => {});
     const isAtBottomRef = useRef(true);
+    const isSendingRef = useRef(isSending);
+    const isUploadingRef = useRef(isUploading);
+    const setIsSending = useCallback((value: React.SetStateAction<bool>) => {
+        const next = Utils.Type.isFunction(value) ? value(isSendingRef.current) : value;
+        isSendingRef.current = next;
+        setIsSendingState(next);
+    }, []);
+    const setIsUploading = useCallback((value: React.SetStateAction<bool>) => {
+        const next = Utils.Type.isFunction(value) ? value(isUploadingRef.current) : value;
+        isUploadingRef.current = next;
+        setIsUploadingState(next);
+    }, []);
     const flatChatSessions = ChatSessionModel.Model.useModels(
         (model) => model.filterable_table === "project" && model.filterable_uid === projectUID,
         [projectUID]
     );
     const chatSessions = useMemo(
-        () => flatChatSessions.sort((a, b) => (b.last_messaged_at?.getTime() ?? 0) - (a.last_messaged_at?.getTime() ?? 0)),
+        () => [...flatChatSessions].sort((a, b) => (b.last_messaged_at?.getTime() ?? 0) - (a.last_messaged_at?.getTime() ?? 0)),
         [flatChatSessions]
     );
     const { mutateAsync } = useGetProjectChatSessions(projectUID);
     const isInitialMountedRef = useRef(false);
     const [currentSessionUID, setCurrentSessionUID] = useState<string | undefined>(chatSessions[0]?.uid);
+
     const startCallback = useCallback((data: { ai_message: ChatMessageModel.Interface }) => {
         const chatMessage = ChatMessageModel.Model.fromOne({ ...data.ai_message, isPending: true }, true);
         const chatSession = ChatSessionModel.Model.getModel((model) => model.uid === chatMessage.chat_session_uid);
@@ -150,13 +164,15 @@ export const BoardChatProvider = ({ projectUID, bot, children }: IBoardChatProvi
         chatTaskIdRef.current = null;
     }, []);
     const errorCallback = useCallback((_: Event, fromServer: bool = true) => {
+        const shouldShowError = (isSendingRef.current || isUploadingRef.current) && fromServer;
+
         ChatMessageModel.Model.getModels((model) => model.isPending ?? false).forEach((message) => {
             if (message.isPending) {
                 message.isPending = undefined;
             }
         });
         setIsSending(false);
-        if ((isSending || isUploading) && fromServer) {
+        if (shouldShowError) {
             Toast.Add.error(t("errors.Server has been temporarily disabled. Please try again later."));
         }
 
@@ -172,9 +188,9 @@ export const BoardChatProvider = ({ projectUID, bot, children }: IBoardChatProvi
                     }
                 },
             }),
-        [currentSessionUID, setCurrentSessionUID]
+        [projectUID, currentSessionUID]
     );
-    const sentHandlers = useBoardChatSentHandlers({ projectUID, callback: () => scrollToBottomRef.current() });
+    const sentHandlers = useMemo(() => useBoardChatSentHandlers({ projectUID, callback: () => scrollToBottomRef.current() }), [projectUID]);
     const cancelledHandlers = useMemo(
         () =>
             useTaskAbortedHandlers({
@@ -194,12 +210,16 @@ export const BoardChatProvider = ({ projectUID, bot, children }: IBoardChatProvi
                 projectUID,
                 callbacks: { start: startCallback, buffer: bufferCallback, end: endCallback, error: errorCallback },
             }),
-        [startCallback, bufferCallback, endCallback]
+        [projectUID, startCallback, bufferCallback, endCallback, errorCallback]
+    );
+    const handlers = useMemo(
+        () => [sessionCreatedHandlers, sentHandlers, cancelledHandlers, streamHandlers],
+        [sessionCreatedHandlers, sentHandlers, cancelledHandlers, streamHandlers]
     );
     useSwitchSocketHandlers({
         socket,
-        handlers: [sessionCreatedHandlers, sentHandlers, cancelledHandlers, streamHandlers],
-        dependencies: [sessionCreatedHandlers, sentHandlers, cancelledHandlers, streamHandlers],
+        handlers,
+        dependencies: handlers,
     });
 
     useEffect(() => {
@@ -216,7 +236,7 @@ export const BoardChatProvider = ({ projectUID, bot, children }: IBoardChatProvi
         }
 
         isInitialMountedRef.current = true;
-    }, [flatChatSessions]);
+    }, [chatSessions, currentSessionUID]);
 
     return (
         <BoardChatContext.Provider

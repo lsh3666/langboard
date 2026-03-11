@@ -2,8 +2,8 @@ import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
 import { BotModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
-import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
+import { ESocketTopic, ESettingSocketTopicID } from "@langboard/core/enums";
 
 export interface IBotSettingUpdatedRawResponse {
     api_url?: string;

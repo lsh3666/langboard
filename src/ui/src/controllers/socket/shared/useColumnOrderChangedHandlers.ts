@@ -18,38 +18,37 @@ export interface IUseColumnOrderChangedHandlersProps extends IBaseUseSocketHandl
     sortedModels: TPickedModel<IUseColumnOrderChangedHandlersProps["type"]>[];
 }
 
+const COLUMN_ORDER_CHANGED_CONFIG = {
+    ProjectColumn: {
+        onEventName: SocketEvents.SERVER.BOARD.COLUMN.ORDER_CHANGED,
+        targetModel: ProjectColumn.Model,
+        topic: ESocketTopic.Board,
+    },
+    ProjectCardAttachment: {
+        onEventName: SocketEvents.SERVER.BOARD.CARD.ATTACHMENT.ORDER_CHANGED,
+        targetModel: ProjectCardAttachment.Model,
+        topic: ESocketTopic.BoardCard,
+    },
+    ProjectChecklist: {
+        onEventName: SocketEvents.SERVER.BOARD.CARD.CHECKLIST.ORDER_CHANGED,
+        targetModel: ProjectChecklist.Model,
+        topic: ESocketTopic.Board,
+    },
+    ProjectWiki: {
+        onEventName: SocketEvents.SERVER.BOARD.WIKI.ORDER_CHANGED,
+        targetModel: ProjectWiki.Model,
+        topic: ESocketTopic.BoardWiki,
+    },
+    ProjectLabel: {
+        onEventName: SocketEvents.SERVER.BOARD.LABEL.ORDER_CHANGED,
+        targetModel: ProjectLabel.Model,
+        topic: ESocketTopic.Board,
+    },
+} as const;
+
 const useColumnOrderChangedHandlers = ({ callback, type, params, topicId, sortedModels }: IUseColumnOrderChangedHandlersProps) => {
-    let onEventName = "";
+    const { onEventName, targetModel, topic } = COLUMN_ORDER_CHANGED_CONFIG[type];
     const sendEventName = "";
-    let targetModel;
-    let topic = ESocketTopic.None;
-    switch (type) {
-        case "ProjectColumn":
-            onEventName = SocketEvents.SERVER.BOARD.COLUMN.ORDER_CHANGED;
-            targetModel = ProjectColumn.Model;
-            topic = ESocketTopic.Board;
-            break;
-        case "ProjectCardAttachment":
-            onEventName = SocketEvents.SERVER.BOARD.CARD.ATTACHMENT.ORDER_CHANGED;
-            targetModel = ProjectCardAttachment.Model;
-            topic = ESocketTopic.BoardCard;
-            break;
-        case "ProjectChecklist":
-            onEventName = SocketEvents.SERVER.BOARD.CARD.CHECKLIST.ORDER_CHANGED;
-            targetModel = ProjectChecklist.Model;
-            topic = ESocketTopic.Board;
-            break;
-        case "ProjectWiki":
-            onEventName = SocketEvents.SERVER.BOARD.WIKI.ORDER_CHANGED;
-            targetModel = ProjectWiki.Model;
-            topic = ESocketTopic.BoardWiki;
-            break;
-        case "ProjectLabel":
-            onEventName = SocketEvents.SERVER.BOARD.LABEL.ORDER_CHANGED;
-            targetModel = ProjectLabel.Model;
-            topic = ESocketTopic.Board;
-            break;
-    }
 
     return useSocketHandler({
         topic,
@@ -63,9 +62,9 @@ const useColumnOrderChangedHandlers = ({ callback, type, params, topicId, sorted
                 const model = targetModel.getModel(data.uid);
                 if (model && model.order !== data.order) {
                     const reordered = reorder({ list: sortedModels, startIndex: model.order, finishIndex: data.order });
-                    reordered.forEach((item, index) => {
-                        item.order = index;
-                    });
+                    for (let i = 0; i < reordered.length; ++i) {
+                        reordered[i].order = i;
+                    }
                 }
                 return data;
             },

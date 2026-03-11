@@ -155,7 +155,7 @@ const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) =>
                     forceUpdate();
                 },
             }),
-        [forceUpdate]
+        [project, column, forceUpdate]
     );
     const columnDeletedHandlers = useMemo(
         () =>
@@ -170,8 +170,9 @@ const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) =>
                     updateBoard();
                 },
             }),
-        [updateBoard, forceUpdate]
+        [project, column, updateBoard, forceUpdate]
     );
+    const otherHandlers = useMemo(() => [cardCreatedHandlers, columnDeletedHandlers], [cardCreatedHandlers, columnDeletedHandlers]);
     const { rows: columnCards } = useRowReordered({
         type: "ProjectCard",
         eventNameParams: { uid: column.uid },
@@ -189,7 +190,7 @@ const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) =>
         columnUID: column.uid,
         socket,
         updater,
-        otherHandlers: [cardCreatedHandlers, columnDeletedHandlers],
+        otherHandlers,
     });
 
     return columnCards.map((card) => <BoardColumnCard key={card.uid} card={card} />);

@@ -1,5 +1,6 @@
 import { Routing } from "@langboard/core/constants";
 import { AuthUser, BotModel } from "@/core/models";
+import useSocketStore from "@/core/stores/SocketStore";
 import { AxiosInstance } from "axios";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
@@ -73,6 +74,7 @@ const useAuthStore = create(
                 set({ currentUser: user, state: "loaded" });
             },
             removeToken: () => {
+                useSocketStore.getState().close();
                 accessToken = null;
                 set({ currentUser: null, state: "loaded" });
             },

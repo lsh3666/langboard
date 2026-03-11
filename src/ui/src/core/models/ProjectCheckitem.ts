@@ -1,12 +1,12 @@
 import * as ProjectCard from "@/core/models/ProjectCard";
 import * as User from "@/core/models/User";
-import { BaseModel, IBaseModel } from "@/core/models/Base";
-import { registerModel } from "@/core/models/ModelRegistry";
-import { Utils } from "@langboard/core/utils";
 import useCardCheckitemCardifiedHandlers from "@/controllers/socket/card/checkitem/useCardCheckitemCardifiedHandlers";
 import useCardCheckitemCheckedChangedHandlers from "@/controllers/socket/card/checkitem/useCardCheckitemCheckedChangedHandlers";
 import useCardCheckitemTitleChangedHandlers from "@/controllers/socket/card/checkitem/useCardCheckitemTitleChangedHandlers";
 import useCardCheckitemStatusChangedHandlers from "@/controllers/socket/card/checkitem/useCardCheckitemStatusChangedHandlers";
+import { BaseModel, IBaseModel } from "@/core/models/Base";
+import { registerModel } from "@/core/models/ModelRegistry";
+import { Utils } from "@langboard/core/utils";
 
 export enum ECheckitemStatus {
     Started = "started",

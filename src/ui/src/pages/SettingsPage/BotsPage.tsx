@@ -21,13 +21,26 @@ function BotsPage() {
     const { isValidating } = useAppSetting();
     const { botUID } = useParams();
     const [bot, setBot] = useState<BotModel.TModel | null>(null);
+    const [mounted, setMounted] = useState(false);
     const { mutateAsync: getBotsMutateAsync } = useGetBots();
 
     useEffect(() => {
+        const initialize = async () => {
+            await getBotsMutateAsync({});
+            setMounted(true);
+        };
+
+        initialize();
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) {
+            return;
+        }
+
         if (!botUID) {
             setPageAliasRef.current("Bots");
             setBot(null);
-            getBotsMutateAsync({});
             return;
         }
 
@@ -39,11 +52,15 @@ function BotsPage() {
         }
 
         setBot(bot);
-    }, [botUID]);
+    }, [mounted, botUID]);
 
     const openCreateDialog = () => {
         navigate(ROUTES.SETTINGS.CREATE_BOT);
     };
+
+    if (!mounted) {
+        return null;
+    }
 
     return (
         <>

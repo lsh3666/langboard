@@ -70,7 +70,7 @@ const WikiTabList = memo(() => {
                 );
             },
         });
-    }, [flatWikis, wikisMap, modeType]);
+    }, [changeWikiOrderMutate, modeType, project, wikisMap]);
 
     return wikis.map((wiki) => <WikiTab key={`board-wiki-${wiki.uid}-tab`} wiki={wiki} />);
 });

@@ -29,7 +29,7 @@ function useColumnReordered<TColumnModelName extends IUseColumnOrderChangedHandl
     otherHandlers,
 }: IUseColumnReorderedProps<TColumnModelName>) {
     const [updated, forceUpdate] = updater;
-    const columns = useMemo(() => flatColumns.sort((a, b) => a.order - b.order), [updated, flatColumns]);
+    const columns = useMemo(() => [...flatColumns].sort((a, b) => a.order - b.order), [updated, flatColumns]);
     const handlers = useMemo(
         () =>
             useColumnOrderChangedHandlers({
@@ -43,10 +43,12 @@ function useColumnReordered<TColumnModelName extends IUseColumnOrderChangedHandl
             }),
         [type, topicId, eventNameParams, columns, forceUpdate]
     );
+    const mergedHandlers = useMemo(() => [handlers, ...(otherHandlers ?? [])], [handlers, otherHandlers]);
+
     useSwitchSocketHandlers({
         socket,
-        handlers: [handlers, ...(otherHandlers ?? [])],
-        dependencies: [handlers, ...(otherHandlers ?? [])],
+        handlers: mergedHandlers,
+        dependencies: mergedHandlers,
     });
 
     return { columns, sendColumnOrderChanged: handlers.send };

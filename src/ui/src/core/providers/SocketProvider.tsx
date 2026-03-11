@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createContext, useContext, useEffect } from "react";
-import { refresh } from "@/core/helpers/Api";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/core/providers/AuthProvider";
 import useSocketStore, {
-    getTopicWithId,
     ISocketCreateSocketProps,
     ISocketEvent,
     ISocketStore,
@@ -12,40 +10,8 @@ import useSocketStore, {
     TSocketRemoveEventProps,
 } from "@/core/stores/SocketStore";
 import useAuthStore from "@/core/stores/AuthStore";
-import { ESocketStatus, ESocketTopic } from "@langboard/core/enums";
-
-interface IBaseRunEventsProps {
-    topic?: ESocketTopic;
-    topicId?: string;
-    eventName: TEventName;
-    data?: unknown;
-}
-
-interface INoneTopicRunEventsProps extends IBaseRunEventsProps {
-    topic: ESocketTopic.None;
-    topicId?: never;
-    eventName: Exclude<TEventName, "open" | "close" | "error">;
-}
-
-interface IGlobalTopicRunEventsProps extends IBaseRunEventsProps {
-    topic: ESocketTopic.Global;
-    topicId?: never;
-    eventName: Exclude<TEventName, "open" | "close" | "error">;
-}
-
-interface ITopicRunEventsProps extends IBaseRunEventsProps {
-    topic: Exclude<ESocketTopic, ESocketTopic.None | ESocketTopic.Global>;
-    topicId: string;
-    eventName: Exclude<TEventName, "open" | "close" | "error">;
-}
-
-interface IDefaultEventsRunEventsProps extends IBaseRunEventsProps {
-    topic?: never;
-    topicId?: never;
-    eventName: "open" | "close" | "error";
-}
-
-type TRunEventsProps = INoneTopicRunEventsProps | IGlobalTopicRunEventsProps | ITopicRunEventsProps | IDefaultEventsRunEventsProps;
+import { ESocketTopic } from "@langboard/core/enums";
+import { createSocketRuntime, removeStreamErrorCallback, setStreamErrorCallback } from "@/core/providers/socket/runtime";
 
 interface IBaseSocketSendProps {
     topic?: ESocketTopic;
@@ -96,9 +62,8 @@ interface ISocketProviderProps {
 }
 
 const initialContext = {
-    subscribedTopics: [],
     isConnected: () => false,
-    reconnect: () => initialContext,
+    reconnect: () => {},
     on: () => {},
     off: () => {},
     send: () => ({ isConnected: false }),
@@ -113,8 +78,6 @@ const initialContext = {
 };
 
 const SocketContext = createContext<ISocketContext>(initialContext);
-
-const streamErrorCallbacks: Partial<Record<ESocketTopic, Record<string, IStreamCallbackMap["error"]>>> = {};
 
 const createSharedSocketHandlers = () => {
     const {
@@ -165,13 +128,7 @@ const createSharedSocketHandlers = () => {
         });
 
         const topic = props.topic ?? ESocketTopic.None;
-        if (!streamErrorCallbacks[topic]) {
-            streamErrorCallbacks[topic] = {};
-        }
-
-        if (!streamErrorCallbacks[topic][props.event]) {
-            streamErrorCallbacks[topic][props.event] = callbacks.error;
-        }
+        setStreamErrorCallback(topic, props.event, callbacks.error);
     };
 
     const streamOff: ISocketContext["streamOff"] = (props) => {
@@ -195,9 +152,7 @@ const createSharedSocketHandlers = () => {
         });
 
         const topic = props.topic ?? ESocketTopic.None;
-        if (streamErrorCallbacks[topic]?.[props.event]) {
-            delete streamErrorCallbacks[topic]![props.event];
-        }
+        removeStreamErrorCallback(topic, props.event);
     };
 
     const send = (props: TSocketSendProps) => {
@@ -226,146 +181,54 @@ const createSharedSocketHandlers = () => {
     };
 };
 
+const sharedSocketHandlers = createSharedSocketHandlers();
+
 export const SocketProvider = ({ children }: ISocketProviderProps): React.ReactNode => {
     const { currentUser } = useAuth();
-    const { getSocket, createSocket, getStore, close } = useSocketStore.getState();
-    const authStore = useAuthStore();
+    const { createSocket, getStore, close } = useSocketStore.getState();
+    const currentUserRef = useRef(currentUser);
+    currentUserRef.current = currentUser;
+    const connectRef = useRef<() => void>(() => {});
+    const reconnect = useCallback(() => {
+        connectRef.current();
+    }, []);
 
-    const isConnected = () => {
-        const socket = getSocket();
-        return !!socket && socket.readyState !== WebSocket.CLOSING && socket.readyState !== WebSocket.CLOSED;
-    };
+    const runtime = useMemo(
+        () =>
+            createSocketRuntime({
+                createSocket,
+                getStore,
+                closeSocket: close,
+                getAccessToken: () => useAuthStore.getState().getToken() ?? undefined,
+                removeAccessToken: () => useAuthStore.getState().removeToken(),
+                reconnect,
+                shouldReconnect: () => !!currentUserRef.current,
+            }),
+        [createSocket, getStore, close, reconnect]
+    );
+    connectRef.current = runtime.connect;
+    const contextValue = useMemo(
+        () => ({
+            ...sharedSocketHandlers,
+            reconnect,
+        }),
+        [reconnect]
+    );
 
     useEffect(() => {
-        if (currentUser) {
-            if (!isConnected()) {
-                connect();
-            }
+        if (!currentUser) {
+            close();
+            return;
         }
-    }, [currentUser]);
+
+        connectRef.current();
+    }, [close, currentUser]);
 
     if (!currentUser) {
         return children;
     }
 
-    const runErrorCallbacks = async (event: Event) => {
-        const errorCallbacks = Object.entries(streamErrorCallbacks);
-        for (let i = 0; i < errorCallbacks.length; ++i) {
-            const [topic, callbacks] = errorCallbacks[i];
-            const events = Object.entries(callbacks!);
-            for (let j = 0; j < events.length; ++j) {
-                const callback = callbacks![events[j][0]];
-                await callback(event);
-            }
-            delete streamErrorCallbacks[topic];
-        }
-    };
-
-    const connect = () => {
-        createSocket<Record<string, any>>({
-            accessToken: authStore.getToken()!,
-            onOpen: async (event) => {
-                await runEvents({
-                    eventName: "open",
-                    data: event,
-                });
-            },
-            onMessage: async (response) => {
-                if (!response.event) {
-                    console.error("Invalid response");
-                    return;
-                }
-
-                if (!response.topic) {
-                    response.topic = ESocketTopic.None;
-                }
-
-                await runEvents({
-                    topic: response.topic,
-                    topicId: response.topic_id,
-                    eventName: response.event,
-                    data: response.data,
-                });
-            },
-            onError: async (event) => {
-                await runErrorCallbacks(event);
-
-                await runEvents({
-                    eventName: "error",
-                    data: event,
-                });
-            },
-            onClose: async (event) => {
-                await runErrorCallbacks(event);
-                switch (event.code) {
-                    case ESocketStatus.WS_3001_EXPIRED_TOKEN: {
-                        const isRefreshed = await refresh();
-
-                        if (!isRefreshed) {
-                            return;
-                        }
-
-                        reconnect();
-                        return;
-                    }
-                    case ESocketStatus.WS_3000_UNAUTHORIZED:
-                        close();
-                        authStore.removeToken();
-                        return;
-                    case ESocketStatus.WS_1006_ABNORMAL_CLOSURE:
-                    case ESocketStatus.WS_1012_SERVICE_RESTART:
-                        setTimeout(() => {
-                            if (currentUser) {
-                                reconnect();
-                            }
-                        }, 5000);
-                        return;
-                }
-
-                await runEvents({
-                    eventName: "close",
-                    data: event,
-                });
-
-                close();
-            },
-        });
-    };
-
-    const socketMap = getStore();
-
-    const runEvents = async (props: TRunEventsProps) => {
-        const { eventName, data } = props;
-        if (eventName === "open" || eventName === "error" || eventName === "close") {
-            const targetEvents = Object.values(socketMap.defaultEvents[eventName] ?? {}).flat();
-            for (let i = 0; i < targetEvents.length; ++i) {
-                await targetEvents[i](data);
-            }
-            return;
-        }
-
-        const { topic, topicId } = getTopicWithId(props);
-
-        const targetEvents = Object.values(socketMap.subscriptions[topic]?.[topicId]?.[eventName] ?? {}).flat();
-        for (let i = 0; i < targetEvents.length; ++i) {
-            await targetEvents[i](data);
-        }
-    };
-
-    const reconnect = () => {
-        connect();
-    };
-
-    return (
-        <SocketContext.Provider
-            value={{
-                ...createSharedSocketHandlers(),
-                reconnect,
-            }}
-        >
-            {children}
-        </SocketContext.Provider>
-    );
+    return <SocketContext.Provider value={contextValue}>{children}</SocketContext.Provider>;
 };
 
 export const useSocket = () => {
@@ -377,7 +240,5 @@ export const useSocket = () => {
 };
 
 export const useSocketOutsideProvider = (): Omit<ISocketContext, "reconnect" | "close"> => {
-    return {
-        ...createSharedSocketHandlers(),
-    };
+    return sharedSocketHandlers;
 };

@@ -8,7 +8,7 @@ import { AuthUser, Project, ProjectWiki, User } from "@/core/models";
 import { ISocketContext, useSocket } from "@/core/providers/SocketProvider";
 import { ROUTES } from "@/core/routing/constants";
 import { getEditorStore } from "@/core/stores/EditorStore";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 
@@ -63,9 +63,13 @@ export const BoardWikiProvider = ({
     const [t] = useTranslation();
     const [modeType, setModeType] = useState<TBoardWikiMode>("view");
     const wikiTabListId = `board-wiki-tab-list-${project.uid}`;
-    const boardWikiCreatedHandlers = useBoardWikiCreatedHandlers({
-        projectUID: project.uid,
-    });
+    const boardWikiCreatedHandlers = useMemo(
+        () =>
+            useBoardWikiCreatedHandlers({
+                projectUID: project.uid,
+            }),
+        [project]
+    );
     const boardWikiDeletedHandlers = useMemo(
         () =>
             useBoardWikiDeletedHandlers({
@@ -89,25 +93,30 @@ export const BoardWikiProvider = ({
             }),
         [setProjectMembers]
     );
+    const handlers = useMemo(
+        () => [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers],
+        [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers]
+    );
 
     useSwitchSocketHandlers({
         socket,
-        handlers: [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers],
-        dependencies: [boardWikiCreatedHandlers, boardWikiDeletedHandlers, projectUsersUpdatedHandlers],
+        handlers,
+        dependencies: handlers,
     });
 
     useEffect(() => {
         const unsubscribes: (() => void)[] = [];
         for (let i = 0; i < wikis.length; ++i) {
             const wiki = wikis[i];
-            const unsubscribe = wiki.subscribePrivateSocketHandlers(currentUser);
-            unsubscribes.push(unsubscribe);
+            unsubscribes.push(wiki.subscribePrivateSocketHandlers(currentUser));
         }
 
         return () => {
-            unsubscribes.forEach((unsubscribe) => unsubscribe());
+            for (let i = 0; i < unsubscribes.length; ++i) {
+                unsubscribes[i]();
+            }
         };
-    }, [wikis]);
+    }, [currentUser, wikis]);
 
     const canAccessWiki = (shouldNavigate: bool, uid?: string) => {
         if (!uid) {
@@ -126,27 +135,23 @@ export const BoardWikiProvider = ({
 
         return true;
     };
+    const changeTab = (uid: string) => {
+        if (uid === wikiUID) {
+            return;
+        }
 
-    const changeTab = useCallback(
-        (uid: string) => {
-            if (uid === wikiUID) {
-                return;
-            }
-
-            if (canAccessWiki(true, uid)) {
-                if (!uid) {
-                    navigate(ROUTES.BOARD.WIKI(project.uid));
-                } else {
-                    navigate(ROUTES.BOARD.WIKI_PAGE(project.uid, uid));
-                }
-                getEditorStore().setCurrentEditor(null);
-            } else {
+        if (canAccessWiki(true, uid)) {
+            if (!uid) {
                 navigate(ROUTES.BOARD.WIKI(project.uid));
-                getEditorStore().setCurrentEditor(null);
+            } else {
+                navigate(ROUTES.BOARD.WIKI_PAGE(project.uid, uid));
             }
-        },
-        [project, wikiUID, navigate, canAccessWiki]
-    );
+            getEditorStore().setCurrentEditor(null);
+        } else {
+            navigate(ROUTES.BOARD.WIKI(project.uid));
+            getEditorStore().setCurrentEditor(null);
+        }
+    };
 
     return (
         <BoardWikiContext.Provider

@@ -21,5 +21,5 @@ RUN uv --version
 COPY ./flows /app/src/flows
 COPY ./shared/py /app/src/shared/py
 
-RUN cd /app/src/shared/py && uv venv && uv pip install .
-RUN cd /app/src/flows && uv venv && uv pip install .
+RUN cd /app/src/shared/py && uv venv && uv sync
+RUN cd /app/src/flows && uv venv && uv sync

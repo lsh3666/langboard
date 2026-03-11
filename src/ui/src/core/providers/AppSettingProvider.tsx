@@ -8,7 +8,7 @@ import useSwitchSocketHandlers from "@/core/hooks/useSwitchSocketHandlers";
 import { AuthUser } from "@/core/models";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useSocket } from "@/core/providers/SocketProvider";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 export interface IAppSettingContext {
     currentUser: AuthUser.TModel;
@@ -42,10 +42,8 @@ export const AppSettingProvider = ({ currentUser, children }: IAppSettingProvide
     });
     const mcpToolGroupCreatedHandlers = useMcpToolGroupCreatedHandlers({});
     const selectedMcpToolGroupsDeletedHandlers = useSelectedMcpToolGroupsDeletedHandlers({});
-
-    useSwitchSocketHandlers({
-        socket,
-        handlers: [
+    const handlers = useMemo(
+        () => [
             webhookCreatedHandlers,
             selectedWebhooksDeletedHandlers,
             botSettingCreatedHandlers,
@@ -53,6 +51,19 @@ export const AppSettingProvider = ({ currentUser, children }: IAppSettingProvide
             mcpToolGroupCreatedHandlers,
             selectedMcpToolGroupsDeletedHandlers,
         ],
+        [
+            webhookCreatedHandlers,
+            selectedWebhooksDeletedHandlers,
+            botSettingCreatedHandlers,
+            selectedUsersDeletedHandlers,
+            mcpToolGroupCreatedHandlers,
+            selectedMcpToolGroupsDeletedHandlers,
+        ]
+    );
+
+    useSwitchSocketHandlers({
+        socket,
+        handlers,
     });
 
     return (

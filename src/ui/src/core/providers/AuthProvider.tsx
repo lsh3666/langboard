@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { APP_SHORT_NAME } from "@/constants";
 import { Routing } from "@langboard/core/constants";
 import { api, refresh } from "@/core/helpers/Api";
@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps): React.ReactNode 
     const { mutateAsync } = useGetNotificationList();
     const timeRange = useUserSettings("notifications_time_range");
     const navigate = usePageNavigateRef();
+    const hadAuthenticatedUserRef = useRef(false);
 
     useEffect(() => {
         if (state !== "loaded" || !currentUser) {
@@ -81,6 +82,21 @@ export const AuthProvider = ({ children }: IAuthProviderProps): React.ReactNode 
         }
     }, [state]);
 
+    useEffect(() => {
+        if (currentUser) {
+            hadAuthenticatedUserRef.current = true;
+            return;
+        }
+
+        if (state !== "loaded" || !hadAuthenticatedUserRef.current) {
+            return;
+        }
+
+        cleanModels();
+        queryClient.clear();
+        hadAuthenticatedUserRef.current = false;
+    }, [currentUser, state, queryClient]);
+
     const updatedUser = () => {
         refresh();
     };
@@ -91,11 +107,11 @@ export const AuthProvider = ({ children }: IAuthProviderProps): React.ReactNode 
     };
 
     const signOut = async () => {
-        await api.post(Routing.API.AUTH.SIGN_OUT);
-        cleanModels();
-        removeToken();
-        queryClient.clear();
-        navigate(ROUTES.SIGN_IN.EMAIL);
+        try {
+            await api.post(Routing.API.AUTH.SIGN_OUT);
+        } finally {
+            removeToken();
+        }
     };
 
     return (

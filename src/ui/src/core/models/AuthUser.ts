@@ -9,7 +9,7 @@ import useUserSettingRolesUpdatedHandlers from "@/controllers/socket/user/useUse
 import { ENotificationChannel, ENotificationScope, TNotificationType } from "@/core/models/types/notification.type";
 import * as User from "@/core/models/User";
 import * as UserGroup from "@/core/models/UserGroup";
-import { useSocketOutsideProvider } from "@/core/providers/SocketProvider";
+import { unsubscribeModelSocketTopic } from "@/core/models/base/socketSubscriptions";
 import { ESocketTopic } from "@langboard/core/enums";
 
 interface INotificationUnsubscriptionMap {
@@ -49,8 +49,6 @@ class AuthUser extends User.Model<Interface> {
     constructor(model: Record<string, unknown>) {
         super(model);
 
-        const socket = useSocketOutsideProvider();
-
         this.subscribeSocketEvents(
             [
                 useUserNotifiedHandlers,
@@ -70,7 +68,7 @@ class AuthUser extends User.Model<Interface> {
         );
 
         AuthUser.subscribe("DELETION", this.uid, () => {
-            socket.unsubscribe(ESocketTopic.UserPrivate, [this.uid]);
+            unsubscribeModelSocketTopic(ESocketTopic.UserPrivate, [this.uid]);
         });
     }
 

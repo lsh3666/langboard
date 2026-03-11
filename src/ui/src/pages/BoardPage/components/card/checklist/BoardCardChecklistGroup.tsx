@@ -94,7 +94,7 @@ function BoardCardChecklistGroup(): React.JSX.Element {
                 );
             },
         });
-    }, [flatChecklists, checkitemsMap]);
+    }, [card, changeCheckitemOrderMutate, changeChecklistOrderMutate, checkitemsMap, checklists, projectUID]);
 
     return (
         <>

@@ -44,7 +44,7 @@ function useRowReordered<TRowModelName extends IUseRowOrderChangedHandlersProps[
         columnUID,
         ...(rowDependencies ?? []),
     ]);
-    const rows = useMemo(() => flatRows.sort((a, b) => a.order - b.order), [flatRows]);
+    const rows = useMemo(() => [...flatRows].sort((a, b) => a.order - b.order), [flatRows]);
     const handlers = useMemo(
         () =>
             useRowOrderChangedHandlers({
@@ -52,33 +52,21 @@ function useRowReordered<TRowModelName extends IUseRowOrderChangedHandlersProps[
                 topicId,
                 params: eventNameParams,
                 callback: (data) => {
-                    switch (data.move_type) {
-                        case "from_column":
-                            if (data.column_uid !== columnUID) {
-                                return;
-                            }
-                            break;
-                        case "to_column":
-                            if (data.column_uid !== columnUID) {
-                                return;
-                            }
-                            break;
-                        case "in_column":
-                            if (data.column_uid !== columnUID) {
-                                return;
-                            }
-                            break;
+                    if (data.move_type !== "in_column" && data.column_uid !== columnUID) {
+                        return;
                     }
 
                     forceUpdate();
                 },
             }),
-        [type, topicId, eventNameParams, columnUID, updated, forceUpdate]
+        [type, topicId, eventNameParams, columnUID, forceUpdate]
     );
+    const mergedHandlers = useMemo(() => [handlers, ...(otherHandlers ?? [])], [handlers, otherHandlers]);
+
     useSwitchSocketHandlers({
         socket,
-        handlers: [handlers, ...(otherHandlers ?? [])],
-        dependencies: [handlers, ...(otherHandlers ?? [])],
+        handlers: mergedHandlers,
+        dependencies: mergedHandlers,
     });
 
     return { rows, sendRowOrderChanged: handlers.send };

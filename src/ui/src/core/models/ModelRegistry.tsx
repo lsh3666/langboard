@@ -96,21 +96,22 @@ export type TUserLikeModelName = "AuthUser" | "User" | "BotModel";
 export type TUserLikeModel = TPickedModel<TUserLikeModelName>;
 
 type TClass = abstract new (...args: any) => any;
+type TModelInstance<TModel extends TClass> = InstanceType<TModel>;
 
 interface IModelRegistry<TModel extends TClass, TRegistryParams = any> {
     Model: TModel;
     Provider: React.ComponentType<IModelProviderProps<TModel, TRegistryParams>>;
-    Context: React.Context<IModelContext<TModel, TRegistryParams>>;
+    Context: React.Context<IModelContext<TModel, TRegistryParams> | undefined>;
     useContext: <TParams = any>() => IModelContext<TModel, TParams>;
 }
 
 export interface IModelContext<TModel extends TClass, TParams = any> {
-    model: InstanceType<TModel>;
+    model: TModelInstance<TModel>;
     params: TParams;
 }
 
 interface IModelProviderProps<TModel extends TClass, TParams = any> {
-    model: InstanceType<TModel>;
+    model: TModelInstance<TModel>;
     params?: TParams;
     children: React.ReactNode;
 }
@@ -118,10 +119,7 @@ interface IModelProviderProps<TModel extends TClass, TParams = any> {
 export const ModelRegistry: IModelMap = {} as IModelMap;
 export function registerModel<TModelName extends keyof IModelMap, TModel extends IModelMap[TModelName]["Model"]>(modelType: TModel) {
     const modelName = modelType.MODEL_NAME as TModelName;
-    const ModelContext = createContext<IModelContext<TModel>>({
-        model: null as InstanceType<TModel>,
-        params: undefined,
-    });
+    const ModelContext = createContext<IModelContext<TModel> | undefined>(undefined);
 
     function Provider({ model, params, children }: IModelProviderProps<TModel>): React.ReactNode {
         return (
@@ -136,17 +134,12 @@ export function registerModel<TModelName extends keyof IModelMap, TModel extends
         );
     }
 
-    function useModel() {
-        const ModelContext = ModelRegistry[modelName]["Context"];
-        if (!ModelContext) {
-            throw new Error(`Model context for ${modelName} is not registered.`);
-        }
-
-        const context = useContext(ModelContext as any);
+    function useModel<TParams = any>() {
+        const context = useContext(ModelContext);
         if (!context) {
             throw new Error(`useModel must be used within a ${modelName} Provider`);
         }
-        return context;
+        return context as IModelContext<TModel, TParams>;
     }
 
     ModelRegistry[modelName] = {
