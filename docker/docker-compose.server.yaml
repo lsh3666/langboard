@@ -54,7 +54,7 @@ services:
     environment:
       WORKER: main
     working_dir: /app
-    command: uv run ${PROJECT_NAME} run --workers ${API_WORKERS_COUNT:-1}
+    command: uv run --no-sync ${PROJECT_NAME} run --workers ${API_WORKERS_COUNT:-1}
     volumes:
       - ../src/api/${PROJECT_NAME}:/app/src/api/${PROJECT_NAME}
       - ../src/shared/py:/app/src/shared/py
@@ -84,7 +84,7 @@ services:
     build:
       context: ../
       target: base
-    command: uv run ${PROJECT_NAME} run:broker
+    command: uv run --no-sync ${PROJECT_NAME} run:broker
 
   socket:
     init: true
@@ -120,7 +120,7 @@ services:
     env_file:
       - ./envs/.flows.env
     working_dir: /app/src/flows
-    command: uv run flows run --workers ${FLOWS_WORKERS_COUNT:-1}
+    command: uv run --no-sync flows run --workers ${FLOWS_WORKERS_COUNT:-1}
     volumes:
       - ../src/flows/${PROJECT_NAME}_flows:/app/src/flows/${PROJECT_NAME}_flows
       - ../src/shared/py:/app/src/shared/py

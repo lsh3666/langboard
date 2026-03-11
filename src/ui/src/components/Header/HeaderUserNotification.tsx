@@ -65,9 +65,9 @@ const HeaderUserNotification = memo(({ currentUser }: IHeaderUserNotificationPro
                     Toast.Add.info(t("notification.You have a new notification."));
                 },
             }),
-        [isOpened]
+        [currentUser, isOpened]
     );
-    useSwitchSocketHandlers({ socket, handlers: notifiedHandlers, dependencies: [notifiedHandlers] });
+    useSwitchSocketHandlers({ socket, handlers: notifiedHandlers });
     const readAllNotifications = useCallback(() => {
         sendReadAllUserNotifications({});
         for (let i = 0; i < unreadNotifications.length; ++i) {
@@ -187,7 +187,7 @@ function HeaderUserNotificationList({ isOnlyUnread, updater }: IHeaderUserNotifi
             flatNotifications
                 .filter((notification) => (isOnlyUnread ? !notification.read_at : true))
                 .sort((a, b) => b.created_at.getTime() - a.created_at.getTime()),
-        [flatNotifications, isOnlyUnread, updated]
+        [flatNotifications, isOnlyUnread]
     );
     const PAGE_SIZE = 5;
     const { items: notifications, nextPage, hasMore } = useInfiniteScrollPager({ allItems: filteredNotifications, size: PAGE_SIZE, updater });
@@ -339,17 +339,17 @@ const HeaderUserNotificationItem = memo(({ notification, updater }: IHeaderUserN
 });
 
 function HeaderUserNotificationItemContent({ notification, className }: { notification: UserNotification.TModel; className?: string }) {
-    const content = useMemo(() => {
-        switch (notification.type) {
-            case ENotificationType.MentionedInCard:
-            case ENotificationType.MentionedInComment:
-            case ENotificationType.MentionedInWiki:
-            case ENotificationType.ReactedToComment:
-                return <HeaderUserNotificationItemMentionedText content={notification.message_vars.line} />;
-            default:
-                return null;
-        }
-    }, []);
+    let content = null;
+    switch (notification.type) {
+        case ENotificationType.MentionedInCard:
+        case ENotificationType.MentionedInComment:
+        case ENotificationType.MentionedInWiki:
+        case ENotificationType.ReactedToComment:
+            content = <HeaderUserNotificationItemMentionedText content={notification.message_vars.line} />;
+            break;
+        default:
+            break;
+    }
 
     if (!content) {
         return null;

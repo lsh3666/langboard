@@ -221,7 +221,7 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
                     isBoardChatAvailableHandlers.send({});
                 },
             }),
-        [project, isBoardChatAvailableHandlers]
+        [isBoardChatAvailableHandlers]
     );
     const handlers = useMemo(
         () => [
@@ -240,11 +240,7 @@ function BoardProxyDisplay({ pageRoute, isFetching, project }: IBoardProxyDispla
         ]
     );
 
-    const { subscribedTopics } = useSwitchSocketHandlers({
-        socket,
-        handlers,
-        dependencies: handlers,
-    });
+    const { subscribedTopics } = useSwitchSocketHandlers({ socket, handlers });
 
     useEffect(() => {
         if (isFetching || !subscribedTopics.includes(ESocketTopic.Board)) {
