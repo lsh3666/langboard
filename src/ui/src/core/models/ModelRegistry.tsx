@@ -117,11 +117,8 @@ interface IModelProviderProps<TModel extends TClass, TParams = any> {
 }
 
 export const ModelRegistry: IModelMap = {} as IModelMap;
-export function registerModel<TModelName extends keyof IModelMap, TModel extends IModelMap[TModelName]["Model"]>(
-    modelType: TModel,
-    forcedName?: TModelName
-) {
-    const modelName = (forcedName || modelType.MODEL_NAME) as TModelName;
+export function registerModel<TModelName extends keyof IModelMap, TModel extends IModelMap[TModelName]["Model"]>(modelType: TModel) {
+    const modelName = modelType.MODEL_NAME as TModelName;
     const ModelContext = createContext<IModelContext<TModel> | undefined>(undefined);
 
     function Provider({ model, params, children }: IModelProviderProps<TModel>): React.ReactNode {
@@ -157,8 +154,6 @@ export function isModel<TModelName extends keyof IModelMap>(model: any, modelNam
     return (
         model &&
         model.constructor &&
-        (model.constructor.MODEL_NAME === ModelRegistry[modelName].Model.MODEL_NAME ||
-            ([ModelRegistry.AuthUser.Model.MODEL_NAME, ModelRegistry.User.Model.MODEL_NAME].includes(model.constructor.MODEL_NAME) &&
-                modelName === "User"))
+        (model.constructor.MODEL_NAME === modelName || (model.constructor.MODEL_NAME === "AuthUser" && modelName === "User"))
     );
 }

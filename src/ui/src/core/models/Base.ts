@@ -477,7 +477,7 @@ export abstract class BaseModel<TModel extends IBaseModel> {
     }
 
     public get MODEL_NAME(): keyof IModelMap {
-        return this.constructor.name as any;
+        return this.#getConstructor().MODEL_NAME;
     }
 
     public asFake<TDerived extends BaseModel<any>>(this: TDerived): TDerived {
