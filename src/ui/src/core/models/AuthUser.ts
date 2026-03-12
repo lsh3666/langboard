@@ -11,6 +11,7 @@ import * as User from "@/core/models/User";
 import * as UserGroup from "@/core/models/UserGroup";
 import { unsubscribeModelSocketTopic } from "@/core/models/base/socketSubscriptions";
 import { ESocketTopic } from "@langboard/core/enums";
+import { registerModel } from "@/core/models/ModelRegistry";
 
 interface INotificationUnsubscriptionMap {
     [ENotificationScope.All]?: {
@@ -100,6 +101,8 @@ class AuthUser extends User.Model<Interface> {
         this.update({ notification_unsubs: value });
     }
 }
+
+registerModel(AuthUser, "AuthUser");
 
 export const Model = AuthUser;
 export type TModel = AuthUser;

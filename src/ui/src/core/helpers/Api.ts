@@ -37,7 +37,7 @@ export const refresh = async (): Promise<bool> => {
             throw new Error("Failed to refresh token");
         }
 
-        authStore.updateToken(response.data.access_token, api);
+        await authStore.updateToken(response.data.access_token, api);
         return true;
     } catch (e) {
         authStore.removeToken();
