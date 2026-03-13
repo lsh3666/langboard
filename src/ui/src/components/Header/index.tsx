@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import CachedImage from "@/components/CachedImage";
 import HedaerNavItems from "@/components/Header/HedaerNavItems";
 import { IHeaderProps } from "@/components/Header/types";
@@ -15,7 +15,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import HeaderUserMenu from "@/components/Header/HeaderUserMenu";
 import HeaderUserNotification from "@/components/Header/HeaderUserNotification";
 
-function Header({ navs, title }: IHeaderProps) {
+const Header = memo(({ navs, title }: IHeaderProps) => {
     const { currentUser } = useAuth();
     const [isOpened, setIsOpen] = useState(false);
     const navigate = usePageNavigateRef();
@@ -127,6 +127,6 @@ function Header({ navs, title }: IHeaderProps) {
             </Flex>
         </header>
     );
-}
+});
 
 export default Header;

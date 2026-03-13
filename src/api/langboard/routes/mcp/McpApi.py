@@ -3,16 +3,20 @@ from fastapi import Request
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.security import AuthSecurity
-from langboard_shared.domain.models import User
+from langboard_shared.domain.models import McpRole, User
+from langboard_shared.domain.models.McpRole import McpRoleAction
 from langboard_shared.domain.services import DomainService
+from langboard_shared.filter import RoleFilter
 from langboard_shared.infrastructure.repositories import Repository
+from langboard_shared.security import RoleFinder
 from ...mcp_integration import McpTool
 from ...mcp_tools.RoleChecker import McpRoleChecker
 
 
 @AppRouter.schema()
 @AppRouter.api.get("/mcp/tools", tags=["MCP"], description="List all available MCP tools", response_model=None)
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Read], RoleFinder.mcp)
+@AuthFilter.add("user")
 def get_mcp_tools():
     tools = McpTool.get_tools()
     return JsonResponse(
@@ -27,7 +31,8 @@ def get_mcp_tools():
 
 @AppRouter.schema()
 @AppRouter.api.post("/mcp/tools/{tool_name}", tags=["MCP"], description="Execute an MCP tool", response_model=None)
-@AuthFilter.add("admin")
+@RoleFilter.add(McpRole, [McpRoleAction.Read], RoleFinder.mcp)
+@AuthFilter.add("user")
 async def execute_mcp_tool(tool_name: str, request: Request):
     tool = McpTool.get_tool(tool_name)
     if not tool:

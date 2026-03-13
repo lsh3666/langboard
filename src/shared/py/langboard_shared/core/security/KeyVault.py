@@ -8,6 +8,9 @@ class KeyVault(VaultProvider):
     def __init__(self):
         provider_type = Env.KEY_PROVIDER_TYPE
 
+        if Env.IS_CLI:
+            return
+
         if provider_type.startswith("openbao"):
             self.provider = OpenBaoVaultProvider()
         elif provider_type == "hashicorp":

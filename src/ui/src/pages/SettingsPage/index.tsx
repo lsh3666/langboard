@@ -54,9 +54,9 @@ function SettingsProxy(): React.JSX.Element {
 
         socket.subscribe(ESocketTopic.AppSettings, Object.values(ESettingSocketTopicID), () => {
             if (currentUser) {
-                currentUser.setting_role_actions = data.setting_role_actions ?? undefined;
-                currentUser.api_key_role_actions = data.api_key_role_actions ?? undefined;
-                currentUser.mcp_role_actions = data.mcp_role_actions ?? undefined;
+                currentUser.setting_role_actions = data.setting_role_actions ?? [];
+                currentUser.api_key_role_actions = data.api_key_role_actions ?? [];
+                currentUser.mcp_role_actions = data.mcp_role_actions ?? [];
             }
 
             setIsReady(() => true);

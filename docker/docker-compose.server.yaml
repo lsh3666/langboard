@@ -98,6 +98,7 @@ services:
     volumes:
       - ../src/socket/package.json:/app/package.json
       - ../src/socket/yarn.lock:/app/yarn.lock
+      - ../src/socket/src:/app/src
       - ../src/shared/ts:/shared/ts
       - ../src/resources:/app/resources
       - ../.env:/app/.env

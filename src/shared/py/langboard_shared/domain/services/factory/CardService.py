@@ -389,8 +389,6 @@ class CardService(BaseDomainService):
             card_assigned_label = CardAssignedProjectLabel(card_id=card.id, project_label_id=label.id)
             self.repo.card_assigned_project_label.insert(card_assigned_label)
 
-        new_labels = self.repo.project_label.get_all_by_card(card)
-
         CardPublisher.labels_updated(project, card, new_labels)
         CardActivityTask.card_labels_updated(
             user_or_bot,

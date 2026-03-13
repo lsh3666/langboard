@@ -25,6 +25,10 @@ class Env:
         return self.__get_from_cache("IS_EXECUTABLE", "false") == "true"
 
     @property
+    def IS_CLI(self) -> bool:
+        return self.__get_from_cache("IS_CLI", "false") == "true"
+
+    @property
     def ENVIRONMENT(self) -> Literal["development", "production"]:
         return cast(Any, self.__get_from_cache("ENVIRONMENT", "development"))
 

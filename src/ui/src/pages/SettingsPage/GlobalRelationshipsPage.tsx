@@ -91,12 +91,14 @@ function GlobalRelationshipsPage() {
                             {t("common.Delete")}
                         </Button>
                     )}
-                    <GlobalRelationshipImport />
+                    {hasRoleAction(SettingRole.EAction.GlobalRelationshipCreate) && <GlobalRelationshipImport />}
                     <GlobalRelationshipExport />
-                    <Button variant="outline" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={openCreateDialog}>
-                        <IconComponent icon="plus" size="4" />
-                        {t("settings.Add new")}
-                    </Button>
+                    {hasRoleAction(SettingRole.EAction.GlobalRelationshipCreate) && (
+                        <Button variant="outline" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={openCreateDialog}>
+                            <IconComponent icon="plus" size="4" />
+                            {t("settings.Add new")}
+                        </Button>
+                    )}
                 </Flex>
             </Flex>
             <GlobalRelationshipList

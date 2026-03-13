@@ -4,7 +4,9 @@ import IconComponent from "@/components/base/IconComponent";
 import Toast from "@/components/base/Toast";
 import useGetInternalBots from "@/controllers/api/settings/internalBots/useGetInternalBots";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
 import { InternalBotModel } from "@/core/models";
+import { SettingRole } from "@/core/models/roles";
 import { useAppSetting } from "@/core/providers/AppSettingProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
 import { ROUTES } from "@/core/routing/constants";
@@ -18,11 +20,13 @@ function InternalBotsPage() {
     const { setPageAliasRef } = usePageHeader();
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
-    const { isValidating } = useAppSetting();
+    const { isValidating, currentUser } = useAppSetting();
     const { botUID } = useParams();
     const [bot, setBot] = useState<InternalBotModel.TModel | null>(null);
     const [mounted, setMounted] = useState(false);
     const { mutateAsync: getInternalBotsMutateAsync } = useGetInternalBots();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
 
     useEffect(() => {
         const initialize = async () => {
@@ -70,10 +74,12 @@ function InternalBotsPage() {
                 <>
                     <Flex justify="between" mb="4" pb="2" textSize="3xl" weight="semibold" className="scroll-m-20 border-b tracking-tight">
                         <span className="max-w-72 truncate">{t("settings.Internal bots")}</span>
-                        <Button variant="outline" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={openCreateDialog}>
-                            <IconComponent icon="plus" size="4" />
-                            {t("settings.Add new")}
-                        </Button>
+                        {hasRoleAction(SettingRole.EAction.InternalBotCreate) && (
+                            <Button variant="outline" disabled={isValidating} className="gap-2 pl-2 pr-3" onClick={openCreateDialog}>
+                                <IconComponent icon="plus" size="4" />
+                                {t("settings.Add new")}
+                            </Button>
+                        )}
                     </Flex>
                     <InternalBotList />
                 </>

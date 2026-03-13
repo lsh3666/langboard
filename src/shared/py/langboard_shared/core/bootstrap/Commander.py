@@ -26,6 +26,9 @@ class Commander:
 
         command = self.__commands[command_name]
 
+        if command.is_only_in_dev():
+            Env.update_env("IS_CLI", "true")
+
         arg_parser = CLIRichParser(argument_default=SUPPRESS, formatter_class=CLIHelpFormatter)
         self.__add_groups(arg_parser, command.option_class)
 

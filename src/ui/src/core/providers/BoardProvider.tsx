@@ -102,7 +102,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
     const canDragAndDrop = useMemo(() => hasRoleAction(ProjectRole.EAction.Update) && !selectCardViewType, [hasRoleAction, selectCardViewType]);
 
     useEffect(() => {
-        if (isAdmin || members.some((member) => member.uid === currentUser.uid) || forbiddenMessageIdRef.current) {
+        if (isAdmin || !members.length || members.some((member) => member.uid === currentUser.uid) || forbiddenMessageIdRef.current) {
             return;
         }
 

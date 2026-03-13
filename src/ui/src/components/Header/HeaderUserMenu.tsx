@@ -2,7 +2,6 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import UserAvatar from "@/components/UserAvatar";
 import { ROUTES } from "@/core/routing/constants";
-import { useSocket } from "@/core/providers/SocketProvider";
 import { AuthUser } from "@/core/models";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
@@ -15,7 +14,6 @@ const HeaderUserMenu = memo(({ currentUser }: IHeaderUserMenuProps) => {
     const { signOut } = useAuth();
     const navigate = usePageNavigateRef();
     const [t] = useTranslation();
-    const { close: closeSocket } = useSocket();
 
     return (
         <UserAvatar.Root
@@ -39,7 +37,6 @@ const HeaderUserMenu = memo(({ currentUser }: IHeaderUserMenuProps) => {
                 <UserAvatar.ListItem
                     className="cursor-pointer"
                     onClick={async () => {
-                        closeSocket();
                         await signOut();
                     }}
                 >

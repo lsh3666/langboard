@@ -217,5 +217,6 @@ bundler
 # Claude Code and Specify
 .claude
 .specify
+.serena
 
 graph/

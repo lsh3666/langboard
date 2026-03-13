@@ -1,14 +1,4 @@
 from .Attachment import ChangeAttachmentNameForm
-from .Bot import (
-    BotLogPagination,
-    BotSchedulePagination,
-    CreateBotCronTimeForm,
-    CreateBotScopeForm,
-    DeleteBotCronTimeForm,
-    DeleteBotScopeForm,
-    ToggleBotTriggerConditionForm,
-    UpdateBotCronTimeForm,
-)
 from .Card import ChangeCardDetailsForm, CreateCardForm, UpdateCardLabelsForm, UpdateCardRelationshipsForm
 from .Chat import CreateChatTemplate, UpdateChatTemplate
 from .Check import CardChecklistNotifyForm, CardCheckRelatedForm, CardifyCheckitemForm, ChangeCardCheckitemStatusForm
@@ -35,14 +25,6 @@ __all__ = [
     "ChangeRootOrderForm",
     "ChangeChildOrderForm",
     "ColumnForm",
-    "CreateBotCronTimeForm",
-    "UpdateBotCronTimeForm",
-    "DeleteBotCronTimeForm",
-    "CreateBotScopeForm",
-    "ToggleBotTriggerConditionForm",
-    "DeleteBotScopeForm",
-    "BotLogPagination",
-    "BotSchedulePagination",
     "CreateCardForm",
     "UpdateCardLabelsForm",
     "UpdateCardRelationshipsForm",

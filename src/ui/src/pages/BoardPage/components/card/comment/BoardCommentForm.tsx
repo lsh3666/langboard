@@ -89,40 +89,46 @@ const BoardCommentForm = memo((): React.JSX.Element => {
         [isValidating, setIsValidating]
     );
 
-    replyRef.current = (target: TUserLikeModel) => {
-        if (isValidating) {
-            return;
-        }
-
-        let username;
-        if (isModel(target, "User")) {
-            if (!target.isValidUser()) {
+    useEffect(() => {
+        replyRef.current = (target: TUserLikeModel) => {
+            if (isValidating) {
                 return;
             }
 
-            username = target.username;
-        } else if (isModel(target, "BotModel")) {
-            username = target.bot_uname;
-        } else {
-            return;
-        }
+            let username;
+            if (isModel(target, "User")) {
+                if (!target.isValidUser()) {
+                    return;
+                }
 
-        if (!isCurrentEditor || !editorRef.current) {
-            getEditorStore().setCurrentEditor(editorName);
-            setValue({
-                content: `[**@${username}**](${target.uid}) `,
+                username = target.username;
+            } else if (isModel(target, "BotModel")) {
+                username = target.bot_uname;
+            } else {
+                return;
+            }
+
+            if (!isCurrentEditor || !editorRef.current) {
+                getEditorStore().setCurrentEditor(editorName);
+                setValue({
+                    content: `[**@${username}**](${target.uid}) `,
+                });
+                setTimeout(() => {
+                    editorRef.current?.tf.focus();
+                }, 0);
+                return;
+            }
+
+            mention(editorRef.current, {
+                key: target.uid,
+                text: username,
             });
-            setTimeout(() => {
-                editorRef.current?.tf.focus();
-            }, 0);
-            return;
-        }
+        };
 
-        mention(editorRef.current, {
-            key: target.uid,
-            text: username,
-        });
-    };
+        return () => {
+            replyRef.current = () => {};
+        };
+    }, [editorName, isCurrentEditor, isValidating, replyRef, setValue]);
 
     const commentStorageKey = useMemo(() => `comment-${projectUID}-${card.uid}`, [projectUID, card.uid]);
     const saveDraftToStorage = useCallback(

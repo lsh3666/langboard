@@ -22,11 +22,15 @@ import { EHttpStatus } from "@langboard/core/enums";
 import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { ROUTES } from "@/core/routing/constants";
 import { convertImportedTypeToModel } from "@/pages/SettingsPage/components/relationships/utils";
+import useRoleActionFilter from "@/core/hooks/useRoleActionFilter";
+import { SettingRole } from "@/core/models/roles";
 
 function GlobalRelationshipImport() {
     const [t] = useTranslation();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { isValidating } = useAppSetting();
+    const { isValidating, currentUser } = useAppSetting();
+    const settingRoleActions = currentUser.useField("setting_role_actions");
+    const { hasRoleAction } = useRoleActionFilter(settingRoleActions);
     const [parsedRelationships, setParsedRelationships] = useState<IConvertedGlobalRelationshipType[]>();
     const [isOpened, setIsOpened] = useState(false);
     const handleFileChange = useCallback(
@@ -104,6 +108,10 @@ function GlobalRelationshipImport() {
             setParsedRelationships(() => undefined);
         }
     }, [isOpened]);
+
+    if (!hasRoleAction(SettingRole.EAction.GlobalRelationshipCreate)) {
+        return null;
+    }
 
     return (
         <Flex>

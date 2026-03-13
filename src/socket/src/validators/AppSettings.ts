@@ -14,20 +14,17 @@ Subscription.registerValidator(ESocketTopic.AppSettings, async (context) => {
     const topicId = Utils.String.convertSafeEnum(ESettingSocketTopicID, context.topicId);
     switch (topicId) {
         case ESettingSocketTopicID.ApiKey:
-            ApiKeyRole.isAnyGranted(context.client.user.id);
-            break;
+            return await ApiKeyRole.isAnyGranted(context.client.user.id);
         case ESettingSocketTopicID.McpToolGroup:
-            McpRole.isAnyGranted(context.client.user.id);
-            break;
+            return await McpRole.isAnyGranted(context.client.user.id);
         default:
             if (!context.client.user.is_admin) {
                 return false;
             }
 
             if (Object.entries(ESettingCategory).some(([key, value]) => key === (topicId as string) || value === (topicId as string))) {
-                return SettingRole.isCategoryGranted(context.client.user.id, topicId as unknown as ESettingCategory);
+                return await SettingRole.isCategoryGranted(context.client.user.id, topicId as unknown as ESettingCategory);
             }
-            break;
     }
     return false;
 });

@@ -1,6 +1,5 @@
 from asyncio import run
 from langboard_shared.core.bootstrap import BaseCommand, BaseCommandOptions
-from langboard_shared.tasks.bots import BotScheduleTask
 
 
 class RunBotCronTaskCommandOptions(BaseCommandOptions):
@@ -37,4 +36,6 @@ class RunBotCronTaskCommand(BaseCommand):
         return str
 
     def execute(self, cron_time_str: str, _: RunBotCronTaskCommandOptions) -> None:
+        from langboard_shared.tasks.bots import BotScheduleTask
+
         run(BotScheduleTask.run_scheduled_bots_cron(cron_time_str))

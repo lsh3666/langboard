@@ -4,6 +4,10 @@ import { useCallback } from "react";
 const useRoleActionFilter = <T extends string>(userActions: T[]) => {
     const hasRoleAction = useCallback(
         (...actions: T[]) => {
+            if (!userActions?.length) {
+                return false;
+            }
+
             if (userActions.includes(ROLE_ALL_GRANTED as T)) {
                 return true;
             }

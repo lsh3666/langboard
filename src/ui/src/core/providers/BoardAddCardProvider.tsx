@@ -48,7 +48,7 @@ export const BoardAddCardProvider = ({ column, viewportRef, toLastPage, children
     const { mutateAsync: createCardMutateAsync } = useCreateCard({ interceptToast: true });
     const editorName = `${column.uid}-add-card`;
     const { valueRef, isEditing, setIsEditing, changeMode } = useChangeEditMode({
-        canEdit: () => hasRoleAction(ProjectRole.EAction.Update),
+        canEdit: () => hasRoleAction(ProjectRole.EAction.CardWrite) && !column.is_archive,
         valueType: "textarea",
         disableNewLine: true,
         editorName,
