@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -29,7 +28,7 @@ const useCreateWiki = (options?: TMutationOptions<ICreateWikiForm, ICreateWikiRe
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 
@@ -38,7 +37,7 @@ const useCreateWiki = (options?: TMutationOptions<ICreateWikiForm, ICreateWikiRe
         };
     };
 
-    const result = mutate(["create-wiki"], createWiki, {
+    const result = mutate<ICreateWikiForm, ICreateWikiResponse>(["create-wiki"], createWiki, {
         ...options,
         retry: 0,
     });

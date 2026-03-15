@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QUERY_NAMES } from "@/constants";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -42,7 +41,7 @@ const useSignUp = (options?: TMutationOptions<ISignUpForm>) => {
         const res = await api.post(Routing.API.AUTH.SIGN_UP.SEND_LINK, formData, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

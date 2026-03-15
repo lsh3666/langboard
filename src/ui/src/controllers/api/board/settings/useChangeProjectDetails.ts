@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -20,7 +19,7 @@ const useChangeProjectDetails = (projectUID: string, options?: TMutationOptions<
         const res = await api.put(url, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

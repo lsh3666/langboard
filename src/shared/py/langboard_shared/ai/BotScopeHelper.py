@@ -3,9 +3,9 @@ from sqlmodel.sql.expression import SelectOfScalar
 from ..core.db import BaseSqlModel, DbSession, SqlBuilder
 from ..core.types.ParamTypes import TBaseParam, TBotParam
 from ..core.utils.decorators import staticclass
-from ..domain.models import Bot
+from ..domain.models import Bot, BotDefaultScopeBranch
 from ..domain.models.bases import BaseBotScopeModel, BotTriggerCondition
-from ..helpers import InfraHelper
+from ..helpers import BotHelper, InfraHelper
 
 
 _TBotScopeModel = TypeVar("_TBotScopeModel", bound=BaseBotScopeModel)
@@ -69,10 +69,36 @@ class BotScopeHelper:
         return model
 
     @staticmethod
-    def toggle_trigger_condition(
+    def upsert_conditions(
         model_cls: type[_TBotScopeModel],
-        model: _TBotScopeModel | TBaseParam | None,
-        condition: BotTriggerCondition,
+        bot: TBotParam | None,
+        scope: BaseSqlModel,
+        conditions: list[BotTriggerCondition],
+        **kwargs: Any,
+    ) -> tuple[_TBotScopeModel, bool] | None:
+        bot = InfraHelper.get_by_id_like(Bot, bot)
+        if not bot:
+            return None
+
+        scope_column_name = model_cls.get_scope_column_name()
+        records = BotScopeHelper.get_list(model_cls, None, bot_id=bot.id, **{scope_column_name: scope.id})
+
+        if records:
+            model = records[0]
+            model.conditions = conditions
+            with DbSession.use(readonly=False) as db:
+                db.update(model)
+            return model, False
+
+        model = BotScopeHelper.create(model_cls, bot, scope, conditions, **kwargs)
+        if not model:
+            return None
+
+        return model, True
+
+    @staticmethod
+    def toggle_trigger_condition(
+        model_cls: type[_TBotScopeModel], model: _TBotScopeModel | TBaseParam | None, condition: BotTriggerCondition
     ):
         model = InfraHelper.get_by_id_like(model_cls, model)
         if not model:
@@ -81,13 +107,31 @@ class BotScopeHelper:
         if condition not in model_cls.get_available_conditions():
             return True
 
-        new_conditions = [*model.conditions]
-        should_enable = condition not in new_conditions
-        if should_enable:
-            new_conditions.append(condition)
+        if model.default_scope_branch_id:
+            scope_column_name = model_cls.get_scope_column_name()
+            default_scope_model_cls = BotHelper.get_default_scope_model_class(scope_column_name)
+
+            if default_scope_model_cls:
+                default_scopes = InfraHelper.get_all_by(
+                    default_scope_model_cls, "bot_default_scope_branch_id", model.default_scope_branch_id
+                )
+
+                if default_scopes:
+                    model.conditions = [*default_scopes[0].conditions]
+                else:
+                    model.conditions = []
+
+                model.default_scope_branch_id = None
+            else:
+                model.conditions = []
         else:
-            new_conditions.remove(condition)
-        model.conditions = new_conditions
+            model.conditions = [*model.conditions]
+
+        should_enable = condition not in model.conditions
+        if should_enable:
+            model.conditions.append(condition)
+        else:
+            model.conditions.remove(condition)
 
         with DbSession.use(readonly=False) as db:
             db.update(model)
@@ -124,3 +168,44 @@ class BotScopeHelper:
                 db.delete(record)
 
         return records
+
+    @staticmethod
+    def apply_default_scope(
+        model_cls: type[_TBotScopeModel],
+        bot: TBotParam | None,
+        scope: BaseSqlModel,
+        default_scope_branch_uid: str | None,
+    ) -> tuple[_TBotScopeModel, bool] | None:
+        bot = InfraHelper.get_by_id_like(Bot, bot)
+        if not bot:
+            return None
+
+        if default_scope_branch_uid:
+            default_scope_branch = InfraHelper.get_by_id_like(BotDefaultScopeBranch, default_scope_branch_uid)
+            if not default_scope_branch:
+                return None
+
+            upserted = BotScopeHelper.upsert_conditions(model_cls, bot, scope, [])
+            if not upserted:
+                return None
+
+            bot_scope, is_created = upserted
+
+            bot_scope.default_scope_branch_id = default_scope_branch.id
+            with DbSession.use(readonly=False) as db:
+                db.update(bot_scope)
+
+            return bot_scope, is_created
+        else:
+            scope_column_name = model_cls.get_scope_column_name()
+            existing_scopes = BotScopeHelper.get_list(model_cls, None, bot_id=bot.id, **{scope_column_name: scope.id})
+            if not existing_scopes:
+                return None
+
+            bot_scope = existing_scopes[0]
+            if bot_scope.default_scope_branch_id is not None:
+                bot_scope.default_scope_branch_id = None
+                with DbSession.use(readonly=False) as db:
+                    db.update(bot_scope)
+
+            return bot_scope, False

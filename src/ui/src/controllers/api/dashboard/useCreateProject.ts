@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -20,7 +19,7 @@ const useCreateProject = (options?: TMutationOptions<ICreateProjectForm, ICreate
         const res = await api.post(Routing.API.DASHBOARD.CREATE_PROJECT, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

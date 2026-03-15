@@ -1,6 +1,7 @@
 from .ActivityService import ActivityService
 from .ApiKeyService import ApiKeyService
 from .AppSettingService import AppSettingService
+from .BotDefaultScopeBranchService import BotDefaultScopeBranchService
 from .BotLogService import BotLogService
 from .BotService import BotService
 from .CardAttachmentService import CardAttachmentService
@@ -30,6 +31,7 @@ __all__ = [
     "ActivityService",
     "ApiKeyService",
     "AppSettingService",
+    "BotDefaultScopeBranchService",
     "BotLogService",
     "BotService",
     "CardAttachmentService",

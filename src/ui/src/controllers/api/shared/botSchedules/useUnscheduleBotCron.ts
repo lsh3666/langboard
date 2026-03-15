@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
+import { BOT_SCHEDULES } from "@/core/constants/BotRelatedConstants";
 
 export type TUnscheduleBotCronParams = TBotScheduleRelatedParams & {
     schedule_uid: string;
@@ -34,19 +33,12 @@ const useUnscheduleBotCron = (params: TUnscheduleBotCronParams, options?: TMutat
             },
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
-        switch (params.target_table) {
-            case "project":
-                ProjectBotSchedule.Model.deleteModel(params.schedule_uid);
-                break;
-            case "project_column":
-                ProjectColumnBotSchedule.Model.deleteModel(params.schedule_uid);
-                break;
-            case "card":
-                ProjectCardBotSchedule.Model.deleteModel(params.schedule_uid);
-                break;
+        const targetModel = BOT_SCHEDULES[params.target_table];
+        if (targetModel) {
+            targetModel.Model.deleteModel(params.schedule_uid);
         }
 
         return res.data;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TQueryOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -22,7 +21,7 @@ const useGetWikis = (params: IGetWikisForm, options?: TQueryOptions<unknown, IGe
         const res = await api.get(url, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return {

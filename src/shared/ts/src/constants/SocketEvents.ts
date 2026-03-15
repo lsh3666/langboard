@@ -147,6 +147,11 @@ const SERVER = {
             CREATED: "bot:created",
             UPDATED: "bot:updated:{uid}",
             DELETED: "bot:deleted:{uid}",
+            DEFAULT_SCOPE_BRANCH: {
+                CREATED: "bot:default-scope-branch:created",
+                UPDATED: "bot:default-scope-branch:updated:{uid}",
+                DELETED: "bot:default-scope-branch:deleted:{uid}",
+            },
         },
         GLOBAL_RELATIONSHIPS: {
             CREATED: "global-relationship:created",

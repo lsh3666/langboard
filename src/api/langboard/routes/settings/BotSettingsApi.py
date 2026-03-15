@@ -4,26 +4,39 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.storage import Storage, StorageName
-from langboard_shared.domain.models import Bot, SettingRole
+from langboard_shared.domain.models import Bot, BotDefaultScopeBranch, SettingRole
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
 from langboard_shared.domain.models.SettingRole import SettingRoleAction
 from langboard_shared.domain.services import DomainService
 from langboard_shared.filter import RoleFilter
 from langboard_shared.security import RoleFinder
-from .Form import CreateBotForm, UpdateBotForm
+from .Form import CreateBotDefaultScopeBranchForm, CreateBotForm, UpdateBotDefaultScopeBranchForm, UpdateBotForm
 
 
 @AppRouter.api.get(
     "/settings/bots",
     tags=["AppSettings.Bot"],
-    responses=OpenApiSchema().suc({"bots": [(Bot, {"is_setting": True})]}).auth().forbidden().get(),
+    responses=(
+        OpenApiSchema()
+        .suc({"bots": [(Bot, {"schema": {"default_scope_branches": [BotDefaultScopeBranch]}, "is_setting": True})]})
+        .auth()
+        .forbidden()
+        .get()
+    ),
 )
 @RoleFilter.add(SettingRole, [SettingRoleAction.BotRead], RoleFinder.setting, allowed_all_admin=False)
 @AuthFilter.add("admin")
 def get_bots_in_settings(service: DomainService = DomainService.scope()) -> JsonResponse:
     bots = service.bot.get_api_list(is_setting=True)
+    branches_by_bot = service.bot_default_scope_branch.get_api_map_by_bot_uid()
 
-    return JsonResponse(content={"bots": bots})
+    bots_with_branches = []
+    for bot_dict in bots:
+        bot_uid: str = bot_dict["uid"]
+        bot_dict["default_scope_branches"] = branches_by_bot.get(bot_uid, [])
+        bots_with_branches.append(bot_dict)
+
+    return JsonResponse(content={"bots": bots_with_branches})
 
 
 @AppRouter.api.post(
@@ -186,5 +199,125 @@ def delete_bot(bot_uid: str, service: DomainService = DomainService.scope()) -> 
     result = service.bot.delete(bot_uid)
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF3001)
+
+    return JsonResponse()
+
+
+@AppRouter.api.get(
+    "/settings/bot/{bot_uid}/default-scope-branches",
+    tags=["AppSettings.BotDefaultScopeBranch"],
+    responses=(
+        OpenApiSchema()
+        .suc({"default_scope_branches": [BotDefaultScopeBranch]})
+        .auth()
+        .forbidden()
+        .err(404, ApiErrorCode.NF3001)
+        .get()
+    ),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotRead], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def get_bot_default_scope_branches(bot_uid: str, service: DomainService = DomainService.scope()) -> JsonResponse:
+    bot = service.bot.get_by_id_like(bot_uid)
+    if not bot:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3001)
+
+    default_scopes = service.bot_default_scope_branch.get_api_list_by_bot(bot)
+    return JsonResponse(content={"default_scope_branches": default_scopes})
+
+
+@AppRouter.api.post(
+    "/settings/bot/{bot_uid}/default-scope-branch",
+    tags=["AppSettings.BotDefaultScopeBranch"],
+    responses=(
+        OpenApiSchema()
+        .suc({"default_scope_branch": BotDefaultScopeBranch}, 201)
+        .auth()
+        .forbidden()
+        .err(404, ApiErrorCode.NF3001)
+        .err(404, ApiErrorCode.NF3007)
+        .get()
+    ),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotUpdate], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def create_bot_default_scope_branch(
+    bot_uid: str, form: CreateBotDefaultScopeBranchForm, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    bot = service.bot.get_by_id_like(bot_uid)
+    if not bot:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3001)
+
+    default_scope_branch = service.bot_default_scope_branch.create(
+        bot_id=bot.id,
+        name=form.name,
+    )
+    if not default_scope_branch:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
+
+    response = default_scope_branch.api_response({})
+
+    return JsonResponse(content={"default_scope_branch": response}, status_code=status.HTTP_201_CREATED)
+
+
+@AppRouter.api.put(
+    "/settings/bot/default-scope-branch/{default_scope_uid}",
+    tags=["AppSettings.BotDefaultScopeBranch"],
+    responses=(
+        OpenApiSchema()
+        .suc({"default_scope_branch": BotDefaultScopeBranch})
+        .auth()
+        .forbidden()
+        .err(404, ApiErrorCode.NF3007)
+        .get()
+    ),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotUpdate], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def update_bot_default_scope_branch(
+    default_scope_uid: str, form: UpdateBotDefaultScopeBranchForm, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    default_scope_branch = service.bot_default_scope_branch.get_by_id_like(default_scope_uid)
+    if not default_scope_branch:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
+
+    update_data = {}
+    if form.name is not None:
+        update_data["name"] = form.name
+
+    if form.conditions_map is not None:
+        update_data["conditions_map"] = form.conditions_map
+
+    result = service.bot_default_scope_branch.update(default_scope_branch, update_data)
+    if not result:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
+
+    if isinstance(result, bool):
+        return JsonResponse()
+
+    response = service.bot_default_scope_branch.get_api_by_id_like_with_conditions_map(default_scope_branch.id)
+    if not response:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
+
+    return JsonResponse(content={"default_scope_branch": response})
+
+
+@AppRouter.api.delete(
+    "/settings/bot/default-scope-branch/{default_scope_uid}",
+    tags=["AppSettings.BotDefaultScopeBranch"],
+    responses=OpenApiSchema().auth().forbidden().err(404, ApiErrorCode.NF3007).get(),
+)
+@RoleFilter.add(SettingRole, [SettingRoleAction.BotUpdate], RoleFinder.setting, allowed_all_admin=False)
+@AuthFilter.add("admin")
+def delete_bot_default_scope_branch(
+    default_scope_uid: str, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    default_scope_branch = service.bot_default_scope_branch.get_by_id_like(default_scope_uid)
+    if not default_scope_branch:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
+
+    result = service.bot_default_scope_branch.delete(default_scope_uid)
+    if not result:
+        raise ApiException.NotFound_404(ApiErrorCode.NF3007)
 
     return JsonResponse()

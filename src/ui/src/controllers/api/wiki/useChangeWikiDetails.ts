@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -35,7 +34,7 @@ const useChangeWikiDetails = <TDetail extends TChangeableDetail>(type: TDetail, 
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

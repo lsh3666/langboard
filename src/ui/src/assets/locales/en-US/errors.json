@@ -62,6 +62,7 @@
     "NF3004": "The internal bot couldn't be found.",
     "NF3005": "The API key couldn't be found.",
     "NF3006": "The MCP tool group couldn't be found.",
+    "NF3007": "The bot default scope branch couldn't be found.",
     "NF9000": "Ollama server is not reachable. Please check the server address and your network connection.",
     "NF9001": "The specified model could not be found on the Ollama server.",
 
@@ -75,6 +76,8 @@
     "VA3004": "Invalid target table or UID.",
     "VA3005": "Invalid request form.",
     "VA3006": "API key has expired and cannot be modified.",
+    "Failed to create default scope branch.": "Failed to create default scope branch.",
+    "Failed to delete default scope branch.": "Failed to delete default scope branch.",
 
     "OP0000": "Internal server error.",
     "OP1001": "We couldn't send the email. Please try again later.",

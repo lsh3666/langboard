@@ -169,6 +169,7 @@ const API = {
     BOT: {
         SCOPE: {
             CREATE: "/bot/{bot_uid}/scope",
+            APPLY_DEFAULT: "/bot/{bot_uid}/scope/default",
             TOGGLE_TRIGGER_CONDITION: "/bot/{bot_uid}/scope/{scope_uid}/trigger-condition",
             DELETE: "/bot/{bot_uid}/scope/{scope_uid}",
         },
@@ -209,8 +210,15 @@ const API = {
             GET_LIST: "/settings/bots",
             CREATE: "/settings/bot",
             UPDATE: "/settings/bot/{bot_uid}",
+            UPDATE_DEFAULT_TRIGGER_CONDITIONS: "/settings/bot/{bot_uid}/default-trigger-conditions",
             GENERATE_NEW_API_TOKEN: "/settings/bot/{bot_uid}/new-api-token",
             DELETE: "/settings/bot/{bot_uid}",
+            DEFAULT_SCOPE_BRANCH: {
+                GET_LIST: "/settings/bot/{bot_uid}/default-scope-branches",
+                CREATE: "/settings/bot/{bot_uid}/default-scope-branch",
+                UPDATE: "/settings/bot/default-scope-branch/{default_scope_uid}",
+                DELETE: "/settings/bot/default-scope-branch/{default_scope_uid}",
+            },
         },
         GLOBAL_RELATIONSHIPS: {
             GET_LIST: "/settings/global-relationships",

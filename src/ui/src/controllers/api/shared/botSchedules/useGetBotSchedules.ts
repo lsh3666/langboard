@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
-import { ProjectCardBotSchedule, ProjectColumnBotSchedule, ProjectCard, ProjectColumn } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useEffect, useRef, useState } from "react";
 import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
+import { BOT_SCHEDULES, BOT_TARGET_MODELS } from "@/core/constants/BotRelatedConstants";
 
 export type TUseGetBotSchedulesForm = TBotScheduleRelatedParams & {
     target_uid: string;
@@ -61,18 +60,15 @@ const useGetBotSchedules = (botUID: string, params: TUseGetBotSchedulesForm, lim
             },
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
-        switch (params.target_table as TBotRelatedTargetTable) {
-            case "project_column":
-                ProjectColumn.Model.fromOne(res.data.target);
-                ProjectColumnBotSchedule.Model.fromArray(res.data.schedules, true);
-                break;
-            case "card":
-                ProjectCard.Model.fromOne(res.data.target);
-                ProjectCardBotSchedule.Model.fromArray(res.data.schedules, true);
-                break;
+        const targetModel = BOT_TARGET_MODELS[params.target_table as TBotRelatedTargetTable];
+        const scheduleModel = BOT_SCHEDULES[params.target_table as TBotRelatedTargetTable];
+
+        if (targetModel && scheduleModel) {
+            targetModel.Model.fromOne(res.data.target);
+            scheduleModel.Model.fromArray(res.data.schedules, true);
         }
 
         setIsLastPage(res.data.schedules.length < limit);

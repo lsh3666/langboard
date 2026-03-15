@@ -5,6 +5,17 @@ from ...domain.models.bases import BotTriggerCondition
 from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 
+@BotTaskSchemaHelper.project_column_schema(BotTriggerCondition.ProjectColumnCreated)
+@Broker.wrap_async_task_decorator
+async def project_column_created(user_or_bot: User | Bot, project: Project, column: ProjectColumn):
+    bots = BotTaskHelper.get_scoped_bots(
+        BotTriggerCondition.ProjectColumnCreated, project_id=project.id, project_column_id=column.id
+    )
+    await BotTaskHelper.run(
+        bots, BotTriggerCondition.ProjectColumnCreated, create_column_data(user_or_bot, project, column), project
+    )
+
+
 @BotTaskSchemaHelper.project_column_schema(BotTriggerCondition.ProjectColumnNameChanged)
 @Broker.wrap_async_task_decorator
 async def project_column_name_changed(user_or_bot: User | Bot, project: Project, column: ProjectColumn):

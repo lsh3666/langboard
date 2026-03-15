@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TMetadataForm } from "@/controllers/api/metadata/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -25,17 +24,18 @@ const useGetMetadata = (form: TMetadataForm, options?: TQueryOptions) => {
         const res = await api.get(url, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
-        MetadataModel.Model.fromOne(
-            {
-                uid: form.uid,
-                type: form.type,
-                metadata: res.data.metadata,
-            },
-            true
-        );
+        const model: MetadataModel.Interface = {
+            uid: form.uid,
+            type: form.type,
+            metadata: res.data.metadata,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
+
+        MetadataModel.Model.fromOne(model, true);
 
         return res.data;
     };

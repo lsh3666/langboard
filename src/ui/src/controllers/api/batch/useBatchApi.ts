@@ -27,7 +27,7 @@ const useBatchApi = (options?: TMutationOptions<IBatchApiForm>) => {
         const res = await api.post(Routing.API.BATCH, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

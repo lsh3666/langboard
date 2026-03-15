@@ -10,6 +10,7 @@ import BotApiKey from "@/pages/SettingsPage/components/bots/BotApiKey";
 import BotApiURL from "@/pages/SettingsPage/components/bots/BotApiURL";
 import BotAppApiToken from "@/pages/SettingsPage/components/bots/BotAppApiToken";
 import BotAvatar from "@/pages/SettingsPage/components/bots/BotAvatar";
+import BotDefaultTriggers from "@/pages/SettingsPage/components/bots/BotDefaultTriggers";
 import BotIpWhitelist from "@/pages/SettingsPage/components/bots/BotIpWhitelist";
 import BotName from "@/pages/SettingsPage/components/bots/BotName";
 import BotPlatform from "@/pages/SettingsPage/components/bots/BotPlatform";
@@ -89,6 +90,7 @@ const BotDetails = memo(({ bot }: IBotDetailsProps) => {
                         </Flex>
                     </Flex>
                 )}
+                <BotDefaultTriggers />
             </Flex>
         </ModelRegistry.BotModel.Provider>
     );

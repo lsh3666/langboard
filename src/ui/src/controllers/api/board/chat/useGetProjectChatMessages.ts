@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -38,7 +37,7 @@ const useGetProjectChatMessages = (projectUID: string, limit: number = 20, optio
             },
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         ChatMessageModel.Model.fromArray(res.data.histories, true);

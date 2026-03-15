@@ -2,7 +2,7 @@ from typing import Any
 from ..core.publisher import BaseSocketPublisher, SocketPublishModel
 from ..core.routing import GLOBAL_TOPIC_ID, SettingSocketTopicID, SocketTopic
 from ..core.utils.decorators import staticclass
-from ..domain.models import Bot
+from ..domain.models import Bot, BotDefaultScopeBranch
 
 
 @staticclass
@@ -64,6 +64,44 @@ class BotPublisher(BaseSocketPublisher):
             topic=SocketTopic.Global,
             topic_id=GLOBAL_TOPIC_ID,
             event=f"bot:deleted:{uid}",
+        )
+
+        BotPublisher.put_dispather({}, publish_model)
+
+    @staticmethod
+    def default_scope_branch_created(default_scope_branch: BotDefaultScopeBranch):
+        model = {
+            "default_scope_branch": default_scope_branch.api_response({}),
+        }
+        publish_model = SocketPublishModel(
+            topic=SocketTopic.Global,
+            topic_id=GLOBAL_TOPIC_ID,
+            event="bot:default-scope-branch:created",
+            data_keys="default_scope_branch",
+        )
+
+        BotPublisher.put_dispather(model, publish_model)
+
+    @staticmethod
+    def default_scope_branch_updated(uid: str, model: dict[str, Any]):
+        if not model:
+            return
+
+        publish_model = SocketPublishModel(
+            topic=SocketTopic.Global,
+            topic_id=GLOBAL_TOPIC_ID,
+            event=f"bot:default-scope-branch:updated:{uid}",
+            data_keys=list(model.keys()),
+        )
+
+        BotPublisher.put_dispather(model, publish_model)
+
+    @staticmethod
+    def default_scope_branch_deleted(uid: str):
+        publish_model = SocketPublishModel(
+            topic=SocketTopic.Global,
+            topic_id=GLOBAL_TOPIC_ID,
+            event=f"bot:default-scope-branch:deleted:{uid}",
         )
 
         BotPublisher.put_dispather({}, publish_model)

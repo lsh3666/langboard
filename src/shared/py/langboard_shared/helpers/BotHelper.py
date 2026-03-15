@@ -1,31 +1,37 @@
 from typing import Any, ClassVar, Literal, cast, overload
+from ..core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES, TBotAvailableTargets, TBotTypeName
 from ..core.utils.decorators import staticclass
-from ..domain.models import Card, Project, ProjectColumn
-from ..domain.models.bases import BaseBotLogModel, BaseBotScheduleModel, BaseBotScopeModel, BotTriggerCondition
+from ..domain.models import (
+    Card,
+    CardBotDefaultScope,
+    Project,
+    ProjectBotDefaultScope,
+    ProjectColumn,
+    ProjectColumnBotDefaultScope,
+)
+from ..domain.models.bases import (
+    BaseBotDefaultScope,
+    BaseBotLogModel,
+    BaseBotScheduleModel,
+    BaseBotScopeModel,
+    BotTriggerCondition,
+)
 from .InfraHelper import InfraHelper
 from .ModelHelper import ModelHelper
 
 
-_TAvailableTargets = Project | ProjectColumn | Card
-_TAvailableTargetClass = type[Project] | type[ProjectColumn] | type[Card]
-_TBotTypeName = Literal["schedule", "scope", "log"]
 _TBaseBotType = BaseBotScheduleModel | BaseBotScopeModel | BaseBotLogModel
 _TBaseBotTypeClass = type[BaseBotScheduleModel] | type[BaseBotScopeModel] | type[BaseBotLogModel]
 
 
 @staticclass
 class BotHelper:
-    AVAILABLE_TARGET_TABLES: ClassVar[dict[str, _TAvailableTargetClass]] = {
-        Project.__tablename__: Project,
-        ProjectColumn.__tablename__: ProjectColumn,
-        Card.__tablename__: Card,
-    }
-    AVAILABLE_BOT_TABLES: ClassVar[dict[_TBotTypeName, _TBaseBotTypeClass]] = {
+    AVAILABLE_BOT_TABLES: ClassVar[dict[TBotTypeName, _TBaseBotTypeClass]] = {
         "schedule": BaseBotScheduleModel,
         "scope": BaseBotScopeModel,
         "log": BaseBotLogModel,
     }
-    SUFFIXES: ClassVar[dict[_TBotTypeName, str]] = {
+    SUFFIXES: ClassVar[dict[TBotTypeName, str]] = {
         "schedule": "bot_schedule",
         "scope": "bot_scope",
         "log": "bot_log",
@@ -43,8 +49,8 @@ class BotHelper:
     @staticmethod
     def get_bot_model_class(class_type: Literal["log"], target_table: str) -> type[BaseBotLogModel] | None: ...
     @staticmethod
-    def get_bot_model_class(class_type: _TBotTypeName, target_table: str) -> _TBaseBotTypeClass | None:
-        if target_table not in BotHelper.AVAILABLE_TARGET_TABLES:
+    def get_bot_model_class(class_type: TBotTypeName, target_table: str) -> _TBaseBotTypeClass | None:
+        if target_table not in AVAILABLE_BOT_TARGET_TABLES:
             return None
 
         base_model_class = BotHelper.AVAILABLE_BOT_TABLES.get(class_type)
@@ -65,26 +71,26 @@ class BotHelper:
     @staticmethod
     def get_target_model_by_param(
         class_type: Literal["schedule"], target_table: str, param: int | str
-    ) -> tuple[type[BaseBotScheduleModel], _TAvailableTargets] | None: ...
+    ) -> tuple[type[BaseBotScheduleModel], TBotAvailableTargets] | None: ...
     @overload
     @staticmethod
     def get_target_model_by_param(
         class_type: Literal["scope"], target_table: str, param: int | str
-    ) -> tuple[type[BaseBotScopeModel], _TAvailableTargets] | None: ...
+    ) -> tuple[type[BaseBotScopeModel], TBotAvailableTargets] | None: ...
     @overload
     @staticmethod
     def get_target_model_by_param(
         class_type: Literal["log"], target_table: str, param: int | str
-    ) -> tuple[type[BaseBotLogModel], _TAvailableTargets] | None: ...
+    ) -> tuple[type[BaseBotLogModel], TBotAvailableTargets] | None: ...
     @staticmethod
     def get_target_model_by_param(
-        class_type: _TBotTypeName, target_table: str, param: int | str
-    ) -> tuple[_TBaseBotTypeClass, _TAvailableTargets] | None:
-        if target_table not in BotHelper.AVAILABLE_TARGET_TABLES:
+        class_type: TBotTypeName, target_table: str, param: int | str
+    ) -> tuple[_TBaseBotTypeClass, TBotAvailableTargets] | None:
+        if target_table not in AVAILABLE_BOT_TARGET_TABLES:
             return None
 
         target_schedule_class = BotHelper.get_bot_model_class(class_type, target_table)
-        target_class = BotHelper.AVAILABLE_TARGET_TABLES.get(target_table)
+        target_class = AVAILABLE_BOT_TARGET_TABLES.get(target_table)
         if not target_class or not target_schedule_class:
             return None
 
@@ -98,19 +104,21 @@ class BotHelper:
     @staticmethod
     def get_target_model_by_bot_model(
         class_type: Literal["schedule"], bot_model: BaseBotScheduleModel
-    ) -> _TAvailableTargets | None: ...
+    ) -> TBotAvailableTargets | None: ...
     @overload
     @staticmethod
     def get_target_model_by_bot_model(
         class_type: Literal["scope"], bot_model: BaseBotScopeModel
-    ) -> _TAvailableTargets | None: ...
+    ) -> TBotAvailableTargets | None: ...
     @overload
     @staticmethod
     def get_target_model_by_bot_model(
         class_type: Literal["log"], bot_model: BaseBotLogModel
-    ) -> _TAvailableTargets | None: ...
+    ) -> TBotAvailableTargets | None: ...
     @staticmethod
-    def get_target_model_by_bot_model(class_type: _TBotTypeName, bot_model: _TBaseBotType) -> _TAvailableTargets | None:
+    def get_target_model_by_bot_model(
+        class_type: TBotTypeName, bot_model: _TBaseBotType
+    ) -> TBotAvailableTargets | None:
         if not bot_model:
             return None
 
@@ -118,7 +126,7 @@ class BotHelper:
         if not target_table:
             return None
 
-        target_class = BotHelper.AVAILABLE_TARGET_TABLES.get(target_table)
+        target_class = AVAILABLE_BOT_TARGET_TABLES.get(target_table)
         if not target_class:
             return None
 
@@ -138,12 +146,22 @@ class BotHelper:
         return available_classes
 
     @staticmethod
-    def get_target_table_by_bot_model(class_type: _TBotTypeName, bot_model: _TBaseBotTypeClass) -> str | None:
+    def get_target_table_by_bot_model(class_type: TBotTypeName, bot_model: _TBaseBotTypeClass) -> str | None:
         if not bot_model:
             return None
 
         target_table = bot_model.__tablename__.split(f"_{BotHelper.SUFFIXES[class_type]}")[0]
-        if target_table not in BotHelper.AVAILABLE_TARGET_TABLES:
+        if target_table not in AVAILABLE_BOT_TARGET_TABLES:
             return None
 
         return target_table
+
+    @staticmethod
+    def get_default_scope_model_class(name: str) -> type[BaseBotDefaultScope] | None:
+        if name in {Project.__tablename__, "project_id"}:
+            return ProjectBotDefaultScope
+        elif name in {ProjectColumn.__tablename__, "project_column_id"}:
+            return ProjectColumnBotDefaultScope
+        elif name in {Card.__tablename__, "card_id"}:
+            return CardBotDefaultScope
+        return None

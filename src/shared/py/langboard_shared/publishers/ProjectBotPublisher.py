@@ -80,6 +80,9 @@ class ProjectBotPublisher(BaseSocketPublisher):
             "scope_table": scope_table,
             "uid": bot_scope.get_uid(),
             "conditions": bot_scope.conditions,
+            "default_scope_branch_uid": (
+                bot_scope.default_scope_branch_id.to_short_code() if bot_scope.default_scope_branch_id else None
+            ),
         }
         topic_id = project.get_uid()
         publish_model = SocketPublishModel(

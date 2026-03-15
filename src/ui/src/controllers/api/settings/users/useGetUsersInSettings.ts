@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -44,7 +43,7 @@ const useGetUsersInSettings = (
                 },
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             });
 
             if (res.data.references) {
@@ -100,7 +99,7 @@ const useGetUsersInSettings = (
                 },
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             });
 
             if (res.data.count_new_records) {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TReactionEmoji } from "@/components/ReactionCounter";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -29,7 +28,7 @@ const useReactCardComment = (options?: TMutationOptions<IReactCardCommentForm>) 
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

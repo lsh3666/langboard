@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -15,7 +14,7 @@ const useGetMcpToolList = (options?: TMutationOptions<{}, IGetMcpToolListRespons
         const res = await api.get(Routing.API.MCP.GET_TOOL_LIST, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         getMcpToolStore().replaceTools(res.data.tools);

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -23,7 +22,7 @@ const useCreateUserInSettings = (options?: TMutationOptions<ICreateUserInSetting
         const res = await api.post(Routing.API.SETTINGS.USERS.CREATE, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

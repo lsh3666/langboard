@@ -87,6 +87,22 @@ class UpdateBotForm(BaseFormModel):
 
 
 @form_model
+class CreateBotDefaultScopeBranchForm(BaseFormModel):
+    name: str
+
+
+@form_model
+class UpdateBotDefaultScopeBranchForm(BaseFormModel):
+    name: str | None = None
+    conditions_map: dict[str, list[str]] | None = None
+
+
+@form_model
+class DeleteBotDefaultScopeBranchForm(BaseFormModel):
+    default_scope_uid: str
+
+
+@form_model
 class CreateGlobalRelationshipTypeForm(BaseFormModel):
     parent_name: str
     child_name: str

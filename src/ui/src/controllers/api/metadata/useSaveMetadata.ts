@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TMetadataForm } from "@/controllers/api/metadata/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -35,7 +34,7 @@ const useSaveMetadata = (form: TMetadataForm, options?: TMutationOptions<ISaveMe
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing, SocketEvents } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
@@ -21,7 +20,7 @@ const useWebhookCreatedHandlers = ({ callback }: IBaseUseSocketHandlersProps<{}>
             responseConverter: (data) => {
                 const url = Utils.String.format(Routing.API.SETTINGS.WEBHOOKS.GET, { webhook_uid: data.uid });
                 api.get(url, {
-                    env: { interceptToast: true } as any,
+                    env: { interceptToast: true } as never,
                 }).then((res) => {
                     WebhookModel.Model.fromOne(res.data.webhook, true);
                 });

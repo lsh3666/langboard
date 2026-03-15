@@ -2,12 +2,14 @@ from .ApiKeyRole import ApiKeyRole
 from .ApiKeySetting import ApiKeySetting
 from .ApiKeyUsage import ApiKeyUsage
 from .Bot import Bot
+from .BotDefaultScopeBranch import BotDefaultScopeBranch
 from .BotLog import BotLog
 from .BotSchedule import BotSchedule
 from .Card import Card
 from .CardAssignedProjectLabel import CardAssignedProjectLabel
 from .CardAssignedUser import CardAssignedUser
 from .CardAttachment import CardAttachment
+from .CardBotDefaultScope import CardBotDefaultScope
 from .CardBotLog import CardBotLog
 from .CardBotSchedule import CardBotSchedule
 from .CardBotScope import CardBotScope
@@ -30,11 +32,13 @@ from .Project import Project
 from .ProjectActivity import ProjectActivity
 from .ProjectAssignedInternalBot import ProjectAssignedInternalBot
 from .ProjectAssignedUser import ProjectAssignedUser
+from .ProjectBotDefaultScope import ProjectBotDefaultScope
 from .ProjectBotLog import ProjectBotLog
 from .ProjectBotSchedule import ProjectBotSchedule
 from .ProjectBotScope import ProjectBotScope
 from .ProjectChatSession import ProjectChatSession
 from .ProjectColumn import ProjectColumn
+from .ProjectColumnBotDefaultScope import ProjectColumnBotDefaultScope
 from .ProjectColumnBotLog import ProjectColumnBotLog
 from .ProjectColumnBotSchedule import ProjectColumnBotSchedule
 from .ProjectColumnBotScope import ProjectColumnBotScope
@@ -66,7 +70,11 @@ __all__ = [
     "ApiKeyUsage",
     "McpRole",
     "Bot",
+    "BotDefaultScopeBranch",
     "BotLog",
+    "CardBotDefaultScope",
+    "ProjectBotDefaultScope",
+    "ProjectColumnBotDefaultScope",
     "BotSchedule",
     "Card",
     "CardAssignedProjectLabel",

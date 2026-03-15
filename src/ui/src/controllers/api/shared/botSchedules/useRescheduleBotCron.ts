@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -51,7 +50,7 @@ const useRescheduleBotCron = (params: TRescheduleBotCronParams, options?: TMutat
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

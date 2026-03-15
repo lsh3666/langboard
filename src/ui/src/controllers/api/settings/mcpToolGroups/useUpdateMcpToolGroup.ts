@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -19,7 +18,7 @@ const useUpdateMcpToolGroup = (toolGroup: McpToolGroup.TModel, options?: TMutati
         const res = await api.put(url, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         McpToolGroup.Model.fromOne(res.data.tool_group, true);

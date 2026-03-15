@@ -2,6 +2,7 @@ import * as BaseBotScopeModel from "@/core/models/botScopes/BaseBotScopeModel";
 import {
     CARD_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
     COLUMN_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
+    EBotTriggerCondition,
     PROJECT_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
     WIKI_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
 } from "@/core/models/botScopes/EBotTriggerCondition";
@@ -35,3 +36,6 @@ export const CATEGORIZED_BOT_TRIGGER_CONDITIONS = {
     ...COLUMN_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
     ...CARD_CATEGORIZED_BOT_TRIGGER_CONDITIONS,
 };
+
+CATEGORIZED_BOT_TRIGGER_CONDITIONS.project_column = [EBotTriggerCondition.ProjectColumnCreated, ...CATEGORIZED_BOT_TRIGGER_CONDITIONS.project_column];
+CATEGORIZED_BOT_TRIGGER_CONDITIONS.card = [EBotTriggerCondition.CardCreated, ...CATEGORIZED_BOT_TRIGGER_CONDITIONS.card];

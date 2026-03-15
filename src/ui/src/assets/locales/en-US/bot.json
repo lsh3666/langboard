@@ -2,6 +2,12 @@
   "Scope bot": "Scope bot",
   "Schedules": "Schedules",
   "Triggers": "Triggers",
+  "Using default scope branch": "Using default scope branch",
+  "Apply default scope branch": "Apply default scope branch",
+  "Custom": "Custom",
+  "Switch to Custom": "Switch to Custom",
+  "Add bot defaults": "Add bot defaults",
+  "Replace bot defaults": "Replace bot defaults",
   "Logs": "Logs",
   "No logs found": "No logs found",
   "Scoped": "Scoped",
@@ -16,6 +22,11 @@
     "default": "Default",
     "endpoint": "Endpoint",
     "flow_json": "Flow JSON"
+  },
+  "target_tables": {
+    "project": "Project",
+    "project_column": "Project column",
+    "card": "Card"
   },
   "schedules": {
     "Schedule": "Schedule",

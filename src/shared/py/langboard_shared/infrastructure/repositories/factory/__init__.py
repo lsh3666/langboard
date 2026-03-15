@@ -1,11 +1,14 @@
 from .ActivityRepository import ActivityRepository
 from .ApiKeyRepository import ApiKeyRepository
 from .ApiKeyUsageRepository import ApiKeyUsageRepository
+from .BotDefaultScopeBranchRepository import BotDefaultScopeBranchRepository
 from .BotLogRepository import BotLogRepository
 from .BotRepository import BotRepository
 from .CardAssignedProjectLabelRepository import CardAssignedProjectLabelRepository
 from .CardAssignedUserRepository import CardAssignedUserRepository
 from .CardAttachmentRepository import CardAttachmentRepository
+from .CardBotDefaultScopeRepository import CardBotDefaultScopeRepository
+from .CardBotScopeRepository import CardBotScopeRepository
 from .CardCommentRepository import CardCommentRepository
 from .CardRelationshipRepository import CardRelationshipRepository
 from .CardRepository import CardRepository
@@ -22,6 +25,10 @@ from .McpToolGroupUsageRepository import McpToolGroupUsageRepository
 from .MetadataRepository import MetadataRepository
 from .ProjectAssignedInternalBotRepository import ProjectAssignedInternalBotRepository
 from .ProjectAssignedUserRepository import ProjectAssignedUserRepository
+from .ProjectBotDefaultScopeRepository import ProjectBotDefaultScopeRepository
+from .ProjectBotScopeRepository import ProjectBotScopeRepository
+from .ProjectColumnBotDefaultScopeRepository import ProjectColumnBotDefaultScopeRepository
+from .ProjectColumnBotScopeRepository import ProjectColumnBotScopeRepository
 from .ProjectColumnRepository import ProjectColumnRepository
 from .ProjectInvitationRepository import ProjectInvitationRepository
 from .ProjectLabelRepository import ProjectLabelRepository
@@ -46,11 +53,14 @@ __all__ = [
     "ActivityRepository",
     "ApiKeyRepository",
     "ApiKeyUsageRepository",
+    "BotDefaultScopeBranchRepository",
     "BotLogRepository",
     "BotRepository",
     "CardAssignedProjectLabelRepository",
     "CardAssignedUserRepository",
     "CardAttachmentRepository",
+    "CardBotDefaultScopeRepository",
+    "CardBotScopeRepository",
     "CardCommentRepository",
     "CardRelationshipRepository",
     "CardRepository",
@@ -67,6 +77,10 @@ __all__ = [
     "MetadataRepository",
     "ProjectAssignedInternalBotRepository",
     "ProjectAssignedUserRepository",
+    "ProjectBotDefaultScopeRepository",
+    "ProjectBotScopeRepository",
+    "ProjectColumnBotDefaultScopeRepository",
+    "ProjectColumnBotScopeRepository",
     "ProjectColumnRepository",
     "ProjectInvitationRepository",
     "ProjectLabelRepository",

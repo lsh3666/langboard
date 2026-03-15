@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toggleAllScopedUnsubscriptions } from "@/controllers/api/notification/settings/utils";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -47,7 +46,7 @@ const useToggleAllScopedNotificationSettings = (
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

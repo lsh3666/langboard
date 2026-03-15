@@ -1,6 +1,7 @@
 export * as ActivityModel from "@/core/models/ActivityModel";
 export * as ApiKeySettingModel from "@/core/models/ApiKeySettingModel";
 export * as AuthUser from "@/core/models/AuthUser";
+export * as BotDefaultScopeBranchModel from "@/core/models/BotDefaultScopeBranchModel";
 export * as BotLogModel from "@/core/models/BotLogModel";
 export * as BotModel from "@/core/models/BotModel";
 export * as InternalBotModel from "@/core/models/InternalBotModel";

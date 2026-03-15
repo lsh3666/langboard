@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing, SocketEvents } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
@@ -20,7 +19,7 @@ const useInternalBotUpdatedHandlers = ({ callback }: IBaseUseSocketHandlersProps
             responseConverter: (data) => {
                 const url = Utils.String.format(Routing.API.GLOBAL.INTERNAL_BOTS.GET, { bot_uid: data.uid });
                 api.get(url, {
-                    env: { interceptToast: true } as any,
+                    env: { interceptToast: true } as never,
                 }).then((res) => {
                     InternalBotModel.Model.fromOne(res.data.internal_bot, true);
                 });

@@ -1,3 +1,4 @@
+import * as BotDefaultScopeBranchModel from "@/core/models/BotDefaultScopeBranchModel";
 import { BaseModel } from "@/core/models/Base";
 import { registerModel } from "@/core/models/ModelRegistry";
 import { Utils } from "@langboard/core/utils";
@@ -12,6 +13,7 @@ export const ALLOWED_ALL_IPS = "*";
 export interface Interface extends IBaseBotModel {
     name: string;
     bot_uname: string;
+    default_scope_branches: BotDefaultScopeBranchModel.Interface[];
     avatar?: string;
     api_url: string;
     api_key: string;
@@ -21,6 +23,14 @@ export interface Interface extends IBaseBotModel {
 }
 
 class BotModel extends BaseModel<Interface> {
+    public static override get FOREIGN_MODELS() {
+        return {
+            default_scope_branches: BotDefaultScopeBranchModel.Model.MODEL_NAME,
+        };
+    }
+    override get FOREIGN_MODELS() {
+        return BotModel.FOREIGN_MODELS;
+    }
     public static get MODEL_NAME() {
         return "BotModel" as const;
     }
@@ -65,6 +75,13 @@ class BotModel extends BaseModel<Interface> {
     }
     public set bot_uname(value) {
         this.update({ bot_uname: value });
+    }
+
+    public get default_scope_branches(): BotDefaultScopeBranchModel.TModel[] {
+        return this.getForeignValue("default_scope_branches");
+    }
+    public set default_scope_branches(value: (BotDefaultScopeBranchModel.TModel | BotDefaultScopeBranchModel.Interface)[]) {
+        this.update({ default_scope_branches: value });
     }
 
     public get avatar() {

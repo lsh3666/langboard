@@ -54,7 +54,7 @@ const useGetInfiniteRefreshableList = <TModelName extends TCreatedAtModelName>(
                 },
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             });
 
             if (res.data.records) {
@@ -108,7 +108,7 @@ const useGetInfiniteRefreshableList = <TModelName extends TCreatedAtModelName>(
                 },
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             });
 
             if (res.data.count_new_records) {

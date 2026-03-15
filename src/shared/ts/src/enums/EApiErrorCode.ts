@@ -55,6 +55,7 @@ export enum EApiErrorCode {
     NF3004 = "Internal bot not found.",
     NF3005 = "API key not found.",
     NF3006 = "MCP tool group not found.",
+    NF3007 = "Bot default scope branch not found.",
     NF9000 = "Ollama API not found.",
     NF9001 = "Ollama model not found.",
 

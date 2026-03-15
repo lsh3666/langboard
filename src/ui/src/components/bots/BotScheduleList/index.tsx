@@ -3,7 +3,7 @@ import Flex from "@/components/base/Flex";
 import Loading from "@/components/base/Loading";
 import ScrollArea from "@/components/base/ScrollArea";
 import InfiniteScroller from "@/components/InfiniteScroller";
-import { BotModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
+import { BotModel } from "@/core/models";
 import { Utils } from "@langboard/core/utils";
 import { useCallback, useRef } from "react";
 import BotScheduleListItemAddButton from "@/components/bots/BotScheduleList/ItemAddButton";
@@ -13,6 +13,7 @@ import { TBotScheduleRelatedParams } from "@/controllers/api/shared/botSchedules
 import { BotScheduleListProvider } from "@/components/bots/BotScheduleList/Provider";
 import { TPickedModelClass, TBotScheduleModelName, TBotScheduleModel } from "@/core/models/ModelRegistry";
 import { TBotRelatedTargetModel } from "@/core/models/types/bot.related.type";
+import { BOT_SCHEDULES, BOT_TARGET_MODEL_FOREIGN_KEY } from "@/core/constants/BotRelatedConstants";
 
 export interface IBotScheduleListProps {
     bot: BotModel.TModel;
@@ -21,30 +22,19 @@ export interface IBotScheduleListProps {
 }
 
 function BotScheduleList({ params, ...props }: IBotScheduleListProps) {
-    let scheduleModel;
-    let filterModel;
-    switch (params.target_table) {
-        case "project":
-            scheduleModel = ProjectBotSchedule.Model;
-            filterModel = (model: ProjectBotSchedule.TModel) => model.project_uid === props.target.uid;
-            break;
-        case "project_column":
-            scheduleModel = ProjectColumnBotSchedule.Model;
-            filterModel = (model: ProjectColumnBotSchedule.TModel) => model.project_column_uid === props.target.uid;
-            break;
-        case "card":
-            scheduleModel = ProjectCardBotSchedule.Model;
-            filterModel = (model: ProjectCardBotSchedule.TModel) => model.card_uid === props.target.uid;
-            break;
-        default:
-            return <></>;
+    const scheduleModel = BOT_SCHEDULES[params.target_table];
+    const filterModel = (model: TBotScheduleModel<TBotScheduleModelName>) =>
+        model[BOT_TARGET_MODEL_FOREIGN_KEY[params.target_table] as never] === props.target.uid;
+
+    if (!scheduleModel) {
+        return <></>;
     }
 
     return (
         <BotScheduleListDisplay
             {...props}
             params={params}
-            ScheduleModel={scheduleModel}
+            ScheduleModel={scheduleModel.Model}
             filterModel={filterModel as (model: TBotScheduleModel<TBotScheduleModelName>) => bool}
         />
     );

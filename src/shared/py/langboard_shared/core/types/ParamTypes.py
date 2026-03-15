@@ -1,6 +1,7 @@
 from ...domain.models import (
     ApiKeySetting,
     Bot,
+    BotDefaultScopeBranch,
     Card,
     CardAttachment,
     CardComment,
@@ -41,6 +42,7 @@ TUserParam = User | TBaseParam
 TUserGroupParam = UserGroup | TBaseParam
 TProjectLabelParam = ProjectLabel | TBaseParam
 TBotParam = Bot | TBaseParam
+TBotDefaultScopeBranchParam = BotDefaultScopeBranch | TBaseParam
 TGlobalCardRelationshipTypeParam = GlobalCardRelationshipType | TBaseParam
 TNotificationParam = UserNotification | TBaseParam
 TChatTemplateParam = ChatTemplate | TBaseParam

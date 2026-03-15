@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TQueryOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -21,7 +20,7 @@ const useGetProject = (form: IGetProjectForm, options?: TQueryOptions<unknown, I
         const res = await api.get(url, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         const project = Project.Model.fromOne(res.data.project);

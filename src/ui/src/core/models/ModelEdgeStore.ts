@@ -213,7 +213,7 @@ class _ModelEdgeStore {
     ): InstanceType<TTargetClass>[] {
         const store = this as _ModelEdgeStore;
         const [updated, forceUpdate] = useReducer((x) => x + 1, 0);
-        const models = useMemo(() => this.getModels(source, targetClass), [source, targetClass, updated]);
+        const models = useMemo(() => this.getModels(source, targetClass), [source, targetClass, updated, ...(deps || [])]);
         const sourceModelName = store.#convertModelName(source.MODEL_NAME);
         const targetModelName = store.#convertModelName(targetClass.MODEL_NAME);
 

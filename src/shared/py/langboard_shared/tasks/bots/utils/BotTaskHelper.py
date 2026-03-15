@@ -2,10 +2,12 @@ from typing import Any, overload
 from ....ai import BotDefaultTrigger
 from ....core.db import BaseSqlModel, DbSession, SqlBuilder
 from ....core.logger import Logger
+from ....core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
 from ....core.utils.decorators import staticclass
 from ....domain.models import Bot, Project
 from ....domain.models.bases import BotTriggerCondition
 from ....helpers import BotHelper
+from ....helpers import BotHelper as BotHelperClass
 from ...webhooks import WebhookTask
 from ...webhooks.utils import WebhookModel
 from .requests.Utils import create_request
@@ -30,9 +32,13 @@ class BotTaskHelper:
                 if not target_table:
                     continue
 
-                target_table_class = BotHelper.AVAILABLE_TARGET_TABLES[target_table]
+                target_table_class = AVAILABLE_BOT_TARGET_TABLES[target_table]
 
-                query = (
+                default_scope_model_cls = BotHelperClass.get_default_scope_model_class(column_name)
+                if not default_scope_model_cls:
+                    continue
+
+                custom_query = (
                     SqlBuilder.select.tables(Bot, model_class, target_table_class)
                     .join(model_class, model_class.column("bot_id") == Bot.column("id"))
                     .join(
@@ -40,17 +46,49 @@ class BotTaskHelper:
                         target_table_class.column("id") == model_class.column(column_name),
                     )
                     .where(
-                        (model_class.column("conditions").contains([condition.value]))
+                        (model_class.column("default_scope_branch_id").is_(None))
+                        & (model_class.column("conditions").contains([condition.value]))
                         & (model_class.column(column_name) == where_clauses[column_name])
                     )
                 )
 
                 for clause_name in where_clauses:
                     if target_table_class.model_fields.get(clause_name):
-                        query = query.where(target_table_class.column(clause_name) == where_clauses[clause_name])
+                        custom_query = custom_query.where(
+                            target_table_class.column(clause_name) == where_clauses[clause_name]
+                        )
 
-                result = db.exec(query)
-                records.extend([(bot, scope_model) for bot, _, scope_model in result.all()])
+                default_query = (
+                    SqlBuilder.select.tables(Bot, model_class, default_scope_model_cls, target_table_class)
+                    .join(model_class, model_class.column("bot_id") == Bot.column("id"))
+                    .join(
+                        default_scope_model_cls,
+                        default_scope_model_cls.column("bot_default_scope_branch_id")
+                        == model_class.column("default_scope_branch_id"),
+                    )
+                    .join(
+                        target_table_class,
+                        target_table_class.column("id") == model_class.column(column_name),
+                    )
+                    .where(
+                        (model_class.column("default_scope_branch_id").is_not(None))
+                        & (default_scope_model_cls.column("conditions").contains([condition.value]))
+                        & (model_class.column(column_name) == where_clauses[column_name])
+                    )
+                )
+
+                for clause_name in where_clauses:
+                    if target_table_class.model_fields.get(clause_name):
+                        default_query = default_query.where(
+                            target_table_class.column(clause_name) == where_clauses[clause_name]
+                        )
+
+                custom_result = db.exec(custom_query)
+                records.extend([(bot, scope_model) for bot, _, scope_model in custom_result.all()])
+
+                default_result = db.exec(default_query)
+                records.extend([(bot, scope_model) for bot, _, _, scope_model in default_result.all()])
+
         return records
 
     @overload

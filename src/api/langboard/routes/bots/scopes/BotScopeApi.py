@@ -2,7 +2,8 @@ from langboard_shared.ai import BotScopeHelper
 from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
-from langboard_shared.domain.models import Bot, Card, Project, ProjectColumn, ProjectRole
+from langboard_shared.core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
+from langboard_shared.domain.models import Bot, Project, ProjectRole
 from langboard_shared.domain.models.bases import BaseBotScopeModel
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
 from langboard_shared.domain.services import DomainService
@@ -10,7 +11,7 @@ from langboard_shared.filter import RoleFilter
 from langboard_shared.helpers import BotHelper, InfraHelper
 from langboard_shared.publishers import ProjectBotPublisher
 from langboard_shared.security import RoleFinder
-from ..forms import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerConditionForm
+from ..forms import ApplyDefaultBotScopeForm, CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerConditionForm
 
 
 @AppRouter.schema(form=CreateBotScopeForm)
@@ -37,7 +38,7 @@ def create_bot_scope_in_project(
     if not bot_scope:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
-    if isinstance(target_scope, (Project, Card, ProjectColumn)):
+    if isinstance(target_scope, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_scope, Project):
             project = target_scope
         else:
@@ -77,7 +78,7 @@ def toggle_bot_trigger_condition(
     if not result:
         raise ApiException.NotFound_404(ApiErrorCode.NF2020)
 
-    if isinstance(target_scope, (Project, Card, ProjectColumn)):
+    if isinstance(target_scope, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_scope, Project):
             project = target_scope
         else:
@@ -115,7 +116,7 @@ def delete_bot_scope(
     target_scope = _get_target_scope(bot_scope, form.target_table)
     BotScopeHelper.delete(scope_model_class, bot_scope)
 
-    if isinstance(target_scope, (Project, Card, ProjectColumn)):
+    if isinstance(target_scope, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_scope, Project):
             project = target_scope
         else:
@@ -123,6 +124,47 @@ def delete_bot_scope(
 
         if project:
             ProjectBotPublisher.scope_deleted(project, bot_scope)
+
+    return JsonResponse()
+
+
+@AppRouter.schema(form=ApplyDefaultBotScopeForm)
+@AppRouter.api.put(
+    "/bot/{bot_uid}/scope/default",
+    tags=["Bot.Scope"],
+    responses=OpenApiSchema().auth().forbidden().err(400, ApiErrorCode.VA3003).err(404, ApiErrorCode.NF2020).get(),
+)
+@RoleFilter.add(ProjectRole, [ProjectRoleAction.Update], RoleFinder.project)
+@AuthFilter.add()
+def apply_default_bot_scope(
+    bot_uid: str, form: ApplyDefaultBotScopeForm, service: DomainService = DomainService.scope()
+) -> JsonResponse:
+    result = BotHelper.get_target_model_by_param("scope", form.target_table, form.target_uid)
+    if not result:
+        raise ApiException.BadRequest_400(ApiErrorCode.VA3003)
+    scope_model_class, target_scope = result
+
+    bot = service.bot.get_by_id_like(bot_uid)
+    if not bot:
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
+
+    applied = BotScopeHelper.apply_default_scope(scope_model_class, bot, target_scope, form.default_scope_branch_uid)
+    if not applied:
+        raise ApiException.NotFound_404(ApiErrorCode.NF2020)
+
+    bot_scope, is_created = applied
+
+    if isinstance(target_scope, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
+        if isinstance(target_scope, Project):
+            project = target_scope
+        else:
+            project = service.project.get_by_id_like(target_scope.project_id)
+
+        if project:
+            if is_created:
+                ProjectBotPublisher.scope_created(project, bot_scope)
+            else:
+                ProjectBotPublisher.scope_conditions_updated(project, bot_scope)
 
     return JsonResponse()
 

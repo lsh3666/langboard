@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TQueryOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -17,7 +16,7 @@ const useGetSettingRoles = (options?: TQueryOptions<unknown, IGetSettingRolesRes
         const res = await api.post(Routing.API.SETTINGS.GET_SETTING_ROLES, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

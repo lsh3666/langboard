@@ -1,12 +1,12 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { ProjectBotScope, ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
-import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
+import { TBotRelatedTargetTable, TBotRelatedTargetInterface } from "@/core/models/types/bot.related.type";
 import { ESocketTopic } from "@langboard/core/enums";
+import { BOT_SCOPES } from "@/core/constants/BotRelatedConstants";
 
 export interface IBoardBotScopeCreatedRawResponse {
     scope_table: TBotRelatedTargetTable;
-    bot_scope: ProjectColumnBotScope.Interface | ProjectCardBotScope.Interface;
+    bot_scope: TBotRelatedTargetInterface;
 }
 
 export interface IUseBoardBotScopeCreatedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -22,13 +22,11 @@ const useBoardBotScopeCreatedHandlers = ({ callback, projectUID }: IUseBoardBotS
             name: SocketEvents.SERVER.BOARD.BOT.SCOPE.CREATED,
             callback,
             responseConverter: (data) => {
-                if (data.scope_table === "project") {
-                    ProjectBotScope.Model.fromOne(data.bot_scope, true);
-                } else if (data.scope_table === "project_column") {
-                    ProjectColumnBotScope.Model.fromOne(data.bot_scope, true);
-                } else if (data.scope_table === "card") {
-                    ProjectCardBotScope.Model.fromOne(data.bot_scope, true);
+                const targetModel = BOT_SCOPES[data.scope_table];
+                if (targetModel) {
+                    targetModel.Model.fromOne(data.bot_scope, true);
                 }
+
                 return {};
             },
         },

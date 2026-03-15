@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -13,7 +12,7 @@ const useActivateApiKey = (apiKey: ApiKeySettingModel.TModel, options?: TMutatio
         const res = await api.put(url, undefined, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         apiKey.activated_at = new Date();

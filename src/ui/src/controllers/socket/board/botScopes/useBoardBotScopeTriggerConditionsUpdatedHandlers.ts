@@ -1,15 +1,16 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { ProjectBotScope, ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
 import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 import { EBotTriggerCondition } from "@/core/models/botScopes/EBotTriggerCondition";
 import { ESocketTopic } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
+import { BOT_SCOPES } from "@/core/constants/BotRelatedConstants";
 
 export interface IBoardBotScopeConditionsUpdatedRawResponse {
     scope_table: TBotRelatedTargetTable;
     uid: string;
     conditions: string[];
+    default_scope_branch_uid?: string;
 }
 
 export interface IUseBoardBotScopeConditionsUpdatedHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -26,18 +27,17 @@ const useBoardBotScopeConditionsUpdatedHandlers = ({ callback, projectUID }: IUs
             callback,
             responseConverter: (data) => {
                 let model;
-                if (data.scope_table === "project") {
-                    model = ProjectBotScope.Model.getModel(data.uid);
-                } else if (data.scope_table === "project_column") {
-                    model = ProjectColumnBotScope.Model.getModel(data.uid);
-                } else if (data.scope_table === "card") {
-                    model = ProjectCardBotScope.Model.getModel(data.uid);
+                const targetModel = BOT_SCOPES[data.scope_table];
+                if (targetModel) {
+                    model = targetModel.Model.getModel(data.uid);
                 }
 
                 if (model) {
                     model.conditions = data.conditions.map((condition) => {
                         return Utils.String.convertSafeEnum(EBotTriggerCondition, condition);
                     });
+
+                    model.default_scope_branch_uid = data.default_scope_branch_uid;
                 }
 
                 return {};

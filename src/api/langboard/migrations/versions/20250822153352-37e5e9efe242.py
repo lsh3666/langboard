@@ -22,7 +22,7 @@ from langboard_shared.core.db.ColumnTypes import (
 from langboard_shared.core.db.Models import ChatContentModel, EditorContentModel
 from langboard_shared.core.storage.FileModel import FileModel
 from langboard_shared.domain.models.BaseBotModel import BotPlatform, BotPlatformRunningType
-from langboard_shared.domain.models.bases.BaseBotScopeModel import BotTriggerCondition
+from langboard_shared.domain.models.bases.BotTriggerCondition import BotTriggerCondition
 from langboard_shared.domain.models.BotLog import BotLogMessage, BotLogType
 from langboard_shared.domain.models.BotSchedule import BotScheduleRunningType, BotScheduleStatus
 from langboard_shared.domain.models.InternalBot import InternalBotType

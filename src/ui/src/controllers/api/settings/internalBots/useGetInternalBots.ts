@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -11,7 +10,7 @@ const useGetInternalBots = (options?: TMutationOptions) => {
         const res = await api.get(Routing.API.SETTINGS.INTERNAL_BOTS.GET_LIST, {
             env: {
                 noToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         InternalBotModel.Model.fromArray(res.data.internal_bots, true);

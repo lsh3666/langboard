@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -18,7 +17,7 @@ const useUpdateApiKey = (apiKey: ApiKeySettingModel.TModel, options?: TMutationO
         const res = await api.put(url, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
         ApiKeySettingModel.Model.fromOne(res.data.api_key, true);
 

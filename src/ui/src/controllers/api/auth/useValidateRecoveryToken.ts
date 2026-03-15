@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -18,7 +17,7 @@ const useValidateRecoveryToken = (options?: TMutationOptions<IValidateRecoveryTo
         const res = await api.post(Routing.API.AUTH.RECOVERY.VALIDATE, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

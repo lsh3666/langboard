@@ -83,6 +83,10 @@ class DomainService(Factory):
         return self._create_or_get_product(factory.BotService)
 
     @property
+    def bot_default_scope_branch(self):
+        return self._create_or_get_product(factory.BotDefaultScopeBranchService)
+
+    @property
     def reaction(self):
         return self._create_or_get_product(factory.ReactionService)
 

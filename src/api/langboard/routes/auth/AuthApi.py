@@ -5,7 +5,7 @@ from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter,
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.security import AuthSecurity
 from langboard_shared.core.utils.Encryptor import Encryptor
-from langboard_shared.domain.models import Bot, User, UserEmail, UserGroup, UserProfile
+from langboard_shared.domain.models import Bot, BotDefaultScopeBranch, User, UserEmail, UserGroup, UserProfile
 from langboard_shared.domain.models.UserNotification import NotificationType
 from langboard_shared.domain.models.UserNotificationUnsubscription import NotificationChannel, NotificationScope
 from langboard_shared.domain.models.UserSignInHistory import SignInErrorCode
@@ -157,7 +157,7 @@ def refresh(request: Request) -> JsonResponse:
                         }
                     },
                 ),
-                "bots": [Bot],
+                "bots": [Bot, {"schema": {"default_scope_branches": [BotDefaultScopeBranch]}}],
             }
         )
         .auth()
@@ -181,8 +181,15 @@ def about_me(user: User = Auth.scope("user"), service: DomainService = DomainSer
         response["is_admin"] = True
 
     bots = service.bot.get_api_list()
+    branches_by_bot = service.bot_default_scope_branch.get_api_map_by_bot_uid()
 
-    return JsonResponse(content={"user": response, "bots": bots})
+    bots_with_branches = []
+    for bot_dict in bots:
+        bot_uid = bot_dict["uid"]
+        bot_dict["default_scope_branches"] = branches_by_bot.get(bot_uid, [])
+        bots_with_branches.append(bot_dict)
+
+    return JsonResponse(content={"user": response, "bots": bots_with_branches})
 
 
 @AppRouter.api.post("/auth/signout", tags=["Auth"], responses=OpenApiSchema(202).get())

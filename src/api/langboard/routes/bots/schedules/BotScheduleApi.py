@@ -3,7 +3,8 @@ from langboard_shared.core.filter import AuthFilter
 from langboard_shared.core.routing import ApiErrorCode, ApiException, AppRouter, JsonResponse
 from langboard_shared.core.schema import OpenApiSchema
 from langboard_shared.core.types import SafeDateTime
-from langboard_shared.domain.models import Card, Project, ProjectColumn, ProjectRole
+from langboard_shared.core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
+from langboard_shared.domain.models import Project, ProjectRole
 from langboard_shared.domain.models.BotSchedule import BotScheduleRunningType
 from langboard_shared.domain.models.ProjectRole import ProjectRoleAction
 from langboard_shared.domain.services import DomainService
@@ -67,7 +68,7 @@ def schedule_bot_crons(
     if not bot_schedule:
         raise ApiException.BadRequest_400(ApiErrorCode.VA3005)
 
-    if isinstance(target_model, (Project, Card, ProjectColumn)):
+    if isinstance(target_model, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_model, Project):
             project = target_model
         else:
@@ -130,7 +131,7 @@ def reschedule_bot_crons(
         raise ApiException.BadRequest_400(ApiErrorCode.VA3005)
     _, schedule_model, model = result
 
-    if isinstance(target_model, (Project, Card, ProjectColumn)):
+    if isinstance(target_model, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_model, Project):
             project = target_model
         else:
@@ -173,7 +174,7 @@ def unschedule_bot_crons(
         raise ApiException.NotFound_404(ApiErrorCode.NF2015)
     _, schedule_model = result
 
-    if isinstance(target_model, (Project, Card, ProjectColumn)):
+    if isinstance(target_model, tuple(AVAILABLE_BOT_TARGET_TABLES.values())):
         if isinstance(target_model, Project):
             project = target_model
         else:

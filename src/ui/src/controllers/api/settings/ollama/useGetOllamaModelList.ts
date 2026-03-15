@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -14,7 +13,7 @@ const useGetOllamaModelList = (options?: TMutationOptions) => {
         }>(Routing.API.SETTINGS.OLLAMA.GET_LIST, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         for (let i = 0; i < res.data.models.length; ++i) {

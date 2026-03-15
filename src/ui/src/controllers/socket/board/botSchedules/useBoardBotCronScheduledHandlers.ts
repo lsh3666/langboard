@@ -1,8 +1,9 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { BaseBotScheduleModel, ProjectBotSchedule, ProjectCardBotSchedule, ProjectColumnBotSchedule } from "@/core/models";
+import { BaseBotScheduleModel } from "@/core/models";
 import { ESocketTopic } from "@langboard/core/enums";
 import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
+import { BOT_SCHEDULES } from "@/core/constants/BotRelatedConstants";
 
 export interface IBoardBotCronScheduledRawResponse {
     target_table: TBotRelatedTargetTable;
@@ -22,12 +23,9 @@ const useBoardBotCronScheduledHandlers = ({ callback, projectUID }: IUseBoardBot
             name: SocketEvents.SERVER.BOARD.BOT.SCHEDULE.SCHEDULED,
             callback,
             responseConverter: (data) => {
-                if (data.target_table === "project") {
-                    ProjectBotSchedule.Model.fromOne(data.schedule, true);
-                } else if (data.target_table === "project_column") {
-                    ProjectColumnBotSchedule.Model.fromOne(data.schedule, true);
-                } else if (data.target_table === "card") {
-                    ProjectCardBotSchedule.Model.fromOne(data.schedule, true);
+                const targetModel = BOT_SCHEDULES[data.target_table];
+                if (targetModel) {
+                    targetModel.Model.fromOne(data.schedule, true);
                 }
                 return {};
             },

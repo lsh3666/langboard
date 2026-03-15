@@ -6,13 +6,14 @@ import { useBotTriggerConditionList } from "@/components/bots/BotTriggerConditio
 import useCreateBotScope from "@/controllers/api/shared/botScopes/useCreateBotScope";
 import useToggleBotScopeTriggerCondition from "@/controllers/api/shared/botScopes/useToggleBotScopeTriggerCondition";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import { BotDefaultScopeBranchModel } from "@/core/models";
 import * as BaseBotScopeModel from "@/core/models/botScopes/BaseBotScopeModel";
 import { EBotTriggerCondition } from "@/core/models/botScopes/EBotTriggerCondition";
-import { TBotScopeModel, TBotScopeModelName } from "@/core/models/ModelRegistry";
+import { ModelRegistry, TBotScopeModel, TBotScopeModelName } from "@/core/models/ModelRegistry";
 import { cn } from "@/core/utils/ComponentUtils";
 import { Utils } from "@langboard/core/utils";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface IBotTriggerConditionProps {
@@ -73,7 +74,13 @@ function BotTriggerConditionWithBotScope({
 }: IBotTriggerConditionProps & { botScope: TBotScopeModel<TBotScopeModelName> }) {
     const [t] = useTranslation();
     const conditions = (botScope as BaseBotScopeModel.TModel).useField("conditions");
+    const defaultScopeBranchUID = (botScope as BaseBotScopeModel.TModel).useField("default_scope_branch_uid");
+    const defaultScopeBranch = useMemo(
+        () => (defaultScopeBranchUID ? ModelRegistry.BotDefaultScopeBranchModel.Model.getModel(defaultScopeBranchUID) : null),
+        [defaultScopeBranchUID]
+    );
     const { params } = useBotTriggerConditionList();
+
     const { mutateAsync: toggleBotScopeMutateAsync } = useToggleBotScopeTriggerCondition(
         {
             ...params,
@@ -104,7 +111,33 @@ function BotTriggerConditionWithBotScope({
         });
     };
 
-    return <BotTriggerConditionCheckbox category={category} conditionType={conditionType} conditions={conditions} mutateAsync={mutateAsync} />;
+    const sharedProps = {
+        category,
+        conditionType,
+        mutateAsync,
+    };
+
+    if (defaultScopeBranch) {
+        return <BotTriggerConditionBranchRouter {...sharedProps} defaultScopeBranch={defaultScopeBranch} />;
+    } else {
+        return <BotTriggerConditionCheckbox {...sharedProps} conditions={conditions} />;
+    }
+}
+
+interface IBotTriggerConditionBranchRouterProps extends IBotTriggerConditionProps {
+    defaultScopeBranch: BotDefaultScopeBranchModel.TModel;
+    mutateAsync: (endCallback: () => void) => void;
+}
+
+function BotTriggerConditionBranchRouter({ defaultScopeBranch, ...props }: IBotTriggerConditionBranchRouterProps) {
+    const { params } = useBotTriggerConditionList();
+    const branchConditionsMap = defaultScopeBranch.useField("conditions_map");
+    const conditions = useMemo(() => {
+        const targetTableKey = params.target_table;
+        return branchConditionsMap?.[targetTableKey] || [];
+    }, [branchConditionsMap, params.target_table]);
+
+    return <BotTriggerConditionCheckbox {...props} conditions={conditions} />;
 }
 
 interface IBotTriggerConditionCheckboxProps extends IBotTriggerConditionProps {

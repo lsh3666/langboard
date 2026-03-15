@@ -1,7 +1,7 @@
 import { TBotScopeRelatedParams } from "@/controllers/api/shared/botScopes/types";
-import { ProjectBotScope, ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
 import { EBotTriggerCondition } from "@/core/models/botScopes/EBotTriggerCondition";
 import { TBotScopeModel, TBotScopeModelName } from "@/core/models/ModelRegistry";
+import { BOT_SCOPES } from "@/core/constants/BotRelatedConstants";
 import { createContext, useContext } from "react";
 
 export interface IBotTriggerConditionListContext {
@@ -29,18 +29,11 @@ const BotTriggerConditionListContext = createContext<IBotTriggerConditionListCon
 
 export const BotTriggerConditionListProvider = ({ params, botUID, botScope, children }: IBotTriggerConditionListProviderProps): React.ReactNode => {
     let categories;
-    switch (params.target_table) {
-        case "project":
-            categories = ProjectBotScope.CATEGORIZED_BOT_TRIGGER_CONDITIONS;
-            break;
-        case "project_column":
-            categories = ProjectColumnBotScope.CATEGORIZED_BOT_TRIGGER_CONDITIONS;
-            break;
-        case "card":
-            categories = ProjectCardBotScope.CATEGORIZED_BOT_TRIGGER_CONDITIONS;
-            break;
-        default:
-            throw new Error(`Unsupported target_table: ${(params as Record<string, string>).target_table}`);
+    const targetModel = BOT_SCOPES[params.target_table];
+    if (targetModel) {
+        categories = targetModel.CATEGORIZED_BOT_TRIGGER_CONDITIONS;
+    } else {
+        throw new Error(`Unsupported target_table: ${(params as Record<string, string>).target_table}`);
     }
 
     return (

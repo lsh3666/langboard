@@ -56,8 +56,36 @@ class Repository(Factory):
         return self._create_or_get_product(factory.BotRepository)
 
     @property
+    def bot_default_scope_branch(self):
+        return self._create_or_get_product(factory.BotDefaultScopeBranchRepository)
+
+    @property
+    def project_bot_scope(self):
+        return self._create_or_get_product(factory.ProjectBotScopeRepository)
+
+    @property
+    def project_column_bot_scope(self):
+        return self._create_or_get_product(factory.ProjectColumnBotScopeRepository)
+
+    @property
+    def card_bot_scope(self):
+        return self._create_or_get_product(factory.CardBotScopeRepository)
+
+    @property
     def bot_log(self):
         return self._create_or_get_product(factory.BotLogRepository)
+
+    @property
+    def project_bot_default_scope(self):
+        return self._create_or_get_product(factory.ProjectBotDefaultScopeRepository)
+
+    @property
+    def project_column_bot_default_scope(self):
+        return self._create_or_get_product(factory.ProjectColumnBotDefaultScopeRepository)
+
+    @property
+    def card_bot_default_scope(self):
+        return self._create_or_get_product(factory.CardBotDefaultScopeRepository)
 
     @property
     def global_card_relationship_type(self):

@@ -29,6 +29,7 @@
   "project_column": {
     "Category": "Project column",
     "conditions": {
+      "project_column_created": "Created",
       "project_column_name_changed": "Name changed",
       "project_column_deleted": "Deleted"
     }

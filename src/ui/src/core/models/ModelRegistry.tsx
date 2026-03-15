@@ -2,6 +2,7 @@
 import type { Model as ActivityModel } from "@/core/models/ActivityModel";
 import type { Model as ApiKeySettingModel } from "@/core/models/ApiKeySettingModel";
 import type { Model as AuthUserModel } from "@/core/models/AuthUser";
+import type { Model as BotDefaultScopeBranchModel } from "@/core/models/BotDefaultScopeBranchModel";
 import type { Model as BotLogModel } from "@/core/models/BotLogModel";
 import type { Model as BotModel } from "@/core/models/BotModel";
 import type { Model as ChatMessageModel } from "@/core/models/ChatMessageModel";
@@ -39,6 +40,7 @@ export interface IModelMap {
     ActivityModel: IModelRegistry<typeof ActivityModel>;
     ApiKeySettingModel: IModelRegistry<typeof ApiKeySettingModel>;
     AuthUser: IModelRegistry<typeof AuthUserModel>;
+    BotDefaultScopeBranchModel: IModelRegistry<typeof BotDefaultScopeBranchModel>;
     BotLogModel: IModelRegistry<typeof BotLogModel>;
     BotModel: IModelRegistry<typeof BotModel>;
     ChatMessageModel: IModelRegistry<typeof ChatMessageModel>;

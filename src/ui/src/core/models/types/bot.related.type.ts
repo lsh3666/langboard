@@ -6,6 +6,7 @@ import * as ProjectCard from "@/core/models/ProjectCard";
 
 export type TBotRelatedTargetTable = "project" | "project_column" | "card";
 export type TBotRelatedTargetModel = Project.TModel | ProjectColumn.TModel | ProjectCard.TModel;
+export type TBotRelatedTargetInterface = Project.Interface | ProjectColumn.Interface | ProjectCard.Interface;
 
 export interface IBaseBotModel extends IBaseModel {
     platform: EBotPlatform;

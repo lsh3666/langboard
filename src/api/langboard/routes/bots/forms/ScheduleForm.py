@@ -1,7 +1,7 @@
 from langboard_shared.core.routing import BaseFormModel, form_model
 from langboard_shared.core.schema import TimeBasedPagination
 from langboard_shared.core.types import SafeDateTime
-from langboard_shared.domain.models import Card, Project, ProjectColumn
+from langboard_shared.core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
 from langboard_shared.domain.models.BotSchedule import BotSchedule, BotScheduleRunningType, BotScheduleStatus
 from pydantic import Field
 
@@ -19,9 +19,7 @@ class CreateBotCronTimeForm(BaseFormModel):
         default=BotScheduleRunningType.Infinite,
         title=f"Running type: {', '.join(BotScheduleRunningType.__members__.keys())} (Default: {BotScheduleRunningType.Infinite.name})",
     )
-    target_table: str = Field(
-        ..., title=f"Target table name ({Project.__tablename__}, {ProjectColumn.__tablename__}, {Card.__tablename__})"
-    )
+    target_table: str = Field(..., title=f"Target table name ({', '.join(AVAILABLE_BOT_TARGET_TABLES.keys())})")
     target_uid: str = Field(..., title="Target UID")
     start_at: SafeDateTime | None = Field(
         default=None,
@@ -44,9 +42,7 @@ class UpdateBotCronTimeForm(BaseFormModel):
         default=None,
         title=f"Running type: {', '.join(BotScheduleRunningType.__members__.keys())}",
     )
-    target_table: str = Field(
-        ..., title=f"Target table name ({Project.__tablename__}, {ProjectColumn.__tablename__}, {Card.__tablename__})"
-    )
+    target_table: str = Field(..., title=f"Target table name ({', '.join(AVAILABLE_BOT_TARGET_TABLES.keys())})")
     start_at: SafeDateTime | None = Field(
         default=None,
         title=f"Start time (Required if running_type is one of {', '.join([schedule_type.name for schedule_type in BotSchedule.RUNNING_TYPES_WITH_START_AT])})",
@@ -63,6 +59,4 @@ class UpdateBotCronTimeForm(BaseFormModel):
 
 @form_model
 class DeleteBotCronTimeForm(BaseFormModel):
-    target_table: str = Field(
-        ..., title=f"Target table name ({Project.__tablename__}, {ProjectColumn.__tablename__}, {Card.__tablename__})"
-    )
+    target_table: str = Field(..., title=f"Target table name ({', '.join(AVAILABLE_BOT_TARGET_TABLES.keys())})")

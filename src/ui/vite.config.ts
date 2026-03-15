@@ -80,5 +80,8 @@ export default defineConfig(({ mode }) => {
             port: PORT,
             strictPort: true,
         },
+        optimizeDeps: {
+            exclude: ["@langboard/core"],
+        },
     };
 });

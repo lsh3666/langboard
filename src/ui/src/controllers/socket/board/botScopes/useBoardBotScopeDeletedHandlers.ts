@@ -1,8 +1,8 @@
 import { SocketEvents } from "@langboard/core/constants";
 import useSocketHandler, { IBaseUseSocketHandlersProps } from "@/core/helpers/SocketHandler";
-import { ProjectBotScope, ProjectCardBotScope, ProjectColumnBotScope } from "@/core/models";
 import { TBotRelatedTargetTable } from "@/core/models/types/bot.related.type";
 import { ESocketTopic } from "@langboard/core/enums";
+import { BOT_SCOPES } from "@/core/constants/BotRelatedConstants";
 
 export interface IBoardBotScopeDeletedRawResponse {
     scope_table: TBotRelatedTargetTable;
@@ -23,12 +23,9 @@ const useBoardBotScopeDeletedHandlers = ({ callback, projectUID }: IUseBoardBotS
             name: SocketEvents.SERVER.BOARD.BOT.SCOPE.DELETED,
             callback,
             responseConverter: (data) => {
-                if (data.scope_table === "project") {
-                    ProjectBotScope.Model.deleteModel(data.uid);
-                } else if (data.scope_table === "project_column") {
-                    ProjectColumnBotScope.Model.deleteModel(data.uid);
-                } else if (data.scope_table === "card") {
-                    ProjectCardBotScope.Model.deleteModel(data.uid);
+                const targetModel = BOT_SCOPES[data.scope_table];
+                if (targetModel) {
+                    targetModel.Model.deleteModel(data.uid);
                 }
 
                 return {};

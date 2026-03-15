@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -43,7 +42,7 @@ const useCreateInternalBot = (options?: TMutationOptions<ICreateInternalBotForm>
         const res = await api.post(Routing.API.SETTINGS.INTERNAL_BOTS.CREATE, formData, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

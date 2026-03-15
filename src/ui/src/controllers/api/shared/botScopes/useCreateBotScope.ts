@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TBotScopeRelatedParams } from "@/controllers/api/shared/botScopes/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -27,7 +26,7 @@ const useCreateBotScope = (params: TBotScopeRelatedParams, options?: TMutationOp
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 

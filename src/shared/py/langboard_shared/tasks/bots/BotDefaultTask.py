@@ -2,8 +2,9 @@ from typing import Literal
 from ...ai import BotDefaultTrigger
 from ...core.broker import Broker
 from ...core.db import BaseSqlModel
+from ...core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
 from ...domain.models import Bot, Project, User
-from ...helpers import BotHelper, ModelHelper
+from ...helpers import ModelHelper
 from .utils import BotTaskDataHelper, BotTaskHelper, BotTaskSchemaHelper
 
 
@@ -50,7 +51,7 @@ async def bot_mentioned(
         data[f"{model.__tablename__}_uid"] = model.get_uid()
         if isinstance(model, Project):
             project = model
-        if model.__tablename__ in BotHelper.AVAILABLE_TARGET_TABLES:
+        if model.__tablename__ in AVAILABLE_BOT_TARGET_TABLES:
             scope_model = model
 
     if not project:

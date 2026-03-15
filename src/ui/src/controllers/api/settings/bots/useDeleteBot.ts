@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -13,7 +12,7 @@ const useDeleteBot = (bot: BotModel.TModel, options?: TMutationOptions<unknown>)
         const res = await api.delete(url, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         BotModel.Model.deleteModel(bot.uid);

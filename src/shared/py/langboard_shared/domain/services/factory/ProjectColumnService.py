@@ -85,6 +85,7 @@ class ProjectColumnService(BaseDomainService):
 
         ProjectColumnPublisher.created(project, column)
         ProjectColumnActivityTask.project_column_created(user_or_bot, project, column)
+        ProjectColumnBotTask.project_column_created(user_or_bot, project, column)
 
         return column
 

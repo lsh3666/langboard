@@ -4,6 +4,7 @@ import { Utils } from "@langboard/core/utils";
 
 export interface Interface extends IBaseModel {
     bot_uid: string;
+    default_scope_branch_uid?: string;
     conditions: EBotTriggerCondition[];
 }
 
@@ -23,6 +24,13 @@ abstract class BaseBotScopeModel<TModel extends Interface> extends BaseModel<TMo
     }
     public set bot_uid(value) {
         this.update({ bot_uid: value });
+    }
+
+    public get default_scope_branch_uid() {
+        return this.getValue("default_scope_branch_uid");
+    }
+    public set default_scope_branch_uid(value) {
+        this.update({ default_scope_branch_uid: value });
     }
 
     public get conditions() {

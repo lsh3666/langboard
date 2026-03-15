@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SOCKET_URL } from "@/constants";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -33,7 +32,7 @@ const useUploadProjectChatAttachment = (options?: TMutationOptions<IUploadProjec
             signal: params.abortController?.signal,
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return res.data;

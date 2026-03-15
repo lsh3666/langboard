@@ -21,6 +21,7 @@ class ProjectBotScope(BaseBotScopeModel, table=True):
             BotTriggerCondition.ProjectWikiUpdated,
             BotTriggerCondition.ProjectWikiPublicityChanged,
             BotTriggerCondition.ProjectWikiDeleted,
+            BotTriggerCondition.ProjectColumnCreated,
             BotTriggerCondition.ProjectColumnNameChanged,
             BotTriggerCondition.ProjectColumnDeleted,
             BotTriggerCondition.CardCreated,

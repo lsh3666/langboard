@@ -1,6 +1,6 @@
 from .LogForm import BotLogPagination
 from .ScheduleForm import BotSchedulePagination, CreateBotCronTimeForm, DeleteBotCronTimeForm, UpdateBotCronTimeForm
-from .ScopeForm import CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerConditionForm
+from .ScopeForm import ApplyDefaultBotScopeForm, CreateBotScopeForm, DeleteBotScopeForm, ToggleBotTriggerConditionForm
 
 
 __all__ = [
@@ -9,6 +9,7 @@ __all__ = [
     "CreateBotCronTimeForm",
     "UpdateBotCronTimeForm",
     "DeleteBotCronTimeForm",
+    "ApplyDefaultBotScopeForm",
     "CreateBotScopeForm",
     "ToggleBotTriggerConditionForm",
     "DeleteBotScopeForm",

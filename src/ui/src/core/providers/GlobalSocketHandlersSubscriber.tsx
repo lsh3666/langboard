@@ -1,4 +1,5 @@
 import useBotCreatedHandlers from "@/controllers/socket/global/useBotCreatedHandlers";
+import useBotDefaultScopeBranchCreatedHandlers from "@/controllers/socket/global/useBotDefaultScopeBranchCreatedHandlers";
 import useGlobalRelationshipCreatedHandlers from "@/controllers/socket/global/useGlobalRelationshipCreatedHandlers";
 import useInternalBotCreatedHandlers from "@/controllers/socket/global/useInternalBotCreatedHandlers";
 import useInternalBotDeletedHandlers from "@/controllers/socket/global/useInternalBotDeletedHandlers";
@@ -18,6 +19,7 @@ export const GlobalSocketHandlersSubscriber = ({ children }: IGlobalSocketHandle
     const socket = useSocket();
     const botCreatedHandlers = useBotCreatedHandlers({});
     const globalRelationshipCreatedHandlers = useGlobalRelationshipCreatedHandlers({});
+    const botDefaultScopeBranchCreatedHandlers = useBotDefaultScopeBranchCreatedHandlers({});
     const selectedGlobalRelationshipsDeletedHandlers = useSelectedGlobalRelationshipsDeletedHandlers({});
     const internalBotCreatedHandlers = useInternalBotCreatedHandlers({});
     const internalBotUpdatedHandlers = useInternalBotUpdatedHandlers({});
@@ -26,6 +28,7 @@ export const GlobalSocketHandlersSubscriber = ({ children }: IGlobalSocketHandle
         () => [
             botCreatedHandlers,
             globalRelationshipCreatedHandlers,
+            botDefaultScopeBranchCreatedHandlers,
             selectedGlobalRelationshipsDeletedHandlers,
             internalBotCreatedHandlers,
             internalBotUpdatedHandlers,
@@ -34,6 +37,7 @@ export const GlobalSocketHandlersSubscriber = ({ children }: IGlobalSocketHandle
         [
             botCreatedHandlers,
             globalRelationshipCreatedHandlers,
+            botDefaultScopeBranchCreatedHandlers,
             selectedGlobalRelationshipsDeletedHandlers,
             internalBotCreatedHandlers,
             internalBotUpdatedHandlers,

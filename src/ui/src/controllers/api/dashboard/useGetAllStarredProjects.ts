@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TQueryOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -15,7 +14,7 @@ const useGetAllStarredProjects = (options?: TQueryOptions<IGetAllStarredProjects
         const res = await api.get(Routing.API.DASHBOARD.ALL_STARRED_PROJECTS, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         return {

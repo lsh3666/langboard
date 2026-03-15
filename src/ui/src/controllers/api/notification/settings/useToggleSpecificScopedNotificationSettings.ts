@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TToggleSpecificScopedNotificationSettingsForm } from "@/controllers/api/notification/settings/types";
 import { toggleSpecificScopedUnsubscriptions } from "@/controllers/api/notification/settings/utils";
 import { Routing } from "@langboard/core/constants";
@@ -52,7 +51,7 @@ const useToggleSpecificScopedNotificationSettings = <TType extends TNotification
             {
                 env: {
                     interceptToast: options?.interceptToast,
-                } as any,
+                } as never,
             }
         );
 
@@ -61,7 +60,7 @@ const useToggleSpecificScopedNotificationSettings = <TType extends TNotification
             types: res.data.notification_types,
             channel: params.channel,
 
-            specificUID: getSpecificUID(params as any),
+            specificUID: getSpecificUID(params as never),
             isUnsubscribed: params.is_unsubscribed,
         });
 

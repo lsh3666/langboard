@@ -15,6 +15,7 @@ export enum EBotTriggerCondition {
     ProjectWikiDeleted = "project_wiki_deleted",
 
     // Project Column
+    ProjectColumnCreated = "project_column_created",
     ProjectColumnNameChanged = "project_column_name_changed",
     ProjectColumnDeleted = "project_column_deleted",
 

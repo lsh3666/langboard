@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
 import { TMutationOptions, useQueryMutation } from "@/core/helpers/QueryMutation";
@@ -12,19 +11,19 @@ export interface ICreateMcpToolGroupForm {
     is_global: bool;
 }
 
-const useCreateMcpToolGroup = (options?: TMutationOptions<ICreateMcpToolGroupForm, any>) => {
+const useCreateMcpToolGroup = (options?: TMutationOptions<ICreateMcpToolGroupForm>) => {
     const { mutate } = useQueryMutation();
 
     const createMcpToolGroup = async (params: ICreateMcpToolGroupForm) => {
         const res = await api.post(Routing.API.SETTINGS.MCP_TOOL_GROUPS.CREATE, params, {
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         McpToolGroup.Model.fromOne(res.data.tool_group, true);
 
-        return res.data;
+        return {};
     };
 
     const result = mutate(["create-mcp-tool-group"], createMcpToolGroup, {

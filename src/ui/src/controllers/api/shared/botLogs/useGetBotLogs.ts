@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TBotLogRelatedParams } from "@/controllers/api/shared/botLogs/types";
 import { Routing } from "@langboard/core/constants";
 import { api } from "@/core/helpers/Api";
@@ -61,7 +60,7 @@ const useGetBotLogs = (botUID: string, params: TUseGetBotLogsForm, limit: number
             },
             env: {
                 interceptToast: options?.interceptToast,
-            } as any,
+            } as never,
         });
 
         switch (params.target_table as TBotRelatedTargetTable) {
