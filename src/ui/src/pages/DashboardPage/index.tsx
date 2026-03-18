@@ -99,12 +99,12 @@ const DashboardProxy = memo((): React.JSX.Element => {
                     skeletonContent = <SkeletonProjecTabs />;
                     break;
                 default:
-                    return <Navigate to={ROUTES.DASHBOARD.PROJECTS.ALL} />;
+                    return <Navigate to={ROUTES.DASHBOARD.PROJECTS.STARRED} />;
             }
             headerNavs.projects.active = true;
             break;
         default:
-            return <Navigate to={ROUTES.DASHBOARD.PROJECTS.ALL} />;
+            return <Navigate to={ROUTES.DASHBOARD.PROJECTS.STARRED} />;
     }
 
     return (

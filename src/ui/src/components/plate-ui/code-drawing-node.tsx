@@ -231,12 +231,12 @@ function CodeDrawingPreview({
     drawingType: CodeDrawingType;
     drawingMode: ViewMode;
     image: string;
-    loading: boolean;
+    loading: bool;
     onCodeChange: (code: string) => void;
     onDrawingTypeChange: (type: CodeDrawingType) => void;
     onDrawingModeChange: (mode: ViewMode) => void;
-    readOnly?: boolean;
-    isMobile?: boolean;
+    readOnly?: bool;
+    isMobile?: bool;
 }) {
     const viewMode = drawingMode;
     const showCode = viewMode === VIEW_MODE.Both || viewMode === VIEW_MODE.Code;
@@ -305,8 +305,8 @@ function CodeDrawingToolbar({
 }: {
     drawingType: CodeDrawingType;
     viewMode: ViewMode;
-    readOnly?: boolean;
-    isMobile?: boolean;
+    readOnly?: bool;
+    isMobile?: bool;
     onDrawingTypeChange: (type: CodeDrawingType) => void;
     onDrawingModeChange: (mode: ViewMode) => void;
 }) {
@@ -397,9 +397,9 @@ function CodeDrawingTextarea({
 }: {
     code: string;
     viewMode: ViewMode;
-    readOnly?: boolean;
-    isMobile?: boolean;
-    showBorder?: boolean;
+    readOnly?: bool;
+    isMobile?: bool;
+    showBorder?: bool;
     onCodeChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     toolbar?: React.ReactNode;
 }) {
@@ -470,12 +470,12 @@ function CodeDrawingPreviewArea({
     toolbar,
 }: {
     image: string;
-    loading: boolean;
+    loading: bool;
     code: string;
     viewMode: ViewMode;
-    readOnly?: boolean;
-    isMobile?: boolean;
-    showBorder?: boolean;
+    readOnly?: bool;
+    isMobile?: bool;
+    showBorder?: bool;
     toolbar?: React.ReactNode;
 }) {
     const [t] = useTranslation();

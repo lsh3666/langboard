@@ -1,9 +1,11 @@
 from typing import Any
 from ...core.db import ApiField, BaseSqlModel, Field, SnowflakeIDField
 from ...core.types import SnowflakeID
-from ...core.types.BotRelatedTypes import AVAILABLE_BOT_TARGET_TABLES
 from .bases.BotTriggerCondition import BotTriggerCondition
 from .Bot import Bot
+from .Card import Card
+from .Project import Project
+from .ProjectColumn import ProjectColumn
 
 
 class BotDefaultScopeBranch(BaseSqlModel, table=True):
@@ -14,7 +16,11 @@ class BotDefaultScopeBranch(BaseSqlModel, table=True):
     def api_schema(cls, schema: dict | None = None) -> dict[str, Any]:
         return super().api_schema(
             {
-                "conditions_map": {f"Enum[{', '.join(AVAILABLE_BOT_TARGET_TABLES.keys())}]": [BotTriggerCondition]},
+                "conditions_map": {
+                    f"Enum[{', '.join([Project.__tablename__, ProjectColumn.__tablename__, Card.__tablename__])}]": [
+                        BotTriggerCondition
+                    ]
+                },
                 **(schema or {}),
             }
         )

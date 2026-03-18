@@ -30,7 +30,7 @@ const BotDefaultScopeTriggerConditions = memo(({ branch }: IBotDefaultScopeTrigg
     const conditionsMap = branch.useField("conditions_map");
 
     const updateCondition = useCallback(
-        (target_table: TBotRelatedTargetTable, condition: EBotTriggerCondition, enabled: boolean) => {
+        (target_table: TBotRelatedTargetTable, condition: EBotTriggerCondition, enabled: bool) => {
             if (isUpdating) {
                 return;
             }
@@ -119,8 +119,8 @@ interface ITriggerConditionCheckboxProps {
     category: string;
     conditionsMap: BotDefaultScopeBranchModel.Interface["conditions_map"];
     condition: EBotTriggerCondition;
-    isUpdating: boolean;
-    onUpdate: (targetTable: TBotRelatedTargetTable, condition: EBotTriggerCondition, enabled: boolean) => void;
+    isUpdating: bool;
+    onUpdate: (targetTable: TBotRelatedTargetTable, condition: EBotTriggerCondition, enabled: bool) => void;
 }
 
 function TriggerConditionCheckbox({ targetTable, category, condition, conditionsMap, isUpdating, onUpdate }: ITriggerConditionCheckboxProps) {
@@ -128,7 +128,6 @@ function TriggerConditionCheckbox({ targetTable, category, condition, conditions
     const [isChecked, setIsChecked] = useState((conditionsMap?.[targetTable] || []).includes(condition));
 
     useEffect(() => {
-        console.log(conditionsMap);
         setIsChecked((conditionsMap?.[targetTable] || []).includes(condition));
     }, [conditionsMap, targetTable, condition]);
 

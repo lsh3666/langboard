@@ -37,7 +37,7 @@ const BotDefaultTriggers = memo(() => {
 
 interface IDefaultScopesTabProps {
     botUID: string;
-    canUpdate: boolean;
+    canUpdate: bool;
 }
 
 function DefaultScopesTab({ botUID, canUpdate }: IDefaultScopesTabProps) {
