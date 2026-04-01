@@ -1,7 +1,7 @@
-import { BigIntColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import { BigIntColumn, CsvColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
 import SnowflakeID from "@/core/db/SnowflakeID";
 import BaseRole from "@/models/bases/BaseRole";
-import { Entity, Column } from "typeorm";
+import { Entity } from "typeorm";
 
 export enum EProjectRoleAction {
     Read = "read",
@@ -17,7 +17,7 @@ class ProjectRole extends BaseRole {
     @BigIntColumn(false)
     public project_id!: TBigIntString;
 
-    @Column({ type: "text", transformer: { to: (value: TProjectRoleActions[]) => value.join(","), from: (value: string) => value.split(",") } })
+    @CsvColumn()
     public actions!: TProjectRoleActions[];
 
     public static async isGranted(userId: TBigIntString, projectUID: string, action: TProjectRoleActions): Promise<bool> {

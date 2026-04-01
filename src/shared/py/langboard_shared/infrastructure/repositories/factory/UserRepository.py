@@ -27,7 +27,7 @@ class UserRepository(BaseRepository[User]):
     def get_all_with_profile_scroller(self, refer_time: SafeDateTime):
         query = (
             SqlBuilder.select.tables(User, UserProfile)
-            .join(UserProfile, User.column("id") == UserProfile.column("user_id"))
+            .outerjoin(UserProfile, User.column("id") == UserProfile.column("user_id"))
             .where(User.column("created_at") <= refer_time)
             .order_by(User.column("created_at").desc(), User.column("id").desc())
         )

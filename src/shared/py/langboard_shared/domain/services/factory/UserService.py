@@ -59,7 +59,17 @@ class UserService(BaseDomainService):
         api_list = []
         for user, profile in users:
             api_user = user.api_response()
-            api_user.update(profile.api_response())
+            if profile:
+                api_user.update(profile.api_response())
+            else:
+                api_user.update(
+                    {
+                        "industry": "",
+                        "purpose": "",
+                        "affiliation": None,
+                        "position": None,
+                    }
+                )
             api_user["created_at"] = user.created_at
             api_user["activated_at"] = user.activated_at
             api_user["is_admin"] = user.is_admin
@@ -180,7 +190,13 @@ class UserService(BaseDomainService):
     def update(self, user: User, form: dict, from_setting: bool = False) -> bool:
         profile = self.repo.user_profile.get_by_user(user)
         if not profile:
-            return False
+            profile = UserProfile(
+                user_id=user.id,
+                industry=str(form.get("industry", "") or ""),
+                purpose=str(form.get("purpose", "") or ""),
+                affiliation=form.get("affiliation"),
+                position=form.get("position"),
+            )
 
         validators: TMutableValidatorMap = {
             "firstname": "default",
@@ -213,9 +229,15 @@ class UserService(BaseDomainService):
             user.avatar = None
 
         if not old_record:
+            if profile.is_new():
+                self.repo.user_profile.insert(profile)
             return True
 
-        self.repo.user.update([user, profile])
+        if profile.is_new():
+            self.repo.user.update(user)
+            self.repo.user_profile.insert(profile)
+        else:
+            self.repo.user.update([user, profile])
 
         Auth.reset_user(user)
 

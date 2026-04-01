@@ -1,7 +1,7 @@
-import { ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import { CsvColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
 import BaseRole from "@/models/bases/BaseRole";
 import { Utils } from "@langboard/core/utils";
-import { Entity, Column } from "typeorm";
+import { Entity } from "typeorm";
 
 export enum ESettingRoleAction {
     // User Management
@@ -50,7 +50,7 @@ export enum ESettingCategory {
 
 @Entity({ name: "setting_role" })
 class SettingRole extends BaseRole {
-    @Column({ type: "text", transformer: { to: (value: TSettingRoleActions[]) => value.join(","), from: (value: string) => value.split(",") } })
+    @CsvColumn()
     public actions!: TSettingRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TSettingRoleActions): Promise<bool> {

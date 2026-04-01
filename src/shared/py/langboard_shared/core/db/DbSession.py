@@ -60,7 +60,7 @@ class DbSession:
     @contextmanager
     def use(readonly: bool):
         MAX_TRIALS = 10
-        for _ in range(MAX_TRIALS):
+        for trial in range(MAX_TRIALS):
             session = None
             db = None
             try:
@@ -73,9 +73,24 @@ class DbSession:
                 break
             except Exception as e:
                 if isinstance(e, OperationalError) and isinstance(e.orig, psycopg.errors.OperationalError):
-                    if str(e.orig).count("max_client_conn") > 0:
-                        sleep(1)
-                        _logger.warning(f"Database connection error: {e}. Retrying...")
+                    error_message = str(e.orig).lower()
+                    retryable_patterns = (
+                        "max_client_conn",
+                        "connection",
+                        "closed the connection",
+                        "server closed the connection",
+                        "terminating connection",
+                        "could not receive data from server",
+                        "could not send data to server",
+                        "ssl",
+                        "eof detected",
+                        "broken pipe",
+                        "timeout",
+                    )
+                    if any(pattern in error_message for pattern in retryable_patterns) and trial < MAX_TRIALS - 1:
+                        backoff = min(0.25 * (trial + 1), 2.0)
+                        sleep(backoff)
+                        _logger.warning(f"Database operational error: {e}. Retrying ({trial + 1}/{MAX_TRIALS})...")
                         continue
                 _logger.exception(e)
                 raise e

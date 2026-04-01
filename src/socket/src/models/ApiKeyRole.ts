@@ -1,6 +1,7 @@
-import { ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import { CsvColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import DB from "@/core/db/DB";
 import BaseRole from "@/models/bases/BaseRole";
-import { Entity, Column } from "typeorm";
+import { Entity } from "typeorm";
 
 export enum EApiKeyRoleAction {
     Read = "read",
@@ -12,7 +13,7 @@ export type TApiKeyRoleActions = EApiKeyRoleAction | keyof typeof EApiKeyRoleAct
 
 @Entity({ name: "api_key_role" })
 class ApiKeyRole extends BaseRole {
-    @Column({ type: "text", transformer: { to: (value: TApiKeyRoleActions[]) => value.join(","), from: (value: string) => value.split(",") } })
+    @CsvColumn()
     public actions!: TApiKeyRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TApiKeyRoleActions): Promise<bool> {
@@ -34,17 +35,23 @@ class ApiKeyRole extends BaseRole {
     }
 
     public static async isAnyGranted(userId: TBigIntString): Promise<bool> {
-        const apiKeyRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const apiKeyRole = await runner.manager.findOne(ApiKeyRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!apiKeyRole) {
-            return false;
+            if (!apiKeyRole) {
+                return false;
+            }
+
+            return apiKeyRole.actions.length > 0;
+        } finally {
+            await runner.release();
         }
-
-        return apiKeyRole.actions.length > 0;
     }
 }
 

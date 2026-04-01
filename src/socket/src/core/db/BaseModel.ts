@@ -21,6 +21,15 @@ const bigIntTransformer = {
 export const BigIntColumn = (isPrimary: bool) =>
     isPrimary ? PrimaryColumn("bigint", { transformer: [bigIntTransformer] }) : Column("bigint", { transformer: [bigIntTransformer] });
 
+export const CsvColumn = () =>
+    Column({
+        type: "text",
+        transformer: {
+            to: (value: string[]) => value.join(","),
+            from: (value: string) => value.split(","),
+        },
+    });
+
 abstract class BaseModel extends BaseEntity {
     @BigIntColumn(true)
     public id!: TBigIntString;

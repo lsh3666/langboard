@@ -1,6 +1,7 @@
-import { ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import { CsvColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import DB from "@/core/db/DB";
 import BaseRole from "@/models/bases/BaseRole";
-import { Entity, Column } from "typeorm";
+import { Entity } from "typeorm";
 
 export enum EMcpRoleAction {
     Read = "read",
@@ -12,7 +13,7 @@ export type TMcpRoleActions = EMcpRoleAction | keyof typeof EMcpRoleAction | TRo
 
 @Entity({ name: "mcp_role" })
 class McpRole extends BaseRole {
-    @Column({ type: "text", transformer: { to: (value: TMcpRoleActions[]) => value.join(","), from: (value: string) => value.split(",") } })
+    @CsvColumn()
     public actions!: TMcpRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TMcpRoleActions): Promise<bool> {
@@ -34,17 +35,23 @@ class McpRole extends BaseRole {
     }
 
     public static async isAnyGranted(userId: TBigIntString): Promise<bool> {
-        const mcpRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const mcpRole = await runner.manager.findOne(McpRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!mcpRole) {
-            return false;
+            if (!mcpRole) {
+                return false;
+            }
+
+            return mcpRole.actions.length > 0;
+        } finally {
+            await runner.release();
         }
-
-        return mcpRole.actions.length > 0;
     }
 }
 
