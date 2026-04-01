@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DEFAULT_FLOWS_URL } from "@/Constants";
+import { AI_REQUEST_TIMEOUT, DEFAULT_FLOWS_URL } from "@/Constants";
 import BaseRequest from "@/core/ai/requests/BaseRequest";
 import DefaultRequest from "@/core/ai/requests/DefaultRequest";
 import LangflowRequest from "@/core/ai/requests/LangflowRequest";
 import { api } from "@/core/helpers/Api";
+import Logger from "@/core/utils/Logger";
 import InternalBot from "@/models/InternalBot";
 import { IProjectAssignedInternalBotSettings } from "@/models/ProjectAssignedInternalBot";
 import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
@@ -37,6 +38,7 @@ export const getBotStatusMap = async (projectUID: string): Promise<Record<string
             params: {
                 project_uid: projectUID,
             },
+            timeout: AI_REQUEST_TIMEOUT * 1000,
         });
 
         if (response.status !== EHttpStatus.HTTP_200_OK) {
@@ -44,7 +46,8 @@ export const getBotStatusMap = async (projectUID: string): Promise<Record<string
         }
 
         return response.data;
-    } catch {
+    } catch (error) {
+        Logger.error(error);
         return null;
     }
 };

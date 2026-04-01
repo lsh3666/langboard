@@ -4,7 +4,7 @@ import { getBotStatusStore, IBotStatusStore } from "@/core/stores/BotStatusStore
 import { ESocketTopic } from "@langboard/core/enums";
 
 export interface IBoardBotStatusMapRawResponse {
-    status_map: IBotStatusStore["botStatusMap"];
+    bot_status_map: IBotStatusStore["botStatusMap"];
 }
 
 export interface IUseBoardBotStatusMapHandlersProps extends IBaseUseSocketHandlersProps<{}> {
@@ -20,11 +20,11 @@ const useBoardBotStatusMapHandlers = ({ callback, projectUID }: IUseBoardBotStat
             name: SocketEvents.SERVER.BOARD.BOT.STATUS_MAP,
             callback,
             responseConverter: (data) => {
-                if (!data?.status_map) {
+                if (!data?.bot_status_map) {
                     return data;
                 }
 
-                getBotStatusStore().replaceMap(data.status_map);
+                getBotStatusStore().replaceMap(data.bot_status_map);
                 return data;
             },
         },

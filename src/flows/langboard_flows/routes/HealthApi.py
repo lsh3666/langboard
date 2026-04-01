@@ -1,6 +1,7 @@
 from fastapi.responses import JSONResponse
 from langboard_shared.core.caching import Cache
 from langboard_shared.core.routing import AppRouter
+from ..core.flows.FlowRunner import FlowRunner
 
 
 @AppRouter.api.get("/health")
@@ -10,6 +11,8 @@ def health_check():
 
 @AppRouter.api.get("/bot/status/map")
 def bot_status_map(project_uid: str):
-    status_map = Cache.get("bot.status.map")
-    status_map = status_map.get(project_uid, {}) if status_map else {}
+    status_map = Cache.get(FlowRunner._get_bot_status_cache_key(project_uid))
+    if status_map is None:
+        legacy_status_map = Cache.get(FlowRunner.BOT_STATUS_MAP_CACHE_PREFIX) or {}
+        status_map = legacy_status_map.get(project_uid, {})
     return JSONResponse(content={"status_map": status_map})

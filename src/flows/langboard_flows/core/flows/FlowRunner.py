@@ -18,6 +18,9 @@ from ..schema.Exception import InvalidChatInputError
 
 
 class FlowRunner:
+    BOT_STATUS_MAP_CACHE_PREFIX = "bot.status.map"
+    BOT_STATUS_MAP_INDEX_CACHE_KEY = "bot.status.map:index"
+
     def __init__(
         self,
         graph: Graph,
@@ -49,6 +52,15 @@ class FlowRunner:
 
     async def run(self):
         return await self.__simple_run_flow()
+
+    @classmethod
+    def clear_bot_status_cache(cls) -> None:
+        project_uids: list[str] = Cache.get(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY) or []
+        for project_uid in project_uids:
+            Cache.delete(cls._get_bot_status_cache_key(project_uid))
+
+        Cache.delete(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY)
+        Cache.delete(FlowRunner.BOT_STATUS_MAP_CACHE_PREFIX)
 
     async def __run_flow_generator(self, event_manager: EventManager, client_consumed_queue: asyncio.Queue) -> None:
         try:
@@ -234,14 +246,43 @@ class FlowRunner:
         else:
             return
 
-        status_map: dict = Cache.get("bot.status.map") or {}
-        if project_uid not in status_map:
-            status_map[project_uid] = {}
-        if target_type not in status_map[project_uid]:
-            status_map[project_uid][target_type] = {}
-        if target_uid not in status_map[project_uid][target_type]:
-            status_map[project_uid][target_type][target_uid] = []
-        status_map[project_uid][target_type][target_uid].append(bot_uid)
+        cache_key = self._get_bot_status_cache_key(project_uid)
+        status_map: dict = Cache.get(cache_key) or {}
+        type_map = status_map.setdefault(target_type, {})
+        status_list = list(type_map.setdefault(target_uid, []))
 
-        Cache.set("bot.status.map", status_map, ttl=24 * 60 * 60)
+        if status == "running":
+            if bot_uid not in status_list:
+                status_list.append(bot_uid)
+            type_map[target_uid] = status_list
+        else:
+            type_map[target_uid] = [uid for uid in status_list if uid != bot_uid]
+            if not type_map[target_uid]:
+                del type_map[target_uid]
+            if not type_map:
+                del status_map[target_type]
+
+        Cache.set(cache_key, status_map, ttl=24 * 60 * 60)
+        self._sync_bot_status_cache_index(project_uid, has_status=bool(status_map))
         publisher.bot_status_changed(project_uid, bot_uid, target_uid, status)
+
+    @classmethod
+    def _sync_bot_status_cache_index(cls, project_uid: str, has_status: bool) -> None:
+        project_uids: list[str] = Cache.get(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY) or []
+
+        if has_status:
+            if project_uid not in project_uids:
+                project_uids.append(project_uid)
+                Cache.set(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY, project_uids, ttl=24 * 60 * 60)
+            return
+
+        updated_project_uids = [uid for uid in project_uids if uid != project_uid]
+        Cache.delete(cls._get_bot_status_cache_key(project_uid))
+        if updated_project_uids:
+            Cache.set(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY, updated_project_uids, ttl=24 * 60 * 60)
+        else:
+            Cache.delete(FlowRunner.BOT_STATUS_MAP_INDEX_CACHE_KEY)
+
+    @classmethod
+    def _get_bot_status_cache_key(cls, project_uid: str) -> str:
+        return f"{FlowRunner.BOT_STATUS_MAP_CACHE_PREFIX}:{project_uid}"
