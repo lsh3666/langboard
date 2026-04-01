@@ -10,7 +10,10 @@ from .ServerRunner import run as run_server
 
 
 def execute():
-    run_async(initialize_database())  # Initialize the database before running the app
+    try:
+        run_async(initialize_database())  # Initialize the database before running the app
+    except Exception:
+        pass
     commander = Commander()
 
     modules = ModuleLoader.load("commands", "Command", BaseCommand, log=False)
