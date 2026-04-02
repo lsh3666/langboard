@@ -19,6 +19,7 @@ import mimeTypes from "react-native-mime-types";
 import invariant from "tiny-invariant";
 import { ModelRegistry } from "@/core/models/ModelRegistry";
 import { ProjectRole } from "@/core/models/roles";
+import Tooltip from "@/components/base/Tooltip";
 
 export interface IBoardCardAttachmentProps {
     attachment: ProjectCardAttachment.TModel;
@@ -103,6 +104,7 @@ const BoardCardAttachmentDisplay = memo(({ attachment, canReorder, draggableRef,
     const url = attachment.useField("url");
     const mimeType = mimeTypes.lookup(url) || "file";
     const canEdit = currentUser.uid === attachment.user.uid || canReorder;
+    const representativeExtension = name.split(".").at(-1)?.toUpperCase() ?? "FILE";
 
     return (
         <ModelRegistry.ProjectCardAttachment.Provider model={attachment} params={{ isValidating, setIsValidating }}>
@@ -135,7 +137,12 @@ const BoardCardAttachmentDisplay = memo(({ attachment, canReorder, draggableRef,
                         {mimeType.startsWith("image/") ? (
                             <CachedImage src={url} alt={mimeType} h="full" className="min-w-full" />
                         ) : (
-                            (name.split(".").at(-1)?.toUpperCase() ?? "FILE")
+                            <Tooltip.Root>
+                                <Tooltip.Trigger asChild>
+                                    <span className="w-10 truncate sm:max-w-14">{representativeExtension}</span>
+                                </Tooltip.Trigger>
+                                <Tooltip.Content side="bottom">{representativeExtension}</Tooltip.Content>
+                            </Tooltip.Root>
                         )}
                     </Flex>
                     <Box ml={{ initial: "1", sm: "0" }}>
