@@ -7,7 +7,6 @@ import { PlateEditor } from "@/components/Editor/plate-editor";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import useToggleEditingByClickOutside from "@/core/hooks/useToggleEditingByClickOutside";
 import { BotModel, ProjectCard } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
 import { TUserLikeModel } from "@/core/models/ModelRegistry";
@@ -89,8 +88,9 @@ const BoardCardDescription = memo((): React.JSX.Element => {
     const description = card.useField("description");
     const { markSectionDirty, resetSection, getHasUnsavedChanges } = useBoardCardUnsavedActions();
 
+    const canEdit = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const { valueRef, isEditing, changeMode, setIsEditing } = useChangeEditMode({
-        canEdit: () => hasRoleAction(ProjectRole.EAction.CardUpdate),
+        canEdit: () => canEdit,
         valueType: "editor",
         canEmpty: true,
         editorName,
@@ -147,7 +147,6 @@ const BoardCardDescription = memo((): React.JSX.Element => {
         },
         [valueRef]
     );
-    const { startEditing } = useToggleEditingByClickOutside("[data-card-description]", changeMode, isEditing);
 
     const handleEditorValueChange = useCallback(
         (value: IEditorContent) => {
@@ -185,20 +184,17 @@ const BoardCardDescription = memo((): React.JSX.Element => {
 
     return (
         <Box data-card-description>
-            {isEditing && (
-                <CardEditControls
-                    isEditing={isEditing}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                    saveDisabled={isPending}
-                    className={cn(
-                        "sticky top-[theme(spacing.16)] z-[90]",
-                        "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm"
-                    )}
-                />
-            )}
+            <CardEditControls
+                canEdit={canEdit}
+                isEditing={isEditing}
+                onEdit={() => changeMode("edit")}
+                onSave={handleSave}
+                onCancel={handleCancel}
+                saveDisabled={isPending}
+                className={cn("sticky top-[theme(spacing.16)] z-[90]", "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm")}
+            />
             {shouldCollapse ? (
-                <CollapsibleDescriptionContent description={description} mentionables={mentionables} cards={cards} onPointerDown={startEditing} />
+                <CollapsibleDescriptionContent description={description} mentionables={mentionables} cards={cards} />
             ) : (
                 <Box>
                     <PlateEditor
@@ -228,13 +224,12 @@ interface ICollapsibleDescriptionContentProps {
     description: IEditorContent | undefined;
     mentionables: TUserLikeModel[];
     cards: ProjectCard.TModel[];
-    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 const MAX_SHOW_LINES = 10;
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
-    const { description, mentionables, cards, onPointerDown } = props;
+    const { description, mentionables, cards } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
     const [visibleLineCount, setVisibleLineCount] = useState(MAX_SHOW_LINES);
@@ -350,7 +345,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
     const hasMoreContent = visibleLineCount < totalUnits;
 
     return (
-        <Box onPointerDown={onPointerDown} position="relative" ref={contentWrapperRef}>
+        <Box position="relative" ref={contentWrapperRef}>
             {Array.from(loadedChunks.entries())
                 .sort(([a], [b]) => a - b)
                 .map(([_, chunk]) => chunk)}
