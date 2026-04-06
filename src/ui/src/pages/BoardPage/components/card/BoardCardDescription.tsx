@@ -240,6 +240,29 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
 
     loadedChunksRef.current = loadedChunks;
 
+    const createChunk = useCallback(
+        (chunkIndex: number, content: IEditorContent) => (
+            <PlateEditor
+                key={chunkIndex}
+                value={content}
+                mentionables={mentionables}
+                linkables={cards}
+                currentUser={currentUser}
+                containerClassName="overflow-y-visible"
+                className="h-full min-h-0"
+                readOnly
+                editorType="card-description"
+                form={{
+                    project_uid: projectUID,
+                    card_uid: card.uid,
+                }}
+                placeholder={chunkIndex === 0 ? t("card.No description") : undefined}
+                setValue={() => {}}
+            />
+        ),
+        [mentionables, cards, currentUser, projectUID, card, t]
+    );
+
     const sliceContent = useCallback((start: number, end: number, content: string = ""): { content: IEditorContent; end: number } => {
         const lines = content.split("\n");
         const adjustedEnd = extendEndForMarkdownBlock(lines, start, end);
@@ -253,7 +276,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
     const totalUnits = contentLines;
 
     const handleExpanded = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
+        (e: React.PointerEvent<HTMLDivElement>) => {
             e.stopPropagation();
             e.preventDefault();
 
@@ -263,24 +286,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
             const chunkSlice = sliceContent(nextStart, nextEnd, description?.content);
 
             if (!loadedChunksRef.current.has(nextChunkIndex)) {
-                const chunk = (
-                    <PlateEditor
-                        key={nextChunkIndex}
-                        value={chunkSlice.content}
-                        mentionables={mentionables}
-                        linkables={cards}
-                        currentUser={currentUser}
-                        containerClassName="overflow-y-visible"
-                        className="h-full min-h-0"
-                        readOnly
-                        editorType="card-description"
-                        form={{
-                            project_uid: projectUID,
-                            card_uid: card.uid,
-                        }}
-                        setValue={() => {}}
-                    />
-                );
+                const chunk = createChunk(nextChunkIndex, chunkSlice.content);
 
                 setLoadedChunks((prev) => {
                     const newMap = new Map(prev);
@@ -291,7 +297,37 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
 
             setVisibleLineCount(chunkSlice.end);
         },
-        [visibleLineCount, description, mentionables, cards, currentUser, projectUID, card, sliceContent]
+        [visibleLineCount, description, sliceContent, createChunk]
+    );
+
+    const handleExpandAll = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const content = description?.content ?? "";
+            const nextChunks = new Map<number, React.ReactNode>();
+            let nextStart = 0;
+            let chunkIndex = 0;
+            let nextVisibleLineCount = 0;
+
+            while (nextStart < totalUnits || (chunkIndex === 0 && totalUnits === 0)) {
+                const chunkSlice = sliceContent(nextStart, nextStart + MAX_SHOW_LINES, content);
+                nextChunks.set(chunkIndex, createChunk(chunkIndex, chunkSlice.content));
+                nextVisibleLineCount = chunkSlice.end;
+
+                if (chunkSlice.end <= nextStart) {
+                    break;
+                }
+
+                nextStart = chunkSlice.end;
+                chunkIndex += 1;
+            }
+
+            setLoadedChunks(nextChunks);
+            setVisibleLineCount(nextVisibleLineCount);
+        },
+        [description, totalUnits, sliceContent, createChunk]
     );
 
     useEffect(() => {
@@ -319,28 +355,11 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
 
     useEffect(() => {
         const chunk0Slice = sliceContent(0, MAX_SHOW_LINES, description?.content);
-        const chunk0 = (
-            <PlateEditor
-                key={0}
-                value={chunk0Slice.content}
-                mentionables={mentionables}
-                linkables={cards}
-                currentUser={currentUser}
-                containerClassName="overflow-y-visible"
-                readOnly
-                editorType="card-description"
-                form={{
-                    project_uid: projectUID,
-                    card_uid: card.uid,
-                }}
-                placeholder={t("card.No description")}
-                setValue={() => {}}
-            />
-        );
+        const chunk0 = createChunk(0, chunk0Slice.content);
 
         setLoadedChunks(new Map([[0, chunk0]]));
         setVisibleLineCount(chunk0Slice.end);
-    }, [description, mentionables, cards, currentUser, projectUID, card, sliceContent]);
+    }, [description, sliceContent, createChunk]);
 
     const hasMoreContent = visibleLineCount < totalUnits;
 
@@ -360,7 +379,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                         style={{ height: `${gradientHeight}px` }}
                         className="pointer-events-none bg-gradient-to-t from-background to-transparent"
                     />
-                    <Flex position="relative" justify="center" pb="2" z="50" cursor="pointer" onPointerDown={handleExpanded}>
+                    <Flex position="relative" justify="center" pb="2" z="50" gap="3" wrap>
                         <Flex
                             inline
                             items="center"
@@ -368,10 +387,27 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                             textSize="sm"
                             weight="semibold"
                             className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
+                            cursor="pointer"
+                            onPointerDown={handleExpanded}
                         >
                             {t("editor.Show more")}
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </Flex>
+                        <Flex
+                            inline
+                            items="center"
+                            gap="1"
+                            textSize="sm"
+                            weight="semibold"
+                            className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
+                            cursor="pointer"
+                            onClick={handleExpandAll}
+                        >
+                            {t("editor.Show all")}
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
                             </svg>
                         </Flex>
                     </Flex>
