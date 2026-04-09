@@ -19,6 +19,8 @@ class ModelHelper:
 
         for model_name in models.__all__:
             model = cast(type[BaseSqlModel], models.__dict__[model_name])
+            if not hasattr(model, "__tablename__"):
+                continue
             if model.__tablename__ == table_name:
                 tables[table_name] = model
                 return model
