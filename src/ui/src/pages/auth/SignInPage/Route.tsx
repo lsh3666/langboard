@@ -4,6 +4,7 @@ import { ROUTES } from "@/core/routing/constants";
 import { lazy } from "react";
 
 const SignInPage = lazy(() => import("./index"));
+const OidcCallbackPage = lazy(() => import("./OidcCallbackPage"));
 
 const routes: RouteObject[] = [
     {
@@ -24,6 +25,14 @@ const routes: RouteObject[] = [
                 element: <></>,
             },
         ],
+    },
+    {
+        path: ROUTES.SIGN_IN.OIDC_CALLBACK,
+        element: (
+            <ProtectedAuthRoute>
+                <OidcCallbackPage />
+            </ProtectedAuthRoute>
+        ),
     },
 ];
 

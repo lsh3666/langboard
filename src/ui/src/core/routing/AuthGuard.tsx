@@ -14,6 +14,7 @@ export const AuthGuard = ({ children, message }: IAuthGuardProps): React.ReactNo
     const { currentUser } = useAuth();
     const shouldSkip =
         location.pathname.startsWith(ROUTES.SIGN_IN.EMAIL) ||
+        location.pathname.startsWith(ROUTES.SIGN_IN.OIDC_CALLBACK) ||
         location.pathname.startsWith(ROUTES.SIGN_UP.ROUTE) ||
         location.pathname.startsWith(ROUTES.ACCOUNT_RECOVERY.NAME);
 

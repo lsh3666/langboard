@@ -5,6 +5,7 @@ from starlette.datastructures import Headers
 from starlette.requests import cookie_parser
 from ..core.caching import Cache
 from ..core.db import DbSession, SqlBuilder
+from ..core.routing import ApiErrorCode, ApiException
 from ..core.security import AuthSecurity, KeyVault
 from ..core.utils.decorators import staticclass
 from ..core.utils.IpAddress import has_allowed_ips
@@ -290,3 +291,27 @@ class Auth:
         if not result or isinstance(result, InvalidTokenError):
             return status.HTTP_401_UNAUTHORIZED
         return result, api_key_setting
+
+    @staticmethod
+    def ensure_scim_authorized(headers: dict[Any, Any] | Headers) -> None:
+        if not Env.SCIM_ENABLED:
+            raise ApiException.NotFound_404()
+
+        expected = Env.SCIM_BEARER_TOKEN.strip()
+        if not expected:
+            raise ApiException.ServiceUnavailable_503(ApiErrorCode.OP0000)
+
+        authorization = headers.get(
+            AuthSecurity.AUTHORIZATION_HEADER,
+            headers.get(AuthSecurity.AUTHORIZATION_HEADER.lower(), None),
+        )
+        if not authorization:
+            raise ApiException.Unauthorized_401(ApiErrorCode.AU1001)
+
+        schemes = str(authorization).split(" ", maxsplit=1)
+        if len(schemes) != 2 or schemes[0].lower() != "bearer":
+            raise ApiException.Unauthorized_401(ApiErrorCode.AU1001)
+
+        token = schemes[1].strip()
+        if token != expected:
+            raise ApiException.Unauthorized_401(ApiErrorCode.AU1001)

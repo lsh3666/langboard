@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps): React.ReactNode 
     useEffect(() => {
         const shouldSkip =
             location.pathname.startsWith(ROUTES.SIGN_IN.EMAIL) ||
+            location.pathname.startsWith(ROUTES.SIGN_IN.OIDC_CALLBACK) ||
             location.pathname.startsWith(ROUTES.SIGN_UP.ROUTE) ||
             location.pathname.startsWith(ROUTES.ACCOUNT_RECOVERY.NAME);
 

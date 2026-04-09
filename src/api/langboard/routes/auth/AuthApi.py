@@ -16,6 +16,21 @@ from typing_extensions import Annotated
 from .forms import AuthEmailForm, AuthEmailResponse, SignInForm
 
 
+@AppRouter.api.get(
+    "/auth/provider",
+    tags=["Auth"],
+    responses=OpenApiSchema().suc({"provider": "string", "oidc_enabled": "bool", "scim_enabled": "bool"}).get(),
+)
+def auth_provider() -> JsonResponse:
+    return JsonResponse(
+        content={
+            "provider": Env.AUTH_PROVIDER,
+            "oidc_enabled": Env.OIDC_ENABLED,
+            "scim_enabled": Env.SCIM_ENABLED,
+        }
+    )
+
+
 @AppRouter.api.post(
     "/auth/email",
     response_model=AuthEmailResponse,

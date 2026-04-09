@@ -103,7 +103,7 @@ class ApiField:
                 schema_name = " | ".join(schema_names)
         elif isinstance(annotation, type):
             if issubclass(annotation, Enum):
-                schema_name = f"Enum[{', '.join([running_type.value for running_type in annotation])}]"
+                schema_name = f"Enum[{', '.join([enum_type.value for enum_type in annotation])}]"
             elif issubclass(annotation, BaseModel):
                 if api_field.__field_base_model:
                     base_model_field: FieldInfo | None = annotation.model_fields.get(api_field.__field_base_model)

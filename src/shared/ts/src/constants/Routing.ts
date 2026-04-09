@@ -1,10 +1,16 @@
 const API = {
     AUTH: {
+        PROVIDER: "/auth/provider",
         EMAIL: "/auth/email",
         SIGN_IN: "/auth/signin",
         SIGN_OUT: "/auth/signout",
         REFRESH: "/auth/refresh",
         ABOUT_ME: "/auth/me",
+        OIDC: {
+            LOGIN: "/auth/oidc/login",
+            CALLBACK: "/auth/oidc/callback",
+            LOGOUT: "/auth/oidc/logout",
+        },
         RECOVERY: {
             SEND_LINK: "/auth/recovery/send",
             VALIDATE: "/auth/recovery/validate",

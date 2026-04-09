@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { QUERY_NAMES, SIGN_IN_TOKEN_LENGTH } from "@/constants";
 import { FormOnlyLayout, createTwoSidedSizeClassNames } from "@/components/Layout";
 import useAuthEmail from "@/controllers/api/auth/useAuthEmail";
+import useGetAuthProvider from "@/controllers/api/auth/useGetAuthProvider";
+import useOidcLogin from "@/controllers/api/auth/useOidcLogin";
 import { ROUTES } from "@/core/routing/constants";
 import { Utils } from "@langboard/core/utils";
 import EmailForm from "@/pages/auth/SignInPage/EmailForm";
@@ -18,11 +20,44 @@ function SignInPage(): React.JSX.Element {
     const [email, setEmail] = useState("");
     const [form, setForm] = useState<React.JSX.Element>();
     const { mutate } = useAuthEmail();
+    const { data: authProviderData, isFetching: isAuthProviderFetching } = useGetAuthProvider();
+    const { mutateAsync: oidcLoginMutateAsync, isPending: isOidcSignInPending } = useOidcLogin({ interceptToast: true });
+    const authProvider = authProviderData?.provider ?? "local";
 
     const { wrapper: wrapperClassName, width: widthClassName } = createTwoSidedSizeClassNames("sm");
 
+    const onOidcSignIn = useCallback(async () => {
+        const searchParams = new URLSearchParams(location.search);
+        const redirectUrl = searchParams.get(QUERY_NAMES.REDIRECT);
+        let parsedRedirectUrl = redirectUrl ?? undefined;
+        if (redirectUrl) {
+            try {
+                parsedRedirectUrl = decodeURIComponent(redirectUrl);
+            } catch {
+                parsedRedirectUrl = redirectUrl;
+            }
+        }
+
+        try {
+            const data = await oidcLoginMutateAsync({
+                redirect: parsedRedirectUrl,
+            });
+            if (!data.authorize_url) {
+                throw new Error();
+            }
+
+            window.location.assign(data.authorize_url);
+        } catch {
+            navigate(`${ROUTES.SIGN_IN.EMAIL}?${searchParams.toString()}`, { replace: true, smooth: true });
+        }
+    }, [location.search, navigate, oidcLoginMutateAsync]);
+
     useEffect(() => {
         setPageAliasRef.current("Sign In");
+        if (isAuthProviderFetching || authProvider === "oidc") {
+            return;
+        }
+
         const searchParams = new URLSearchParams(location.search);
         const signTokenParam = searchParams.get(QUERY_NAMES.SIGN_IN_TOKEN);
         const emailTokenParam = searchParams.get(QUERY_NAMES.EMAIL_TOKEN);
@@ -65,12 +100,31 @@ function SignInPage(): React.JSX.Element {
                 }
             );
         }
-    }, [location]);
+    }, [authProvider, email, isAuthProviderFetching, location, mutate, navigate, setPageAliasRef]);
 
     useEffect(() => {
+        if (isAuthProviderFetching) {
+            return;
+        }
+
         const searchParams = new URLSearchParams(location.search);
         const signTokenParam = searchParams.get(QUERY_NAMES.SIGN_IN_TOKEN) ?? "";
         const emailTokenParam = searchParams.get(QUERY_NAMES.EMAIL_TOKEN);
+
+        if (authProvider === "oidc") {
+            setEmail("");
+            setForm(
+                <EmailForm
+                    signToken=""
+                    setEmail={setEmail}
+                    className={widthClassName}
+                    authProvider={authProvider}
+                    onOidcSignIn={onOidcSignIn}
+                    isOidcSignInPending={isOidcSignInPending}
+                />
+            );
+            return;
+        }
 
         if (signTokenParam && emailTokenParam) {
             setForm(
@@ -78,9 +132,18 @@ function SignInPage(): React.JSX.Element {
             );
         } else {
             setEmail("");
-            setForm(<EmailForm signToken={signTokenParam} setEmail={setEmail} className={widthClassName} />);
+            setForm(
+                <EmailForm
+                    signToken={signTokenParam}
+                    setEmail={setEmail}
+                    className={widthClassName}
+                    authProvider={authProvider}
+                    onOidcSignIn={onOidcSignIn}
+                    isOidcSignInPending={isOidcSignInPending}
+                />
+            );
         }
-    }, [location, email]);
+    }, [authProvider, email, isAuthProviderFetching, isOidcSignInPending, location, onOidcSignIn, widthClassName]);
 
     return (
         <FormOnlyLayout size="default" useLogo>

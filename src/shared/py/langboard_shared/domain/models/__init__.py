@@ -56,6 +56,7 @@ from .UserActivity import UserActivity
 from .UserEmail import UserEmail
 from .UserGroup import UserGroup
 from .UserGroupAssignedEmail import UserGroupAssignedEmail
+from .UserIdentityLink import IdentityProvider, UserIdentityLink
 from .UserNotification import UserNotification
 from .UserNotificationUnsubscription import UserNotificationUnsubscription
 from .UserProfile import UserProfile
@@ -94,6 +95,7 @@ __all__ = [
     "CheckitemTimerRecord",
     "Checklist",
     "GlobalCardRelationshipType",
+    "IdentityProvider",
     "InternalBot",
     "McpToolGroup",
     "McpToolGroupUsage",
@@ -123,6 +125,7 @@ __all__ = [
     "UserSignInHistory",
     "UserGroup",
     "UserGroupAssignedEmail",
+    "UserIdentityLink",
     "UserNotification",
     "UserNotificationUnsubscription",
     "UserProfile",

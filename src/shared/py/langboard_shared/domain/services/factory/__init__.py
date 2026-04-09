@@ -12,6 +12,7 @@ from .ChatService import ChatService
 from .CheckitemService import CheckitemService
 from .ChecklistService import ChecklistService
 from .EmailService import EmailService
+from .IdentityLinkService import IdentityLinkService
 from .InternalBotService import InternalBotService
 from .McpToolGroupService import McpToolGroupService
 from .MetadataService import MetadataService
@@ -22,6 +23,7 @@ from .ProjectLabelService import ProjectLabelService
 from .ProjectService import ProjectService
 from .ProjectWikiService import ProjectWikiService
 from .ReactionService import ReactionService
+from .ScimProvisioningService import ScimProvisioningService
 from .UserGroupService import UserGroupService
 from .UserNotificationSettingService import UserNotificationSettingService
 from .UserService import UserService
@@ -42,6 +44,7 @@ __all__ = [
     "CheckitemService",
     "ChecklistService",
     "EmailService",
+    "IdentityLinkService",
     "InternalBotService",
     "McpToolGroupService",
     "MetadataService",
@@ -52,6 +55,7 @@ __all__ = [
     "ProjectService",
     "ProjectWikiService",
     "ReactionService",
+    "ScimProvisioningService",
     "UserGroupService",
     "UserNotificationSettingService",
     "UserService",

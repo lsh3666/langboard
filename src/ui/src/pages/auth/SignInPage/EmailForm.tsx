@@ -8,6 +8,7 @@ import Floating from "@/components/base/Floating";
 import Form from "@/components/base/Form";
 import SubmitButton from "@/components/base/SubmitButton";
 import useAuthEmail from "@/controllers/api/auth/useAuthEmail";
+import { TAuthProvider } from "@/controllers/api/auth/useGetAuthProvider";
 import useForm from "@/core/hooks/form/useForm";
 import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
@@ -18,12 +19,17 @@ export interface IEmailFormProps {
     signToken: string;
     setEmail: (email: string) => void;
     className: string;
+    authProvider: TAuthProvider;
+    onOidcSignIn: () => void;
+    isOidcSignInPending: bool;
 }
 
-function EmailForm({ signToken, setEmail, className }: IEmailFormProps): React.JSX.Element {
+function EmailForm({ signToken, setEmail, className, authProvider, onOidcSignIn, isOidcSignInPending }: IEmailFormProps): React.JSX.Element {
     const [t] = useTranslation();
     const navigate = usePageNavigateRef();
     const { mutate } = useAuthEmail();
+    const isOidcOnly = authProvider === "oidc";
+    const isHybrid = authProvider === "hybrid";
     const { errors, setErrors, isValidating, handleSubmit, formRef } = useForm({
         errorLangPrefix: "auth.errors",
         schema: {
@@ -73,25 +79,42 @@ function EmailForm({ signToken, setEmail, className }: IEmailFormProps): React.J
                     {t("auth.Use your {app} Account")}
                 </Box>
             </Box>
-            <Form.Root className={cn("mt-11 xs:mt-0", className)} onSubmit={handleSubmit} ref={formRef}>
-                <Form.Field name="email">
-                    <Floating.LabelInput label={t("user.Email")} isFormControl autoFocus autoComplete="email" disabled={isValidating} />
-                    {errors.email && <FormErrorMessage error={errors.email} icon="circle-alert" />}
-                </Form.Field>
-                <Flex items="center" gap="8" justify={{ initial: "between", xs: "end" }} mt="16">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        disabled={isValidating}
-                        onClick={() => navigate(`${ROUTES.SIGN_UP.REQUIRED}?${new URLSearchParams(location.search).toString()}`, { smooth: true })}
-                    >
-                        {t("auth.Create account")}
+            {isOidcOnly ? (
+                <Flex className={cn("mt-11 xs:mt-0", className)} items="center" justify="end">
+                    <Button type="button" onClick={onOidcSignIn} disabled={isOidcSignInPending}>
+                        {t("auth.Continue with SSO")}
                     </Button>
-                    <SubmitButton type="submit" isValidating={isValidating}>
-                        {t("common.Next")}
-                    </SubmitButton>
                 </Flex>
-            </Form.Root>
+            ) : (
+                <Form.Root className={cn("mt-11 xs:mt-0", className)} onSubmit={handleSubmit} ref={formRef}>
+                    <Form.Field name="email">
+                        <Floating.LabelInput label={t("user.Email")} isFormControl autoFocus autoComplete="email" disabled={isValidating} />
+                        {errors.email && <FormErrorMessage error={errors.email} icon="circle-alert" />}
+                    </Form.Field>
+                    <Flex items="center" gap="8" justify={{ initial: "between", xs: "end" }} mt="16">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            disabled={isValidating}
+                            onClick={() =>
+                                navigate(`${ROUTES.SIGN_UP.REQUIRED}?${new URLSearchParams(location.search).toString()}`, { smooth: true })
+                            }
+                        >
+                            {t("auth.Create account")}
+                        </Button>
+                        <SubmitButton type="submit" isValidating={isValidating}>
+                            {t("common.Next")}
+                        </SubmitButton>
+                    </Flex>
+                    {isHybrid && (
+                        <Flex justify={{ initial: "between", xs: "end" }} mt="4">
+                            <Button type="button" variant="outline" onClick={onOidcSignIn} disabled={isValidating || isOidcSignInPending}>
+                                {t("auth.Continue with SSO")}
+                            </Button>
+                        </Flex>
+                    )}
+                </Form.Root>
+            )}
         </>
     );
 }

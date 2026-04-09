@@ -182,6 +182,78 @@ class Env:
         return int(self.__get_from_cache("JWT_RT_EXPIRATION", 30))  # 30 days for default
 
     @property
+    def AUTH_PROVIDER(self) -> Literal["local", "oidc", "hybrid"]:
+        auth_provider = cast(Any, self.__get_from_cache("AUTH_PROVIDER", "local")).lower()
+        _available_auth_providers = {"local", "oidc", "hybrid"}
+        if auth_provider not in _available_auth_providers:
+            raise ValueError(f"Invalid auth provider: {auth_provider}. Must be one of {_available_auth_providers}")
+        return auth_provider
+
+    @property
+    def OIDC_ENABLED(self) -> bool:
+        return self.AUTH_PROVIDER in {"oidc", "hybrid"}
+
+    @property
+    def OIDC_ISSUER(self) -> str:
+        return self.__get_from_cache("OIDC_ISSUER", "")
+
+    @property
+    def OIDC_DISCOVERY_URL(self) -> str:
+        return self.__get_from_cache("OIDC_DISCOVERY_URL", "")
+
+    @property
+    def OIDC_CLIENT_ID(self) -> str:
+        return self.__get_from_cache("OIDC_CLIENT_ID", "")
+
+    @property
+    def OIDC_CLIENT_SECRET(self) -> str:
+        return self.__get_from_cache("OIDC_CLIENT_SECRET", "")
+
+    @property
+    def OIDC_REDIRECT_URI(self) -> str:
+        return f"{self.PUBLIC_UI_URL}/auth/oidc/callback"
+
+    @property
+    def OIDC_SCOPES(self) -> str:
+        return self.__get_from_cache("OIDC_SCOPES", "openid profile email")
+
+    @property
+    def OIDC_EMAIL_CLAIM(self) -> str:
+        return self.__get_from_cache("OIDC_EMAIL_CLAIM", "email")
+
+    @property
+    def OIDC_PROMPT(self) -> str:
+        return self.__get_from_cache("OIDC_PROMPT", "")
+
+    @property
+    def OIDC_TIMEOUT_SEC(self) -> int:
+        return int(self.__get_from_cache("OIDC_TIMEOUT_SEC", "10"))
+
+    @property
+    def OIDC_DISCOVERY_CACHE_SEC(self) -> int:
+        return int(self.__get_from_cache("OIDC_DISCOVERY_CACHE_SEC", "3600"))
+
+    @property
+    def OIDC_JWKS_CACHE_TTL_SEC(self) -> int:
+        return int(self.__get_from_cache("OIDC_JWKS_CACHE_TTL_SEC", "3600"))
+
+    @property
+    def OIDC_CLOCK_SKEW_SEC(self) -> int:
+        return int(self.__get_from_cache("OIDC_CLOCK_SKEW_SEC", "60"))
+
+    @property
+    def SCIM_ENABLED(self) -> bool:
+        return self.__get_from_cache("SCIM_ENABLED", "false").lower() == "true"
+
+    @property
+    def SCIM_BEARER_TOKEN(self) -> str:
+        return self.__get_from_cache("SCIM_BEARER_TOKEN", "")
+
+    @property
+    def SCIM_ISSUER(self) -> str:
+        return self.__get_from_cache("SCIM_ISSUER", "")
+
+    @property
     def REFRESH_TOKEN_NAME(self) -> str:
         return f"refresh_token_{self.PROJECT_SHORT_NAME}"
 

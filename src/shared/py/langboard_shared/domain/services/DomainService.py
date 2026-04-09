@@ -103,6 +103,14 @@ class DomainService(Factory):
         return self._create_or_get_product(factory.InternalBotService)
 
     @property
+    def identity_link(self):
+        return self._create_or_get_product(factory.IdentityLinkService)
+
+    @property
+    def scim_provisioning(self):
+        return self._create_or_get_product(factory.ScimProvisioningService)
+
+    @property
     def metadata(self):
         return self._create_or_get_product(factory.MetadataService)
 

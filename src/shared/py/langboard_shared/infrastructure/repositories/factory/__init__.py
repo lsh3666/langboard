@@ -41,6 +41,7 @@ from .RoleRepository import RoleRepository
 from .UserEmailRepository import UserEmailRepository
 from .UserGroupAssignedEmailRepository import UserGroupAssignedEmailRepository
 from .UserGroupRepository import UserGroupRepository
+from .UserIdentityLinkRepository import UserIdentityLinkRepository
 from .UserNotificationRepository import UserNotificationRepository
 from .UserNotificationSettingRepository import UserNotificationSettingRepository
 from .UserProfileRepository import UserProfileRepository
@@ -93,6 +94,7 @@ __all__ = [
     "UserEmailRepository",
     "UserGroupAssignedEmailRepository",
     "UserGroupRepository",
+    "UserIdentityLinkRepository",
     "UserNotificationRepository",
     "UserNotificationSettingRepository",
     "UserProfileRepository",

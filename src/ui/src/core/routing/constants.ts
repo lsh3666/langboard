@@ -6,6 +6,7 @@ export const ROUTES = {
     SIGN_IN: {
         EMAIL: "/auth/signin",
         PASSWORD: "/auth/signin/pwd",
+        OIDC_CALLBACK: "/auth/oidc/callback",
     },
     SIGN_UP: {
         ROUTE: "/auth/signup",
