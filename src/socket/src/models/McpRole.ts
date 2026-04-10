@@ -17,21 +17,27 @@ class McpRole extends BaseRole {
     public actions!: TMcpRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TMcpRoleActions): Promise<bool> {
-        const mcpRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const mcpRole = await runner.manager.findOne(McpRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!mcpRole) {
-            return false;
+            if (!mcpRole) {
+                return false;
+            }
+
+            if (mcpRole.actions.includes(ROLE_ALL_GRANTED)) {
+                return true;
+            }
+
+            return mcpRole.actions.includes(action);
+        } finally {
+            await runner.release();
         }
-
-        if (mcpRole.actions.includes(ROLE_ALL_GRANTED)) {
-            return true;
-        }
-
-        return mcpRole.actions.includes(action);
     }
 
     public static async isAnyGranted(userId: TBigIntString): Promise<bool> {

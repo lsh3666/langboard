@@ -1,4 +1,5 @@
 import { CsvColumn, ROLE_ALL_GRANTED, TBigIntString, TRoleAllGranted } from "@/core/db/BaseModel";
+import DB from "@/core/db/DB";
 import BaseRole from "@/models/bases/BaseRole";
 import { Utils } from "@langboard/core/utils";
 import { Entity } from "typeorm";
@@ -54,41 +55,53 @@ class SettingRole extends BaseRole {
     public actions!: TSettingRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TSettingRoleActions): Promise<bool> {
-        const apiKeyRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const settingRole = await runner.manager.findOne(SettingRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!apiKeyRole) {
-            return false;
+            if (!settingRole) {
+                return false;
+            }
+
+            if (settingRole.actions.includes(ROLE_ALL_GRANTED)) {
+                return true;
+            }
+
+            return settingRole.actions.includes(action);
+        } finally {
+            await runner.release();
         }
-
-        if (apiKeyRole.actions.includes(ROLE_ALL_GRANTED)) {
-            return true;
-        }
-
-        return apiKeyRole.actions.includes(action);
     }
 
     public static async isCategoryGranted(userId: TBigIntString, category: ESettingCategory): Promise<bool> {
         category = Utils.String.convertSafeEnum(ESettingCategory, category);
         const categoryActions = Object.values(ESettingRoleAction).filter((action) => action.startsWith(category));
-        const apiKeyRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const settingRole = await runner.manager.findOne(SettingRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!apiKeyRole) {
-            return false;
+            if (!settingRole) {
+                return false;
+            }
+
+            if (settingRole.actions.includes(ROLE_ALL_GRANTED)) {
+                return true;
+            }
+
+            return categoryActions.some((action) => settingRole.actions.includes(action));
+        } finally {
+            await runner.release();
         }
-
-        if (apiKeyRole.actions.includes(ROLE_ALL_GRANTED)) {
-            return true;
-        }
-
-        return categoryActions.some((action) => apiKeyRole.actions.includes(action));
     }
 }
 

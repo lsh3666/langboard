@@ -17,21 +17,27 @@ class ApiKeyRole extends BaseRole {
     public actions!: TApiKeyRoleActions[];
 
     public static async isGranted(userId: TBigIntString, action: TApiKeyRoleActions): Promise<bool> {
-        const apiKeyRole = await this.findOne({
-            where: {
-                user_id: userId,
-            },
-        });
+        const runner = DB.createQueryRunner("master");
+        try {
+            await runner.connect();
+            const apiKeyRole = await runner.manager.findOne(ApiKeyRole, {
+                where: {
+                    user_id: userId,
+                },
+            });
 
-        if (!apiKeyRole) {
-            return false;
+            if (!apiKeyRole) {
+                return false;
+            }
+
+            if (apiKeyRole.actions.includes(ROLE_ALL_GRANTED)) {
+                return true;
+            }
+
+            return apiKeyRole.actions.includes(action);
+        } finally {
+            await runner.release();
         }
-
-        if (apiKeyRole.actions.includes(ROLE_ALL_GRANTED)) {
-            return true;
-        }
-
-        return apiKeyRole.actions.includes(action);
     }
 
     public static async isAnyGranted(userId: TBigIntString): Promise<bool> {
