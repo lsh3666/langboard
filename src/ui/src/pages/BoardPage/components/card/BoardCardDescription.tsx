@@ -16,6 +16,7 @@ import { getEditorStore } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
 import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
+import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -205,7 +206,7 @@ const BoardCardDescription = memo((): React.JSX.Element => {
                         containerClassName="overflow-y-visible"
                         className={cn("h-full min-h-[calc(theme(spacing.56)_-_theme(spacing.8))]", isEditing ? "px-6 py-3" : "")}
                         readOnly={!isEditing}
-                        editorType="card-description"
+                        editorType={EEditorType.CardDescription}
                         form={{
                             project_uid: projectUID,
                             card_uid: card.uid,
@@ -251,7 +252,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                 containerClassName="overflow-y-visible"
                 className="h-full min-h-0"
                 readOnly
-                editorType="card-description"
+                editorType={EEditorType.CardDescription}
                 form={{
                     project_uid: projectUID,
                     card_uid: card.uid,
@@ -260,7 +261,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                 setValue={() => {}}
             />
         ),
-        [mentionables, cards, currentUser, projectUID, card, t]
+        [mentionables, cards, currentUser, projectUID, card]
     );
 
     const sliceContent = useCallback((start: number, end: number, content: string = ""): { content: IEditorContent; end: number } => {

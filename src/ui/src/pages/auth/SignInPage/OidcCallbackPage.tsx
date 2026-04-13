@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { FormOnlyLayout, createTwoSidedSizeClassNames } from "@/components/Layout";
@@ -18,6 +18,7 @@ function OidcCallbackPage(): React.JSX.Element {
     const { signIn } = useAuth();
     const { mutateAsync } = useOidcCallback({ interceptToast: true });
     const { wrapper: wrapperClassName, width: widthClassName } = createTwoSidedSizeClassNames("sm");
+    const handledRequestKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
         let isDisposed = false;
@@ -30,6 +31,18 @@ function OidcCallbackPage(): React.JSX.Element {
             navigate(`${ROUTES.SIGN_IN.EMAIL}?${searchParams.toString()}`, { replace: true, smooth: true });
             return;
         }
+
+        const requestKey = `oidc-callback:${code}:${state}`;
+        if (handledRequestKeyRef.current === requestKey) {
+            return;
+        }
+        if (sessionStorage.getItem(requestKey) === "pending") {
+            handledRequestKeyRef.current = requestKey;
+            return;
+        }
+
+        handledRequestKeyRef.current = requestKey;
+        sessionStorage.setItem(requestKey, "pending");
 
         void mutateAsync({ code, state })
             .then((data) => {
@@ -55,8 +68,11 @@ function OidcCallbackPage(): React.JSX.Element {
                         smooth: true,
                     })
                 );
+                sessionStorage.setItem(requestKey, "done");
             })
             .catch(() => {
+                handledRequestKeyRef.current = null;
+                sessionStorage.removeItem(requestKey);
                 if (isDisposed) {
                     return;
                 }
@@ -70,7 +86,8 @@ function OidcCallbackPage(): React.JSX.Element {
         return () => {
             isDisposed = true;
         };
-    }, [location.search, mutateAsync, navigate, signIn, t]);
+        // OIDC callback handling should only rerun when the callback query string changes.
+    }, [location.search]);
 
     return (
         <FormOnlyLayout size="default" useLogo>

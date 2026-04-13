@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WebSocket } from "ws";
-import { IncomingMessage } from "http";
 import Subscription from "@/core/server/Subscription";
 import User from "@/models/User";
 import ISocketClient, { TSocketSendParams } from "@/core/server/ISocketClient";
-import Hocus from "@/core/server/Hocus";
 import { Utils } from "@langboard/core/utils";
 import { ESocketStatus, ESocketTopic } from "@langboard/core/enums";
 import Logger from "@/core/utils/Logger";
@@ -14,20 +12,16 @@ const clients = new Set<ISocketClient>();
 
 class SocketClient implements ISocketClient {
     #ws: WebSocket;
-    #request: IncomingMessage;
     #user: User;
-    #hocusDocNames: Set<string>;
     #eventListeners: Partial<Record<keyof WebSocket.WebSocketEventMap, ((...args: any[]) => void)[]>>;
 
     public get user(): User {
         return this.#user;
     }
 
-    constructor(ws: WebSocket, request: IncomingMessage, user: User) {
+    constructor(ws: WebSocket, user: User) {
         this.#ws = ws;
-        this.#request = request;
         this.#user = user;
-        this.#hocusDocNames = new Set();
         this.#eventListeners = {
             close: [() => this.onClose()],
         };
@@ -128,37 +122,6 @@ class SocketClient implements ISocketClient {
         };
     }
 
-    public startHocus(documentName: string) {
-        this.#hocusDocNames.add(documentName);
-        Hocus.handleConnection(this.#ws, this.#request);
-    }
-
-    public endHocus(documentName: string) {
-        this.#hocusDocNames.delete(documentName);
-        const document = Hocus.documents.get(documentName);
-        if (!document) {
-            return;
-        }
-
-        const connections = document.getConnections();
-        let connection;
-        for (let i = 0; i < connections.length; ++i) {
-            connection = connections[i];
-            if (connection.webSocket === this.#ws) {
-                break;
-            }
-            connection = undefined;
-            continue;
-        }
-
-        if (!connection) {
-            return;
-        }
-
-        connection.document.removeConnection(connection);
-        connection.callbacks.onClose.forEach((callback) => callback(document));
-    }
-
     public onClose() {
         Object.entries(this.#eventListeners).forEach(([event, listeners]) => {
             if (!listeners) {
@@ -174,9 +137,7 @@ class SocketClient implements ISocketClient {
 
         clients.delete(this);
         this.#ws = undefined!;
-        this.#request = undefined!;
         this.#user = undefined!;
-        this.#hocusDocNames.clear();
         this.#eventListeners = {};
     }
 }

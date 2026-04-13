@@ -9,6 +9,7 @@ import { PlateEditor, PlatePlugin, usePlateEditor } from "platejs/react";
 import { MarkdownPlugin } from "@platejs/markdown";
 import { EditorKit } from "@/components/Editor/editor-kit";
 import { DndKit } from "@/components/Editor/plugins/dnd-kit";
+import { createYjsKit } from "@/components/Editor/plugins/yjs-kit";
 
 interface IBaseUseCreateEditor {
     plugins?: PlatePlugin<any>[];
@@ -31,7 +32,10 @@ export type TUseCreateEditor = IUseReadonlyEditor | IUseEditor;
 export const useCreateEditor = (props: TUseCreateEditor) => {
     const socket = useSocket();
     const { value, readOnly = false, plugins: customPlugins } = props;
-    const { socketEvents, chatEventKey, copilotEventKey, form } = useEditorData();
+    const { currentUser, socketEvents, chatEventKey, copilotEventKey, form, documentID } = useEditorData();
+    const firstname = currentUser.useField("firstname");
+    const lastname = currentUser.useField("lastname");
+    const fullName = useMemo(() => `${firstname} ${lastname}`, [firstname, lastname]);
 
     const plugins = useMemo(() => {
         const pluginList = [...EditorKit, ...(customPlugins ?? [])];
@@ -47,9 +51,16 @@ export const useCreateEditor = (props: TUseCreateEditor) => {
                     commonEventData: form,
                 })
             );
+
+            if (documentID) {
+                const yjsKit = createYjsKit({ socket, userName: fullName, documentID });
+                if (yjsKit) {
+                    pluginList.push(yjsKit);
+                }
+            }
         }
         return pluginList;
-    }, [readOnly, socketEvents, chatEventKey, copilotEventKey, form]);
+    }, [readOnly, socketEvents, chatEventKey, copilotEventKey, form, documentID, fullName]);
     const convertValue = useCallback(
         (editor: PlateEditor) => {
             if (value) {

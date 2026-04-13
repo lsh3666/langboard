@@ -85,7 +85,7 @@ abstract class BaseRequest {
                 return await this.request({ requestModel, headers, task, useStream, retried: retried + 1 });
             }
 
-            Logger.error(error);
+            Logger.error(error, "\n");
         }
 
         finish?.();

@@ -19,6 +19,7 @@ import { ROUTES } from "@/core/routing/constants";
 import { cn } from "@/core/utils/ComponentUtils";
 import WikiPrivateOption, { SkeletonWikiPrivateOption } from "@/pages/BoardPage/components/wiki/WikiPrivateOption";
 import WikiTitle from "@/pages/BoardPage/components/wiki/WikiTitle";
+import { EEditorType } from "@langboard/core/constants";
 import { EHttpStatus } from "@langboard/core/enums";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
 import { memo, useEffect, useMemo, useRef } from "react";
@@ -166,7 +167,7 @@ const WikiContent = memo(({ wiki }: IWikiContentProps) => {
                             : "max-h-[calc(100vh_-_theme(spacing.64)_-_theme(spacing.5))] min-h-[calc(100vh_-_theme(spacing.64)_-_theme(spacing.5))]"
                     )}
                     readOnly={!isEditing}
-                    editorType="wiki-content"
+                    editorType={EEditorType.WikiContent}
                     form={{
                         project_uid: project.uid,
                         wiki_uid: wiki.uid,

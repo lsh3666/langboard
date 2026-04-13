@@ -22,6 +22,17 @@ class _Subscription {
         this.#validators.set(topic, validator);
     }
 
+    public async validate(topic: ESocketTopic | string, context: IValidatorContext): Promise<bool> {
+        topic = Utils.String.convertSafeEnum(ESocketTopic, topic);
+
+        const validator = this.#validators.get(topic);
+        if (!validator) {
+            return true;
+        }
+
+        return await validator(context);
+    }
+
     public async publish(topic: ESocketTopic | string, topicId: string, event: string, data: Record<string, unknown>) {
         topic = Utils.String.convertSafeEnum(ESocketTopic, topic);
 
@@ -66,11 +77,8 @@ class _Subscription {
                 continue;
             }
 
-            if (this.#validators.has(topic)) {
-                const validator = this.#validators.get(topic)!;
-                if (!(await validator({ client: ws, topicId }))) {
-                    continue;
-                }
+            if (!(await this.validate(topic, { client: ws, topicId }))) {
+                continue;
             }
 
             if (!subscriptions.has(topicId)) {

@@ -41,7 +41,7 @@ EventManager.on(ESocketTopic.OllamaManager, SocketEvents.CLIENT.SETTINGS.OLLAMA.
         await ollamaApi.post("/api/copy", { data: { source: model, destination: copyTo } });
         await Subscription.publish(ESocketTopic.OllamaManager, topicId, SocketEvents.SERVER.SETTINGS.OLLAMA.MODEL_COPIED, { model, copy_to: copyTo });
     } catch (error) {
-        Logger.error(error);
+        Logger.error(error, "\n");
     }
 });
 
@@ -55,7 +55,7 @@ EventManager.on(ESocketTopic.OllamaManager, SocketEvents.CLIENT.SETTINGS.OLLAMA.
         await ollamaApi.delete("/api/delete", { data: { model } });
         await Subscription.publish(ESocketTopic.OllamaManager, topicId, SocketEvents.SERVER.SETTINGS.OLLAMA.MODEL_DELETED, { model });
     } catch (error) {
-        Logger.error(error);
+        Logger.error(error, "\n");
         if (isAxiosError(error)) {
             if (error.status === EHttpStatus.HTTP_404_NOT_FOUND) {
                 await Subscription.publish(ESocketTopic.OllamaManager, topicId, SocketEvents.SERVER.SETTINGS.OLLAMA.MODEL_DELETED, { model });
@@ -193,7 +193,7 @@ EventManager.on(ESocketTopic.OllamaManager, SocketEvents.CLIENT.SETTINGS.OLLAMA.
                 await endStream();
             });
     } catch (error) {
-        Logger.error(error);
+        Logger.error(error, "\n");
         await Subscription.publish(ESocketTopic.OllamaManager, topicId, SocketEvents.SERVER.SETTINGS.OLLAMA.MODEL_PULLING_STATUS, {
             status: "error",
             model,

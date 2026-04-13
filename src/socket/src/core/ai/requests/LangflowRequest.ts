@@ -134,7 +134,7 @@ class LangflowRequest extends BaseRequest {
 
             return response.data.path ?? null;
         } catch (error) {
-            Logger.error(error);
+            Logger.error(error, "\n");
             return null;
         }
     }

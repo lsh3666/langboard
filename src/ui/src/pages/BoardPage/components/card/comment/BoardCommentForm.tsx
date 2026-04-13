@@ -18,6 +18,7 @@ import { isModel, TUserLikeModel } from "@/core/models/ModelRegistry";
 import { BotModel, ProjectCard } from "@/core/models";
 import { getEditorStore, useIsCurrentEditor } from "@/core/stores/EditorStore";
 import { TEditor } from "@/components/Editor/editor-kit";
+import { EEditorType } from "@langboard/core/constants";
 import { getMentionOnSelectItem } from "@platejs/mention";
 
 export function SkeletonBoardCommentForm() {
@@ -273,7 +274,7 @@ const BoardCommentForm = memo((): React.JSX.Element => {
                                 mentionables={mentionables}
                                 linkables={cards}
                                 className="h-full max-h-[min(50vh,200px)] min-h-[min(50vh,200px)] overflow-y-auto px-6 py-3"
-                                editorType="card-new-comment"
+                                editorType={EEditorType.CardNewComment}
                                 form={{
                                     project_uid: projectUID,
                                     card_uid: card.uid,

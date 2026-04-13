@@ -5,6 +5,7 @@ import { IncomingMessage } from "http";
 import { Utils } from "@langboard/core/utils";
 import { ESocketStatus, ESocketTopic, GLOBAL_TOPIC_ID } from "@langboard/core/enums";
 import EventManager from "@/core/server/EventManager";
+import Hocus from "@/core/server/Hocus";
 
 class SocketManager {
     #server: WebSocketServer;
@@ -32,7 +33,12 @@ class SocketManager {
             return;
         }
 
-        const client = new SocketClient(ws, request, user);
+        if (url.pathname === "/editor-sync") {
+            Hocus.handleConnection(ws, request, { user });
+            return;
+        }
+
+        const client = new SocketClient(ws, user);
         await client.subscribe(ESocketTopic.Global, [GLOBAL_TOPIC_ID]);
         await client.subscribe(ESocketTopic.UserPrivate, [user.uid]);
 
@@ -76,12 +82,6 @@ class SocketManager {
                     break;
                 case "unsubscribe":
                     await client.unsubscribe(topic, topic_id);
-                    break;
-                case "hocus:start":
-                    client.startHocus(data.documentName);
-                    break;
-                case "hocus:end":
-                    client.endHocus(data.documentName);
                     break;
                 default:
                     await EventManager.emit(topic, event, {

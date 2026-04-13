@@ -8,7 +8,7 @@ import { cn } from "@/core/utils/ComponentUtils";
 import BoardCard from "@/pages/BoardPage/components/card/BoardCard";
 import { BoardCardUnsavedProvider, useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
 import { EHttpStatus } from "@langboard/core/enums";
-import { memo, useMemo, useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect } from "react";
 import { Navigate, useParams } from "react-router";
 import {
     AlertDialog,
@@ -76,8 +76,6 @@ const BoardCardPageComponent = () => {
         };
     }, []);
 
-    const alertDescription = useMemo(() => t("card.unsavedChanges.You have unsaved description changes.\nLeaving now will discard them."), [t]);
-
     return (
         <>
             {currentUser && cardUID && (
@@ -111,7 +109,9 @@ const BoardCardPageComponent = () => {
                 <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>{t("card.unsavedChanges.Discard description edits?")}</AlertDialogTitle>
-                        <AlertDialogDescription className="whitespace-pre-line">{alertDescription}</AlertDialogDescription>
+                        <AlertDialogDescription className="whitespace-pre-line">
+                            {t("card.unsavedChanges.You have unsaved description changes.\nLeaving now will discard them.")}
+                        </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>{t("card.unsavedChanges.Keep editing")}</AlertDialogCancel>

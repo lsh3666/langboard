@@ -15,6 +15,7 @@ import { useIsCurrentEditor } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
 import BoardCommentFooter from "@/pages/BoardPage/components/card/comment/BoardCommentFooter";
 import { IBoardCommentContextParams } from "@/pages/BoardPage/components/card/comment/types";
+import { EEditorType } from "@langboard/core/constants";
 import { memo, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -88,7 +89,7 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): Rea
                             linkables={cards}
                             className={isCurrentEditor ? "h-full max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] overflow-y-auto px-6 py-3" : ""}
                             readOnly={!isCurrentEditor}
-                            editorType="card-comment"
+                            editorType={EEditorType.CardComment}
                             form={{
                                 project_uid: projectUID,
                                 card_uid: card.uid,

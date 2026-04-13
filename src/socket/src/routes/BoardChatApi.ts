@@ -47,7 +47,7 @@ Routes.post(Routing.API.BOARD.CHAT.UPLOAD, async ({ req, user, params }) => {
 
         return JsonResponse({ file_path: filePath }, EHttpStatus.HTTP_201_CREATED);
     } catch (error) {
-        Logger.error(error);
+        Logger.error(error, "\n");
         return ApiErrorResponse(EApiErrorCode.OP1002, EHttpStatus.HTTP_406_NOT_ACCEPTABLE);
     }
 });

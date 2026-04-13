@@ -169,7 +169,7 @@ abstract class BaseStreamResponse {
                     await endStream();
                 });
         } catch (error) {
-            Logger.error(error);
+            Logger.error(error, "\n");
             if (signal?.aborted) {
                 return;
             }
@@ -201,7 +201,7 @@ abstract class BaseStreamResponse {
                 return this.#createApi();
             }
 
-            Logger.error(error);
+            Logger.error(error, "\n");
         }
 
         return result;

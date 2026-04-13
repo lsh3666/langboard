@@ -47,7 +47,7 @@ export const getBotStatusMap = async (projectUID: string): Promise<Record<string
 
         return response.data;
     } catch (error) {
-        Logger.error(error);
+        Logger.error(error, "\n");
         return null;
     }
 };
