@@ -1,4 +1,6 @@
-import { Box, Flex, IconComponent } from "@/components/base";
+import Box from "@/components/base/Box";
+import Flex from "@/components/base/Flex";
+import IconComponent from "@/components/base/IconComponent";
 import WikiCreateButton from "@/pages/BoardPage/components/wiki/WikiCreateButton";
 import { useTranslation } from "react-i18next";
 
