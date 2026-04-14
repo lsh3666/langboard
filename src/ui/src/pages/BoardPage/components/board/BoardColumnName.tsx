@@ -1,23 +1,23 @@
 import Input from "@/components/base/Input";
 import Toast from "@/components/base/Toast";
-import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useChangeProjectColumnName from "@/controllers/api/board/useChangeProjectColumnName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import { ProjectColumn } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardController } from "@/core/providers/BoardController";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardColumnNameProps {
     isDragging: bool;
     column: ProjectColumn.TModel;
+    renameTrigger?: number;
 }
 
-const BoardColumnName = memo(({ isDragging, column }: IBoardColumnNameProps) => {
+const BoardColumnName = memo(({ isDragging, column, renameTrigger = 0 }: IBoardColumnNameProps) => {
     const { selectCardViewType } = useBoardController();
     const { project, hasRoleAction } = useBoard();
     const [t] = useTranslation();
@@ -66,16 +66,34 @@ const BoardColumnName = memo(({ isDragging, column }: IBoardColumnNameProps) => 
         originalValue: columnName,
     });
 
+    useEffect(() => {
+        if (!renameTrigger) {
+            return;
+        }
+
+        changeMode("edit");
+    }, [changeMode, renameTrigger]);
+
+    useEffect(() => {
+        if (!isEditing || !valueRef.current) {
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            valueRef.current?.focus();
+            valueRef.current?.select();
+        });
+    }, [isEditing, valueRef]);
+
     return (
         <BoardColumnNameInput
             isEditing={isEditing}
-            viewClassName={canEdit ? "cursor-text" : ""}
-            canEdit={!isDragging && canEdit}
-            changeMode={changeMode}
+            viewClassName={!isDragging && canEdit ? "cursor-grab" : ""}
             columnName={columnName}
             disabled={isValidating}
             isArchive={isArchiveColumn}
             inputRef={valueRef}
+            changeMode={changeMode}
         />
     );
 });
@@ -84,30 +102,16 @@ BoardColumnName.displayName = "Board.ColumnName";
 export interface IBoardColumnNameInput {
     isEditing: bool;
     viewClassName?: string;
-    canEdit: bool;
-    changeMode: (mode: "edit" | "view") => void;
     columnName: string;
     isArchive?: bool;
     disabled?: bool;
     inputRef: React.Ref<HTMLInputElement>;
+    changeMode: (mode: "edit" | "view") => void;
 }
 
 export const BoardColumnNameInput = memo(
-    ({ isEditing, viewClassName, canEdit, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
+    ({ isEditing, viewClassName, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
         const [t] = useTranslation();
-        const handleStartEditing = useCallback(
-            (e: React.MouseEvent) => {
-                if (!canEdit) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                changeMode("edit");
-            },
-            [canEdit, changeMode]
-        );
         const handleInputClick = useCallback((e: React.MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
@@ -131,13 +135,7 @@ export const BoardColumnNameInput = memo(
         return (
             <>
                 {!isEditing || isArchive ? (
-                    <span
-                        {...{ [DISABLE_DRAGGING_ATTR]: "" }}
-                        className={cn("h-7 truncate", isArchive && "text-secondary-foreground/70", viewClassName)}
-                        onPointerDown={handleStartEditing}
-                    >
-                        {columnName}
-                    </span>
+                    <span className={cn("h-7 truncate", isArchive && "text-secondary-foreground/70", viewClassName)}>{columnName}</span>
                 ) : (
                     <Input
                         ref={inputRef}
