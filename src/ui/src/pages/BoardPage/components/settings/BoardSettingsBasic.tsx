@@ -11,6 +11,7 @@ import useChangeProjectDetails from "@/controllers/api/board/settings/useChangeP
 import useForm from "@/core/hooks/form/useForm";
 import { Project } from "@/core/models";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
+import { Utils } from "@langboard/core/utils";
 import { memo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,6 +23,7 @@ const BoardSettingsBasic = memo(() => {
     const description = project.useField("description");
     const aiDescription = project.useField("ai_description");
     const projectType = project.useField("project_type");
+    const archiveVisibleDays = project.useField("archive_visible_days");
     const projectTypeRef = useRef(projectType);
     const projectTypeInputRef = useRef<HTMLInputElement>(null);
     const { errors, isValidating, handleSubmit, formRef } = useForm({
@@ -30,6 +32,13 @@ const BoardSettingsBasic = memo(() => {
             title: { required: true },
             description: {},
             project_type: { required: true },
+            archive_visible_days: {
+                required: true,
+                custom: {
+                    errorKey: "invalid_archive_visible_days",
+                    validate: (value) => Utils.Type.isString(value) && Number.isInteger(Number(value)) && Number(value) >= 1,
+                },
+            },
         },
         mutate,
         useDefaultBadRequestHandler: true,
@@ -78,6 +87,15 @@ const BoardSettingsBasic = memo(() => {
                     </Label>
                     {errors.project_type && <FormErrorMessage error={errors.project_type} icon="circle-alert" />}
                 </Form.Field>
+                <Label display="inline-grid" items="center" gap="2" w="full">
+                    <Box>{t("project.Archive visible days")}</Box>
+                    <Form.Field name="archive_visible_days">
+                        <Form.Control asChild>
+                            <Input type="number" min="1" step="1" defaultValue={archiveVisibleDays ?? 3} disabled={isValidating} />
+                        </Form.Control>
+                    </Form.Field>
+                </Label>
+                {errors.archive_visible_days && <FormErrorMessage error={errors.archive_visible_days} icon="circle-alert" />}
                 {aiDescription && (
                     <Box>
                         <Box textSize="sm" weight="semibold" className="select-none">

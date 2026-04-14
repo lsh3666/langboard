@@ -13,6 +13,7 @@ class Project(SoftDeleteModel, table=True):
     description: str | None = Field(default=None, sa_type=TEXT, api_field=ApiField())
     ai_description: str | None = Field(default=None, sa_type=TEXT, api_field=ApiField())
     project_type: str = Field(default="Other", nullable=False, api_field=ApiField())
+    archive_visible_days: int = Field(default=3, nullable=False, api_field=ApiField())
 
     def notification_data(self) -> dict[str, Any]:
         return {
@@ -21,4 +22,4 @@ class Project(SoftDeleteModel, table=True):
         }
 
     def _get_repr_keys(self) -> list[str | tuple[str, str]]:
-        return ["owner_id", "title", "project_type"]
+        return ["owner_id", "title", "project_type", "archive_visible_days"]

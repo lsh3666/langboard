@@ -255,6 +255,7 @@ class ProjectService(BaseDomainService):
             "title": "not_empty",
             "description": "default",
             "project_type": "not_empty",
+            "archive_visible_days": "default",
             "ai_description": "default",
         }
 

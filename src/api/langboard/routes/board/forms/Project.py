@@ -24,6 +24,7 @@ class UpdateProjectDetailsForm(BaseFormModel):
     title: str = Field(..., description="Project title")
     description: str | None = Field(None, description="Project description")
     project_type: str = Field("Other", description="Project type")
+    archive_visible_days: int = Field(3, ge=1, description="Visible archived card days")
 
 
 @form_model

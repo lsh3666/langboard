@@ -7,6 +7,7 @@
     "name": "Name",
     "color": "Color",
     "project_type": "Project type",
+    "archive_visible_days": "Archive visible days",
     "description": "Description",
     "ai_description": "AI summary",
     "content": "Content",

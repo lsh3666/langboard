@@ -2,6 +2,7 @@
   "Project title": "Project title",
   "Project description": "Project description",
   "Project type": "Project type",
+  "Archive visible days": "Archive visible days",
   "AI summary": "AI summary",
   "Chat with AI": "Chat with AI",
   "Session menu": "Session menu",
@@ -49,7 +50,8 @@
     "missing": {
       "title": "Enter a title.",
       "project_type": "Select a project type."
-    }
+    },
+    "invalid_archive_visible_days": "Enter at least 1 day."
   },
   "settings": {
     "Basic info": "Basic info",

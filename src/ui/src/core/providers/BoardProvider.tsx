@@ -12,6 +12,9 @@ import { IPageNavigateOptions, usePageNavigateRef } from "@/core/hooks/usePageNa
 import { Utils } from "@langboard/core/utils";
 import { ProjectRole } from "@/core/models/roles";
 
+const DEFAULT_ARCHIVE_CARD_VISIBLE_DAYS = 3;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 export interface IFilterMap extends ISearchFilterMap {
     keyword?: string[];
     members?: string[];
@@ -36,6 +39,7 @@ export interface IBoardContext {
     filterMember: (member: User.TModel) => bool;
     filterLabel: (label: ProjectLabel.TModel) => bool;
     filterCard: (card: ProjectCard.TModel) => bool;
+    shouldShowArchivedCard: (card: ProjectCard.TModel) => bool;
     filterCardMember: (card: ProjectCard.TModel) => bool;
     filterCardLabels: (card: ProjectCard.TModel) => bool;
     filterCardRelationships: (card: ProjectCard.TModel) => bool;
@@ -62,6 +66,7 @@ const initialContext = {
     filterMember: () => true,
     filterLabel: () => true,
     filterCard: () => true,
+    shouldShowArchivedCard: () => true,
     filterCardMember: () => true,
     filterCardLabels: () => true,
     filterCardRelationships: () => true,
@@ -87,6 +92,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
     });
     const isAdmin = currentUser.useField("is_admin");
     const currentUserRoleActions = project.useField("current_auth_role_actions");
+    const archiveVisibleDays = project.useField("archive_visible_days");
     const { hasRoleAction } = useRoleActionFilter(currentUserRoleActions);
     const columns = ProjectColumn.Model.useModels((model) => model.project_uid === project.uid);
     const cards = ProjectCard.Model.useModels((model) => model.project_uid === project.uid);
@@ -177,6 +183,20 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
         );
     };
 
+    const shouldShowArchivedCard = (card: ProjectCard.TModel) => {
+        if (!card.archived_at) {
+            return true;
+        }
+
+        const hasActiveBoardFilters = Object.values(filters).some((values) => !!values?.length);
+        if (hasActiveBoardFilters) {
+            return true;
+        }
+
+        const visibleDays = archiveVisibleDays ?? DEFAULT_ARCHIVE_CARD_VISIBLE_DAYS;
+        return Date.now() - card.archived_at.getTime() <= visibleDays * DAY_IN_MS;
+    };
+
     const filterCardMember = (card: ProjectCard.TModel) => {
         if (!filters.members?.length) {
             return true;
@@ -257,6 +277,7 @@ export const BoardProvider = memo(({ project, currentUser, children }: IBoardPro
                 filterMember,
                 filterLabel,
                 filterCard,
+                shouldShowArchivedCard,
                 filterCardMember,
                 filterCardLabels,
                 filterCardRelationships,

@@ -143,7 +143,7 @@ function BoardColumn({ column, updateBoard }: IBoardColumnProps) {
  * Created so that state changes to the column don't require all cards to be rendered
  */
 const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) => {
-    const { project, socket, filters, filterCard, filterCardMember, filterCardLabels, filterCardRelationships } = useBoard();
+    const { project, socket, filters, filterCard, shouldShowArchivedCard, filterCardMember, filterCardLabels, filterCardRelationships } = useBoard();
     const updater = useReducer((x) => x + 1, 0);
     const [_, forceUpdate] = updater;
     const cardCreatedHandlers = useMemo(
@@ -180,6 +180,7 @@ const BoardColumnCardList = memo(({ column, updateBoard }: IBoardColumnProps) =>
         rowFilter: (model) => {
             return (
                 model.project_column_uid === column.uid &&
+                (!column.is_archive || shouldShowArchivedCard(model)) &&
                 filterCard(model) &&
                 filterCardMember(model) &&
                 filterCardLabels(model) &&

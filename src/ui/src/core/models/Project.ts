@@ -45,6 +45,7 @@ export interface Interface extends IBaseModel {
     owner_uid: string;
     title: string;
     project_type: string;
+    archive_visible_days: number;
 }
 
 export interface IStore extends Interface {
@@ -164,6 +165,13 @@ class Project extends BaseModel<IStore> {
     }
     public set project_type(value) {
         this.update({ project_type: value });
+    }
+
+    public get archive_visible_days() {
+        return this.getValue("archive_visible_days");
+    }
+    public set archive_visible_days(value) {
+        this.update({ archive_visible_days: value });
     }
 
     public get starred() {
