@@ -11,7 +11,7 @@ import { ProjectRole } from "@/core/models/roles";
 import { useBoard } from "@/core/providers/BoardProvider";
 import BoardColumnMoreMenuBotList from "@/pages/BoardPage/components/board/BoardColumnMoreMenuBotList";
 import BoardColumnMoreMenuBotScope from "@/pages/BoardPage/components/board/BoardColumnMoreMenuBotScope";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface IBoardColumnMoreMenuProps {
@@ -22,11 +22,24 @@ export interface IBoardColumnMoreMenuProps {
 const BoardColumnMoreMenu = memo(({ column, onRenameStart }: IBoardColumnMoreMenuProps) => {
     const { project, currentUser, hasRoleAction } = useBoard();
     const canEdit = hasRoleAction(ProjectRole.EAction.Update) && !column.is_archive;
+    const shouldKeepRenameFocusRef = useRef(false);
+    const handleCloseAutoFocus = useCallback((e: Event) => {
+        if (!shouldKeepRenameFocusRef.current) {
+            return;
+        }
+
+        e.preventDefault();
+        shouldKeepRenameFocusRef.current = false;
+    }, []);
+    const handleRenameStart = useCallback(() => {
+        shouldKeepRenameFocusRef.current = true;
+        onRenameStart?.();
+    }, [onRenameStart]);
 
     return (
         <MoreMenu.Root
             triggerProps={{ className: "size-7", ...{ [DISABLE_DRAGGING_ATTR]: "" } }}
-            contentProps={{ className: "w-min p-0", ...{ [DISABLE_DRAGGING_ATTR]: "" } }}
+            contentProps={{ className: "w-min p-0", onCloseAutoFocus: handleCloseAutoFocus, ...{ [DISABLE_DRAGGING_ATTR]: "" } }}
         >
             <NotificationSetting.SpecificScopedPopover
                 type="column"
@@ -48,7 +61,7 @@ const BoardColumnMoreMenu = memo(({ column, onRenameStart }: IBoardColumnMoreMen
                 showTriggerText
                 onlyPopover
             />
-            {canEdit && <BoardColumnMoreMenuRename onRenameStart={onRenameStart} />}
+            {canEdit && <BoardColumnMoreMenuRename onRenameStart={handleRenameStart} />}
             {hasRoleAction(ProjectRole.EAction.Update) && <BoardColumnMoreMenuBotScope column={column} />}
             {canEdit && <BoardColumnMoreMenuDelete column={column} />}
             {hasRoleAction(ProjectRole.EAction.Update) && <BoardColumnMoreMenuBotList column={column} />}
