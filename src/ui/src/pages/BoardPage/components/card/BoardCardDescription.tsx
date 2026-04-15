@@ -2,7 +2,6 @@ import Box from "@/components/base/Box";
 import Flex from "@/components/base/Flex";
 import Skeleton from "@/components/base/Skeleton";
 import Toast from "@/components/base/Toast";
-import { EditorKit } from "@/components/Editor/editor-kit";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
@@ -19,11 +18,13 @@ import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/Bo
 import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
 import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
-import { MarkdownPlugin } from "@platejs/markdown";
-import { type Value } from "platejs";
-import { usePlateEditor } from "platejs/react";
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import { toMarkdown } from "mdast-util-to-markdown";
+import { gfmToMarkdown } from "mdast-util-gfm";
 
 export function SkeletonBoardCardDescription() {
     return (
@@ -193,16 +194,33 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
     const { description, mentionables, cards } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
-    const revisionRef = useRef(
-        usePlateEditor({
-            plugins: EditorKit,
-        })
-    );
-    const blocks = useMemo(
-        () => (revisionRef.current.getApi(MarkdownPlugin).markdown.deserialize(description?.content ?? "") as Value) ?? [],
-        [description?.content]
-    );
-    const totalChunkCount = Math.max(1, Math.ceil(blocks.length / MAX_SHOW_LINES));
+    const chunkContents = useMemo(() => {
+        const content = description?.content ?? "";
+
+        if (!content.trim()) {
+            return [{ content: "" }];
+        }
+
+        const root = unified().use(remarkParse).use(remarkGfm).parse(content) as { children?: unknown[] };
+        const children = Array.isArray(root.children) ? root.children : [];
+
+        if (children.length === 0) {
+            return [{ content }];
+        }
+
+        const chunks: IEditorContent[] = [];
+        for (let index = 0; index < children.length; index += MAX_SHOW_LINES) {
+            const chunkChildren = children.slice(index, index + MAX_SHOW_LINES);
+            chunks.push({
+                content: toMarkdown({ type: "root", children: chunkChildren } as never, {
+                    extensions: [gfmToMarkdown()],
+                }),
+            });
+        }
+
+        return chunks;
+    }, [description?.content]);
+    const totalChunkCount = Math.max(1, chunkContents.length);
     const [visibleChunkCount, setVisibleChunkCount] = useState(1);
     const clampedVisibleChunkCount = Math.min(visibleChunkCount, totalChunkCount);
     const hasMoreContent = clampedVisibleChunkCount < totalChunkCount;
@@ -213,13 +231,12 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
 
     const createChunk = useCallback(
         (chunkIndex: number) => {
-            const chunkBlocks = blocks.slice(chunkIndex * MAX_SHOW_LINES, (chunkIndex + 1) * MAX_SHOW_LINES);
+            const chunkContent = chunkContents[chunkIndex] ?? { content: "" };
 
             return (
                 <PlateEditor
                     key={chunkIndex}
-                    value={description ?? { content: "" }}
-                    deserializedValue={chunkBlocks}
+                    value={chunkContent}
                     mentionables={mentionables}
                     linkables={cards}
                     currentUser={currentUser}
@@ -236,7 +253,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                 />
             );
         },
-        [blocks, description, mentionables, cards, currentUser, projectUID, card, t]
+        [chunkContents, mentionables, cards, currentUser, projectUID, card, t]
     );
 
     const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
