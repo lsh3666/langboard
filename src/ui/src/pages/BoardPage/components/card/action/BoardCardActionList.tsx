@@ -2,7 +2,6 @@ import Skeleton from "@/components/base/Skeleton";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { memo } from "react";
 import BoardCardActionActivity from "@/pages/BoardPage/components/card/action/BoardCardActionActivity";
-import BoardCardActionAttachFile from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachFile";
 import BoardCardActionShare from "@/pages/BoardPage/components/card/action/BoardCardActionShare";
 import BoardCardActionSetLabel from "@/pages/BoardPage/components/card/action/label/BoardCardActionSetLabel";
 import BoardCardActionRelationship from "@/pages/BoardPage/components/card/action/relationship/BoardCardActionRelationship";
@@ -37,8 +36,7 @@ const BoardCardActionList = memo(() => {
         <>
             <BoardCardActionSetLabel buttonClassName={sharedButtonClassName} />
             <BoardCardActionBotScope buttonClassName={sharedButtonClassName} />
-            <BoardCardActionRelationship buttonClassName={sharedButtonClassName} />
-            <BoardCardActionAttachFile buttonClassName={sharedButtonClassName} />
+            <BoardCardActionRelationship buttonClassName={`${sharedButtonClassName} sm:hidden`} />
             <BoardCardActionAddChecklist buttonClassName={sharedButtonClassName} />
             <BoardCardActionMetadata buttonClassName={sharedButtonClassName} />
             <BoardCardActionActivity buttonClassName={sharedButtonClassName} />

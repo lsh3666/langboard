@@ -19,7 +19,7 @@ import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardCardActionAttachFileProps extends ISharedBoardCardActionProps {}
 
-const BoardCardActionAttachFile = memo(({ buttonClassName }: IBoardCardActionAttachFileProps) => {
+const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.PropsWithChildren<IBoardCardActionAttachFileProps>) => {
     const { hasRoleAction } = useBoardCard();
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
@@ -121,8 +121,12 @@ const BoardCardActionAttachFile = memo(({ buttonClassName }: IBoardCardActionAtt
         <Popover.Root modal open={isOpened} onOpenChange={changeOpenedState}>
             <Popover.Trigger asChild>
                 <Button variant="secondary" className={buttonClassName}>
-                    <IconComponent icon="file-up" size="4" />
-                    {t("card.Attach file")}
+                    {children || (
+                        <>
+                            <IconComponent icon="file-up" size="4" />
+                            {t("card.Attach file")}
+                        </>
+                    )}
                 </Button>
             </Popover.Trigger>
             <Popover.Content align="end" className="w-[min(theme(spacing.96),80vw)]">

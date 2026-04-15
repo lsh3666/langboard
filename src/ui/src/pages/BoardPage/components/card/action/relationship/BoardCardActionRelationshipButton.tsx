@@ -93,11 +93,9 @@ function BoardCardActionRelationshipButton({ type, relationships, buttonClassNam
                     title={title}
                     className={cn(
                         buttonClassName,
-                        "transition-transform duration-200 sm:fixed sm:top-1/2 sm:size-10 sm:-translate-y-1/2 sm:rounded-full",
-                        isParent && "sm:left-[calc(50vw_-_(theme(screens.sm)_/_2)_-_theme(spacing.6))]",
-                        isParent && "lg:left-[calc(50vw_-_(theme(screens.md)_/_2)_-_theme(spacing.6))]",
-                        !isParent && "sm:right-[calc(50vw_-_(theme(screens.sm)_/_2)_-_theme(spacing.6))]",
-                        !isParent && "lg:right-[calc(50vw_-_(theme(screens.md)_/_2)_-_theme(spacing.6))]"
+                        "transition-transform duration-200 sm:absolute sm:top-1/2 sm:z-[120] sm:size-10 sm:-translate-y-1/2 sm:rounded-full",
+                        isParent && "sm:-left-5",
+                        !isParent && "sm:-right-5"
                     )}
                 >
                     <IconComponent icon="git-fork" className={cn("size-4 sm:size-6", isParent ? "" : "rotate-180")} />

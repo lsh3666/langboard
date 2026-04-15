@@ -7,7 +7,7 @@ import Skeleton from "@/components/base/Skeleton";
 import SubmitButton from "@/components/base/SubmitButton";
 import UserAvatar from "@/components/UserAvatar";
 import { useTranslation } from "react-i18next";
-import { memo, useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import { IEditorContent } from "@/core/models/Base";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
@@ -37,12 +37,17 @@ export function SkeletonBoardCommentForm() {
         </Box>
     );
 }
-
 const mention = getMentionOnSelectItem();
 
-const BoardCommentForm = memo((): React.JSX.Element => {
-    const { projectUID, card, currentUser, replyRef } = useBoardCard();
+export interface IBoardCommentFormProps {
+    variant?: "mobile" | "panel";
+}
+
+const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): React.JSX.Element | null => {
+    const { projectUID, card, currentUser, replyRef, isCommentPanelOpen, setIsCommentPanelOpen, commentLayoutMode } = useBoardCard();
     const [t] = useTranslation();
+    const isPanelLayout = commentLayoutMode === "panel";
+    const isVisible = isCommentPanelOpen && (variant === "mobile" ? !isPanelLayout : isPanelLayout);
     const projectMembers = card.useForeignFieldArray("project_members");
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
@@ -55,6 +60,8 @@ const BoardCommentForm = memo((): React.JSX.Element => {
     const editorRef = useRef<TEditor>(null);
     const editorName = `${card.uid}-comment-form`;
     const isCurrentEditor = useIsCurrentEditor(editorName);
+    const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+    const [isPanelEditorOpen, setIsPanelEditorOpen] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
     const { mutate: addCommentMutate } = useAddCardComment();
     const isClickedRef = useRef(false);
@@ -63,6 +70,58 @@ const BoardCommentForm = memo((): React.JSX.Element => {
             getEditorStore().setCurrentEditor(null);
         }
     });
+
+    const commentStorageKey = useMemo(() => `comment-${projectUID}-${card.uid}`, [projectUID, card.uid]);
+    const saveDraftToStorage = useCallback(
+        (content: string) => {
+            if (typeof window === "undefined") {
+                return;
+            }
+
+            const trimmed = content.trim();
+            if (trimmed.length > 0) {
+                window.sessionStorage.setItem(commentStorageKey, content);
+                return;
+            }
+
+            window.sessionStorage.removeItem(commentStorageKey);
+        },
+        [commentStorageKey]
+    );
+    const readDraftFromStorage = useCallback((): string => {
+        if (typeof window === "undefined") {
+            return "";
+        }
+        return window.sessionStorage.getItem(commentStorageKey) ?? "";
+    }, [commentStorageKey]);
+    const clearDraftFromStorage = useCallback(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+        window.sessionStorage.removeItem(commentStorageKey);
+    }, [commentStorageKey]);
+
+    const openEditor = useCallback(() => {
+        const currentContent = valueRef.current.content;
+        const initialContent = currentContent.length > 0 ? currentContent : readDraftFromStorage();
+        setValue({ content: initialContent });
+        getEditorStore().setCurrentEditor(editorName);
+        setTimeout(() => {
+            editorRef.current?.tf.focus();
+        }, 0);
+    }, [editorName, readDraftFromStorage, setValue]);
+
+    const closeMobileDrawer = useCallback(() => {
+        setIsMobileDrawerOpen(false);
+        drawerRef.current?.setAttribute("data-state", "closed");
+        setTimeout(() => {
+            if (drawerRef.current) {
+                drawerRef.current.style.display = "none";
+            }
+            getEditorStore().setCurrentEditor(null);
+        }, 450);
+    }, []);
+
     const onDrawerHandlePointerStart = useCallback(
         (type: "mouse" | "touch") => {
             if (isValidating) {
@@ -87,7 +146,7 @@ const BoardCommentForm = memo((): React.JSX.Element => {
                 window.removeEventListener(upEvent, checkIsClick);
             }, 250);
         },
-        [isValidating, setIsValidating]
+        [isValidating]
     );
 
     useEffect(() => {
@@ -95,6 +154,8 @@ const BoardCommentForm = memo((): React.JSX.Element => {
             if (isValidating) {
                 return;
             }
+
+            setIsCommentPanelOpen(true);
 
             let username;
             if (isModel(target, "User")) {
@@ -110,13 +171,13 @@ const BoardCommentForm = memo((): React.JSX.Element => {
             }
 
             if (!isCurrentEditor || !editorRef.current) {
-                getEditorStore().setCurrentEditor(editorName);
                 setValue({
                     content: `[**@${username}**](${target.uid}) `,
                 });
+                openEditor();
                 setTimeout(() => {
                     editorRef.current?.tf.focus();
-                }, 0);
+                }, 50);
                 return;
             }
 
@@ -129,33 +190,7 @@ const BoardCommentForm = memo((): React.JSX.Element => {
         return () => {
             replyRef.current = () => {};
         };
-    }, [editorName, isCurrentEditor, isValidating, replyRef, setValue]);
-
-    const commentStorageKey = useMemo(() => `comment-${projectUID}-${card.uid}`, [projectUID, card.uid]);
-    const saveDraftToStorage = useCallback(
-        (content: string) => {
-            if (typeof window === "undefined") {
-                return;
-            }
-            const trimmed = content.trim();
-            if (trimmed.length > 0) {
-                window.sessionStorage.setItem(commentStorageKey, content);
-            }
-        },
-        [commentStorageKey]
-    );
-    const readDraftFromStorage = useCallback((): string => {
-        if (typeof window === "undefined") {
-            return "";
-        }
-        return window.sessionStorage.getItem(commentStorageKey) ?? "";
-    }, [commentStorageKey]);
-    const clearDraftFromStorage = useCallback(() => {
-        if (typeof window === "undefined") {
-            return;
-        }
-        window.sessionStorage.removeItem(commentStorageKey);
-    }, [commentStorageKey]);
+    }, [isCurrentEditor, isValidating, openEditor, replyRef, setIsCommentPanelOpen, setValue]);
 
     useEffect(() => {
         if (!isCurrentEditor) {
@@ -163,30 +198,30 @@ const BoardCommentForm = memo((): React.JSX.Element => {
         }
     }, [isCurrentEditor, saveDraftToStorage]);
 
+    useEffect(() => {
+        if (!isVisible && isCurrentEditor) {
+            getEditorStore().setCurrentEditor(null);
+        }
+    }, [isCurrentEditor, isVisible]);
+
+    useEffect(() => {
+        if (variant === "panel" && !isVisible) {
+            setIsPanelEditorOpen(false);
+        }
+    }, [isVisible, variant]);
+
     const changeOpenState = (opened: bool) => {
         if (isValidating) {
             return;
         }
 
         if (!opened) {
-            drawerRef.current?.setAttribute("data-state", "closed");
-            setTimeout(() => {
-                if (drawerRef.current) {
-                    drawerRef.current.style.display = "none";
-                }
-                getEditorStore().setCurrentEditor(null);
-            }, 450);
+            closeMobileDrawer();
             return;
-        } else {
-            const currentContent = valueRef.current.content;
-            const initialContent = currentContent.length > 0 ? currentContent : readDraftFromStorage();
-            setValue({ content: initialContent });
         }
 
-        getEditorStore().setCurrentEditor(editorName);
-        setTimeout(() => {
-            editorRef.current?.tf.focus();
-        }, 0);
+        setIsMobileDrawerOpen(true);
+        openEditor();
     };
 
     const saveComment = () => {
@@ -213,9 +248,16 @@ const BoardCommentForm = memo((): React.JSX.Element => {
                     setValue({ content: "" });
                     clearDraftFromStorage();
                     getEditorStore().setCurrentEditor(null);
-                    setTimeout(() => {
-                        changeOpenState(false);
-                    }, 0);
+
+                    if (variant === "mobile") {
+                        setTimeout(() => {
+                            closeMobileDrawer();
+                        }, 0);
+                    }
+
+                    if (variant === "panel") {
+                        setIsPanelEditorOpen(false);
+                    }
                 },
             }
         );
@@ -229,17 +271,118 @@ const BoardCommentForm = memo((): React.JSX.Element => {
         stopEditing(e);
     };
 
-    return (
-        <Form.Root className="sticky bottom-0 z-[100] -ml-[calc(theme(spacing.4))] w-[calc(100%_+_theme(spacing.8))] sm:-bottom-2">
-            <Drawer.Root modal={false} handleOnly repositionInputs={false} open={isCurrentEditor} onOpenChange={changeOpenState}>
-                <Drawer.Trigger asChild>
-                    <Flex items="center" gap="4" p="2" className="rounded-b-lg border-t bg-background">
-                        <UserAvatar.Root userOrBot={currentUser} avatarSize="sm" />
-                        <Box w="full" cursor="text" py="1">
-                            {t("card.Add a comment as {firstname} {lastname}", { firstname: currentUser.firstname, lastname: currentUser.lastname })}
+    if (!isVisible) {
+        return null;
+    }
+
+    if (variant === "panel") {
+        const isPanelComposerVisible = isPanelEditorOpen || isCurrentEditor;
+
+        return (
+            <Form.Root className="w-full">
+                <Box data-card-comment-form className="w-full">
+                    {!isPanelComposerVisible ? (
+                        <Flex
+                            items="center"
+                            gap="3"
+                            rounded="lg"
+                            role="button"
+                            tabIndex={0}
+                            border
+                            px="3"
+                            py="2.5"
+                            className="cursor-text bg-background text-sm text-muted-foreground transition-colors hover:bg-accent/40"
+                            onClick={() => {
+                                setIsPanelEditorOpen(true);
+                                openEditor();
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    setIsPanelEditorOpen(true);
+                                    openEditor();
+                                }
+                            }}
+                        >
+                            <UserAvatar.Root userOrBot={currentUser} avatarSize="sm" />
+                            <Box>
+                                {t("card.Add a comment as {firstname} {lastname}", {
+                                    firstname: currentUser.firstname,
+                                    lastname: currentUser.lastname,
+                                })}
+                            </Box>
+                        </Flex>
+                    ) : (
+                        <Box rounded="lg" border className="overflow-hidden bg-background" data-card-comment-form>
+                            <PlateEditor
+                                value={valueRef.current}
+                                currentUser={currentUser}
+                                mentionables={mentionables}
+                                linkables={cards}
+                                className="max-h-[240px] min-h-[140px] overflow-y-auto px-4 py-3"
+                                editorType="card-new-comment"
+                                form={{
+                                    project_uid: projectUID,
+                                    card_uid: card.uid,
+                                }}
+                                setValue={setValue}
+                                editorRef={editorRef}
+                            />
+                            <Flex items="center" gap="2" justify="end" p="2" className="border-t">
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        setIsPanelEditorOpen(false);
+                                        getEditorStore().setCurrentEditor(null);
+                                    }}
+                                    disabled={isValidating}
+                                >
+                                    {t("common.Cancel")}
+                                </Button>
+                                <SubmitButton type="button" onClick={saveComment} isValidating={isValidating}>
+                                    {t("common.Save")}
+                                </SubmitButton>
+                            </Flex>
                         </Box>
-                    </Flex>
-                </Drawer.Trigger>
+                    )}
+                </Box>
+            </Form.Root>
+        );
+    }
+
+    return (
+        <Form.Root className="w-full">
+            <Drawer.Root
+                modal={false}
+                handleOnly
+                repositionInputs={false}
+                open={isMobileDrawerOpen && isCommentPanelOpen && !isPanelLayout}
+                onOpenChange={changeOpenState}
+            >
+                <Flex
+                    items="center"
+                    gap="4"
+                    p="2"
+                    role="button"
+                    tabIndex={0}
+                    className="cursor-text rounded-lg border bg-background shadow-sm"
+                    onClick={() => {
+                        setIsMobileDrawerOpen(true);
+                        openEditor();
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setIsMobileDrawerOpen(true);
+                            openEditor();
+                        }
+                    }}
+                >
+                    <UserAvatar.Root userOrBot={currentUser} avatarSize="sm" />
+                    <Box w="full" cursor="text" py="1">
+                        {t("card.Add a comment as {firstname} {lastname}", { firstname: currentUser.firstname, lastname: currentUser.lastname })}
+                    </Box>
+                </Flex>
                 <Drawer.Content
                     withGrabber={false}
                     className="rounded-t-none border-none bg-transparent"
@@ -284,7 +427,13 @@ const BoardCommentForm = memo((): React.JSX.Element => {
                             />
                         </Box>
                         <Flex items="center" gap="2" justify="start" p="1">
-                            <Button variant="secondary" onClick={() => getEditorStore().setCurrentEditor(null)} disabled={isValidating}>
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    closeMobileDrawer();
+                                }}
+                                disabled={isValidating}
+                            >
                                 {t("common.Cancel")}
                             </Button>
                             <SubmitButton type="button" onClick={saveComment} isValidating={isValidating}>
