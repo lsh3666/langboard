@@ -18,52 +18,8 @@ import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/Bo
 import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
 import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
-import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { memo, useCallback, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const isMarkdownListLine = (line: string): boolean => /^\s*(?:[-*+]|\d+\.)\s+/.test(line);
-const isMarkdownListContinuationLine = (line: string): boolean => /^\s{2,}\S/.test(line);
-const isMarkdownTableLine = (line: string): boolean => {
-    const trimmed = line.trim();
-    if (!trimmed) return false;
-    if (/^\s*\|.*\|\s*$/.test(line)) return true;
-    return trimmed.includes("|") && !isMarkdownListLine(line);
-};
-
-const extendEndForMarkdownBlock = (lines: string[], start: number, end: number): number => {
-    let adjustedEnd = Math.min(end, lines.length);
-    if (adjustedEnd <= start) {
-        return adjustedEnd;
-    }
-
-    const lastLine = lines[adjustedEnd - 1];
-
-    if (isMarkdownTableLine(lastLine)) {
-        while (adjustedEnd < lines.length && isMarkdownTableLine(lines[adjustedEnd])) {
-            adjustedEnd += 1;
-        }
-        return adjustedEnd;
-    }
-
-    if (isMarkdownListLine(lastLine) || isMarkdownListContinuationLine(lastLine)) {
-        while (adjustedEnd < lines.length) {
-            const nextLine = lines[adjustedEnd];
-            const nextIsList = isMarkdownListLine(nextLine) || isMarkdownListContinuationLine(nextLine);
-            const blankFollowedByList =
-                nextLine.trim() === "" &&
-                adjustedEnd + 1 < lines.length &&
-                (isMarkdownListLine(lines[adjustedEnd + 1]) || isMarkdownListContinuationLine(lines[adjustedEnd + 1]));
-
-            if (!nextIsList && !blankFollowedByList) {
-                break;
-            }
-
-            adjustedEnd += 1;
-        }
-    }
-
-    return adjustedEnd;
-};
 
 export function SkeletonBoardCardDescription() {
     return (
@@ -228,148 +184,51 @@ interface ICollapsibleDescriptionContentProps {
 }
 
 const MAX_SHOW_LINES = 10;
+const COLLAPSED_MAX_HEIGHT_CLASS = "max-h-[32rem]";
+const EXPANDED_STEP_MAX_HEIGHT_CLASS = "max-h-[64rem]";
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
     const { description, mentionables, cards } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
-    const [visibleLineCount, setVisibleLineCount] = useState(MAX_SHOW_LINES);
-    const [loadedChunks, setLoadedChunks] = useState<Map<number, React.ReactNode>>(new Map());
-    const loadedChunksRef = useRef(loadedChunks);
-    const [gradientHeight, setGradientHeight] = useState(96);
-    const contentWrapperRef = useRef<HTMLDivElement>(null);
-
-    loadedChunksRef.current = loadedChunks;
-
-    const createChunk = useCallback(
-        (chunkIndex: number, content: IEditorContent) => (
-            <PlateEditor
-                key={chunkIndex}
-                value={content}
-                mentionables={mentionables}
-                linkables={cards}
-                currentUser={currentUser}
-                containerClassName="overflow-y-visible"
-                className="h-full min-h-0"
-                readOnly
-                editorType={EEditorType.CardDescription}
-                form={{
-                    project_uid: projectUID,
-                    card_uid: card.uid,
-                }}
-                placeholder={chunkIndex === 0 ? t("card.No description") : undefined}
-                setValue={() => {}}
-            />
-        ),
-        [mentionables, cards, currentUser, projectUID, card]
-    );
-
-    const sliceContent = useCallback((start: number, end: number, content: string = ""): { content: IEditorContent; end: number } => {
-        const lines = content.split("\n");
-        const adjustedEnd = extendEndForMarkdownBlock(lines, start, end);
-        return {
-            content: { content: lines.slice(start, adjustedEnd).join("\n") },
-            end: adjustedEnd,
-        };
+    const [expandMode, setExpandMode] = useState<"collapsed" | "expanded" | "all">("collapsed");
+    const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setExpandMode((prev) => (prev === "collapsed" ? "expanded" : "all"));
+    }, []);
+    const handleExpandAll = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setExpandMode("all");
     }, []);
 
-    const contentLines = description?.content?.split("\n").length ?? 0;
-    const totalUnits = contentLines;
-
-    const handleExpanded = useCallback(
-        (e: React.PointerEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const nextChunkIndex = loadedChunksRef.current.size;
-            const nextStart = visibleLineCount;
-            const nextEnd = nextStart + MAX_SHOW_LINES;
-            const chunkSlice = sliceContent(nextStart, nextEnd, description?.content);
-
-            if (!loadedChunksRef.current.has(nextChunkIndex)) {
-                const chunk = createChunk(nextChunkIndex, chunkSlice.content);
-
-                setLoadedChunks((prev) => {
-                    const newMap = new Map(prev);
-                    newMap.set(nextChunkIndex, chunk);
-                    return newMap;
-                });
-            }
-
-            setVisibleLineCount(chunkSlice.end);
-        },
-        [visibleLineCount, description, sliceContent, createChunk]
-    );
-
-    const handleExpandAll = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const content = description?.content ?? "";
-            const nextChunks = new Map<number, React.ReactNode>();
-            let nextStart = 0;
-            let chunkIndex = 0;
-            let nextVisibleLineCount = 0;
-
-            while (nextStart < totalUnits || (chunkIndex === 0 && totalUnits === 0)) {
-                const chunkSlice = sliceContent(nextStart, nextStart + MAX_SHOW_LINES, content);
-                nextChunks.set(chunkIndex, createChunk(chunkIndex, chunkSlice.content));
-                nextVisibleLineCount = chunkSlice.end;
-
-                if (chunkSlice.end <= nextStart) {
-                    break;
-                }
-
-                nextStart = chunkSlice.end;
-                chunkIndex += 1;
-            }
-
-            setLoadedChunks(nextChunks);
-            setVisibleLineCount(nextVisibleLineCount);
-        },
-        [description, totalUnits, sliceContent, createChunk]
-    );
-
-    useEffect(() => {
-        if (!contentWrapperRef.current) {
-            return;
-        }
-
-        const updateGradientHeight = () => {
-            const contentHeight = contentWrapperRef.current?.offsetHeight ?? 0;
-            const maxGradientHeight = 200;
-            const minGradientHeight = 80;
-            const calculatedHeight = Math.max(Math.min(contentHeight * 0.4, maxGradientHeight), minGradientHeight);
-            setGradientHeight(calculatedHeight);
-        };
-
-        updateGradientHeight();
-
-        const resizeObserver = new ResizeObserver(updateGradientHeight);
-        if (contentWrapperRef.current) {
-            resizeObserver.observe(contentWrapperRef.current);
-        }
-
-        return () => resizeObserver.disconnect();
-    }, [loadedChunks]);
-
-    useEffect(() => {
-        const chunk0Slice = sliceContent(0, MAX_SHOW_LINES, description?.content);
-        const chunk0 = createChunk(0, chunk0Slice.content);
-
-        setLoadedChunks(new Map([[0, chunk0]]));
-        setVisibleLineCount(chunk0Slice.end);
-    }, [description, sliceContent, createChunk]);
-
-    const hasMoreContent = visibleLineCount < totalUnits;
-
     return (
-        <Box position="relative" ref={contentWrapperRef}>
-            {Array.from(loadedChunks.entries())
-                .sort(([a], [b]) => a - b)
-                .map(([_, chunk]) => chunk)}
-            {hasMoreContent && (
+        <Box position="relative">
+            <Box
+                className={cn(
+                    expandMode === "collapsed" && `${COLLAPSED_MAX_HEIGHT_CLASS} overflow-hidden`,
+                    expandMode === "expanded" && `${EXPANDED_STEP_MAX_HEIGHT_CLASS} overflow-hidden`
+                )}
+            >
+                <PlateEditor
+                    value={description}
+                    mentionables={mentionables}
+                    linkables={cards}
+                    currentUser={currentUser}
+                    containerClassName="overflow-y-visible"
+                    className="h-full min-h-0"
+                    readOnly
+                    editorType={EEditorType.CardDescription}
+                    form={{
+                        project_uid: projectUID,
+                        card_uid: card.uid,
+                    }}
+                    placeholder={t("card.No description")}
+                    setValue={() => {}}
+                />
+            </Box>
+            {expandMode !== "all" && (
                 <>
                     <Box
                         position="absolute"
@@ -377,7 +236,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                         left="0"
                         right="0"
                         z="50"
-                        style={{ height: `${gradientHeight}px` }}
+                        style={{ height: "120px" }}
                         className="pointer-events-none bg-gradient-to-t from-background to-transparent"
                     />
                     <Flex position="relative" justify="center" pb="2" z="50" gap="3" wrap>
@@ -389,7 +248,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                             weight="semibold"
                             className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
                             cursor="pointer"
-                            onPointerDown={handleExpanded}
+                            onPointerDown={handleExpand}
                         >
                             {t("editor.Show more")}
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,7 +263,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                             weight="semibold"
                             className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
                             cursor="pointer"
-                            onClick={handleExpandAll}
+                            onPointerDown={handleExpandAll}
                         >
                             {t("editor.Show all")}
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
