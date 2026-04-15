@@ -5,7 +5,6 @@ import { Plate } from "platejs/react";
 import { TUseCreateEditor, useCreateEditor } from "@/components/Editor/useCreateEditor";
 import { Editor, EditorContainer } from "@/components/plate-ui/editor";
 import { IEditorContent } from "@/core/models/Base";
-import { cleanExtraLineBreaks } from "@/components/Editor/line-breaks";
 import { useCallback, useEffect, useRef } from "react";
 import { FocusScope } from "@radix-ui/react-focus-scope";
 import { EditorDataProvider, TEditorDataProviderProps, useEditorData } from "@/core/providers/EditorDataProvider";
@@ -107,11 +106,8 @@ function EditorWrapper({
                         return;
                     }
 
-                    const serialized = opts.editor.api.markdown.serialize();
-                    const cleanedContent = cleanExtraLineBreaks(serialized);
-
                     setValue?.({
-                        content: cleanedContent,
+                        content: opts.editor.api.markdown.serialize(),
                     });
                 }}
             >

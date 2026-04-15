@@ -1,6 +1,5 @@
 import { SlateEditor } from "platejs";
 import { deserializeInlineMd, deserializeMd, DeserializeMdOptions } from "@platejs/markdown";
-import { cleanExtraLineBreaks, preserveOriginalLineBreaks } from "@/components/Editor/line-breaks";
 
 const escapeNonHtmlAngles = (str: string): string => {
     const htmlTagRegex = /^<\/?[a-zA-Z][\w:-]*(\s+[a-zA-Z_:][\w:.-]*(\s*=\s*(".*?"|'.*?'|[^'"<>\s]+))?)*\s*\/?>/;
@@ -197,11 +196,11 @@ export const deserialize = (isInline: bool) => (editor: SlateEditor, text: strin
             }
         }
 
-        return preserveOriginalLineBreaks(text, lines.join("\n"));
+        return lines.join("\n");
     };
 
     const segments = splitMathBlocks(text);
-    const processed = cleanExtraLineBreaks(segments.map(({ isMath, content }) => (isMath ? content : escapeNonMathContent(content))).join(""));
+    const processed = segments.map(({ isMath, content }) => (isMath ? content : escapeNonMathContent(content))).join("");
 
     return isInline ? deserializeInlineMd(editor, processed, options) : deserializeMd(editor, processed, options);
 };
