@@ -101,7 +101,7 @@ const BoardCardDescription = memo((): React.JSX.Element => {
     });
 
     const contentLines = description?.content?.split("\n").length ?? 0;
-    const shouldCollapse = !isEditing && contentLines > MAX_SHOW_LINES;
+    const shouldCollapse = !isEditing && contentLines > MAX_COLLAPSE_LINES;
 
     const setValue = useCallback(
         (value: IEditorContent) => {
@@ -188,7 +188,64 @@ interface ICollapsibleDescriptionContentProps {
     cards: ProjectCard.TModel[];
 }
 
-const MAX_SHOW_LINES = 10;
+const MAX_COLLAPSE_LINES = 10;
+const MAX_CHUNK_BLOCKS = 10;
+const MAX_HEAVY_LIST_ITEMS = 6;
+const MAX_HEAVY_PARAGRAPH_LENGTH = 1200;
+
+interface IMarkdownNode {
+    type?: string;
+    children?: IMarkdownNode[];
+    value?: string;
+    alt?: string | null;
+}
+
+function countMarkdownListItems(node: IMarkdownNode | undefined): number {
+    if (!node?.children) {
+        return 0;
+    }
+
+    return node.children.reduce((count, child) => {
+        if (child?.type !== "listItem") {
+            return count;
+        }
+
+        return count + 1;
+    }, 0);
+}
+
+function getMarkdownTextLength(node: IMarkdownNode | undefined): number {
+    if (!node) {
+        return 0;
+    }
+
+    const ownLength = typeof node.value === "string" ? node.value.length : typeof node.alt === "string" ? node.alt.length : 0;
+    if (!node.children?.length) {
+        return ownLength;
+    }
+
+    return ownLength + node.children.reduce((length, child) => length + getMarkdownTextLength(child), 0);
+}
+
+function isHeavyMarkdownBlock(node: IMarkdownNode | undefined): boolean {
+    if (!node?.type) {
+        return false;
+    }
+
+    if (node.type === "table" || node.type === "code" || node.type === "blockquote") {
+        return true;
+    }
+
+    if (node.type === "list") {
+        return countMarkdownListItems(node) >= MAX_HEAVY_LIST_ITEMS;
+    }
+
+    if (node.type === "paragraph") {
+        return getMarkdownTextLength(node) >= MAX_HEAVY_PARAGRAPH_LENGTH;
+    }
+
+    return false;
+}
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
     const { description, mentionables, cards } = props;
@@ -201,7 +258,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
             return [{ content: "" }];
         }
 
-        const root = unified().use(remarkParse).use(remarkGfm).parse(content) as { children?: unknown[] };
+        const root = unified().use(remarkParse).use(remarkGfm).parse(content) as { children?: IMarkdownNode[] };
         const children = Array.isArray(root.children) ? root.children : [];
 
         if (children.length === 0) {
@@ -209,14 +266,36 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
         }
 
         const chunks: IEditorContent[] = [];
-        for (let index = 0; index < children.length; index += MAX_SHOW_LINES) {
-            const chunkChildren = children.slice(index, index + MAX_SHOW_LINES);
+        let currentChunk: IMarkdownNode[] = [];
+
+        const pushChunk = (chunkChildren: IMarkdownNode[]) => {
+            if (chunkChildren.length === 0) {
+                return;
+            }
+
             chunks.push({
                 content: toMarkdown({ type: "root", children: chunkChildren } as never, {
                     extensions: [gfmToMarkdown()],
                 }),
             });
+        };
+
+        for (const child of children) {
+            if (isHeavyMarkdownBlock(child)) {
+                pushChunk(currentChunk);
+                currentChunk = [];
+                pushChunk([child]);
+                continue;
+            }
+
+            currentChunk.push(child);
+            if (currentChunk.length >= MAX_CHUNK_BLOCKS) {
+                pushChunk(currentChunk);
+                currentChunk = [];
+            }
         }
+
+        pushChunk(currentChunk);
 
         return chunks;
     }, [description?.content]);
