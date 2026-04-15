@@ -1,113 +1,124 @@
 import Input from "@/components/base/Input";
 import Toast from "@/components/base/Toast";
-import { DISABLE_DRAGGING_ATTR } from "@/constants";
 import useChangeProjectColumnName from "@/controllers/api/board/useChangeProjectColumnName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
+import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import { ProjectColumn } from "@/core/models";
+import { ProjectRole } from "@/core/models/roles";
 import { useBoardController } from "@/core/providers/BoardController";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
-import { memo, useCallback, useState } from "react";
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { ProjectRole } from "@/core/models/roles";
 
 export interface IBoardColumnNameProps {
     isDragging: bool;
     column: ProjectColumn.TModel;
 }
 
-const BoardColumnName = memo(({ isDragging, column }: IBoardColumnNameProps) => {
-    const { selectCardViewType } = useBoardController();
-    const { project, hasRoleAction } = useBoard();
-    const [t] = useTranslation();
-    const [isValidating, setIsValidating] = useState(false);
-    const columnName = column.useField("name");
-    const editorName = `${column.uid}-column-title`;
-    const isArchiveColumn = column.useField("is_archive");
-    const { mutateAsync: changeProjectColumnNameMutateAsync } = useChangeProjectColumnName({ interceptToast: true });
-    const canEdit = hasRoleAction(ProjectRole.EAction.Update) && !isArchiveColumn;
-    const { valueRef, isEditing, changeMode } = useChangeEditMode({
-        canEdit: () => canEdit && !isDragging && !selectCardViewType,
-        valueType: "input",
-        disableNewLine: true,
-        editorName,
-        save: (value, endCallback) => {
-            if (isArchiveColumn) {
+export interface IBoardColumnNameRef {
+    startEditing: () => void;
+}
+
+const BoardColumnName = memo(
+    forwardRef<IBoardColumnNameRef, IBoardColumnNameProps>(({ isDragging, column }: IBoardColumnNameProps, ref) => {
+        const { selectCardViewType } = useBoardController();
+        const { project, hasRoleAction } = useBoard();
+        const [t] = useTranslation();
+        const [isValidating, setIsValidating] = useState(false);
+        const columnName = column.useField("name");
+        const editorName = `${column.uid}-column-title`;
+        const isArchiveColumn = column.useField("is_archive");
+        const { mutateAsync: changeProjectColumnNameMutateAsync } = useChangeProjectColumnName({ interceptToast: true });
+        const canEdit = hasRoleAction(ProjectRole.EAction.Update) && !isArchiveColumn;
+        const { valueRef, isEditing, changeMode } = useChangeEditMode({
+            canEdit: () => canEdit && !isDragging && !selectCardViewType,
+            valueType: "input",
+            disableNewLine: true,
+            editorName,
+            save: (value, endCallback) => {
+                if (isArchiveColumn) {
+                    return;
+                }
+
+                setIsValidating(true);
+
+                const promise = changeProjectColumnNameMutateAsync({
+                    project_uid: project.uid,
+                    project_column_uid: column.uid,
+                    name: value,
+                });
+
+                Toast.Add.promise(promise, {
+                    loading: t("common.Changing..."),
+                    error: (error) => {
+                        const messageRef = { message: "" };
+                        const { handle } = setupApiErrorHandler({}, messageRef);
+
+                        handle(error);
+                        return messageRef.message;
+                    },
+                    success: () => {
+                        return t("successes.Column name changed successfully.");
+                    },
+                    finally: () => {
+                        setIsValidating(false);
+                        endCallback();
+                    },
+                });
+            },
+            originalValue: columnName,
+        });
+
+        useImperativeHandle(
+            ref,
+            () => ({
+                startEditing: () => {
+                    changeMode("edit");
+                },
+            }),
+            [changeMode]
+        );
+
+        useEffect(() => {
+            if (!isEditing || !valueRef.current) {
                 return;
             }
 
-            setIsValidating(true);
-
-            const promise = changeProjectColumnNameMutateAsync({
-                project_uid: project.uid,
-                project_column_uid: column.uid,
-                name: value,
+            requestAnimationFrame(() => {
+                valueRef.current?.focus();
+                valueRef.current?.select();
             });
+        }, [isEditing, valueRef]);
 
-            Toast.Add.promise(promise, {
-                loading: t("common.Changing..."),
-                error: (error) => {
-                    const messageRef = { message: "" };
-                    const { handle } = setupApiErrorHandler({}, messageRef);
-
-                    handle(error);
-                    return messageRef.message;
-                },
-                success: () => {
-                    return t("successes.Column name changed successfully.");
-                },
-                finally: () => {
-                    setIsValidating(false);
-                    endCallback();
-                },
-            });
-        },
-        originalValue: columnName,
-    });
-
-    return (
-        <BoardColumnNameInput
-            isEditing={isEditing}
-            viewClassName={canEdit ? "cursor-text" : ""}
-            canEdit={!isDragging && canEdit}
-            changeMode={changeMode}
-            columnName={columnName}
-            disabled={isValidating}
-            isArchive={isArchiveColumn}
-            inputRef={valueRef}
-        />
-    );
-});
+        return (
+            <BoardColumnNameInput
+                isEditing={isEditing}
+                viewClassName={!isDragging && canEdit ? "cursor-grab" : ""}
+                columnName={columnName}
+                disabled={isValidating}
+                isArchive={isArchiveColumn}
+                inputRef={valueRef}
+                changeMode={changeMode}
+            />
+        );
+    })
+);
 BoardColumnName.displayName = "Board.ColumnName";
 
 export interface IBoardColumnNameInput {
     isEditing: bool;
     viewClassName?: string;
-    canEdit: bool;
-    changeMode: (mode: "edit" | "view") => void;
     columnName: string;
     isArchive?: bool;
     disabled?: bool;
     inputRef: React.Ref<HTMLInputElement>;
+    changeMode: (mode: "edit" | "view") => void;
 }
 
 export const BoardColumnNameInput = memo(
-    ({ isEditing, viewClassName, canEdit, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
+    ({ isEditing, viewClassName, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
         const [t] = useTranslation();
-        const handleStartEditing = useCallback(
-            (e: React.MouseEvent) => {
-                if (!canEdit) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                changeMode("edit");
-            },
-            [canEdit, changeMode]
-        );
         const handleInputClick = useCallback((e: React.MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
@@ -131,13 +142,7 @@ export const BoardColumnNameInput = memo(
         return (
             <>
                 {!isEditing || isArchive ? (
-                    <span
-                        {...{ [DISABLE_DRAGGING_ATTR]: "" }}
-                        className={cn("h-7 truncate", isArchive && "text-secondary-foreground/70", viewClassName)}
-                        onPointerDown={handleStartEditing}
-                    >
-                        {columnName}
-                    </span>
+                    <span className={cn("h-7 truncate", isArchive && "text-secondary-foreground/70", viewClassName)}>{columnName}</span>
                 ) : (
                     <Input
                         ref={inputRef}
