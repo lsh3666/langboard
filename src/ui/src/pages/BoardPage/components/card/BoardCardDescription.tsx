@@ -2,6 +2,7 @@ import Box from "@/components/base/Box";
 import Flex from "@/components/base/Flex";
 import Skeleton from "@/components/base/Skeleton";
 import Toast from "@/components/base/Toast";
+import { EditorKit } from "@/components/Editor/editor-kit";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
@@ -18,7 +19,10 @@ import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/Bo
 import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
 import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
-import { memo, useCallback, useMemo, useReducer, useRef, useState } from "react";
+import { MarkdownPlugin } from "@platejs/markdown";
+import { type Value } from "platejs";
+import { usePlateEditor } from "platejs/react";
+import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function SkeletonBoardCardDescription() {
@@ -184,61 +188,64 @@ interface ICollapsibleDescriptionContentProps {
 }
 
 const MAX_SHOW_LINES = 10;
-const COLLAPSED_MAX_HEIGHT_CLASS = "max-h-[32rem]";
-const EXPANDED_STEP_MAX_HEIGHT_CLASS = "max-h-[64rem]";
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
     const { description, mentionables, cards } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
-    const [expandMode, setExpandMode] = useState<"collapsed" | "expanded" | "all">("collapsed");
+    const revisionRef = useRef(
+        usePlateEditor({
+            plugins: EditorKit,
+        })
+    );
+    const blocks = useMemo(
+        () => (revisionRef.current.getApi(MarkdownPlugin).markdown.deserialize(description?.content ?? "") as Value) ?? [],
+        [description?.content]
+    );
+    const [visibleBlockCount, setVisibleBlockCount] = useState(MAX_SHOW_LINES);
+    const clampedVisibleBlockCount = Math.min(visibleBlockCount, blocks.length);
+    const previewBlocks = useMemo(() => blocks.slice(0, clampedVisibleBlockCount), [blocks, clampedVisibleBlockCount]);
+    const hasMoreContent = clampedVisibleBlockCount < blocks.length;
+
+    useEffect(() => {
+        setVisibleBlockCount(MAX_SHOW_LINES);
+    }, [description?.content]);
+
     const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
         e.stopPropagation();
         e.preventDefault();
-        setExpandMode((prev) => (prev === "collapsed" ? "expanded" : "all"));
+        setVisibleBlockCount((prev) => prev + MAX_SHOW_LINES);
     }, []);
-    const handleExpandAll = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-        e.preventDefault();
-        setExpandMode("all");
-    }, []);
+    const handleExpandAll = useCallback(
+        (e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setVisibleBlockCount(blocks.length);
+        },
+        [blocks.length]
+    );
 
     return (
         <Box position="relative">
-            <Box
-                className={cn(
-                    expandMode === "collapsed" && `${COLLAPSED_MAX_HEIGHT_CLASS} overflow-hidden`,
-                    expandMode === "expanded" && `${EXPANDED_STEP_MAX_HEIGHT_CLASS} overflow-hidden`
-                )}
-            >
-                <PlateEditor
-                    value={description}
-                    mentionables={mentionables}
-                    linkables={cards}
-                    currentUser={currentUser}
-                    containerClassName="overflow-y-visible"
-                    className="h-full min-h-0"
-                    readOnly
-                    editorType={EEditorType.CardDescription}
-                    form={{
-                        project_uid: projectUID,
-                        card_uid: card.uid,
-                    }}
-                    placeholder={t("card.No description")}
-                    setValue={() => {}}
-                />
-            </Box>
-            {expandMode !== "all" && (
+            <PlateEditor
+                value={description ?? { content: "" }}
+                deserializedValue={previewBlocks}
+                mentionables={mentionables}
+                linkables={cards}
+                currentUser={currentUser}
+                containerClassName="overflow-y-visible"
+                className="h-full min-h-0"
+                readOnly
+                editorType={EEditorType.CardDescription}
+                form={{
+                    project_uid: projectUID,
+                    card_uid: card.uid,
+                }}
+                placeholder={t("card.No description")}
+                setValue={() => {}}
+            />
+            {hasMoreContent && (
                 <>
-                    <Box
-                        position="absolute"
-                        bottom="8"
-                        left="0"
-                        right="0"
-                        z="50"
-                        style={{ height: "120px" }}
-                        className="pointer-events-none bg-gradient-to-t from-background to-transparent"
-                    />
                     <Flex position="relative" justify="center" pb="2" z="50" gap="3" wrap>
                         <Flex
                             inline

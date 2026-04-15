@@ -6,6 +6,7 @@ import { TUseCreateEditor, useCreateEditor } from "@/components/Editor/useCreate
 import { Editor, EditorContainer } from "@/components/plate-ui/editor";
 import { IEditorContent } from "@/core/models/Base";
 import { useCallback, useEffect, useRef } from "react";
+import { type Value } from "platejs";
 import { FocusScope } from "@radix-ui/react-focus-scope";
 import { EditorDataProvider, TEditorDataProviderProps, useEditorData } from "@/core/providers/EditorDataProvider";
 import { TEditor } from "@/components/Editor/editor-kit";
@@ -22,6 +23,7 @@ interface IBasePlateEditorProps extends Omit<TUseCreateEditor, "plugins"> {
     editorRef?: React.RefObject<TEditor | null>;
     editorComponentRef?: React.Ref<HTMLDivElement>;
     placeholder?: string;
+    deserializedValue?: Value;
 }
 
 interface IPlateViewerProps extends IBasePlateEditorProps {
@@ -54,6 +56,7 @@ function EditorWrapper({
     editorRef,
     editorComponentRef,
     placeholder,
+    deserializedValue,
     ...props
 }: TPlateEditorProps) {
     if (!editorRef) {
@@ -64,6 +67,7 @@ function EditorWrapper({
         plugins: [],
         value,
         readOnly,
+        deserializedValue,
         ...props,
     } as TUseCreateEditor);
     const mounted = useMounted();
