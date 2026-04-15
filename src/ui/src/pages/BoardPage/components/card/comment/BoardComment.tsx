@@ -61,32 +61,27 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): Rea
             model={comment}
             params={{ author: commentAuthor, deletedComment, valueRef, editorName, isCurrentEditor, editorRef }}
         >
-            <Box display="grid" gap="2" className="grid-cols-[theme(spacing.8),1fr]">
+            <Box display="grid" gap="2" className="grid-cols-[theme(spacing.8),minmax(0,1fr)]">
                 <Box>
                     <BoardCommentUserAvatar projectUID={projectUID} cardUID={card.uid} />
                 </Box>
-                <Flex
-                    direction="col"
-                    gap="2"
-                    className={cn(
-                        "max-w-[calc(100vw_-_theme(spacing.20))]",
-                        "sm:max-w-[calc(theme(screens.sm)_-_theme(spacing.52)_-_theme(spacing.2))]",
-                        "lg:max-w-[calc(theme(screens.md)_-_theme(spacing.52)_-_theme(spacing.2))]"
-                    )}
-                >
+                <Flex direction="col" gap="2" className="max-w-full">
                     <BoardCommentHeader />
                     <Flex
                         px="3"
                         py="1.5"
                         rounded="lg"
-                        className={cn("rounded-ss-none bg-accent/70", isCurrentEditor ? "border bg-transparent p-0" : "w-fit max-w-full")}
+                        className={cn(
+                            "min-w-0 rounded-ss-none bg-accent/70",
+                            isCurrentEditor ? "w-full max-w-full overflow-hidden border bg-transparent p-0" : "w-fit max-w-full"
+                        )}
                     >
                         <PlateEditor
                             value={comment.content}
                             currentUser={currentUser}
                             mentionables={mentionables}
                             linkables={cards}
-                            className={isCurrentEditor ? "h-full max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] overflow-y-auto px-6 py-3" : ""}
+                            className={isCurrentEditor ? "h-full min-w-0 max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] overflow-y-auto px-4 py-3" : ""}
                             readOnly={!isCurrentEditor}
                             editorType="card-comment"
                             form={{

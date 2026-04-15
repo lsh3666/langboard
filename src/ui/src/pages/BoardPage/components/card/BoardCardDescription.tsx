@@ -191,7 +191,7 @@ const BoardCardDescription = memo((): React.JSX.Element => {
                 onSave={handleSave}
                 onCancel={handleCancel}
                 saveDisabled={isPending}
-                className={cn("sticky top-[theme(spacing.16)] z-[90]", "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm")}
+                className={cn("sticky top-0 z-[90]", "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm")}
             />
             {shouldCollapse ? (
                 <CollapsibleDescriptionContent description={description} mentionables={mentionables} cards={cards} />
