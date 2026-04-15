@@ -232,12 +232,12 @@ function BoardCardResult(): React.JSX.Element {
                                             <BoardCardAttachmentList key={`board-card-attachment-list-${card.uid}`} />
                                         </BoardCardSection>
                                     )}
-                                    <BoardCardMobileComments scrollableRef={contentViewportRef} />
                                     <Box className={cn("sm:hidden", !isActionPanelOpen && "hidden")}>
                                         <BoardCardSection title="card.Actions" titleClassName="mb-2">
                                             <BoardCardActionList key={`board-card-action-list-mobile-${card.uid}`} />
                                         </BoardCardSection>
                                     </Box>
+                                    <BoardCardMobileComments scrollableRef={contentViewportRef} />
                                 </Flex>
                             </ScrollArea.Root>
                             <BoardCardCommentPanel />
