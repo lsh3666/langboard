@@ -20,50 +20,11 @@ import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const isMarkdownListLine = (line: string): boolean => /^\s*(?:[-*+]|\d+\.)\s+/.test(line);
-const isMarkdownListContinuationLine = (line: string): boolean => /^\s{2,}\S/.test(line);
-const isMarkdownTableLine = (line: string): boolean => {
-    const trimmed = line.trim();
-    if (!trimmed) return false;
-    if (/^\s*\|.*\|\s*$/.test(line)) return true;
-    return trimmed.includes("|") && !isMarkdownListLine(line);
-};
-
-const extendEndForMarkdownBlock = (lines: string[], start: number, end: number): number => {
-    let adjustedEnd = Math.min(end, lines.length);
-    if (adjustedEnd <= start) {
-        return adjustedEnd;
-    }
-
-    const lastLine = lines[adjustedEnd - 1];
-
-    if (isMarkdownTableLine(lastLine)) {
-        while (adjustedEnd < lines.length && isMarkdownTableLine(lines[adjustedEnd])) {
-            adjustedEnd += 1;
-        }
-        return adjustedEnd;
-    }
-
-    if (isMarkdownListLine(lastLine) || isMarkdownListContinuationLine(lastLine)) {
-        while (adjustedEnd < lines.length) {
-            const nextLine = lines[adjustedEnd];
-            const nextIsList = isMarkdownListLine(nextLine) || isMarkdownListContinuationLine(nextLine);
-            const blankFollowedByList =
-                nextLine.trim() === "" &&
-                adjustedEnd + 1 < lines.length &&
-                (isMarkdownListLine(lines[adjustedEnd + 1]) || isMarkdownListContinuationLine(lines[adjustedEnd + 1]));
-
-            if (!nextIsList && !blankFollowedByList) {
-                break;
-            }
-
-            adjustedEnd += 1;
-        }
-    }
-
-    return adjustedEnd;
-};
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import { toMarkdown } from "mdast-util-to-markdown";
+import { gfmToMarkdown } from "mdast-util-gfm";
 
 export function SkeletonBoardCardDescription() {
     return (
@@ -140,7 +101,7 @@ const BoardCardDescription = memo((): React.JSX.Element => {
     });
 
     const contentLines = description?.content?.split("\n").length ?? 0;
-    const shouldCollapse = !isEditing && contentLines > MAX_SHOW_LINES;
+    const shouldCollapse = !isEditing && contentLines > MAX_COLLAPSE_LINES;
 
     const setValue = useCallback(
         (value: IEditorContent) => {
@@ -227,159 +188,172 @@ interface ICollapsibleDescriptionContentProps {
     cards: ProjectCard.TModel[];
 }
 
-const MAX_SHOW_LINES = 10;
+const MAX_COLLAPSE_LINES = 10;
+const MAX_CHUNK_BLOCKS = 10;
+const MAX_HEAVY_LIST_ITEMS = 6;
+const MAX_HEAVY_PARAGRAPH_LENGTH = 1200;
+
+interface IMarkdownNode {
+    type?: string;
+    children?: IMarkdownNode[];
+    value?: string;
+    alt?: string | null;
+}
+
+function countMarkdownListItems(node: IMarkdownNode | undefined): number {
+    if (!node?.children) {
+        return 0;
+    }
+
+    return node.children.reduce((count, child) => {
+        if (child?.type !== "listItem") {
+            return count;
+        }
+
+        return count + 1;
+    }, 0);
+}
+
+function getMarkdownTextLength(node: IMarkdownNode | undefined): number {
+    if (!node) {
+        return 0;
+    }
+
+    const ownLength = typeof node.value === "string" ? node.value.length : typeof node.alt === "string" ? node.alt.length : 0;
+    if (!node.children?.length) {
+        return ownLength;
+    }
+
+    return ownLength + node.children.reduce((length, child) => length + getMarkdownTextLength(child), 0);
+}
+
+function isHeavyMarkdownBlock(node: IMarkdownNode | undefined): boolean {
+    if (!node?.type) {
+        return false;
+    }
+
+    if (node.type === "table" || node.type === "code" || node.type === "blockquote") {
+        return true;
+    }
+
+    if (node.type === "list") {
+        return countMarkdownListItems(node) >= MAX_HEAVY_LIST_ITEMS;
+    }
+
+    if (node.type === "paragraph") {
+        return getMarkdownTextLength(node) >= MAX_HEAVY_PARAGRAPH_LENGTH;
+    }
+
+    return false;
+}
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
     const { description, mentionables, cards } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
-    const [visibleLineCount, setVisibleLineCount] = useState(MAX_SHOW_LINES);
-    const [loadedChunks, setLoadedChunks] = useState<Map<number, React.ReactNode>>(new Map());
-    const loadedChunksRef = useRef(loadedChunks);
-    const [gradientHeight, setGradientHeight] = useState(96);
-    const contentWrapperRef = useRef<HTMLDivElement>(null);
+    const chunkContents = useMemo(() => {
+        const content = description?.content ?? "";
 
-    loadedChunksRef.current = loadedChunks;
+        if (!content.trim()) {
+            return [{ content: "" }];
+        }
+
+        const root = unified().use(remarkParse).use(remarkGfm).parse(content) as { children?: IMarkdownNode[] };
+        const children = Array.isArray(root.children) ? root.children : [];
+
+        if (children.length === 0) {
+            return [{ content }];
+        }
+
+        const chunks: IEditorContent[] = [];
+        let currentChunk: IMarkdownNode[] = [];
+
+        const pushChunk = (chunkChildren: IMarkdownNode[]) => {
+            if (chunkChildren.length === 0) {
+                return;
+            }
+
+            chunks.push({
+                content: toMarkdown({ type: "root", children: chunkChildren } as never, {
+                    extensions: [gfmToMarkdown()],
+                }),
+            });
+        };
+
+        for (const child of children) {
+            if (isHeavyMarkdownBlock(child)) {
+                pushChunk(currentChunk);
+                currentChunk = [];
+                pushChunk([child]);
+                continue;
+            }
+
+            currentChunk.push(child);
+            if (currentChunk.length >= MAX_CHUNK_BLOCKS) {
+                pushChunk(currentChunk);
+                currentChunk = [];
+            }
+        }
+
+        pushChunk(currentChunk);
+
+        return chunks;
+    }, [description?.content]);
+    const totalChunkCount = Math.max(1, chunkContents.length);
+    const [visibleChunkCount, setVisibleChunkCount] = useState(1);
+    const clampedVisibleChunkCount = Math.min(visibleChunkCount, totalChunkCount);
+    const hasMoreContent = clampedVisibleChunkCount < totalChunkCount;
+
+    useEffect(() => {
+        setVisibleChunkCount(1);
+    }, [description?.content]);
 
     const createChunk = useCallback(
-        (chunkIndex: number, content: IEditorContent) => (
-            <PlateEditor
-                key={chunkIndex}
-                value={content}
-                mentionables={mentionables}
-                linkables={cards}
-                currentUser={currentUser}
-                containerClassName="overflow-y-visible"
-                className="h-full min-h-0"
-                readOnly
-                editorType={EEditorType.CardDescription}
-                form={{
-                    project_uid: projectUID,
-                    card_uid: card.uid,
-                }}
-                placeholder={chunkIndex === 0 ? t("card.No description") : undefined}
-                setValue={() => {}}
-            />
-        ),
-        [mentionables, cards, currentUser, projectUID, card]
+        (chunkIndex: number) => {
+            const chunkContent = chunkContents[chunkIndex] ?? { content: "" };
+
+            return (
+                <PlateEditor
+                    key={chunkIndex}
+                    value={chunkContent}
+                    mentionables={mentionables}
+                    linkables={cards}
+                    currentUser={currentUser}
+                    containerClassName="overflow-y-visible"
+                    className="h-full min-h-0"
+                    readOnly
+                    editorType={EEditorType.CardDescription}
+                    form={{
+                        project_uid: projectUID,
+                        card_uid: card.uid,
+                    }}
+                    placeholder={chunkIndex === 0 ? t("card.No description") : undefined}
+                    setValue={() => {}}
+                />
+            );
+        },
+        [chunkContents, mentionables, cards, currentUser, projectUID, card, t]
     );
 
-    const sliceContent = useCallback((start: number, end: number, content: string = ""): { content: IEditorContent; end: number } => {
-        const lines = content.split("\n");
-        const adjustedEnd = extendEndForMarkdownBlock(lines, start, end);
-        return {
-            content: { content: lines.slice(start, adjustedEnd).join("\n") },
-            end: adjustedEnd,
-        };
+    const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setVisibleChunkCount((prev) => prev + 1);
     }, []);
-
-    const contentLines = description?.content?.split("\n").length ?? 0;
-    const totalUnits = contentLines;
-
-    const handleExpanded = useCallback(
-        (e: React.PointerEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const nextChunkIndex = loadedChunksRef.current.size;
-            const nextStart = visibleLineCount;
-            const nextEnd = nextStart + MAX_SHOW_LINES;
-            const chunkSlice = sliceContent(nextStart, nextEnd, description?.content);
-
-            if (!loadedChunksRef.current.has(nextChunkIndex)) {
-                const chunk = createChunk(nextChunkIndex, chunkSlice.content);
-
-                setLoadedChunks((prev) => {
-                    const newMap = new Map(prev);
-                    newMap.set(nextChunkIndex, chunk);
-                    return newMap;
-                });
-            }
-
-            setVisibleLineCount(chunkSlice.end);
-        },
-        [visibleLineCount, description, sliceContent, createChunk]
-    );
-
     const handleExpandAll = useCallback(
-        (e: React.MouseEvent<HTMLDivElement>) => {
+        (e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
             e.stopPropagation();
             e.preventDefault();
-
-            const content = description?.content ?? "";
-            const nextChunks = new Map<number, React.ReactNode>();
-            let nextStart = 0;
-            let chunkIndex = 0;
-            let nextVisibleLineCount = 0;
-
-            while (nextStart < totalUnits || (chunkIndex === 0 && totalUnits === 0)) {
-                const chunkSlice = sliceContent(nextStart, nextStart + MAX_SHOW_LINES, content);
-                nextChunks.set(chunkIndex, createChunk(chunkIndex, chunkSlice.content));
-                nextVisibleLineCount = chunkSlice.end;
-
-                if (chunkSlice.end <= nextStart) {
-                    break;
-                }
-
-                nextStart = chunkSlice.end;
-                chunkIndex += 1;
-            }
-
-            setLoadedChunks(nextChunks);
-            setVisibleLineCount(nextVisibleLineCount);
+            setVisibleChunkCount(totalChunkCount);
         },
-        [description, totalUnits, sliceContent, createChunk]
+        [totalChunkCount]
     );
-
-    useEffect(() => {
-        if (!contentWrapperRef.current) {
-            return;
-        }
-
-        const updateGradientHeight = () => {
-            const contentHeight = contentWrapperRef.current?.offsetHeight ?? 0;
-            const maxGradientHeight = 200;
-            const minGradientHeight = 80;
-            const calculatedHeight = Math.max(Math.min(contentHeight * 0.4, maxGradientHeight), minGradientHeight);
-            setGradientHeight(calculatedHeight);
-        };
-
-        updateGradientHeight();
-
-        const resizeObserver = new ResizeObserver(updateGradientHeight);
-        if (contentWrapperRef.current) {
-            resizeObserver.observe(contentWrapperRef.current);
-        }
-
-        return () => resizeObserver.disconnect();
-    }, [loadedChunks]);
-
-    useEffect(() => {
-        const chunk0Slice = sliceContent(0, MAX_SHOW_LINES, description?.content);
-        const chunk0 = createChunk(0, chunk0Slice.content);
-
-        setLoadedChunks(new Map([[0, chunk0]]));
-        setVisibleLineCount(chunk0Slice.end);
-    }, [description, sliceContent, createChunk]);
-
-    const hasMoreContent = visibleLineCount < totalUnits;
 
     return (
-        <Box position="relative" ref={contentWrapperRef}>
-            {Array.from(loadedChunks.entries())
-                .sort(([a], [b]) => a - b)
-                .map(([_, chunk]) => chunk)}
+        <Box position="relative">
+            {Array.from({ length: clampedVisibleChunkCount }, (_, chunkIndex) => createChunk(chunkIndex))}
             {hasMoreContent && (
                 <>
-                    <Box
-                        position="absolute"
-                        bottom="8"
-                        left="0"
-                        right="0"
-                        z="50"
-                        style={{ height: `${gradientHeight}px` }}
-                        className="pointer-events-none bg-gradient-to-t from-background to-transparent"
-                    />
                     <Flex position="relative" justify="center" pb="2" z="50" gap="3" wrap>
                         <Flex
                             inline
@@ -389,7 +363,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                             weight="semibold"
                             className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
                             cursor="pointer"
-                            onPointerDown={handleExpanded}
+                            onPointerDown={handleExpand}
                         >
                             {t("editor.Show more")}
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,7 +378,7 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                             weight="semibold"
                             className="text-accent-foreground/70 transition-colors hover:text-accent-foreground"
                             cursor="pointer"
-                            onClick={handleExpandAll}
+                            onPointerDown={handleExpandAll}
                         >
                             {t("editor.Show all")}
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
