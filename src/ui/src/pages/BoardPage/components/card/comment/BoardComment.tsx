@@ -82,7 +82,9 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): Rea
                             currentUser={currentUser}
                             mentionables={mentionables}
                             linkables={cards}
-                            className={isCurrentEditor ? "h-full min-w-0 max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] overflow-y-auto px-4 py-3" : ""}
+                            className={
+                                isCurrentEditor ? "h-full max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] min-w-0 overflow-y-auto px-4 py-3" : ""
+                            }
                             readOnly={!isCurrentEditor}
                             editorType={EEditorType.CardComment}
                             form={{

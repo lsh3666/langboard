@@ -320,7 +320,7 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
                                 mentionables={mentionables}
                                 linkables={cards}
                                 className="max-h-[240px] min-h-[140px] overflow-y-auto px-4 py-3"
-                                editorType="card-new-comment"
+                                editorType={EEditorType.CardNewComment}
                                 form={{
                                     project_uid: projectUID,
                                     card_uid: card.uid,

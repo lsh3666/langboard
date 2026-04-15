@@ -164,7 +164,7 @@ export function SkeletonBoardCard(): React.JSX.Element {
                     </Box>
                 </Flex>
             </Box>
-            <Flex justify="center" className="pointer-events-none shrink-0 z-[110]">
+            <Flex justify="center" className="pointer-events-none z-[110] shrink-0">
                 <Box className="pointer-events-auto rounded-full border bg-background px-3 py-2 shadow-lg">
                     <Flex gap="2">
                         <Skeleton className="h-9 w-28 rounded-full" />
@@ -195,7 +195,7 @@ function BoardCardResult(): React.JSX.Element {
             <Flex direction="col" className="h-full min-h-0 gap-4">
                 <Box className="relative min-h-0 flex-1 rounded-2xl border bg-background px-4 py-4 shadow-2xl sm:px-6 sm:py-6">
                     <Box className="hidden sm:block">
-                        <BoardCardActionRelationship />
+                        <BoardCardActionRelationship buttonClassName="" />
                     </Box>
                     <Box className="relative flex h-full min-h-0 flex-col overflow-visible">
                         <Dialog.Header className="sticky top-0 z-[100] mb-3 shrink-0 border-b-2 bg-background pb-3 text-left sm:-top-2">
@@ -316,15 +316,11 @@ function BoardCardFloatingNav(): React.JSX.Element {
 
     return (
         <Flex justify="center" className="pointer-events-none z-[110]">
-            <Flex
-                items="center"
-                gap="1"
-                className={cn(
-                    "pointer-events-auto rounded-full border bg-background shadow-lg backdrop-blur"
-                )}
-            >
+            <Flex items="center" gap="1" className={cn("pointer-events-auto rounded-full border bg-background shadow-lg backdrop-blur")}>
                 {canAttachFile && (
-                    <BoardCardActionAttachFile buttonClassName="h-10 gap-1 rounded-full border-0 bg-transparent px-4 text-sm shadow-none hover:bg-accent">
+                    <BoardCardActionAttachFile
+                        buttonClassName={"h-10 gap-1 rounded-full border-0 bg-transparent px-4 text-sm shadow-none hover:bg-accent"}
+                    >
                         <>
                             <IconComponent icon="file-up" size="4" />
                             {t("card.Attach file")}
