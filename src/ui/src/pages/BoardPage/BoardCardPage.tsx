@@ -82,7 +82,9 @@ const BoardCardPageComponent = () => {
                 <Dialog.Root open={true} onOpenChange={(isOpen) => !isOpen && handleCloseRequest()}>
                     <Dialog.Content
                         className={cn(
-                            "h-[calc(100dvh-theme(spacing.8))] max-h-[calc(100dvh-theme(spacing.8))] max-w-[100vw] overflow-visible border-0 bg-transparent p-0 shadow-none sm:h-[calc(100dvh-theme(spacing.12))] sm:max-h-[calc(100dvh-theme(spacing.12))] sm:max-w-[90vw] lg:max-w-[1120px]",
+                            "h-[calc(100dvh-theme(spacing.8))] max-h-[calc(100dvh-theme(spacing.8))] max-w-[100vw] overflow-visible",
+                            "border-0 bg-transparent p-0 shadow-none",
+                            "sm:h-[calc(100dvh-theme(spacing.12))] sm:max-h-[calc(100dvh-theme(spacing.12))] sm:max-w-[90vw] lg:max-w-[1120px]",
                             !!selectCardViewType && "hidden"
                         )}
                         aria-describedby=""
