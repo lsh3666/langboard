@@ -202,48 +202,60 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
         () => (revisionRef.current.getApi(MarkdownPlugin).markdown.deserialize(description?.content ?? "") as Value) ?? [],
         [description?.content]
     );
-    const [visibleBlockCount, setVisibleBlockCount] = useState(MAX_SHOW_LINES);
-    const clampedVisibleBlockCount = Math.min(visibleBlockCount, blocks.length);
-    const previewBlocks = useMemo(() => blocks.slice(0, clampedVisibleBlockCount), [blocks, clampedVisibleBlockCount]);
-    const hasMoreContent = clampedVisibleBlockCount < blocks.length;
+    const totalChunkCount = Math.max(1, Math.ceil(blocks.length / MAX_SHOW_LINES));
+    const [visibleChunkCount, setVisibleChunkCount] = useState(1);
+    const clampedVisibleChunkCount = Math.min(visibleChunkCount, totalChunkCount);
+    const hasMoreContent = clampedVisibleChunkCount < totalChunkCount;
 
     useEffect(() => {
-        setVisibleBlockCount(MAX_SHOW_LINES);
+        setVisibleChunkCount(1);
     }, [description?.content]);
+
+    const createChunk = useCallback(
+        (chunkIndex: number) => {
+            const chunkBlocks = blocks.slice(chunkIndex * MAX_SHOW_LINES, (chunkIndex + 1) * MAX_SHOW_LINES);
+
+            return (
+                <PlateEditor
+                    key={chunkIndex}
+                    value={description ?? { content: "" }}
+                    deserializedValue={chunkBlocks}
+                    mentionables={mentionables}
+                    linkables={cards}
+                    currentUser={currentUser}
+                    containerClassName="overflow-y-visible"
+                    className="h-full min-h-0"
+                    readOnly
+                    editorType={EEditorType.CardDescription}
+                    form={{
+                        project_uid: projectUID,
+                        card_uid: card.uid,
+                    }}
+                    placeholder={chunkIndex === 0 ? t("card.No description") : undefined}
+                    setValue={() => {}}
+                />
+            );
+        },
+        [blocks, description, mentionables, cards, currentUser, projectUID, card, t]
+    );
 
     const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
         e.stopPropagation();
         e.preventDefault();
-        setVisibleBlockCount((prev) => prev + MAX_SHOW_LINES);
+        setVisibleChunkCount((prev) => prev + 1);
     }, []);
     const handleExpandAll = useCallback(
         (e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
             e.stopPropagation();
             e.preventDefault();
-            setVisibleBlockCount(blocks.length);
+            setVisibleChunkCount(totalChunkCount);
         },
-        [blocks.length]
+        [totalChunkCount]
     );
 
     return (
         <Box position="relative">
-            <PlateEditor
-                value={description ?? { content: "" }}
-                deserializedValue={previewBlocks}
-                mentionables={mentionables}
-                linkables={cards}
-                currentUser={currentUser}
-                containerClassName="overflow-y-visible"
-                className="h-full min-h-0"
-                readOnly
-                editorType={EEditorType.CardDescription}
-                form={{
-                    project_uid: projectUID,
-                    card_uid: card.uid,
-                }}
-                placeholder={t("card.No description")}
-                setValue={() => {}}
-            />
+            {Array.from({ length: clampedVisibleChunkCount }, (_, chunkIndex) => createChunk(chunkIndex))}
             {hasMoreContent && (
                 <>
                     <Flex position="relative" justify="center" pb="2" z="50" gap="3" wrap>
