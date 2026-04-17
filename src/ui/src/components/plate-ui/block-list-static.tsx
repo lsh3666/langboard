@@ -1,6 +1,6 @@
 /* eslint-disable @/max-len */
 import * as React from "react";
-import type { RenderStaticNodeWrapper, TListElement } from "platejs";
+import { getPluginKey, KEYS, type RenderStaticNodeWrapper, type TListElement } from "platejs";
 import type { SlateRenderElementProps } from "platejs/static";
 import { isOrderedList } from "@platejs/list";
 import { CheckIcon } from "lucide-react";
@@ -19,6 +19,9 @@ const config: Record<
     },
 };
 
+const headingListItemClassName = "[&>h1]:mt-0 [&>h2]:mt-0 [&>h3]:mt-0 [&>h4]:mt-0 [&>h5]:mt-0 [&>h6]:mt-0";
+const headingListClassName = "pl-6";
+
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {
     if (!props.element.listStyleType) return;
 
@@ -31,14 +34,16 @@ function List(props: SlateRenderElementProps) {
     };
     const { Li, Marker } = config[listStyleType] ?? {};
     const List = isOrderedList(props.element) ? "ol" : "ul";
+    const elementKey = getPluginKey(props.editor, props.element.type);
+    const isHeadingListItem = !!elementKey && KEYS.heading.includes(elementKey);
 
     // Apply margin-left for indent (24px per level) for DOCX export compatibility
     const marginLeft = indent ? `${indent * 24}px` : undefined;
 
     return (
-        <List className="relative m-0 p-0" style={{ listStyleType, marginLeft }} start={listStart}>
+        <List className={cn("relative m-0 p-0", isHeadingListItem && headingListClassName)} style={{ listStyleType, marginLeft }} start={listStart}>
             {Marker && <Marker {...props} />}
-            {Li ? <Li {...props} /> : <li>{props.children}</li>}
+            {Li ? <Li {...props} /> : <li className={cn(isHeadingListItem && headingListItemClassName)}>{props.children}</li>}
         </List>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { TListElement } from "platejs";
+import { getPluginKey, KEYS, type TListElement } from "platejs";
 import { isOrderedList } from "@platejs/list";
 import { useTodoListElement, useTodoListElementState } from "@platejs/list/react";
 import { type PlateElementProps, type RenderNodeWrapper, useReadOnly } from "platejs/react";
@@ -21,6 +21,9 @@ const config: Record<
     },
 };
 
+const headingListItemClassName = "[&>h1]:mt-0 [&>h2]:mt-0 [&>h3]:mt-0 [&>h4]:mt-0 [&>h5]:mt-0 [&>h6]:mt-0";
+const headingListClassName = "pl-6";
+
 export const BlockList: RenderNodeWrapper = (props) => {
     if (!props.element.listStyleType) return;
 
@@ -31,11 +34,13 @@ function List(props: PlateElementProps) {
     const { listStart, listStyleType } = props.element as TListElement;
     const { Li, Marker } = config[listStyleType] ?? {};
     const List = isOrderedList(props.element) ? "ol" : "ul";
+    const elementKey = getPluginKey(props.editor, props.element.type);
+    const isHeadingListItem = !!elementKey && KEYS.heading.includes(elementKey);
 
     return (
-        <List className="relative m-0 p-0" style={{ listStyleType }} start={listStart}>
+        <List className={cn("relative m-0 p-0", isHeadingListItem && headingListClassName)} style={{ listStyleType }} start={listStart}>
             {Marker && <Marker {...props} />}
-            {Li ? <Li {...props} /> : <li>{props.children}</li>}
+            {Li ? <Li {...props} /> : <li className={cn(isHeadingListItem && headingListItemClassName)}>{props.children}</li>}
         </List>
     );
 }

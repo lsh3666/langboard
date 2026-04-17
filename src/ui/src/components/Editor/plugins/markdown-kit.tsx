@@ -3,7 +3,13 @@ import { MarkdownPlugin, remarkMdx } from "@platejs/markdown";
 import { KEYS, bindFirst } from "platejs";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { EscapeMarkdown, InternalLinkMarkdown, MentionMarkdown, CodeDrawingMarkdown } from "@/components/Editor/plugins/markdown";
+import {
+    CodeDrawingMarkdown,
+    EscapeMarkdown,
+    HeadingListMarkdown,
+    InternalLinkMarkdown,
+    MentionMarkdown,
+} from "@/components/Editor/plugins/markdown";
 
 export const MarkdownKit = [
     MarkdownPlugin.configure({
@@ -17,7 +23,14 @@ export const MarkdownKit = [
             },
         },
     }).extendApi(({ editor }) => ({
-        deserialize: bindFirst(EscapeMarkdown.deserialize(false), editor),
+        serialize: bindFirst(HeadingListMarkdown.serialize, editor),
+        deserialize: (text, options) =>
+            HeadingListMarkdown.deserialize(
+                editor,
+                text,
+                (markdown, deserializeOptions) => EscapeMarkdown.deserialize(false)(editor, markdown, deserializeOptions),
+                options
+            ),
         deserializeInlineMd: bindFirst(EscapeMarkdown.deserialize(true), editor),
     })),
 ];
