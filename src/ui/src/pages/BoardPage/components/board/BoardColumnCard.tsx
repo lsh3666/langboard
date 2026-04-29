@@ -101,8 +101,10 @@ function BoardColumnCardDisplay({
     outerRef?: React.Ref<HTMLDivElement | null>;
     innerRef?: React.Ref<HTMLDivElement | null>;
 }) {
-    const { selectCardViewType, currentCardUIDRef, isSelectedCard, isDisabledCard } = useBoardController();
+    const { selectCardViewType, currentCardUIDRef, getRelationshipSelectionActor, isSelectedCard, isDisabledCard } = useBoardController();
     const { filters, canDragAndDrop, navigateWithFilters } = useBoard();
+    const isSelectedRelationshipCard = isSelectedCard(card.uid);
+    const relationshipSelectionActor = isSelectedRelationshipCard ? getRelationshipSelectionActor(card.uid) : undefined;
 
     const setFilters = (relationshipType: ProjectCardRelationship.TRelationship) => {
         if (!filters[relationshipType]) {
@@ -119,13 +121,13 @@ function BoardColumnCardDisplay({
     };
 
     const cardClassName = cn(
-        "min-w-[theme(spacing.72)_+_theme(spacing.1)]",
+        "relative min-w-[theme(spacing.72)_+_theme(spacing.1)]",
         canDragAndDrop
             ? "cursor-pointer touch-none"
             : cn(
                   !selectCardViewType || !isDisabledCard(card.uid) ? "cursor-pointer" : "cursor-not-allowed",
                   !!selectCardViewType && currentCardUIDRef.current === card.uid && "hidden",
-                  !!selectCardViewType && isSelectedCard(card.uid) && "ring-2",
+                  !!selectCardViewType && isSelectedRelationshipCard && "ring-2",
                   !!selectCardViewType && isDisabledCard(card.uid) && "opacity-30"
               ),
         ["is-dragging", "preview"].includes(state.type) && "ring-2"
@@ -135,7 +137,24 @@ function BoardColumnCardDisplay({
         <ModelRegistry.ProjectCard.Provider model={card} params={{ setFilters }}>
             <Flex gap="2" direction="col" className={outerStyles[state.type]}>
                 {state.type === "is-over" && state.closestEdge === "top" ? <BoardColumnCardShadow dragging={state.dragging} /> : null}
-                <Box className={cardClassName} ref={outerRef}>
+                <Box
+                    className={cardClassName}
+                    ref={outerRef}
+                    style={relationshipSelectionActor ? ({ "--tw-ring-color": relationshipSelectionActor.color } as React.CSSProperties) : undefined}
+                >
+                    {relationshipSelectionActor ? (
+                        <Box
+                            position="absolute"
+                            left="3"
+                            top="0"
+                            z="20"
+                            rounded="sm"
+                            className="-translate-y-1/2 border bg-background px-1.5 py-0.5 text-[10px] font-medium leading-none shadow-sm"
+                            style={{ borderColor: relationshipSelectionActor.color, color: relationshipSelectionActor.color }}
+                        >
+                            {relationshipSelectionActor.name}
+                        </Box>
+                    ) : null}
                     <Box ref={innerRef} className="!w-[theme(spacing.72)_+_theme(spacing.1)]">
                         <BoardColumnCardCollapsible isDragging={state.type !== "idle"} />
                     </Box>

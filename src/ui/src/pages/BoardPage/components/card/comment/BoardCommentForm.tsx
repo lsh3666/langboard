@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import { IEditorContent } from "@/core/models/Base";
-import { useBoardCard } from "@/core/providers/BoardCardProvider";
+import { useBoardCard, useBoardCardPanel } from "@/core/providers/BoardCardProvider";
 import useAddCardComment from "@/controllers/api/card/comment/useAddCardComment";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import useToggleEditingByClickOutside from "@/core/hooks/useToggleEditingByClickOutside";
@@ -19,7 +19,7 @@ import { BotModel, ProjectCard } from "@/core/models";
 import { getEditorStore, useIsCurrentEditor } from "@/core/stores/EditorStore";
 import { TEditor } from "@/components/Editor/editor-kit";
 import { EEditorType } from "@langboard/core/constants";
-import { getMentionOnSelectItem } from "@platejs/mention";
+import { Utils } from "@langboard/core/utils";
 
 export function SkeletonBoardCommentForm() {
     return (
@@ -37,14 +37,13 @@ export function SkeletonBoardCommentForm() {
         </Box>
     );
 }
-const mention = getMentionOnSelectItem();
-
 export interface IBoardCommentFormProps {
     variant?: "mobile" | "panel";
 }
 
 const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): React.JSX.Element | null => {
-    const { projectUID, card, currentUser, replyRef, isCommentPanelOpen, setIsCommentPanelOpen, commentLayoutMode } = useBoardCard();
+    const { projectUID, card, currentUser, replyRef } = useBoardCard();
+    const { isCommentPanelOpen, setIsCommentPanelOpen, commentLayoutMode } = useBoardCardPanel();
     const [t] = useTranslation();
     const isPanelLayout = commentLayoutMode === "panel";
     const isVisible = isCommentPanelOpen && (variant === "mobile" ? !isPanelLayout : isPanelLayout);
@@ -65,16 +64,17 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
     const [isValidating, setIsValidating] = useState(false);
     const { mutate: addCommentMutate } = useAddCardComment();
     const isClickedRef = useRef(false);
+    const isReplyOwner = variant === "panel" ? isPanelLayout : !isPanelLayout;
     const { stopEditing } = useToggleEditingByClickOutside("[data-card-comment-form]", (mode) => {
         if (mode === "view") {
             getEditorStore().setCurrentEditor(null);
         }
     });
 
-    const commentStorageKey = useMemo(() => `comment-${projectUID}-${card.uid}`, [projectUID, card.uid]);
+    const commentStorageKey = useMemo(() => `comment-${projectUID}-${card.uid}`, [projectUID, card]);
     const saveDraftToStorage = useCallback(
         (content: string) => {
-            if (typeof window === "undefined") {
+            if (Utils.Type.isNullOrUndefined(window)) {
                 return;
             }
 
@@ -89,27 +89,54 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
         [commentStorageKey]
     );
     const readDraftFromStorage = useCallback((): string => {
-        if (typeof window === "undefined") {
+        if (Utils.Type.isNullOrUndefined(window)) {
             return "";
         }
         return window.sessionStorage.getItem(commentStorageKey) ?? "";
     }, [commentStorageKey]);
     const clearDraftFromStorage = useCallback(() => {
-        if (typeof window === "undefined") {
+        if (Utils.Type.isNullOrUndefined(window)) {
             return;
         }
         window.sessionStorage.removeItem(commentStorageKey);
     }, [commentStorageKey]);
+    const openEditor = useCallback(
+        (initialContent?: string) => {
+            setValue({ content: initialContent ?? readDraftFromStorage() });
+            getEditorStore().setCurrentEditor(editorName);
+        },
+        [editorName, readDraftFromStorage, setValue]
+    );
+    const clearEditor = useCallback(() => {
+        setValue({ content: "" });
+        clearDraftFromStorage();
+    }, [clearDraftFromStorage, setValue]);
 
-    const openEditor = useCallback(() => {
-        const currentContent = valueRef.current.content;
-        const initialContent = currentContent.length > 0 ? currentContent : readDraftFromStorage();
-        setValue({ content: initialContent });
-        getEditorStore().setCurrentEditor(editorName);
-        setTimeout(() => {
-            editorRef.current?.tf.focus();
-        }, 0);
-    }, [editorName, readDraftFromStorage, setValue]);
+    const closePanelEditor = useCallback(() => {
+        clearEditor();
+        setIsPanelEditorOpen(false);
+        getEditorStore().setCurrentEditor(null);
+    }, [clearEditor]);
+    const insertReplyMention = useCallback((uid: string, username: string) => {
+        const editor = editorRef.current as TEditor & {
+            tf: TEditor["tf"] & {
+                insert?: {
+                    mention?: (options: { key: string; search?: string; value: string }) => void;
+                };
+            };
+        };
+
+        if (!editor?.tf.insert?.mention) {
+            return;
+        }
+
+        editor.tf.insert.mention({
+            key: uid,
+            search: "",
+            value: username,
+        });
+        editor.tf.insertText(" ");
+    }, []);
 
     const closeMobileDrawer = useCallback(() => {
         setIsMobileDrawerOpen(false);
@@ -121,6 +148,10 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
             getEditorStore().setCurrentEditor(null);
         }, 450);
     }, []);
+    const cancelMobileEditor = useCallback(() => {
+        clearEditor();
+        closeMobileDrawer();
+    }, [clearEditor, closeMobileDrawer]);
 
     const onDrawerHandlePointerStart = useCallback(
         (type: "mouse" | "touch") => {
@@ -150,12 +181,21 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
     );
 
     useEffect(() => {
-        replyRef.current = (target: TUserLikeModel) => {
+        if (!isReplyOwner) {
+            return;
+        }
+
+        const handleReply = (target: TUserLikeModel) => {
             if (isValidating) {
                 return;
             }
 
             setIsCommentPanelOpen(true);
+            if (variant === "panel") {
+                setIsPanelEditorOpen(true);
+            } else {
+                setIsMobileDrawerOpen(true);
+            }
 
             let username;
             if (isModel(target, "User")) {
@@ -171,26 +211,21 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
             }
 
             if (!isCurrentEditor || !editorRef.current) {
-                setValue({
-                    content: `[**@${username}**](${target.uid}) `,
-                });
-                openEditor();
-                setTimeout(() => {
-                    editorRef.current?.tf.focus();
-                }, 50);
+                openEditor(`[**@${username}**](${target.uid}) `);
                 return;
             }
 
-            mention(editorRef.current, {
-                key: target.uid,
-                text: username,
-            });
+            insertReplyMention(target.uid, username);
         };
 
+        replyRef.current = handleReply;
+
         return () => {
-            replyRef.current = () => {};
+            if (replyRef.current === handleReply) {
+                replyRef.current = () => {};
+            }
         };
-    }, [isCurrentEditor, isValidating, openEditor, replyRef, setIsCommentPanelOpen, setValue]);
+    }, [insertReplyMention, isCurrentEditor, isReplyOwner, isValidating, openEditor, setIsCommentPanelOpen, variant]);
 
     useEffect(() => {
         if (!isCurrentEditor) {
@@ -321,6 +356,7 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
                                 linkables={cards}
                                 className="max-h-[240px] min-h-[140px] overflow-y-auto px-4 py-3"
                                 editorType={EEditorType.CardNewComment}
+                                focusOnReady
                                 form={{
                                     project_uid: projectUID,
                                     card_uid: card.uid,
@@ -329,14 +365,7 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
                                 editorRef={editorRef}
                             />
                             <Flex items="center" gap="2" justify="end" p="2" className="border-t">
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => {
-                                        setIsPanelEditorOpen(false);
-                                        getEditorStore().setCurrentEditor(null);
-                                    }}
-                                    disabled={isValidating}
-                                >
+                                <Button variant="secondary" onClick={closePanelEditor} disabled={isValidating}>
                                     {t("common.Cancel")}
                                 </Button>
                                 <SubmitButton type="button" onClick={saveComment} isValidating={isValidating}>
@@ -418,6 +447,7 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
                                 linkables={cards}
                                 className="h-full max-h-[min(50vh,200px)] min-h-[min(50vh,200px)] overflow-y-auto px-6 py-3"
                                 editorType={EEditorType.CardNewComment}
+                                focusOnReady
                                 form={{
                                     project_uid: projectUID,
                                     card_uid: card.uid,
@@ -427,13 +457,7 @@ const BoardCommentForm = memo(({ variant = "mobile" }: IBoardCommentFormProps): 
                             />
                         </Box>
                         <Flex items="center" gap="2" justify="start" p="1">
-                            <Button
-                                variant="secondary"
-                                onClick={() => {
-                                    closeMobileDrawer();
-                                }}
-                                disabled={isValidating}
-                            >
+                            <Button variant="secondary" onClick={cancelMobileEditor} disabled={isValidating}>
                                 {t("common.Cancel")}
                             </Button>
                             <SubmitButton type="button" onClick={saveComment} isValidating={isValidating}>

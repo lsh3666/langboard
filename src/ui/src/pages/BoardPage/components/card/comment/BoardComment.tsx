@@ -56,6 +56,7 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): Rea
     const setValue = (value: IEditorContent) => {
         valueRef.current = value;
     };
+    const editorValue = isCurrentEditor ? valueRef.current : content;
 
     return (
         <ModelRegistry.ProjectCardComment.Provider
@@ -78,13 +79,15 @@ const BoardComment = memo(({ comment, deletedComment }: IBoardCommentProps): Rea
                         )}
                     >
                         <PlateEditor
-                            value={comment.content}
+                            key={`board-comment-editor-${comment.uid}-${isCurrentEditor ? "edit" : "view"}`}
+                            value={editorValue}
                             currentUser={currentUser}
                             mentionables={mentionables}
                             linkables={cards}
                             className={
                                 isCurrentEditor ? "h-full max-h-[min(70vh,300px)] min-h-[min(70vh,300px)] min-w-0 overflow-y-auto px-4 py-3" : ""
                             }
+                            focusOnReady={isCurrentEditor}
                             readOnly={!isCurrentEditor}
                             editorType={EEditorType.CardComment}
                             form={{

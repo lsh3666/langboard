@@ -12,7 +12,7 @@ interface IBaseChangeCardDetailsForm {
 interface IDetails {
     title?: string;
     description?: IEditorContent;
-    deadline_at?: Date;
+    deadline_at?: Date | "";
 }
 
 type TChangeableDetail = keyof IDetails;

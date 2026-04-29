@@ -7,7 +7,7 @@ from ..utils.Converter import convert_python_data
 
 
 _TService = TypeVar("_TService", bound="BaseDomainService")
-TMutableValidator = Literal["default", "not_empty"]
+TMutableValidator = Literal["default", "not_empty", "nullable"]
 TMutableValidatorMap = dict[str, TMutableValidator]
 
 
@@ -45,10 +45,16 @@ class BaseDomainService(ABC, IFactoryProduct):
         return old_record
 
     def __validate_mutate(self, validator: TMutableValidator, old_value: Any, new_value: Any) -> bool:
-        if old_value == new_value or new_value is None:
+        if old_value == new_value:
             return False
 
         if validator == "not_empty":
             return bool(new_value)
+
+        if validator == "nullable":
+            return True
+
+        if new_value is None:
+            return False
 
         return True

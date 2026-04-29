@@ -8,7 +8,7 @@ const BoardSettingsMemberRoleList = memo(() => {
     const { project } = useBoardSettings();
     const [isValidating, setIsValidating] = useState(false);
     const memberRoles = project.useField("member_roles");
-    const members = User.Model.useModels((model) => !!memberRoles[model.uid] && model.uid !== project.owner_uid, [memberRoles]);
+    const members = User.Model.useModels((model) => !!memberRoles[model.uid] && model.uid !== project.owner_uid, [memberRoles, project]);
 
     return (
         <Flex direction="col" gap="2" py="4">

@@ -1,33 +1,33 @@
 import { createContext, useCallback, useContext, useMemo, useRef } from "react";
 
-type TBoardCardUnsavedSection = "deadline" | "description" | "title";
+type TBoardWikiUnsavedSection = "content" | "title";
 type TSectionHandler = () => void | Promise<void>;
 
-interface IBoardCardUnsavedActionsContext {
-    markSectionDirty: (section: TBoardCardUnsavedSection, dirty: bool) => void;
-    resetSection: (section: TBoardCardUnsavedSection) => void;
+interface IBoardWikiUnsavedActionsContext {
+    markSectionDirty: (section: TBoardWikiUnsavedSection, dirty: bool) => void;
+    resetSection: (section: TBoardWikiUnsavedSection) => void;
     resetAll: () => void;
     getHasUnsavedChanges: () => bool;
-    registerSectionSaveHandler: (section: TBoardCardUnsavedSection, handler: TSectionHandler) => () => void;
-    registerSectionCancelHandler: (section: TBoardCardUnsavedSection, handler: TSectionHandler) => () => void;
+    registerSectionSaveHandler: (section: TBoardWikiUnsavedSection, handler: TSectionHandler) => () => void;
+    registerSectionCancelHandler: (section: TBoardWikiUnsavedSection, handler: TSectionHandler) => () => void;
     saveDirtySections: () => Promise<bool>;
     cancelDirtySections: () => void;
 }
 
-const BoardCardUnsavedActionsContext = createContext<IBoardCardUnsavedActionsContext | null>(null);
+const BoardWikiUnsavedActionsContext = createContext<IBoardWikiUnsavedActionsContext | null>(null);
 
-export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNode }) => {
-    const sectionStateRef = useRef<Partial<Record<TBoardCardUnsavedSection, bool>>>({});
+export const BoardWikiUnsavedProvider = ({ children }: { children: React.ReactNode }) => {
+    const sectionStateRef = useRef<Partial<Record<TBoardWikiUnsavedSection, bool>>>({});
     const hasUnsavedChangesRef = useRef(false);
-    const saveHandlersRef = useRef<Partial<Record<TBoardCardUnsavedSection, TSectionHandler>>>({});
-    const cancelHandlersRef = useRef<Partial<Record<TBoardCardUnsavedSection, TSectionHandler>>>({});
+    const saveHandlersRef = useRef<Partial<Record<TBoardWikiUnsavedSection, TSectionHandler>>>({});
+    const cancelHandlersRef = useRef<Partial<Record<TBoardWikiUnsavedSection, TSectionHandler>>>({});
 
     const updateDirtyFlag = useCallback(() => {
         hasUnsavedChangesRef.current = Object.values(sectionStateRef.current).some(Boolean);
     }, []);
 
     const markSectionDirty = useCallback(
-        (section: TBoardCardUnsavedSection, dirty: bool) => {
+        (section: TBoardWikiUnsavedSection, dirty: bool) => {
             const next = sectionStateRef.current;
             if (!!next[section] === dirty) {
                 return;
@@ -45,7 +45,7 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
     );
 
     const resetSection = useCallback(
-        (section: TBoardCardUnsavedSection) => {
+        (section: TBoardWikiUnsavedSection) => {
             const next = sectionStateRef.current;
             if (!next[section]) {
                 return;
@@ -62,7 +62,7 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
         hasUnsavedChangesRef.current = false;
     }, []);
 
-    const registerSectionSaveHandler = useCallback((section: TBoardCardUnsavedSection, handler: TSectionHandler) => {
+    const registerSectionSaveHandler = useCallback((section: TBoardWikiUnsavedSection, handler: TSectionHandler) => {
         saveHandlersRef.current[section] = handler;
 
         return () => {
@@ -72,7 +72,7 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
         };
     }, []);
 
-    const registerSectionCancelHandler = useCallback((section: TBoardCardUnsavedSection, handler: TSectionHandler) => {
+    const registerSectionCancelHandler = useCallback((section: TBoardWikiUnsavedSection, handler: TSectionHandler) => {
         cancelHandlersRef.current[section] = handler;
 
         return () => {
@@ -83,7 +83,7 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
     }, []);
 
     const saveDirtySections = useCallback(async () => {
-        const dirtySections = Object.keys(sectionStateRef.current) as TBoardCardUnsavedSection[];
+        const dirtySections = Object.keys(sectionStateRef.current) as TBoardWikiUnsavedSection[];
         let isSaved = true;
 
         for (const section of dirtySections) {
@@ -110,7 +110,7 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
     }, [updateDirtyFlag]);
 
     const cancelDirtySections = useCallback(() => {
-        const dirtySections = Object.keys(sectionStateRef.current) as TBoardCardUnsavedSection[];
+        const dirtySections = Object.keys(sectionStateRef.current) as TBoardWikiUnsavedSection[];
 
         for (const section of dirtySections) {
             cancelHandlersRef.current[section]?.();
@@ -133,13 +133,13 @@ export const BoardCardUnsavedProvider = ({ children }: { children: React.ReactNo
         [markSectionDirty, resetSection, resetAll, registerSectionSaveHandler, registerSectionCancelHandler, saveDirtySections, cancelDirtySections]
     );
 
-    return <BoardCardUnsavedActionsContext.Provider value={actionsValue}>{children}</BoardCardUnsavedActionsContext.Provider>;
+    return <BoardWikiUnsavedActionsContext.Provider value={actionsValue}>{children}</BoardWikiUnsavedActionsContext.Provider>;
 };
 
-export const useBoardCardUnsavedActions = () => {
-    const context = useContext(BoardCardUnsavedActionsContext);
+export const useBoardWikiUnsavedActions = () => {
+    const context = useContext(BoardWikiUnsavedActionsContext);
     if (!context) {
-        throw new Error("useBoardCardUnsavedActions must be used within BoardCardUnsavedProvider");
+        throw new Error("useBoardWikiUnsavedActions must be used within BoardWikiUnsavedProvider");
     }
 
     return context;

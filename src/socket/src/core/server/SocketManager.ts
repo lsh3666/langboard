@@ -27,14 +27,15 @@ class SocketManager {
         }
 
         const url = new URL(!Utils.String.isValidURL(request.url) ? `http://localhost${request.url}` : request.url);
-        const user = await Auth.validateToken("socket", url.searchParams);
-        if (!user) {
-            ws.close(ESocketStatus.WS_3000_UNAUTHORIZED);
+
+        if (url.pathname === "/editor-sync" || url.pathname === "/editor-sync/" || url.pathname.endsWith("/editor-sync")) {
+            Hocus.handleConnection(ws, request);
             return;
         }
 
-        if (url.pathname === "/editor-sync") {
-            Hocus.handleConnection(ws, request, { user });
+        const user = await Auth.validateToken("socket", url.searchParams);
+        if (!user) {
+            ws.close(ESocketStatus.WS_3000_UNAUTHORIZED);
             return;
         }
 

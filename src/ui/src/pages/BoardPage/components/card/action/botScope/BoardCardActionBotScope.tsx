@@ -15,11 +15,11 @@ import { useTranslation } from "react-i18next";
 export interface IBoardCardActionBotScopeProps extends ISharedBoardCardActionProps {}
 
 const BoardCardActionBotScope = memo(({ buttonClassName }: IBoardCardActionBotScopeProps) => {
-    const { hasRoleAction } = useBoardCard();
+    const { hasRoleAction, isCardEditing } = useBoardCard();
     const [t] = useTranslation();
     const bots = BotModel.Model.useModels(() => true);
 
-    if (!hasRoleAction(ProjectRole.EAction.Update)) {
+    if (!hasRoleAction(ProjectRole.EAction.Update) || !isCardEditing) {
         return null;
     }
 

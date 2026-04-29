@@ -1,5 +1,6 @@
 import Box from "@/components/base/Box";
 import Button from "@/components/base/Button";
+import { ICollaborativeTextMeta, useCollaborativeText } from "@/components/Collaborative/useCollaborativeText";
 import Flex from "@/components/base/Flex";
 import IconComponent from "@/components/base/IconComponent";
 import Popover from "@/components/base/Popover";
@@ -9,20 +10,60 @@ import useUpdateCardLabels from "@/controllers/api/card/useUpdateCardLabels";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
+import { parseCollaborativeStringList } from "@/core/utils/CollaborativeSelectionUtils";
 import BoardCardActionLabelList from "@/pages/BoardPage/components/card/action/label/BoardCardActionLabelList";
 import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/action/types";
+import { EEditorCollaborationType } from "@langboard/core/constants";
+import { Utils } from "@langboard/core/utils";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export interface IBoardCardActionSetLabelProps extends ISharedBoardCardActionProps {}
 
+interface ILabelToggleMeta {
+    checked: bool;
+    labelUID: string;
+    updatedAt: number;
+}
+
 const BoardCardActionSetLabel = memo(({ buttonClassName }: IBoardCardActionSetLabelProps) => {
-    const { projectUID, card, hasRoleAction } = useBoardCard();
+    const { projectUID, card, hasRoleAction, isCardEditing } = useBoardCard();
+    const labels = card.useForeignFieldArray("labels");
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
     const { mutateAsync: updateCardLabelsMutateAsync } = useUpdateCardLabels({ interceptToast: true });
-    const [selectedLabelUIDs, setSelectedLabelUIDs] = useState(card.labels.map((label) => label.uid));
+    const currentCardLabelUIDs = labels.map((label) => label.uid);
+    const defaultSelectedLabelUIDs = JSON.stringify(currentCardLabelUIDs);
+    const { remoteMeta, updateMeta, updateValue, value } = useCollaborativeText({
+        defaultValue: defaultSelectedLabelUIDs,
+        disabled: !isOpened,
+        collaborationType: EEditorCollaborationType.Card,
+        uid: card.uid,
+        section: "labels",
+        field: "selected-label-uids",
+    });
+    const selectedLabelUIDs = parseCollaborativeStringList(value, currentCardLabelUIDs);
+    const remoteLabelStates = remoteMeta.reduce<Record<string, ICollaborativeTextMeta<ILabelToggleMeta>>>((acc, meta) => {
+        const value = meta.value;
+        if (
+            !value ||
+            !Utils.Type.isObject(value) ||
+            !Utils.Type.isString((value as Record<string, unknown>).labelUID) ||
+            !Utils.Type.isBool((value as Record<string, unknown>).checked) ||
+            !Utils.Type.isNumber((value as Record<string, unknown>).updatedAt)
+        ) {
+            return acc;
+        }
+
+        const parsedMeta = meta as ICollaborativeTextMeta<ILabelToggleMeta>;
+        const previousMeta = acc[parsedMeta.value.labelUID];
+        if (!previousMeta || previousMeta.value.updatedAt < parsedMeta.value.updatedAt) {
+            acc[parsedMeta.value.labelUID] = parsedMeta;
+        }
+
+        return acc;
+    }, {});
 
     const changeOpenedState = (opened: bool) => {
         if (isValidating) {
@@ -30,9 +71,24 @@ const BoardCardActionSetLabel = memo(({ buttonClassName }: IBoardCardActionSetLa
         }
 
         if (!opened) {
-            setSelectedLabelUIDs(card.labels.map((label) => label.uid));
+            updateMeta(null);
+            updateValue(defaultSelectedLabelUIDs);
         }
         setIsOpened(opened);
+    };
+
+    const handleSelectedLabelUIDsChange: React.Dispatch<React.SetStateAction<string[]>> = (value) => {
+        const nextValue = Utils.Type.isFunction(value) ? value(selectedLabelUIDs) : value;
+        const changedLabelUID =
+            selectedLabelUIDs.find((uid) => !nextValue.includes(uid)) || nextValue.find((uid) => !selectedLabelUIDs.includes(uid));
+        if (changedLabelUID) {
+            updateMeta({
+                checked: nextValue.includes(changedLabelUID),
+                labelUID: changedLabelUID,
+                updatedAt: Date.now(),
+            } satisfies ILabelToggleMeta);
+        }
+        updateValue(JSON.stringify(nextValue));
     };
 
     const updateLabels = () => {
@@ -67,7 +123,7 @@ const BoardCardActionSetLabel = memo(({ buttonClassName }: IBoardCardActionSetLa
         });
     };
 
-    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate) || !isCardEditing) {
         return null;
     }
 
@@ -83,7 +139,11 @@ const BoardCardActionSetLabel = memo(({ buttonClassName }: IBoardCardActionSetLa
                 <Box mb="2" textSize="sm" weight="semibold">
                     {t("card.Set label")}
                 </Box>
-                <BoardCardActionLabelList selectedLabelUIDs={selectedLabelUIDs} setSelectedLabelUIDs={setSelectedLabelUIDs} />
+                <BoardCardActionLabelList
+                    remoteLabelStates={remoteLabelStates}
+                    selectedLabelUIDs={selectedLabelUIDs}
+                    setSelectedLabelUIDs={handleSelectedLabelUIDsChange}
+                />
                 <Flex items="center" justify="end" gap="1" mt="2">
                     <Button type="button" variant="secondary" size="sm" disabled={isValidating} onClick={() => changeOpenedState(false)}>
                         {t("common.Cancel")}

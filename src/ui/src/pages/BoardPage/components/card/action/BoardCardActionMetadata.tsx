@@ -13,10 +13,14 @@ import { useTranslation } from "react-i18next";
 export interface IBoardCardActionMetadataProps extends ISharedBoardCardActionProps {}
 
 const BoardCardActionMetadata = memo(({ buttonClassName }: IBoardCardActionMetadataProps) => {
-    const { projectUID, card, hasRoleAction } = useBoardCard();
+    const { projectUID, card, hasRoleAction, isCardEditing } = useBoardCard();
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const errorsMap = () => ({});
+
+    if (!isCardEditing) {
+        return null;
+    }
 
     return (
         <Dialog.Root modal open={isOpened} onOpenChange={setIsOpened}>

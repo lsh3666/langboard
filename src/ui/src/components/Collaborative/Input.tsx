@@ -1,29 +1,103 @@
 import Input, { InputProps } from "@/components/base/Input";
 import { ICollaborativeTextCursor, useCollaborativeText } from "@/components/Collaborative/useCollaborativeText";
 import { composeRefs } from "@/core/utils/ComponentUtils";
+import { TEditorCollaborationType } from "@langboard/core/constants";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 export interface ICollaborativeInputProps extends Omit<InputProps, "value" | "onChange"> {
-    documentID: string;
+    collaborationType?: TEditorCollaborationType;
+    documentID?: string;
     field: string;
+    section?: number | string;
+    uid?: number | string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     onValueChange?: (value: string) => void;
 }
 
+interface ICursorOverlayPosition {
+    caretHeight: number;
+    caretLeft: number;
+    highlightHeight: number;
+    highlightLeft: number;
+    highlightWidth: number;
+    top: number;
+}
+
+const createMeasureMarker = () => {
+    const marker = document.createElement("span");
+    marker.style.display = "inline-block";
+    marker.style.width = "0";
+    marker.style.padding = "0";
+    marker.style.margin = "0";
+    marker.style.border = "0";
+    marker.style.overflow = "hidden";
+    marker.textContent = "\u200b";
+    return marker;
+};
+
 const CollaborativeInput = React.forwardRef<HTMLInputElement, ICollaborativeInputProps>(
-    ({ documentID, field, defaultValue, disabled, onChange, onSelect, onKeyUp, onClick, onFocus, onValueChange, ...props }, ref) => {
-        const inputRef = useRef<HTMLInputElement>(null);
-        const { remoteCursors, updateSelection, value, updateValue } = useCollaborativeText({
+    (
+        {
+            collaborationType,
             documentID,
             field,
+            section,
+            uid,
             defaultValue,
             disabled,
+            onChange,
+            onSelect,
+            onKeyUp,
+            onClick,
+            onFocus,
+            onMouseUp,
+            onValueChange,
+            ...props
+        },
+        ref
+    ) => {
+        const inputRef = useRef<HTMLInputElement>(null);
+        const { remoteCursors, updateSelection, value, updateValue } = useCollaborativeText({
+            collaborationType,
+            documentID,
+            field,
+            section,
+            uid,
+            defaultValue,
+            disabled,
+            onValueChange,
         });
+        const [cursorPositions, setCursorPositions] = useState<Record<number, ICursorOverlayPosition>>({});
 
         const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
             updateValue(event.target.value);
             updateSelection(event.target.selectionStart ?? 0, event.target.selectionEnd ?? event.target.selectionStart ?? 0);
             onChange?.(event);
+        };
+
+        const handleClick: React.MouseEventHandler<HTMLInputElement> = (event) => {
+            updateLocalSelection();
+            onClick?.(event);
+        };
+
+        const handleFocus: React.FocusEventHandler<HTMLInputElement> = (event) => {
+            updateLocalSelection();
+            onFocus?.(event);
+        };
+
+        const handleKeyUp: React.KeyboardEventHandler<HTMLInputElement> = (event) => {
+            updateLocalSelection();
+            onKeyUp?.(event);
+        };
+
+        const handleSelect: React.ReactEventHandler<HTMLInputElement> = (event) => {
+            updateLocalSelection();
+            onSelect?.(event);
+        };
+
+        const handleMouseUp: React.MouseEventHandler<HTMLInputElement> = (event) => {
+            updateLocalSelection();
+            onMouseUp?.(event);
         };
 
         const updateLocalSelection = useCallback(() => {
@@ -35,12 +109,6 @@ const CollaborativeInput = React.forwardRef<HTMLInputElement, ICollaborativeInpu
             updateSelection(input.selectionStart ?? 0, input.selectionEnd ?? input.selectionStart ?? 0);
         }, [updateSelection]);
 
-        const [cursorPositions, setCursorPositions] = useState<Record<number, { left: number; top: number }>>({});
-
-        useLayoutEffect(() => {
-            onValueChange?.(value);
-        }, [onValueChange, value]);
-
         useLayoutEffect(() => {
             const input = inputRef.current;
             if (!input || !remoteCursors.length) {
@@ -50,7 +118,18 @@ const CollaborativeInput = React.forwardRef<HTMLInputElement, ICollaborativeInpu
 
             const styles = window.getComputedStyle(input);
             const mirror = document.createElement("div");
-            const trackedStyles = ["boxSizing", "fontFamily", "fontSize", "fontWeight", "letterSpacing", "paddingLeft", "paddingRight"] as const;
+            const trackedStyles = [
+                "boxSizing",
+                "fontFamily",
+                "fontSize",
+                "fontWeight",
+                "letterSpacing",
+                "lineHeight",
+                "paddingBottom",
+                "paddingLeft",
+                "paddingRight",
+                "paddingTop",
+            ] as const;
 
             mirror.style.position = "absolute";
             mirror.style.visibility = "hidden";
@@ -63,18 +142,36 @@ const CollaborativeInput = React.forwardRef<HTMLInputElement, ICollaborativeInpu
                 mirror.style[styleName] = styles[styleName];
             });
 
-            const nextPositions: Record<number, { left: number; top: number }> = {};
+            const paddingTop = Number.parseFloat(styles.paddingTop) || 0;
+            const paddingBottom = Number.parseFloat(styles.paddingBottom) || 0;
+            const fontSize = Number.parseFloat(styles.fontSize) || 16;
+            const lineHeight = Number.parseFloat(styles.lineHeight) || fontSize * 1.2;
+            const contentHeight = input.clientHeight - paddingTop - paddingBottom;
+            const top = paddingTop + Math.max((contentHeight - lineHeight) / 2, 0);
+
+            const nextPositions: Record<number, ICursorOverlayPosition> = {};
             document.body.appendChild(mirror);
 
             remoteCursors.forEach((cursor) => {
-                mirror.textContent = value.slice(0, cursor.selectionEnd);
-                const marker = document.createElement("span");
-                marker.textContent = value.slice(cursor.selectionEnd, cursor.selectionEnd + 1) || ".";
-                mirror.appendChild(marker);
+                const selectionStart = Math.min(cursor.selectionStart, cursor.selectionEnd);
+                const selectionEnd = Math.max(cursor.selectionStart, cursor.selectionEnd);
+                const startMarker = createMeasureMarker();
+                const endMarker = createMeasureMarker();
 
+                mirror.textContent = value.slice(0, selectionStart);
+                mirror.appendChild(startMarker);
+                mirror.appendChild(document.createTextNode(value.slice(selectionStart, selectionEnd)));
+                mirror.appendChild(endMarker);
+
+                const startLeft = startMarker.offsetLeft - input.scrollLeft;
+                const endLeft = endMarker.offsetLeft - input.scrollLeft;
                 nextPositions[cursor.clientID] = {
-                    left: marker.offsetLeft - input.scrollLeft,
-                    top: 7,
+                    caretHeight: lineHeight,
+                    caretLeft: endLeft,
+                    highlightHeight: lineHeight,
+                    highlightLeft: startLeft,
+                    highlightWidth: Math.max(endLeft - startLeft, 0),
+                    top,
                 };
             });
 
@@ -90,22 +187,11 @@ const CollaborativeInput = React.forwardRef<HTMLInputElement, ICollaborativeInpu
                     disabled={disabled}
                     value={value}
                     onChange={handleChange}
-                    onClick={(event) => {
-                        updateLocalSelection();
-                        onClick?.(event);
-                    }}
-                    onFocus={(event) => {
-                        updateLocalSelection();
-                        onFocus?.(event);
-                    }}
-                    onKeyUp={(event) => {
-                        updateLocalSelection();
-                        onKeyUp?.(event);
-                    }}
-                    onSelect={(event) => {
-                        updateLocalSelection();
-                        onSelect?.(event);
-                    }}
+                    onClick={handleClick}
+                    onFocus={handleFocus}
+                    onKeyUp={handleKeyUp}
+                    onMouseUp={handleMouseUp}
+                    onSelect={handleSelect}
                 />
                 <RemoteCursors cursors={remoteCursors} positions={cursorPositions} />
             </div>
@@ -117,7 +203,7 @@ CollaborativeInput.displayName = "Collaborative.Input";
 
 export default CollaborativeInput;
 
-function RemoteCursors({ cursors, positions }: { cursors: ICollaborativeTextCursor[]; positions: Record<number, { left: number; top: number }> }) {
+function RemoteCursors({ cursors, positions }: { cursors: ICollaborativeTextCursor[]; positions: Record<number, ICursorOverlayPosition> }) {
     return (
         <>
             {cursors.map((cursor) => {
@@ -127,22 +213,36 @@ function RemoteCursors({ cursors, positions }: { cursors: ICollaborativeTextCurs
                 }
 
                 return (
-                    <span
-                        key={cursor.clientID}
-                        className="pointer-events-none absolute z-10 h-5 w-0.5"
-                        style={{
-                            backgroundColor: cursor.color,
-                            left: position.left,
-                            top: position.top,
-                        }}
-                    >
+                    <React.Fragment key={cursor.clientID}>
+                        {cursor.selectionStart !== cursor.selectionEnd && (
+                            <span
+                                className="pointer-events-none absolute z-[19] rounded-sm opacity-25"
+                                style={{
+                                    backgroundColor: cursor.color,
+                                    height: position.highlightHeight,
+                                    left: position.highlightLeft,
+                                    top: position.top,
+                                    width: position.highlightWidth,
+                                }}
+                            />
+                        )}
                         <span
-                            className="absolute -top-5 left-0 whitespace-nowrap rounded px-1.5 py-0.5 text-xs text-white"
-                            style={{ backgroundColor: cursor.color }}
+                            className="pointer-events-none absolute z-[20] w-0.5"
+                            style={{
+                                backgroundColor: cursor.color,
+                                height: position.caretHeight,
+                                left: position.caretLeft,
+                                top: position.top,
+                            }}
                         >
-                            {cursor.name}
+                            <span
+                                className="absolute -top-6 left-0 z-[21] whitespace-nowrap rounded px-1.5 py-0.5 text-xs text-white shadow-sm"
+                                style={{ backgroundColor: cursor.color }}
+                            >
+                                {cursor.name}
+                            </span>
                         </span>
-                    </span>
+                    </React.Fragment>
                 );
             })}
         </>

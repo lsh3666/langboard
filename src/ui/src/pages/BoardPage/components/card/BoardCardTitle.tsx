@@ -1,19 +1,19 @@
-import Button from "@/components/base/Button";
 import Dialog from "@/components/base/Dialog";
 import Flex from "@/components/base/Flex";
 import IconComponent from "@/components/base/IconComponent";
 import Skeleton from "@/components/base/Skeleton";
-import Textarea from "@/components/base/Textarea";
+import Button from "@/components/base/Button";
 import Toast from "@/components/base/Toast";
+import Collaborative from "@/components/Collaborative";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import useChangeEditMode from "@/core/hooks/useChangeEditMode";
-import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
 import { usePageHeader } from "@/core/providers/PageHeaderProvider";
-import { cn, setElementStyles } from "@/core/utils/ComponentUtils";
+import { cn, measureTextAreaHeight, setElementStyles } from "@/core/utils/ComponentUtils";
+import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
 import BoardCardNotificationSettings from "@/pages/BoardPage/components/card/BoardCardNotificationSettings";
-import { useEffect, useRef, useState } from "react";
+import { EEditorCollaborationType } from "@langboard/core/constants";
+import { type KeyboardEvent, type PointerEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function SkeletonBoardCardTitle() {
@@ -26,58 +26,122 @@ export function SkeletonBoardCardTitle() {
 
 function BoardCardTitle(): React.JSX.Element {
     const { setPageAliasRef } = usePageHeader();
-    const { projectUID, card, hasRoleAction } = useBoardCard();
+    const { projectUID, card, isCardEditing, canEditCard } = useBoardCard();
     const [t] = useTranslation();
+    const { markSectionDirty, resetSection, registerSectionSaveHandler, registerSectionCancelHandler } = useBoardCardUnsavedActions();
     const { mutateAsync: changeCardDetailsMutateAsync } = useChangeCardDetails("title", { interceptToast: true });
     const title = card.useField("title");
-    const canEdit = hasRoleAction(ProjectRole.EAction.CardUpdate);
     const titleSpanRef = useRef<HTMLSpanElement>(null);
-    const editorName = `${card.uid}-card-title`;
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [draftTitle, setDraftTitle] = useState(title);
+    const [height, setHeight] = useState(0);
     const [isOpened, setIsOpened] = useState(false);
     const [showCollapse, setShowCollapse] = useState(false);
-    const { valueRef, height, isEditing, updateHeight, changeMode } = useChangeEditMode({
-        canEdit: () => canEdit,
-        valueType: "textarea",
-        disableNewLine: true,
-        editorName,
-        save: (value, endCallback) => {
-            const promise = changeCardDetailsMutateAsync({
-                project_uid: projectUID,
-                card_uid: card.uid,
-                title: value,
-            });
+    const [isEditing, setIsEditing] = useState(false);
+    const canStartEditing = canEditCard && isCardEditing;
 
-            Toast.Add.promise(promise, {
-                loading: t("common.Changing..."),
-                error: (error) => {
-                    const messageRef = { message: "" };
-                    const { handle } = setupApiErrorHandler({}, messageRef);
-
-                    handle(error);
-                    return messageRef.message;
-                },
-                success: () => {
-                    return t("successes.Title changed successfully.");
-                },
-                finally: () => {
-                    endCallback();
-                },
-            });
-        },
-        originalValue: title,
-    });
-
-    const handleClickTitle = (e: React.MouseEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLElement;
-        if (target.closest("button") || target.closest("[data-radix-popper-content-wrapper]")) {
+    const syncHeight = useCallback(() => {
+        if (!textareaRef.current) {
             return;
         }
 
-        changeMode("edit");
-    };
+        setHeight(measureTextAreaHeight(textareaRef.current));
+    }, []);
+
+    const handleStartEditing = useCallback(
+        (e: PointerEvent<HTMLSpanElement>) => {
+            if (!canStartEditing) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            requestAnimationFrame(() => {
+                setIsEditing(true);
+            });
+        },
+        [canStartEditing]
+    );
+
+    const handleToggleOpened = useCallback(() => {
+        setIsOpened((prev) => !prev);
+    }, []);
+
+    const handleTitleValueChange = useCallback(
+        (nextTitle: string) => {
+            setDraftTitle(nextTitle);
+            markSectionDirty("title", nextTitle.trim() !== title.trim());
+            requestAnimationFrame(syncHeight);
+        },
+        [markSectionDirty, syncHeight, title]
+    );
+
+    const handleTitleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key !== "Enter") {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
+
+    const saveTitle = useCallback(async () => {
+        const nextTitle = draftTitle.trim();
+        const originalTitle = title.trim();
+        if (!nextTitle || nextTitle === originalTitle) {
+            setDraftTitle(title);
+            resetSection("title");
+            return;
+        }
+
+        const promise = changeCardDetailsMutateAsync({
+            project_uid: projectUID,
+            card_uid: card.uid,
+            title: nextTitle,
+        });
+
+        await Toast.Add.promise(promise, {
+            loading: t("common.Changing..."),
+            error: (error) => {
+                const messageRef = { message: "" };
+                const { handle } = setupApiErrorHandler({}, messageRef);
+
+                handle(error);
+                return messageRef.message;
+            },
+            success: () => t("successes.Title changed successfully."),
+        });
+        resetSection("title");
+    }, [changeCardDetailsMutateAsync, draftTitle, projectUID, resetSection, title]);
+
+    const cancelTitleEdit = useCallback(() => {
+        setDraftTitle(title);
+        resetSection("title");
+    }, [resetSection, title]);
 
     useEffect(() => {
         setPageAliasRef.current(title);
+    }, [title]);
+
+    useEffect(() => {
+        if (!isCardEditing) {
+            setIsEditing(false);
+            setDraftTitle(title);
+            resetSection("title");
+        }
+    }, [isCardEditing, resetSection, title]);
+
+    useLayoutEffect(() => {
+        if (!isEditing) {
+            return;
+        }
+
+        syncHeight();
+        textareaRef.current?.focus();
+    }, [isEditing, syncHeight]);
+
+    useEffect(() => {
         setTimeout(() => {
             if (!titleSpanRef.current) {
                 return;
@@ -111,26 +175,29 @@ function BoardCardTitle(): React.JSX.Element {
             truncatedCloned.remove();
             allTextedCloned.remove();
 
-            if (truncatedHeight !== allTextedHeight) {
-                setShowCollapse(() => true);
-            } else {
-                setShowCollapse(() => false);
-            }
+            setShowCollapse(truncatedHeight !== allTextedHeight);
         }, 0);
     }, [title]);
 
+    useEffect(() => registerSectionSaveHandler("title", saveTitle), [registerSectionSaveHandler, saveTitle]);
+    useEffect(() => registerSectionCancelHandler("title", cancelTitleEdit), [cancelTitleEdit, registerSectionCancelHandler]);
+
     return (
-        <Dialog.Title className="mr-7 cursor-text text-2xl" onClick={handleClickTitle}>
+        <Dialog.Title className="mr-7 text-2xl">
             {!isEditing ? (
                 <Flex>
-                    <span className={isOpened ? "" : "truncate"} ref={titleSpanRef}>
+                    <span
+                        className={cn(isOpened ? "" : "truncate", canStartEditing && "cursor-text rounded-sm hover:bg-accent/40")}
+                        ref={titleSpanRef}
+                        onPointerDown={handleStartEditing}
+                    >
                         {title}
                     </span>
                     <Flex items="start" gap="1" ml="2.5">
                         <Button
                             variant="ghost"
                             size="icon-sm"
-                            onClick={() => setIsOpened(!isOpened)}
+                            onClick={handleToggleOpened}
                             title={t(`card.${isOpened ? "Hide" : "Show"} title`)}
                             className={showCollapse ? "" : "hidden"}
                         >
@@ -140,29 +207,20 @@ function BoardCardTitle(): React.JSX.Element {
                     </Flex>
                 </Flex>
             ) : (
-                <Textarea
-                    ref={valueRef}
+                <Collaborative.Textarea
+                    ref={textareaRef}
+                    collaborationType={EEditorCollaborationType.CardTitle}
+                    uid={card.uid}
+                    field="title"
+                    defaultValue={title}
                     className={cn(
                         "min-h-8 break-all rounded-none border-x-0 border-t-0 p-0 text-2xl scrollbar-hide",
                         "focus-visible:border-b-primary focus-visible:ring-0"
                     )}
                     resize="none"
                     style={{ height }}
-                    defaultValue={title}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }}
-                    onBlur={() => changeMode("view")}
-                    onChange={updateHeight}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            changeMode("view");
-                            return;
-                        }
-                    }}
+                    onValueChange={handleTitleValueChange}
+                    onKeyDown={handleTitleKeyDown}
                 />
             )}
         </Dialog.Title>

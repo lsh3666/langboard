@@ -6,12 +6,17 @@ import Subscription from "@/core/server/Subscription";
 import User from "@/models/User";
 import { ESocketTopic } from "@langboard/core/enums";
 import { EEditorCollaborationType } from "@langboard/core/constants";
-import type { TEditorCollaborationType } from "@langboard/core/constants";
 import * as Y from "yjs";
 
 interface IHocusDocumentAccess {
     topic: ESocketTopic;
     topicId: string;
+}
+
+interface IHocusDocumentName {
+    entityId: string;
+    sectionName: string | null;
+    type: string;
 }
 
 const createPermissionDeniedError = (reason: string) => {
@@ -51,19 +56,41 @@ const getAuthenticatedUser = async ({
     return await Auth.validateToken("socket", parameters);
 };
 
-const getDocumentAccess = (documentName: string): IHocusDocumentAccess | null => {
-    const [type, ...ids] = documentName.split(":") as [TEditorCollaborationType, ...string[]];
+const parseDocumentName = (documentName: string): IHocusDocumentName | null => {
+    const parts = documentName.split(":") as [string, string?, string?, ...string[]];
+    const [type, entityId, sectionName, ...extraParts] = parts;
+    if (!type || !entityId || extraParts.length > 0) {
+        return null;
+    }
 
-    switch (type) {
+    return {
+        entityId,
+        sectionName: sectionName ?? null,
+        type,
+    };
+};
+
+const getDocumentAccess = (documentName: string): IHocusDocumentAccess | null => {
+    const parsed = parseDocumentName(documentName);
+    if (!parsed) {
+        return null;
+    }
+
+    switch (parsed.type) {
         case EEditorCollaborationType.Card:
+        case EEditorCollaborationType.CardTitle:
         case EEditorCollaborationType.CardDescription:
         case EEditorCollaborationType.CardNewComment:
-            return ids[0] ? { topic: ESocketTopic.BoardCard, topicId: ids[0] } : null;
         case EEditorCollaborationType.CardComment:
-            return ids[0] ? { topic: ESocketTopic.BoardCard, topicId: ids[0] } : null;
+            return { topic: ESocketTopic.BoardCard, topicId: parsed.entityId };
+        case EEditorCollaborationType.BoardColumnName:
+            return { topic: ESocketTopic.Board, topicId: parsed.entityId };
+        case EEditorCollaborationType.BoardSettings:
+            return { topic: ESocketTopic.BoardSettings, topicId: parsed.entityId };
         case EEditorCollaborationType.Wiki:
+        case EEditorCollaborationType.WikiTitle:
         case EEditorCollaborationType.WikiContent:
-            return ids[0] ? { topic: ESocketTopic.BoardWikiPrivate, topicId: ids[0] } : null;
+            return { topic: ESocketTopic.BoardWikiPrivate, topicId: parsed.entityId };
         default:
             return null;
     }

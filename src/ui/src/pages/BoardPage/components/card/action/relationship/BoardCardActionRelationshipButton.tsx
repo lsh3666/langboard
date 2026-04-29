@@ -21,14 +21,7 @@ export interface IBoardCardActionRelationshipButtonProps extends ISharedBoardCar
 }
 
 function BoardCardActionRelationshipButton({ type, relationships, buttonClassName }: IBoardCardActionRelationshipButtonProps) {
-    const {
-        selectCardViewType,
-        disabledCardSelectionUIDsRef,
-        setSelectedRelationshipCardUIDs,
-        startCardSelection,
-        filterRelationships,
-        filterRelatedCardUIDs,
-    } = useBoardController();
+    const { selectCardViewType, disabledCardSelectionUIDsRef, startCardSelection, filterRelationships, filterRelatedCardUIDs } = useBoardController();
     const { projectUID, card } = useBoardCard();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
@@ -66,16 +59,17 @@ function BoardCardActionRelationshipButton({ type, relationships, buttonClassNam
     };
 
     const selectRelationship = () => {
-        setSelectedRelationshipCardUIDs(
-            filterRelationships(card.uid, relationships, isParent).map((relationship) => [
-                isParent ? relationship.parent_card_uid : relationship.child_card_uid,
-                relationship.relationship_type_uid,
-            ])
+        const initialSelections = filterRelationships(card.uid, relationships, isParent).map(
+            (relationship) =>
+                [isParent ? relationship.parent_card_uid : relationship.child_card_uid, relationship.relationship_type_uid] satisfies [string, string]
         );
+
+        setIsOpened(false);
         disabledCardSelectionUIDsRef.current = filterRelatedCardUIDs(card.uid, relationships, !isParent);
         startCardSelection({
             type,
             currentUID: card.uid,
+            initialSelections,
             saveCallback: saveRelationship,
             cancelCallback: () => setIsOpened(true),
         });

@@ -87,7 +87,7 @@ function OidcCallbackPage(): React.JSX.Element {
             isDisposed = true;
         };
         // OIDC callback handling should only rerun when the callback query string changes.
-    }, [location.search]);
+    }, [location]);
 
     return (
         <FormOnlyLayout size="default" useLogo>

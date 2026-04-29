@@ -5,8 +5,12 @@ import { ISharedBoardCardActionProps } from "@/pages/BoardPage/components/card/a
 export interface IBoardCardActionRelationshipProps extends ISharedBoardCardActionProps {}
 
 function BoardCardActionRelationship({ buttonClassName }: IBoardCardActionRelationshipProps) {
-    const { card } = useBoardCard();
+    const { card, isCardEditing } = useBoardCard();
     const relationships = card.useForeignFieldArray("relationships");
+
+    if (!isCardEditing) {
+        return null;
+    }
 
     return (
         <>

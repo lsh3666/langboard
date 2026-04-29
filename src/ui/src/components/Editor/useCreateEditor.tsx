@@ -2,7 +2,7 @@
 import { useSocket } from "@/core/providers/SocketProvider";
 import { useEditorData } from "@/core/providers/EditorDataProvider";
 import { IEditorContent } from "@/core/models/Base";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { createCopilotKit } from "@/components/Editor/plugins/copilot-kit";
 import { createAiKit } from "@/components/Editor/plugins/ai-kit";
 import { PlateEditor, PlatePlugin, usePlateEditor } from "platejs/react";
@@ -11,6 +11,8 @@ import { MarkdownPlugin } from "@platejs/markdown";
 import { EditorKit } from "@/components/Editor/editor-kit";
 import { DndKit } from "@/components/Editor/plugins/dnd-kit";
 import { createYjsKit } from "@/components/Editor/plugins/yjs-kit";
+
+const EMPTY_PLUGINS: PlatePlugin<any>[] = [];
 
 interface IBaseUseCreateEditor {
     plugins?: PlatePlugin<any>[];
@@ -38,19 +40,25 @@ export const useCreateEditor = (props: TUseCreateEditor) => {
     const firstname = currentUser.useField("firstname");
     const lastname = currentUser.useField("lastname");
     const fullName = useMemo(() => `${firstname} ${lastname}`, [firstname, lastname]);
+    const valueRef = useRef(value);
+    const deserializedValueRef = useRef(deserializedValue);
+    const formRef = useRef(form);
+    valueRef.current = value;
+    deserializedValueRef.current = deserializedValue;
+    formRef.current = form;
 
     const plugins = useMemo(() => {
-        const pluginList = [...EditorKit, ...(customPlugins ?? [])];
+        const pluginList = [...EditorKit, ...(customPlugins ?? EMPTY_PLUGINS)];
         if (!readOnly && socketEvents) {
             const { chatEvents, copilotEvents } = socketEvents;
             pluginList.push(
                 ...DndKit,
-                ...createAiKit({ socket, eventKey: chatEventKey!, events: chatEvents, commonEventData: form }),
+                ...createAiKit({ socket, eventKey: chatEventKey!, events: chatEvents, commonEventData: formRef.current }),
                 ...createCopilotKit({
                     socket,
                     eventKey: copilotEventKey!,
                     events: copilotEvents,
-                    commonEventData: form,
+                    commonEventData: formRef.current,
                 })
             );
 
@@ -62,28 +70,25 @@ export const useCreateEditor = (props: TUseCreateEditor) => {
             }
         }
         return pluginList;
-    }, [readOnly, socketEvents, chatEventKey, copilotEventKey, form, documentID, fullName]);
-    const convertValue = useCallback(
-        (editor: PlateEditor) => {
-            if (deserializedValue) {
-                return deserializedValue;
-            }
+    }, [readOnly, socketEvents, chatEventKey, copilotEventKey, documentID, fullName, customPlugins]);
+    const getEditorValue = useCallback((editor: PlateEditor) => {
+        if (deserializedValueRef.current) {
+            return deserializedValueRef.current;
+        }
 
-            if (value) {
-                return editor.getApi(MarkdownPlugin).markdown.deserialize(value.content);
-            } else {
-                return [];
-            }
-        },
-        [value, deserializedValue]
-    );
+        if (valueRef.current) {
+            return editor.getApi(MarkdownPlugin).markdown.deserialize(valueRef.current.content);
+        } else {
+            return [];
+        }
+    }, []);
     const editor = usePlateEditor(
         {
             plugins,
-            value: convertValue,
-            autoSelect: "end",
+            value: getEditorValue,
+            autoSelect: false,
         },
-        [readOnly, plugins, convertValue]
+        [readOnly, plugins]
     );
 
     useEffect(() => {
@@ -91,8 +96,8 @@ export const useCreateEditor = (props: TUseCreateEditor) => {
             return;
         }
 
-        editor.tf.setValue(convertValue(editor));
-    }, [value]);
+        editor.tf.setValue(getEditorValue(editor));
+    }, [deserializedValue, editor, getEditorValue, readOnly, value]);
 
     return editor;
 };

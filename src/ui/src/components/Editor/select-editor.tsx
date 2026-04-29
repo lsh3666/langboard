@@ -32,6 +32,7 @@ type SelectEditorContextValue = {
     value?: TSelectItem[];
     onValueChange?: (items: TSelectItem[]) => void;
     createTagContent?: (props: TSelectItem & { readOnly: bool }) => React.JSX.Element;
+    renderItem?: (item: TSelectItem) => React.ReactNode;
     canAddNew: bool;
     validateNewItem?: (value: string) => bool;
     createNewItemLabel?: (item: TSelectItem) => React.ReactNode;
@@ -56,6 +57,7 @@ export interface ISelectEditorProviderProps {
     value?: TSelectItem[];
     onValueChange?: (items: TSelectItem[]) => void;
     createTagContent?: (props: TSelectItem & { readOnly: bool }) => React.JSX.Element;
+    renderItem?: (item: TSelectItem) => React.ReactNode;
     canAddNew?: bool;
     validateNewItem?: (value: string) => bool;
     createNewItemLabel?: (item: TSelectItem) => string;
@@ -68,6 +70,7 @@ export function SelectEditor({
     value,
     onValueChange,
     createTagContent,
+    renderItem,
     canAddNew = false,
     validateNewItem,
     createNewItemLabel,
@@ -84,6 +87,7 @@ export function SelectEditor({
                 value: value ?? internalValue,
                 onValueChange,
                 createTagContent,
+                renderItem,
                 canAddNew,
                 validateNewItem,
                 createNewItemLabel,
@@ -179,7 +183,7 @@ export const SelectEditorInput = React.forwardRef<HTMLDivElement, React.Componen
 export function SelectEditorCombobox() {
     const editor = useEditorRef();
     const containerRef = useEditorContainerRef();
-    const { items, open, onValueChange, canAddNew, validateNewItem, createNewItemLabel } = useSelectEditorContext();
+    const { items, open, onValueChange, canAddNew, validateNewItem, createNewItemLabel, renderItem } = useSelectEditorContext();
     const fzfFilter = React.useMemo(() => createFzfFilter(items), [items]);
     const selectableItems = useSelectableItems({
         allowNew: canAddNew,
@@ -233,6 +237,8 @@ export function SelectEditorCombobox() {
                                                 />
                                             )}
                                         </div>
+                                    ) : renderItem ? (
+                                        renderItem(item)
                                     ) : (
                                         (item.label ?? item.value)
                                     )}
