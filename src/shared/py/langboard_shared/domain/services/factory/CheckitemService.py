@@ -43,6 +43,8 @@ class CheckitemService(BaseDomainService):
         for record in records:
             checkitem, _, _ = record
             api_checkitem = self.__convert_api_response(card, record)
+            if checkitem.checklist_id not in checkitems_map:
+                checkitems_map[checkitem.checklist_id] = []
             checkitems_map[checkitem.checklist_id].append(api_checkitem)
         return checkitems_map
 

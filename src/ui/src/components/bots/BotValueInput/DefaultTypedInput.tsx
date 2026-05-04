@@ -115,7 +115,7 @@ function DefaultSelectInput({ input, disabled }: { input: ISelectAgentFormInput;
         const newValue = valuesRef.current[input.name] || input.defaultValue || input.options[0];
         setValue(input.name)(newValue);
         setCurrentValue(newValue);
-    }, [selectedProvider, input.defaultValue, input.name, setValue, valuesRef]);
+    }, [selectedProvider, setValue]);
 
     const inputComp = (
         <Floating.LabelSelect

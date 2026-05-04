@@ -11,6 +11,32 @@ import { EBotPlatform, EBotPlatformRunningType } from "@langboard/core/ai";
 import { EHttpStatus } from "@langboard/core/enums";
 import { Utils } from "@langboard/core/utils";
 
+const EMPTY_BOT_STATUS_MAP = {
+    project_column: {},
+    card: {},
+};
+
+const isFlowsConnectionRefusedError = (error: unknown): bool => {
+    if (!Utils.Type.isObject(error)) {
+        return false;
+    }
+
+    const target = error as {
+        code?: string;
+        message?: string;
+        cause?: {
+            code?: string;
+            message?: string;
+        };
+    };
+
+    if (target.code === "ECONNREFUSED" || target.cause?.code === "ECONNREFUSED") {
+        return true;
+    }
+
+    return [target.message, target.cause?.message].some((message) => Utils.Type.isString(message) && message.includes("ECONNREFUSED"));
+};
+
 export const createRequest = (internalBot: InternalBot, internalBotSettings?: IProjectAssignedInternalBotSettings): BaseRequest | null => {
     internalBot.platform = Utils.String.convertSafeEnum(EBotPlatform, internalBot.platform);
     internalBot.platform_running_type = Utils.String.convertSafeEnum(EBotPlatformRunningType, internalBot.platform_running_type);
@@ -47,6 +73,10 @@ export const getBotStatusMap = async (projectUID: string): Promise<Record<string
 
         return response.data;
     } catch (error) {
+        if (isFlowsConnectionRefusedError(error)) {
+            return EMPTY_BOT_STATUS_MAP;
+        }
+
         Logger.error(error, "\n");
         return null;
     }

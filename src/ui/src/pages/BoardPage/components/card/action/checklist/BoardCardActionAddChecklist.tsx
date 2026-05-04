@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 export interface IBoardCardActionAddChecklistProps extends ISharedBoardCardActionProps {}
 
 const BoardCardActionAddChecklist = memo(({ buttonClassName }: IBoardCardActionAddChecklistProps) => {
-    const { projectUID, card, hasRoleAction } = useBoardCard();
+    const { projectUID, card, hasRoleAction, isCardEditing } = useBoardCard();
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
@@ -69,7 +69,7 @@ const BoardCardActionAddChecklist = memo(({ buttonClassName }: IBoardCardActionA
         });
     };
 
-    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate) || !isCardEditing) {
         return null;
     }
 

@@ -20,15 +20,15 @@ import { ProjectRole } from "@/core/models/roles";
 export interface IBoardCardActionAttachFileProps extends ISharedBoardCardActionProps {}
 
 const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.PropsWithChildren<IBoardCardActionAttachFileProps>) => {
-    const { hasRoleAction } = useBoardCard();
+    const { hasRoleAction, isCardEditing } = useBoardCard();
     const [t] = useTranslation();
     const [isOpened, setIsOpened] = useState(false);
     const [isValidating, setIsValidating] = useState(false);
     const [updated, forceUpdate] = useReducer((x) => x + 1, 0);
-    const attachedFileMap = useRef<Record<string, IAttachedFile>>({});
+    const attachedFileMapRef = useRef<Record<string, IAttachedFile>>({});
     const attachedFiles = useMemo(() => {
-        return Object.values(attachedFileMap.current);
-    }, [updated, forceUpdate, attachedFileMap.current]);
+        return Object.values(attachedFileMapRef.current);
+    }, [updated, forceUpdate]);
     const inputRef = useRef<HTMLInputElement>(null);
     const handleAttach = (files: File[]) => {
         if (isValidating) {
@@ -37,7 +37,7 @@ const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.Pro
 
         for (let i = 0; i < files.length; ++i) {
             const key = Utils.String.Token.uuid();
-            attachedFileMap.current[key] = { uid: key, file: files[i] };
+            attachedFileMapRef.current[key] = { uid: key, file: files[i] };
         }
 
         if (inputRef.current) {
@@ -52,7 +52,7 @@ const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.Pro
     });
 
     const deleteFile = (key: string) => {
-        delete attachedFileMap.current[key];
+        delete attachedFileMapRef.current[key];
         forceUpdate();
     };
 
@@ -87,7 +87,7 @@ const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.Pro
                 );
                 setIsValidating(false);
                 for (let i = 0; i < successFiles.length; ++i) {
-                    delete attachedFileMap.current[successFiles[i]];
+                    delete attachedFileMapRef.current[successFiles[i]];
                 }
                 forceUpdate();
                 return;
@@ -106,14 +106,14 @@ const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.Pro
         }
 
         if (!opened) {
-            Object.keys(attachedFileMap.current).forEach((key) => {
-                delete attachedFileMap.current[key];
+            Object.keys(attachedFileMapRef.current).forEach((key) => {
+                delete attachedFileMapRef.current[key];
             });
         }
         setIsOpened(opened);
     };
 
-    if (!hasRoleAction(ProjectRole.EAction.CardUpdate)) {
+    if (!hasRoleAction(ProjectRole.EAction.CardUpdate) || !isCardEditing) {
         return null;
     }
 
@@ -129,7 +129,7 @@ const BoardCardActionAttachFile = memo(({ buttonClassName, children }: React.Pro
                     )}
                 </Button>
             </Popover.Trigger>
-            <Popover.Content align="end" className="w-[min(theme(spacing.96),80vw)]">
+            <Popover.Content align="center" className="w-[min(theme(spacing.96),80vw)]">
                 <Input wrapperProps={{ className: "hidden" }} disabled={isValidating} {...getInputProps()} ref={inputRef} />
                 <Box mb="2" textSize="sm" weight="semibold">
                     {t("card.Attach file")}

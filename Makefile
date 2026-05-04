@@ -148,6 +148,12 @@ dev_socket: ## run the Socket in development environment
 dev_socket_build: ## build the Socket in development environment
 	cd $(SOCKET_DIR) && yarn run build -w
 
+update_ts_core:
+	@cd $(UI_DIR) && yarn remove @langboard/core
+	@cd $(UI_DIR) && yarn add @langboard/core@file:../shared/ts
+	@cd $(SOCKET_DIR) && yarn remove @langboard/core
+	@cd $(SOCKET_DIR) && yarn add @langboard/core@file:../shared/ts
+
 start_docker: ## run Docker in the production environment
 	make init_env
 	mkdir -p ./docker/volumes

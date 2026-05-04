@@ -66,6 +66,8 @@
   "unsavedChanges": {
     "Discard description edits?": "Discard description edits?",
     "You have unsaved description changes.\nLeaving now will discard them.": "You have unsaved description changes.\nLeaving now will discard them.",
+    "Discard card edits?": "Discard card edits?",
+    "You have unsaved card changes.\nLeaving now will discard them.": "You have unsaved card changes.\nLeaving now will discard them.",
     "Keep editing": "Keep editing",
     "Discard changes": "Discard changes"
   }

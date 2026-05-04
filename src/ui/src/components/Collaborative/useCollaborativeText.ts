@@ -1,13 +1,17 @@
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useSocket } from "@/core/providers/SocketProvider";
+import { TEditorCollaborationType } from "@langboard/core/constants";
 import { Utils } from "@langboard/core/utils";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
 
 export interface IUseCollaborativeTextProps {
-    documentID: string;
+    collaborationType?: TEditorCollaborationType;
+    documentID?: string;
     field: string;
+    section?: number | string;
+    uid?: number | string;
     defaultValue?: string | number | readonly string[];
     disabled?: bool;
     onValueChange?: (value: string) => void;
@@ -21,6 +25,14 @@ export interface ICollaborativeTextCursor {
     selectionStart: number;
 }
 
+export interface ICollaborativeTextMeta<TValue = unknown> {
+    clientID: number;
+    color: string;
+    name: string;
+    userID?: string;
+    value: TValue;
+}
+
 interface IAwarenessTextSelection {
     color: string;
     field: string;
@@ -28,6 +40,14 @@ interface IAwarenessTextSelection {
     selectionEnd: number;
     selectionStart: number;
     userID?: string;
+}
+
+interface IAwarenessTextMeta<TValue = unknown> {
+    color: string;
+    field: string;
+    name: string;
+    userID?: string;
+    value: TValue;
 }
 
 const normalizeValue = (value: IUseCollaborativeTextProps["defaultValue"]) => {
@@ -38,9 +58,30 @@ const normalizeValue = (value: IUseCollaborativeTextProps["defaultValue"]) => {
     return value?.toString() ?? "";
 };
 
-export const useCollaborativeText = ({ documentID, field, defaultValue, disabled, onValueChange }: IUseCollaborativeTextProps) => {
+export const useCollaborativeText = ({
+    collaborationType,
+    documentID,
+    field,
+    section,
+    uid,
+    defaultValue,
+    disabled,
+    onValueChange,
+}: IUseCollaborativeTextProps) => {
     const socket = useSocket();
     const { currentUser } = useAuth();
+    const currentUserUID = currentUser?.uid ?? "";
+    const resolvedDocumentID = useMemo(() => {
+        if (documentID) {
+            return documentID;
+        }
+
+        if (!collaborationType || uid === undefined || uid === null) {
+            return "";
+        }
+
+        return Utils.String.createEditorCollaborationDocumentID({ collaborationType, uid, section });
+    }, [collaborationType, documentID, section, uid]);
     const fallbackValue = useMemo(() => normalizeValue(defaultValue), [defaultValue]);
     const fallbackValueRef = useRef(fallbackValue);
     const onValueChangeRef = useRef(onValueChange);
@@ -56,9 +97,11 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
     const [isConnected, setIsConnected] = useState(false);
     const [isSynced, setIsSynced] = useState(false);
     const [remoteCursors, setRemoteCursors] = useState<ICollaborativeTextCursor[]>([]);
+    const [remoteMeta, setRemoteMeta] = useState<ICollaborativeTextMeta[]>([]);
     const providerRef = useRef<HocuspocusProvider | null>(null);
     const ytextRef = useRef<Y.Text | null>(null);
     const isApplyingRemoteChangeRef = useRef(false);
+    const valueRef = useRef(fallbackValue);
 
     useEffect(() => {
         fallbackValueRef.current = fallbackValue;
@@ -71,38 +114,57 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
     useEffect(() => {
         let disposed = false;
 
-        if (disabled) {
+        if (disabled || !resolvedDocumentID) {
+            valueRef.current = fallbackValueRef.current;
             setValue(fallbackValueRef.current);
             setIsConnected(false);
             setIsSynced(false);
             setRemoteCursors([]);
+            setRemoteMeta([]);
+            return;
+        }
+
+        if (!currentUserUID) {
+            valueRef.current = fallbackValueRef.current;
+            setValue(fallbackValueRef.current);
+            setIsConnected(false);
+            setIsSynced(false);
+            setRemoteCursors([]);
+            setRemoteMeta([]);
             return;
         }
 
         const url = socket.getAuthorizedWebSocketUrl("editor-sync");
         if (!url) {
+            valueRef.current = fallbackValueRef.current;
             setValue(fallbackValueRef.current);
             setIsConnected(false);
             setIsSynced(false);
             setRemoteCursors([]);
+            setRemoteMeta([]);
             return;
         }
 
-        const token = new URL(url).searchParams.get("authorization") ?? "";
+        const token = new URL(url).searchParams.get("authorization");
+
         const document = new Y.Doc();
         const text = document.getText(field);
         ytextRef.current = text;
 
         const provider = new HocuspocusProvider({
             document,
-            name: documentID,
+            name: resolvedDocumentID,
             token,
             url,
+            onAuthenticated: () => {
+                if (disposed) {
+                    return;
+                }
+            },
             onConnect: () => {
                 if (disposed) {
                     return;
                 }
-
                 setIsConnected(true);
             },
             onDisconnect: () => {
@@ -133,6 +195,7 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
                 }
 
                 const nextValue = text.toString();
+                valueRef.current = nextValue;
                 setValue(nextValue);
                 onValueChangeRef.current?.(nextValue);
             },
@@ -155,6 +218,7 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
             const awareness = provider.awareness;
             if (!awareness) {
                 setRemoteCursors([]);
+                setRemoteMeta([]);
                 return;
             }
 
@@ -176,6 +240,25 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
             });
 
             setRemoteCursors(cursors);
+
+            const nextRemoteMeta = Array.from(awareness.getStates().entries()).flatMap(([clientID, state]) => {
+                const meta = state.collaborativeTextMeta as IAwarenessTextMeta | undefined;
+                if (clientID === document.clientID || meta?.field !== field) {
+                    return [];
+                }
+
+                return [
+                    {
+                        clientID,
+                        color: meta.color,
+                        name: meta.name,
+                        userID: meta.userID,
+                        value: meta.value,
+                    },
+                ];
+            });
+
+            setRemoteMeta(nextRemoteMeta);
         };
 
         const handleTextChange = () => {
@@ -185,6 +268,7 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
 
             const nextValue = text.toString();
             isApplyingRemoteChangeRef.current = true;
+            valueRef.current = nextValue;
             setValue(nextValue);
             onValueChangeRef.current?.(nextValue);
             queueMicrotask(() => {
@@ -200,19 +284,25 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
             text.unobserve(handleTextChange);
             provider.awareness?.off("change", updateRemoteCursors);
             provider.setAwarenessField("collaborativeTextSelection", null);
+            provider.setAwarenessField("collaborativeTextMeta", null);
             provider.destroy();
             document.destroy();
             providerRef.current = null;
             ytextRef.current = null;
         };
-    }, [disabled, documentID, field, socket]);
+    }, [currentUserUID, disabled, field, resolvedDocumentID, socket]);
 
     const updateValue = useCallback((nextValue: string) => {
+        valueRef.current = nextValue;
         setValue(nextValue);
         onValueChangeRef.current?.(nextValue);
 
         const text = ytextRef.current;
         if (!text || isApplyingRemoteChangeRef.current) {
+            return;
+        }
+
+        if (text.toString() === nextValue) {
             return;
         }
 
@@ -236,10 +326,30 @@ export const useCollaborativeText = ({ documentID, field, defaultValue, disabled
         [currentUser, field, userColor, userName]
     );
 
+    const updateMeta = useCallback(
+        (nextValue: unknown | null) => {
+            providerRef.current?.setAwarenessField(
+                "collaborativeTextMeta",
+                nextValue === null
+                    ? null
+                    : ({
+                          color: userColor,
+                          field,
+                          name: userName,
+                          userID: currentUser?.uid,
+                          value: nextValue,
+                      } satisfies IAwarenessTextMeta)
+            );
+        },
+        [currentUser, field, userColor, userName]
+    );
+
     return {
         isConnected,
         isSynced,
+        remoteMeta,
         remoteCursors,
+        updateMeta,
         updateSelection,
         value,
         updateValue,

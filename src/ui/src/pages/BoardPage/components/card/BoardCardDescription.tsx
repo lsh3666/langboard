@@ -6,25 +6,23 @@ import { TEditor } from "@/components/Editor/editor-kit";
 import { PlateEditor } from "@/components/Editor/plate-editor";
 import useChangeCardDetails from "@/controllers/api/card/useChangeCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import useChangeEditMode from "@/core/hooks/useChangeEditMode";
 import { BotModel, ProjectCard } from "@/core/models";
 import { IEditorContent } from "@/core/models/Base";
 import { TUserLikeModel } from "@/core/models/ModelRegistry";
 import { ProjectRole } from "@/core/models/roles";
 import { useBoardCard } from "@/core/providers/BoardCardProvider";
-import { getEditorStore } from "@/core/stores/EditorStore";
 import { cn } from "@/core/utils/ComponentUtils";
 import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
-import { CardEditControls } from "@/pages/BoardPage/components/card/CardEditControls";
 import { EEditorType } from "@langboard/core/constants";
 import { AIChatPlugin, AIPlugin } from "@platejs/ai/react";
-import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { memo, startTransition, type MouseEvent, type PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { gfmToMarkdown } from "mdast-util-gfm";
+import { Utils } from "@langboard/core/utils";
 
 export function SkeletonBoardCardDescription() {
     return (
@@ -37,130 +35,151 @@ export function SkeletonBoardCardDescription() {
 }
 
 const BoardCardDescription = memo((): React.JSX.Element => {
-    const { projectUID, card, currentUser, hasRoleAction } = useBoardCard();
+    const { projectUID, card, currentUser, hasRoleAction, isCardEditing } = useBoardCard();
     const [t] = useTranslation();
     const { mutateAsync: changeCardDetailsMutateAsync, isPending } = useChangeCardDetails("description", { interceptToast: true });
-    const [_, forceUpdate] = useReducer((x) => x + 1, 0);
     const editorRef = useRef<TEditor>(null);
-    const editorName = `${card.uid}-card-description`;
     const projectMembers = card.useForeignFieldArray("project_members");
     const bots = BotModel.Model.useModels(() => true);
     const mentionables = useMemo(() => [...projectMembers, ...bots], [projectMembers, bots]);
     const cards = ProjectCard.Model.useModels((model) => model.uid !== card.uid && model.project_uid === projectUID, [projectUID, card]);
     const description = card.useField("description");
-    const { markSectionDirty, resetSection, getHasUnsavedChanges } = useBoardCardUnsavedActions();
-
+    const [isEditing, setIsEditing] = useState(false);
+    const { markSectionDirty, resetSection, getHasUnsavedChanges, registerSectionSaveHandler, registerSectionCancelHandler } =
+        useBoardCardUnsavedActions();
     const canEdit = hasRoleAction(ProjectRole.EAction.CardUpdate);
-    const { valueRef, isEditing, changeMode, setIsEditing } = useChangeEditMode({
-        canEdit: () => canEdit,
-        valueType: "editor",
-        canEmpty: true,
-        editorName,
-        customStartEditing: () => {
-            setTimeout(() => {
-                editorRef.current?.tf.focus();
-            }, 0);
-        },
-        save: (value) => {
-            const promise = changeCardDetailsMutateAsync({
-                project_uid: projectUID,
-                card_uid: card.uid,
-                description: value,
-            });
-
-            Toast.Add.promise(promise, {
-                loading: t("common.Changing..."),
-                error: (error) => {
-                    const messageRef = { message: "" };
-                    const { handle } = setupApiErrorHandler({}, messageRef);
-
-                    handle(error);
-                    return messageRef.message;
-                },
-                success: () => {
-                    resetSection("description");
-                    return t("successes.Description changed successfully.");
-                },
-                finally: () => {
-                    getEditorStore().setCurrentEditor(null);
-                },
-            });
-        },
-        originalValue: description,
-        onStopEditing: () => {
-            if (!editorRef.current) {
-                return;
-            }
-
-            const aiTransforms = editorRef.current.getTransforms(AIPlugin);
-            const aiChatApi = editorRef.current.getApi(AIChatPlugin);
-            aiChatApi.aiChat.stop();
-            aiTransforms.ai.undo();
-            aiChatApi.aiChat.hide();
-        },
-    });
-
-    const contentLines = description?.content?.split("\n").length ?? 0;
-    const shouldCollapse = !isEditing && contentLines > MAX_COLLAPSE_LINES;
-
-    const setValue = useCallback(
-        (value: IEditorContent) => {
-            valueRef.current = value;
-        },
-        [valueRef]
-    );
-
-    const handleEditorValueChange = useCallback(
-        (value: IEditorContent) => {
-            setValue(value);
-            const nextContent = value?.content ?? "";
-            const originalContent = description?.content ?? "";
-            const nextDirty = nextContent !== originalContent;
-
-            markSectionDirty("description", nextDirty);
-        },
-        [description, markSectionDirty, setValue]
-    );
-
-    const handleSave = useCallback(() => {
-        if (!getHasUnsavedChanges() || isPending) {
+    const canStartEditing = canEdit && isCardEditing;
+    const stopEditing = () => {
+        if (!editorRef.current) {
             return;
         }
 
-        changeMode("view");
-    }, [changeMode, getHasUnsavedChanges, isPending]);
+        const aiTransforms = editorRef.current.getTransforms(AIPlugin);
+        const aiChatApi = editorRef.current.getApi(AIChatPlugin);
+        aiChatApi.aiChat.stop();
+        aiTransforms.ai.undo();
+        aiChatApi.aiChat.hide();
+    };
+
+    const contentLines = description?.content?.split("\n").length ?? 0;
+    const shouldCollapse = !isEditing && contentLines > MAX_COLLAPSE_LINES;
+    const [visibleChunkCount, setVisibleChunkCount] = useState(1);
+    const handleEditorChange = useCallback(
+        (editor: TEditor) => {
+            const hasContentChange = editor.operations.some((operation) => operation.type !== "set_selection");
+            if (!hasContentChange) {
+                return;
+            }
+
+            markSectionDirty("description", true);
+        },
+        [markSectionDirty]
+    );
+
+    const handleSave = useCallback(async () => {
+        if (isPending) {
+            return;
+        }
+
+        const nextContent = editorRef.current?.api.markdown.serialize()?.trim() ?? description?.content?.trim() ?? "";
+        const originalContent = description?.content?.trim() ?? "";
+
+        if (nextContent === originalContent) {
+            resetSection("description");
+            setIsEditing(false);
+            return;
+        }
+
+        const promise = changeCardDetailsMutateAsync({
+            project_uid: projectUID,
+            card_uid: card.uid,
+            description: {
+                ...(description ?? {}),
+                content: nextContent,
+            },
+        });
+
+        await Toast.Add.promise(promise, {
+            loading: t("common.Changing..."),
+            error: (error) => {
+                const messageRef = { message: "" };
+                const { handle } = setupApiErrorHandler({}, messageRef);
+
+                handle(error);
+                return messageRef.message;
+            },
+            success: () => {
+                resetSection("description");
+                setIsEditing(false);
+                return t("successes.Description changed successfully.");
+            },
+        });
+    }, [changeCardDetailsMutateAsync, description, isPending, projectUID, resetSection]);
 
     const handleCancel = useCallback(() => {
         if (!isEditing) {
             return;
         }
 
-        setValue(description);
         resetSection("description");
-        forceUpdate();
+        stopEditing();
         setIsEditing(false);
-        getEditorStore().setCurrentEditor(null);
-    }, [description, isEditing, resetSection, setIsEditing, setValue]);
+    }, [isEditing, resetSection, stopEditing]);
 
-    const displayValue = description;
+    useEffect(() => {
+        if (!isCardEditing && isEditing && !getHasUnsavedChanges()) {
+            stopEditing();
+            setIsEditing(false);
+        }
+    }, [getHasUnsavedChanges, isCardEditing, isEditing]);
+
+    useEffect(() => {
+        if (!isEditing) {
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            editorRef.current?.tf.focus();
+        });
+    }, [isEditing]);
+
+    const handleStartEditing = useCallback(
+        (e: PointerEvent<HTMLDivElement>) => {
+            if (!canStartEditing || isEditing) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            requestAnimationFrame(() => {
+                setIsEditing(true);
+            });
+        },
+        [canStartEditing, isEditing]
+    );
+
+    useEffect(() => registerSectionSaveHandler("description", handleSave), [handleSave, registerSectionSaveHandler]);
+    useEffect(() => registerSectionCancelHandler("description", handleCancel), [handleCancel, registerSectionCancelHandler]);
 
     return (
-        <Box data-card-description>
-            <CardEditControls
-                canEdit={canEdit}
-                isEditing={isEditing}
-                onEdit={() => changeMode("edit")}
-                onSave={handleSave}
-                onCancel={handleCancel}
-                saveDisabled={isPending}
-                className={cn("sticky top-0 z-[90]", "mb-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm")}
-            />
+        <Box
+            data-card-description
+            className={cn(canStartEditing && !isEditing && "cursor-text rounded-md transition-colors hover:bg-accent/20")}
+            onPointerDown={handleStartEditing}
+        >
             {shouldCollapse ? (
-                <CollapsibleDescriptionContent description={description} mentionables={mentionables} cards={cards} />
+                <CollapsibleDescriptionContent
+                    description={description}
+                    mentionables={mentionables}
+                    cards={cards}
+                    visibleChunkCount={visibleChunkCount}
+                    setVisibleChunkCount={setVisibleChunkCount}
+                />
             ) : (
                 <Box>
                     <PlateEditor
-                        value={displayValue}
+                        value={description}
                         mentionables={mentionables}
                         linkables={cards}
                         currentUser={currentUser}
@@ -173,7 +192,9 @@ const BoardCardDescription = memo((): React.JSX.Element => {
                             card_uid: card.uid,
                         }}
                         placeholder={!isEditing ? t("card.No description") : undefined}
-                        setValue={handleEditorValueChange}
+                        setValue={() => {}}
+                        onEditorChange={handleEditorChange}
+                        serializeOnChange={false}
                         editorRef={editorRef}
                     />
                 </Box>
@@ -186,12 +207,15 @@ interface ICollapsibleDescriptionContentProps {
     description: IEditorContent | undefined;
     mentionables: TUserLikeModel[];
     cards: ProjectCard.TModel[];
+    visibleChunkCount: number;
+    setVisibleChunkCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const MAX_COLLAPSE_LINES = 10;
 const MAX_CHUNK_BLOCKS = 10;
 const MAX_HEAVY_LIST_ITEMS = 6;
 const MAX_HEAVY_PARAGRAPH_LENGTH = 1200;
+const SHOW_ALL_BATCH_SIZE = 2;
 
 interface IMarkdownNode {
     type?: string;
@@ -219,7 +243,7 @@ function getMarkdownTextLength(node: IMarkdownNode | undefined): number {
         return 0;
     }
 
-    const ownLength = typeof node.value === "string" ? node.value.length : typeof node.alt === "string" ? node.alt.length : 0;
+    const ownLength = Utils.Type.isString(node.value) ? node.value.length : Utils.Type.isString(node.alt) ? node.alt.length : 0;
     if (!node.children?.length) {
         return ownLength;
     }
@@ -227,7 +251,7 @@ function getMarkdownTextLength(node: IMarkdownNode | undefined): number {
     return ownLength + node.children.reduce((length, child) => length + getMarkdownTextLength(child), 0);
 }
 
-function isHeavyMarkdownBlock(node: IMarkdownNode | undefined): boolean {
+function isHeavyMarkdownBlock(node: IMarkdownNode | undefined): bool {
     if (!node?.type) {
         return false;
     }
@@ -248,7 +272,7 @@ function isHeavyMarkdownBlock(node: IMarkdownNode | undefined): boolean {
 }
 
 const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionContentProps): React.JSX.Element => {
-    const { description, mentionables, cards } = props;
+    const { description, mentionables, cards, visibleChunkCount, setVisibleChunkCount } = props;
     const [t] = useTranslation();
     const { projectUID, card, currentUser } = useBoardCard();
     const chunkContents = useMemo(() => {
@@ -298,15 +322,19 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
         pushChunk(currentChunk);
 
         return chunks;
-    }, [description?.content]);
+    }, [description]);
     const totalChunkCount = Math.max(1, chunkContents.length);
-    const [visibleChunkCount, setVisibleChunkCount] = useState(1);
+    const showAllFrameRef = useRef<number | null>(null);
     const clampedVisibleChunkCount = Math.min(visibleChunkCount, totalChunkCount);
     const hasMoreContent = clampedVisibleChunkCount < totalChunkCount;
 
     useEffect(() => {
-        setVisibleChunkCount(1);
-    }, [description?.content]);
+        return () => {
+            if (showAllFrameRef.current !== null) {
+                cancelAnimationFrame(showAllFrameRef.current);
+            }
+        };
+    }, []);
 
     const createChunk = useCallback(
         (chunkIndex: number) => {
@@ -332,19 +360,40 @@ const CollapsibleDescriptionContent = memo((props: ICollapsibleDescriptionConten
                 />
             );
         },
-        [chunkContents, mentionables, cards, currentUser, projectUID, card, t]
+        [chunkContents, mentionables, cards, currentUser, projectUID, card]
     );
 
-    const handleExpand = useCallback((e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+    const handleExpand = useCallback((e: MouseEvent<HTMLDivElement> | PointerEvent<HTMLDivElement>) => {
         e.stopPropagation();
         e.preventDefault();
         setVisibleChunkCount((prev) => prev + 1);
     }, []);
     const handleExpandAll = useCallback(
-        (e: React.MouseEvent<HTMLDivElement> | React.PointerEvent<HTMLDivElement>) => {
+        (e: MouseEvent<HTMLDivElement> | PointerEvent<HTMLDivElement>) => {
             e.stopPropagation();
             e.preventDefault();
-            setVisibleChunkCount(totalChunkCount);
+
+            if (showAllFrameRef.current !== null) {
+                cancelAnimationFrame(showAllFrameRef.current);
+            }
+
+            const expandNext = () => {
+                startTransition(() => {
+                    setVisibleChunkCount((prev) => {
+                        const next = Math.min(prev + SHOW_ALL_BATCH_SIZE, totalChunkCount);
+
+                        if (next < totalChunkCount) {
+                            showAllFrameRef.current = requestAnimationFrame(expandNext);
+                        } else {
+                            showAllFrameRef.current = null;
+                        }
+
+                        return next;
+                    });
+                });
+            };
+
+            expandNext();
         },
         [totalChunkCount]
     );

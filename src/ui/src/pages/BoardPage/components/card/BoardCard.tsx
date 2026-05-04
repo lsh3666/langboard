@@ -9,12 +9,13 @@ import Skeleton from "@/components/base/Skeleton";
 import Toast from "@/components/base/Toast";
 import useGetCardDetails from "@/controllers/api/card/useGetCardDetails";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
-import { BoardCardProvider, useBoardCard } from "@/core/providers/BoardCardProvider";
+import { BoardCardProvider, useBoardCard, useBoardCardPanel } from "@/core/providers/BoardCardProvider";
 import { ROUTES } from "@/core/routing/constants";
 import BoardCardActionList, { SkeletonBoardCardActionList } from "@/pages/BoardPage/components/card/action/BoardCardActionList";
 import BoardCardActionAttachFile from "@/pages/BoardPage/components/card/action/file/BoardCardActionAttachFile";
 import BoardCardActionRelationship from "@/pages/BoardPage/components/card/action/relationship/BoardCardActionRelationship";
 import BoardCardChecklistGroup, { SkeletonBoardCardChecklistGroup } from "@/pages/BoardPage/components/card/checklist/BoardCardChecklistGroup";
+import { useBoardCardUnsavedActions } from "@/pages/BoardPage/components/card/BoardCardUnsavedProvider";
 import BoardCardColumnName, { SkeletonBoardCardColumnName } from "@/pages/BoardPage/components/card/BoardCardColumnName";
 import BoardCardDeadline, { SkeletonBoardCardDeadline } from "@/pages/BoardPage/components/card/BoardCardDeadline";
 import BoardCardDescription, { SkeletonBoardCardDescription } from "@/pages/BoardPage/components/card/BoardCardDescription";
@@ -22,7 +23,7 @@ import BoardCardAttachmentList, { SkeletonBoardCardAttachmentList } from "@/page
 import BoardCardTitle, { SkeletonBoardCardTitle } from "@/pages/BoardPage/components/card/BoardCardTitle";
 import BoardCommentForm from "@/pages/BoardPage/components/card/comment/BoardCommentForm";
 import BoardCommentList, { SkeletonBoardCommentList } from "@/pages/BoardPage/components/card/comment/BoardCommentList";
-import { forwardRef, memo, useEffect, useRef } from "react";
+import { forwardRef, memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BoardCardMemberList from "@/pages/BoardPage/components/card/BoardCardMemberList";
 import { SkeletonUserAvatarList } from "@/components/UserAvatarList";
@@ -165,7 +166,7 @@ export function SkeletonBoardCard(): React.JSX.Element {
                 </Flex>
             </Box>
             <Flex justify="center" className="pointer-events-none z-[110] shrink-0">
-                <Box className="pointer-events-auto rounded-full border bg-background px-3 py-2 shadow-lg">
+                <Box className="pointer-events-auto mb-3 rounded-full border bg-background px-3 py-2 shadow-lg sm:mb-4">
                     <Flex gap="2">
                         <Skeleton className="h-9 w-28 rounded-full" />
                         <Skeleton className="h-9 w-28 rounded-full" />
@@ -177,7 +178,8 @@ export function SkeletonBoardCard(): React.JSX.Element {
 }
 
 function BoardCardResult(): React.JSX.Element {
-    const { card, isActionPanelOpen } = useBoardCard();
+    const { card } = useBoardCard();
+    const { isActionPanelOpen } = useBoardCardPanel();
     const attachments = ProjectCardAttachment.Model.useModels((model) => model.card_uid === card.uid);
     const checklists = ProjectChecklist.Model.useModels((model) => model.card_uid === card.uid);
     const hasRunningBot = useHasRunningBot({ type: "card", targetUID: card.uid });
@@ -209,7 +211,7 @@ function BoardCardResult(): React.JSX.Element {
                             <Dialog.CloseButton className="absolute right-0" />
                         </Dialog.Header>
                         <Flex gap="3" direction={{ initial: "col-reverse", sm: "row" }} className="min-h-0 flex-1">
-                            <ScrollArea.Root className="min-h-0 flex-1" viewportRef={contentViewportRef}>
+                            <Box ref={contentViewportRef} className="min-h-0 flex-1 overflow-y-auto">
                                 <Flex direction="col" gap="4" className="min-w-0 pb-6 pr-1">
                                     <Flex direction={{ initial: "col", sm: "row" }} gap="4">
                                         <BoardCardSection title="card.Members" className="sm:w-1/2" contentClassName="flex gap-1">
@@ -239,7 +241,7 @@ function BoardCardResult(): React.JSX.Element {
                                     </Box>
                                     <BoardCardMobileComments scrollableRef={contentViewportRef} />
                                 </Flex>
-                            </ScrollArea.Root>
+                            </Box>
                             <BoardCardCommentPanel />
                             <Box w="full" maxW={{ sm: "40" }} className={cn("hidden shrink-0 sm:block", !isActionPanelOpen && "sm:hidden")}>
                                 <BoardCardSection title="card.Actions" titleClassName="mb-2">
@@ -259,7 +261,8 @@ function BoardCardResult(): React.JSX.Element {
 }
 
 function BoardCardMobileComments({ scrollableRef }: { scrollableRef?: React.RefObject<HTMLDivElement | null> }): React.JSX.Element | null {
-    const { card, isCommentPanelOpen, commentLayoutMode } = useBoardCard();
+    const { card } = useBoardCard();
+    const { isCommentPanelOpen, commentLayoutMode } = useBoardCardPanel();
 
     if (!isCommentPanelOpen || commentLayoutMode !== "mobile") {
         return null;
@@ -275,7 +278,8 @@ function BoardCardMobileComments({ scrollableRef }: { scrollableRef?: React.RefO
 }
 
 function BoardCardCommentPanel(): React.JSX.Element {
-    const { card, isCommentPanelOpen, commentLayoutMode } = useBoardCard();
+    const { card } = useBoardCard();
+    const { isCommentPanelOpen, commentLayoutMode } = useBoardCardPanel();
     const commentViewportRef = useRef<HTMLDivElement | null>(null);
     const [t] = useTranslation();
     const isPanelLayout = commentLayoutMode === "panel";
@@ -310,13 +314,70 @@ function BoardCardCommentPanel(): React.JSX.Element {
 }
 
 function BoardCardFloatingNav(): React.JSX.Element {
-    const { isCommentPanelOpen, toggleCommentPanel, isActionPanelOpen, toggleActionPanel, hasRoleAction } = useBoardCard();
+    const { isCommentPanelOpen, toggleCommentPanel, isActionPanelOpen, toggleActionPanel } = useBoardCardPanel();
+    const { hasRoleAction, canEditCard, isCardEditing, enterCardEditMode, leaveCardEditMode } = useBoardCard();
+    const { getHasUnsavedChanges, saveDirtySections, cancelDirtySections } = useBoardCardUnsavedActions();
     const [t] = useTranslation();
-    const canAttachFile = hasRoleAction(ProjectRole.EAction.CardUpdate);
+    const [isSaving, setIsSaving] = useState(false);
+    const canAttachFile = hasRoleAction(ProjectRole.EAction.CardUpdate) && isCardEditing;
+
+    const handleCancelEditing = useCallback(() => {
+        cancelDirtySections();
+        leaveCardEditMode();
+    }, [cancelDirtySections, leaveCardEditMode]);
+
+    const handleSaveEditing = useCallback(async () => {
+        if (isSaving) {
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            if (getHasUnsavedChanges()) {
+                const isSaved = await saveDirtySections();
+                if (!isSaved || getHasUnsavedChanges()) {
+                    Toast.Add.error(t("card.unsavedChanges.Keep editing"));
+                    return;
+                }
+            }
+
+            leaveCardEditMode();
+        } finally {
+            setIsSaving(false);
+        }
+    }, [getHasUnsavedChanges, isSaving, leaveCardEditMode, saveDirtySections]);
 
     return (
-        <Flex justify="center" className="pointer-events-none z-[110]">
+        <Flex justify="center" className="pointer-events-none sticky bottom-3 z-[110] pb-1 sm:bottom-4 sm:pb-2">
             <Flex items="center" gap="1" className={cn("pointer-events-auto rounded-full border bg-background shadow-lg backdrop-blur")}>
+                {canEditCard && (
+                    <>
+                        {!isCardEditing ? (
+                            <Button type="button" variant="ghost" className="h-10 gap-1 rounded-full px-4" onClick={enterCardEditMode}>
+                                <IconComponent icon="pen" size="4" />
+                                {t("common.Edit")}
+                            </Button>
+                        ) : (
+                            <>
+                                <Button type="button" variant="outline" className="h-10 gap-1 rounded-full px-4" onClick={handleCancelEditing}>
+                                    <IconComponent icon="x" size="4" />
+                                    {t("common.Cancel")}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="default"
+                                    disabled={isSaving}
+                                    className="h-10 gap-1 rounded-full px-4"
+                                    onClick={handleSaveEditing}
+                                >
+                                    <IconComponent icon="save" size="4" />
+                                    {t("common.Save")}
+                                </Button>
+                            </>
+                        )}
+                    </>
+                )}
                 {canAttachFile && (
                     <BoardCardActionAttachFile
                         buttonClassName={"h-10 gap-1 rounded-full border-0 bg-transparent px-4 text-sm shadow-none hover:bg-accent"}

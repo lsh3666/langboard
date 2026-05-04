@@ -2,9 +2,9 @@ import Avatar from "@/components/base/Avatar";
 import Box from "@/components/base/Box";
 import Button from "@/components/base/Button";
 import Checkbox from "@/components/base/Checkbox";
+import Collaborative from "@/components/Collaborative";
 import Dialog from "@/components/base/Dialog";
 import Flex from "@/components/base/Flex";
-import Floating from "@/components/base/Floating";
 import IconComponent from "@/components/base/IconComponent";
 import Label from "@/components/base/Label";
 import Select from "@/components/base/Select";
@@ -15,6 +15,7 @@ import useChangeProjectInternalBotSettings from "@/controllers/api/board/setting
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
 import { InternalBotModel, Project } from "@/core/models";
 import { useBoardSettings } from "@/core/providers/BoardSettingsProvider";
+import { EEditorCollaborationType } from "@langboard/core/constants";
 import { Utils } from "@langboard/core/utils";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
@@ -229,15 +230,18 @@ function BoardSettingsInternalBotSettingsPromptDialog({ botType, settings }: IBo
                     <Dialog.Title>{t("project.Edit prompt")}</Dialog.Title>
                 </Dialog.Header>
                 <Box mt="4">
-                    <Floating.LabelTextarea
-                        label={t("project.Prompt")}
+                    <Collaborative.Textarea
+                        collaborationType={EEditorCollaborationType.BoardSettings}
+                        uid={project.uid}
+                        section={`internal-bot-prompt-${botType}`}
+                        field="prompt"
                         defaultValue={settings.prompt}
                         autoFocus
                         resize="none"
                         className="h-36"
                         autoComplete="off"
                         disabled={isValidating}
-                        required
+                        placeholder={t("project.Prompt")}
                         ref={promptInputRef}
                     />
                 </Box>

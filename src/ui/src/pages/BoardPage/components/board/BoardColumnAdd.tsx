@@ -66,14 +66,7 @@ const BoardColumnAdd = memo(() => {
             ) : (
                 <Card.Root className={cn(sharedRootClassNames, "w-80 flex-shrink-0 snap-center")}>
                     <Card.Header className="flex flex-row items-start space-y-0 pb-1 pt-4 text-left font-semibold">
-                        <BoardColumnNameInput
-                            isEditing={true}
-                            canEdit={true}
-                            changeMode={changeMode}
-                            columnName={""}
-                            disabled={isValidating}
-                            inputRef={valueRef}
-                        />
+                        <BoardColumnNameInput isEditing={true} changeMode={changeMode} columnName="" disabled={isValidating} inputRef={valueRef} />
                     </Card.Header>
                     <ScrollArea.Root>
                         <Card.Content className="flex max-h-[calc(100vh_-_theme(spacing.52))] flex-grow flex-col gap-2 p-3">

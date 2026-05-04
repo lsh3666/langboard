@@ -242,7 +242,7 @@ class CardService(BaseDomainService):
 
         validators: TMutableValidatorMap = {
             "title": "not_empty",
-            "deadline_at": "default",
+            "deadline_at": "nullable",
             "description": "default",
         }
         old_record = self.apply_mutates(card, form, validators)

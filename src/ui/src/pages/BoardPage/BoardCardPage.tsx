@@ -78,20 +78,17 @@ const BoardCardPageComponent = () => {
 
     return (
         <>
-            {currentUser && cardUID && (
+            {currentUser && cardUID && !selectCardViewType && (
                 <Dialog.Root open={true} onOpenChange={(isOpen) => !isOpen && handleCloseRequest()}>
                     <Dialog.Content
                         className={cn(
                             "h-[calc(100dvh-theme(spacing.8))] max-h-[calc(100dvh-theme(spacing.8))] max-w-[100vw] overflow-visible",
                             "border-0 bg-transparent p-0 shadow-none",
-                            "sm:h-[calc(100dvh-theme(spacing.12))] sm:max-h-[calc(100dvh-theme(spacing.12))] sm:max-w-[90vw] lg:max-w-[1120px]",
-                            !!selectCardViewType && "hidden"
+                            "sm:h-[calc(100dvh-theme(spacing.12))] sm:max-h-[calc(100dvh-theme(spacing.12))] sm:max-w-[90vw] lg:max-w-[1120px]"
                         )}
                         aria-describedby=""
                         withCloseButton={false}
                         viewportRef={viewportRef}
-                        overlayClassName={selectCardViewType ? "hidden" : ""}
-                        disableOverlayClick={!!selectCardViewType}
                         onOverlayInteract={(event) => {
                             if (getHasUnsavedChanges()) {
                                 requestClose();
@@ -113,9 +110,9 @@ const BoardCardPageComponent = () => {
             <AlertDialog open={isDirtyAlertOpen} onOpenChange={setIsDirtyAlertOpen}>
                 <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t("card.unsavedChanges.Discard description edits?")}</AlertDialogTitle>
+                        <AlertDialogTitle>{t("card.unsavedChanges.Discard card edits?")}</AlertDialogTitle>
                         <AlertDialogDescription className="whitespace-pre-line">
-                            {t("card.unsavedChanges.You have unsaved description changes.\nLeaving now will discard them.")}
+                            {t("card.unsavedChanges.You have unsaved card changes.\nLeaving now will discard them.")}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

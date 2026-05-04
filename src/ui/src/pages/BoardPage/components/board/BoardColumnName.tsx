@@ -1,4 +1,5 @@
 import Input from "@/components/base/Input";
+import Collaborative from "@/components/Collaborative";
 import Toast from "@/components/base/Toast";
 import useChangeProjectColumnName from "@/controllers/api/board/useChangeProjectColumnName";
 import setupApiErrorHandler from "@/core/helpers/setupApiErrorHandler";
@@ -8,6 +9,7 @@ import { ProjectRole } from "@/core/models/roles";
 import { useBoardController } from "@/core/providers/BoardController";
 import { useBoard } from "@/core/providers/BoardProvider";
 import { cn } from "@/core/utils/ComponentUtils";
+import { EEditorCollaborationType } from "@langboard/core/constants";
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -89,12 +91,14 @@ const BoardColumnName = memo(
                 valueRef.current?.focus();
                 valueRef.current?.select();
             });
-        }, [isEditing, valueRef]);
+        }, [isEditing]);
 
         return (
             <BoardColumnNameInput
                 isEditing={isEditing}
                 viewClassName={!isDragging && canEdit ? "cursor-grab" : ""}
+                projectUID={project.uid}
+                columnUID={column.uid}
                 columnName={columnName}
                 disabled={isValidating}
                 isArchive={isArchiveColumn}
@@ -109,6 +113,8 @@ BoardColumnName.displayName = "Board.ColumnName";
 export interface IBoardColumnNameInput {
     isEditing: bool;
     viewClassName?: string;
+    projectUID?: string;
+    columnUID?: string;
     columnName: string;
     isArchive?: bool;
     disabled?: bool;
@@ -117,7 +123,7 @@ export interface IBoardColumnNameInput {
 }
 
 export const BoardColumnNameInput = memo(
-    ({ isEditing, viewClassName, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
+    ({ isEditing, viewClassName, projectUID, columnUID, changeMode, columnName, isArchive, disabled, inputRef }: IBoardColumnNameInput) => {
         const [t] = useTranslation();
         const handleInputClick = useCallback((e: React.MouseEvent) => {
             e.preventDefault();
@@ -143,6 +149,24 @@ export const BoardColumnNameInput = memo(
             <>
                 {!isEditing || isArchive ? (
                     <span className={cn("h-7 truncate", isArchive && "text-secondary-foreground/70", viewClassName)}>{columnName}</span>
+                ) : projectUID && columnUID ? (
+                    <Collaborative.Input
+                        ref={inputRef}
+                        collaborationType={EEditorCollaborationType.BoardColumnName}
+                        uid={projectUID}
+                        section={columnUID}
+                        field="name"
+                        className={cn(
+                            "h-7 rounded-none border-x-0 border-t-0 p-0 pb-1 text-base font-semibold",
+                            "focus-visible:border-b-primary focus-visible:ring-0"
+                        )}
+                        placeholder={t("board.Enter a name")}
+                        disabled={disabled}
+                        defaultValue={columnName}
+                        onClick={handleInputClick}
+                        onBlur={handleInputBlur}
+                        onKeyDown={handleInputKeyDown}
+                    />
                 ) : (
                     <Input
                         ref={inputRef}

@@ -165,7 +165,7 @@ class ProjectWikiService(BaseDomainService):
             if isinstance(user_or_bot, Bot):
                 return None
 
-            project_assigned = self.repo.project_wiki_assigned_user.find_by_user_and_wiki(user_or_bot, wiki)
+            project_assigned = self.repo.project_assigned_user.find_by_user_and_project(user_or_bot, project)
             if not project_assigned:
                 return None
 

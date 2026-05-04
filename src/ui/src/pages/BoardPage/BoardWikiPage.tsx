@@ -4,6 +4,7 @@ import { usePageNavigateRef } from "@/core/hooks/usePageNavigate";
 import { BoardWikiProvider } from "@/core/providers/BoardWikiProvider";
 import { useSocket } from "@/core/providers/SocketProvider";
 import { ROUTES } from "@/core/routing/constants";
+import { BoardWikiUnsavedProvider } from "@/pages/BoardPage/components/wiki/BoardWikiUnsavedProvider";
 import WikiList, { SkeletonWikiList } from "@/pages/BoardPage/components/wiki/WikiList";
 import { IBoardRelatedPageProps } from "@/pages/BoardPage/types";
 import { EHttpStatus, ESocketTopic } from "@langboard/core/enums";
@@ -61,7 +62,9 @@ const BoardWikiPage = memo(({ project, currentUser }: IBoardRelatedPageProps) =>
                 <SkeletonWikiList />
             ) : (
                 <BoardWikiProvider project={project} projectMembers={data.project_members} currentUser={currentUser}>
-                    <WikiList />
+                    <BoardWikiUnsavedProvider>
+                        <WikiList />
+                    </BoardWikiUnsavedProvider>
                 </BoardWikiProvider>
             )}
         </>
